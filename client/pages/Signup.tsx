@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { INDIAN_STATES, INDIAN_FARMER_NAMES } from "../lib/india-data";
+import { motion } from "framer-motion";
 
 export const Signup: React.FC = () => {
   const navigate = useNavigate();
@@ -87,7 +88,13 @@ export const Signup: React.FC = () => {
   const displayError = error || localError;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-emerald-50/80 to-sage-50 py-8 px-4">
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -40 }}
+      transition={{ duration: 0.4, ease: "easeInOut" }}
+      className="min-h-screen bg-gradient-to-br from-emerald-50 via-emerald-50/80 to-sage-50 py-8 px-4"
+    >
       <Card className="w-full max-w-2xl mx-auto p-8">
         <div className="space-y-8">
           {/* Header */}
@@ -277,6 +284,6 @@ export const Signup: React.FC = () => {
           </div>
         </div>
       </Card>
-    </div>
+    </motion.div>
   );
 };
