@@ -224,7 +224,7 @@ class AuthServiceClass {
     return data.user || null;
   }
 
-  getDemo User(): User {
+  getDemoUser(): User {
     return DEMO_USER;
   }
 
