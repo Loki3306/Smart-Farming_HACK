@@ -1,0 +1,292 @@
+🇮🇳 MASTER PROMPT — INDIAN-ORIENTED UI & UX TRANSFORMATION
+ROLE & MINDSET (MANDATORY)
+
+You are a Senior Frontend Architect and Product Designer with deep experience building agri-tech platforms for Indian farmers.
+
+You understand:
+
+Indian agriculture workflows
+
+Indian geography, crops, seasons, and terminology
+
+Government-backed agri-tech expectations
+
+UX suitable for Indian users (clarity > fancy design)
+
+You must retain the existing architecture, logic, and approach
+and only localize, contextualize, and humanize the system for India.
+
+🎯 OBJECTIVE
+
+Transform the entire Smart Irrigation Dashboard so it feels:
+
+Built for Indian farmers
+
+Relevant to Indian agriculture
+
+Familiar in language, units, crops, and geography
+
+⚠️ DO NOT change the core logic, services, or architecture
+⚠️ DO NOT Americanize anything (locations, crops, units, seasons)
+
+🌾 INDIAN CONTEXT REQUIREMENTS (CRUCIAL)
+1️⃣ Geography & Location
+
+Replace all American-based references.
+
+❌ Mendocino Valley, CA
+❌ Acres-only assumptions
+
+✅ Indian villages / districts
+Examples:
+
+Nashik, Maharashtra
+
+Warangal, Telangana
+
+Coimbatore, Tamil Nadu
+
+Ludhiana, Punjab
+
+Use:
+
+Village / Taluka / District / State format
+
+2️⃣ Units & Measurements
+
+All measurements must be Indian-standard:
+
+Land Area:
+
+Acres (primary)
+
+Hectares (secondary)
+
+Temperature:
+
+Celsius (°C)
+
+Rainfall:
+
+Millimeters (mm)
+
+Water:
+
+Liters
+
+Fertilizer:
+
+kg / hectare
+
+3️⃣ Crops (Indian-First)
+
+Replace generic crops with Indian staple crops:
+
+Examples:
+
+Rice (Paddy)
+
+Wheat
+
+Cotton
+
+Sugarcane
+
+Soybean
+
+Tomato
+
+Onion
+
+Groundnut
+
+Maize
+
+Crop selection must align with:
+
+Indian seasons
+
+Irrigation styles
+
+Soil types
+
+4️⃣ Crop Seasons (VERY IMPORTANT)
+
+Replace Western “growing season” ideas with:
+
+Kharif
+
+Rabi
+
+Zaid
+
+These must be used:
+
+In onboarding
+
+In crop logic
+
+In UI labels
+
+5️⃣ Soil & Water Context (India-specific)
+
+Soil types:
+
+Black soil (Regur)
+
+Red soil
+
+Alluvial soil
+
+Sandy soil
+
+Laterite soil
+
+Water sources:
+
+Borewell
+
+Open well
+
+Canal
+
+Tank / Lake
+
+Rain-fed
+
+6️⃣ Farmer Profile Localization
+
+Farmer onboarding must reflect Indian realities:
+
+Name
+
+Mobile number (optional)
+
+State & District
+
+Experience:
+
+New farmer
+
+Experienced farmer
+
+Preferred language:
+
+English
+
+Hindi
+
+(future: Marathi, Telugu, Tamil, etc.)
+
+Avoid corporate wording.
+Use simple, respectful language.
+
+🎨 UI & COPY CHANGES (KEEP DESIGN, CHANGE FEEL)
+Tone
+
+Simple
+
+Respectful
+
+Practical
+
+Trust-building
+
+Examples:
+
+❌ “System Status: Online”
+✅ “System Status: Active”
+
+❌ “Autonomous Mode Enabled”
+✅ “Automatic Mode चालू है” (optional bilingual hint)
+
+❌ “Audit Trail”
+✅ “System Record (Verified)”
+
+🧾 Dashboard Content Localization
+Header
+
+“Smart Irrigation Dashboard”
+→ “Smart Krushi Dashboard” / “Smart Irrigation System”
+
+Footer
+
+Mention:
+
+“Designed for Indian farming conditions”
+
+“Supports water-efficient agriculture”
+
+🔐 Blockchain Explanation (India-relevant)
+
+Explain blockchain not as crypto, but as:
+
+“Tamper-proof digital record for farming actions, useful for audits, trust, and future government or buyer verification.”
+
+Avoid crypto jargon.
+
+🧪 DEMO DATA (IMPORTANT)
+
+All mock data must be Indian-looking:
+
+Names: Ravi Patil, Suresh Yadav, Anil Reddy
+
+Farms: “Patil Farm – Nashik”
+
+Crops: Cotton / Soybean
+
+Seasons: Kharif
+
+Weather: 32°C, Monsoon rain probability
+
+⚙️ WHAT MUST NOT CHANGE
+
+❌ Service Layer Pattern
+❌ Context API usage
+❌ Mock → Real API switch
+❌ Auth architecture
+❌ Component structure
+
+Only:
+✅ Labels
+✅ Data values
+✅ Copy
+✅ Defaults
+✅ UI tone
+
+🧪 VALIDATION REQUIREMENT
+
+Before finalizing:
+
+Review UI like an Indian farmer would
+
+Remove all American assumptions
+
+Ensure all units & seasons are Indian
+
+Ensure language is simple and respectful
+
+If unsure:
+👉 Ask before implementing
+
+🎯 FINAL EXPECTATION
+
+At the end, the dashboard should feel like:
+
+“This system was built for Indian farmers, not adapted later.”
+
+Judges should subconsciously think:
+
+“This actually understands Indian agriculture.”
+
+If you want next:
+
+I can rewrite all UI copy in Indian tone
+
+Or create a bilingual (English + Hindi) version
+
+Or align this with Indian government agri schemes
+
+Just tell me 👍
+
+ChatGPT can make mistakes. Check important info. See
