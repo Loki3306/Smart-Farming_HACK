@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useCallback } from "react";
 import { SensorData, SystemStatus, SensorService } from "../services/SensorService";
 import { WeatherData, WeatherService } from "../services/WeatherService";
 import { BlockchainRecord, BlockchainService } from "../services/BlockchainService";
+import { useAuth } from "./AuthContext";
 
 export interface ActionLogEntry {
   id: string;
