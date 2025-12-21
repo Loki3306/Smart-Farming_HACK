@@ -1,24 +1,35 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronRight, ChevronLeft, Check } from "lucide-react";
+import { ChevronRight, ChevronLeft, Check, MapPin, Loader } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
+import {
+  INDIAN_STATES,
+  INDIAN_FARM_LOCATIONS,
+  INDIAN_CROPS,
+  SOIL_TYPES_INDIA,
+  WATER_SOURCES_INDIA,
+  INDIAN_CROP_SEASONS,
+} from "../lib/india-data";
 
 interface FarmData {
   // Step 1: Farm Basics
   farmName: string;
   farmLocation: string;
+  state: string;
+  latitude?: number;
+  longitude?: number;
   totalArea: string;
   areaUnit: "acres" | "hectares";
-  soilType: "sandy" | "loamy" | "clay" | "mixed";
+  soilType: string;
 
   // Step 2: Crop & Irrigation
   primaryCrop: string;
   cropSeason: "kharif" | "rabi" | "zaid";
   sowingDate: string;
   irrigationType: "drip" | "sprinkler" | "flood";
-  waterSource: "borewell" | "canal" | "rain-fed" | "tank";
+  waterSource: string;
 
   // Step 3: System Preferences
   defaultMode: "autonomous" | "manual";
@@ -29,10 +40,13 @@ interface FarmData {
 const INITIAL_FARM_DATA: FarmData = {
   farmName: "",
   farmLocation: "",
+  state: "Maharashtra",
+  latitude: undefined,
+  longitude: undefined,
   totalArea: "",
   areaUnit: "acres",
-  soilType: "loamy",
-  primaryCrop: "wheat",
+  soilType: "black",
+  primaryCrop: "rice",
   cropSeason: "kharif",
   sowingDate: "",
   irrigationType: "drip",
@@ -48,6 +62,38 @@ export const FarmOnboarding: React.FC = () => {
   const [step, setStep] = useState(1);
   const [farmData, setFarmData] = useState<FarmData>(INITIAL_FARM_DATA);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [gpsLoading, setGpsLoading] = useState(false);
+
+  const handleGetLocation = () => {
+    setGpsLoading(true);
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setFarmData((prev) => ({
+            ...prev,
+            latitude,
+            longitude,
+          }));
+          setGpsLoading(false);
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+          setErrors((prev) => ({
+            ...prev,
+            gpsError: "Unable to access your location. Please check permissions.",
+          }));
+          setGpsLoading(false);
+        },
+      );
+    } else {
+      setErrors((prev) => ({
+        ...prev,
+        gpsError: "Geolocation is not supported by your browser.",
+      }));
+      setGpsLoading(false);
+    }
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -198,21 +244,64 @@ export const FarmOnboarding: React.FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    Farm Location (Village/City, State) *
+                    Farm Location (Village/City) *
                   </label>
-                  <input
-                    type="text"
-                    name="farmLocation"
-                    value={farmData.farmLocation}
-                    onChange={handleChange}
-                    placeholder="e.g., Mendocino Valley, CA"
-                    className="w-full px-4 py-2 rounded-lg border border-border bg-white text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      name="farmLocation"
+                      value={farmData.farmLocation}
+                      onChange={handleChange}
+                      placeholder={INDIAN_FARM_LOCATIONS[Math.floor(Math.random() * INDIAN_FARM_LOCATIONS.length)]}
+                      className="flex-1 px-4 py-2 rounded-lg border border-border bg-white text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleGetLocation}
+                      disabled={gpsLoading}
+                      className="px-3"
+                    >
+                      {gpsLoading ? (
+                        <Loader className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <MapPin className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
+                  {farmData.latitude && farmData.longitude && (
+                    <p className="text-xs text-green-600 mt-1">
+                      ✓ Location captured: {farmData.latitude.toFixed(4)}, {farmData.longitude.toFixed(4)}
+                    </p>
+                  )}
                   {errors.farmLocation && (
                     <p className="text-xs text-red-600 mt-1">
                       {errors.farmLocation}
                     </p>
                   )}
+                  {errors.gpsError && (
+                    <p className="text-xs text-orange-600 mt-1">
+                      {errors.gpsError}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    State *
+                  </label>
+                  <select
+                    name="state"
+                    value={farmData.state}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 rounded-lg border border-border bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  >
+                    {INDIAN_STATES.map((state) => (
+                      <option key={state} value={state}>
+                        {state}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -261,10 +350,11 @@ export const FarmOnboarding: React.FC = () => {
                     onChange={handleChange}
                     className="w-full px-4 py-2 rounded-lg border border-border bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                   >
-                    <option value="sandy">Sandy</option>
-                    <option value="loamy">Loamy</option>
-                    <option value="clay">Clay</option>
-                    <option value="mixed">Mixed</option>
+                    {SOIL_TYPES_INDIA.map((soil) => (
+                      <option key={soil.value} value={soil.value}>
+                        {soil.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -288,12 +378,11 @@ export const FarmOnboarding: React.FC = () => {
                       onChange={handleChange}
                       className="w-full px-4 py-2 rounded-lg border border-border bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     >
-                      <option value="wheat">Wheat</option>
-                      <option value="rice">Rice</option>
-                      <option value="corn">Corn</option>
-                      <option value="cotton">Cotton</option>
-                      <option value="sugarcane">Sugarcane</option>
-                      <option value="other">Other</option>
+                      {INDIAN_CROPS.map((crop) => (
+                        <option key={crop.value} value={crop.value}>
+                          {crop.label}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
@@ -307,9 +396,11 @@ export const FarmOnboarding: React.FC = () => {
                       onChange={handleChange}
                       className="w-full px-4 py-2 rounded-lg border border-border bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     >
-                      <option value="kharif">Kharif (Monsoon)</option>
-                      <option value="rabi">Rabi (Winter)</option>
-                      <option value="zaid">Zaid (Summer)</option>
+                      {INDIAN_CROP_SEASONS.map((season) => (
+                        <option key={season.value} value={season.value}>
+                          {season.label}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
@@ -358,10 +449,11 @@ export const FarmOnboarding: React.FC = () => {
                     onChange={handleChange}
                     className="w-full px-4 py-2 rounded-lg border border-border bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                   >
-                    <option value="borewell">Borewell</option>
-                    <option value="canal">Canal</option>
-                    <option value="rain-fed">Rain-fed</option>
-                    <option value="tank">Tank</option>
+                    {WATER_SOURCES_INDIA.map((source) => (
+                      <option key={source.value} value={source.value}>
+                        {source.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>

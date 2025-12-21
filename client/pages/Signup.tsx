@@ -4,6 +4,7 @@ import { AlertCircle } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
+import { INDIAN_STATES, INDIAN_FARMER_NAMES } from "../lib/india-data";
 
 export const Signup: React.FC = () => {
   const navigate = useNavigate();
@@ -15,8 +16,8 @@ export const Signup: React.FC = () => {
     password: "",
     confirmPassword: "",
     phoneNumber: "",
-    country: "United States",
-    state: "California",
+    country: "India",
+    state: "Maharashtra",
     experienceLevel: "beginner" as const,
   });
 
@@ -119,7 +120,7 @@ export const Signup: React.FC = () => {
                 name="fullName"
                 value={formData.fullName}
                 onChange={handleChange}
-                placeholder="John Farmer"
+                placeholder={INDIAN_FARMER_NAMES[Math.floor(Math.random() * INDIAN_FARMER_NAMES.length)]}
                 className="w-full px-4 py-2 rounded-lg border border-border bg-white text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 disabled={isLoading}
               />
@@ -185,7 +186,7 @@ export const Signup: React.FC = () => {
                   name="phoneNumber"
                   value={formData.phoneNumber}
                   onChange={handleChange}
-                  placeholder="+1 (555) 000-0000"
+                  placeholder="+91 98765 43210"
                   className="w-full px-4 py-2 rounded-lg border border-border bg-white text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                   disabled={isLoading}
                 />
@@ -202,8 +203,8 @@ export const Signup: React.FC = () => {
                   className="w-full px-4 py-2 rounded-lg border border-border bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                   disabled={isLoading}
                 >
-                  <option>United States</option>
                   <option>India</option>
+                  <option>United States</option>
                   <option>Australia</option>
                   <option>Canada</option>
                   <option>Brazil</option>
@@ -218,15 +219,19 @@ export const Signup: React.FC = () => {
                 <label className="block text-sm font-medium text-foreground mb-2">
                   State/Province *
                 </label>
-                <input
-                  type="text"
+                <select
                   name="state"
                   value={formData.state}
                   onChange={handleChange}
-                  placeholder="California"
-                  className="w-full px-4 py-2 rounded-lg border border-border bg-white text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 py-2 rounded-lg border border-border bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                   disabled={isLoading}
-                />
+                >
+                  {INDIAN_STATES.map((state) => (
+                    <option key={state} value={state}>
+                      {state}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>
