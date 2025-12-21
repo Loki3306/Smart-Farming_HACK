@@ -7,7 +7,7 @@ import { useFarmContext } from "../../context/FarmContext";
 export const ControlCenter: React.FC = () => {
   const { systemStatus, setAutonomous, triggerWaterPump, triggerFertilizer, loading } = useFarmContext();
   const [pumpLoading, setPumpLoading] = useState(false);
-  const [ferti loaderLoading, setFertilizerLoading] = useState(false);
+  const [fertilizerLoading, setFertilizerLoading] = useState(false);
 
   const handleWaterPump = async () => {
     setPumpLoading(true);
