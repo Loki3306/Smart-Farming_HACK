@@ -115,7 +115,7 @@ class AuthServiceClass {
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(payload),
-      }
+      },
     );
 
     if (!response.ok) {
@@ -155,7 +155,7 @@ class AuthServiceClass {
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(payload),
-      }
+      },
     );
 
     if (!response.ok) {
@@ -179,7 +179,7 @@ class AuthServiceClass {
       {
         method: "POST",
         credentials: "include",
-      }
+      },
     );
 
     if (!response.ok) {
@@ -213,7 +213,7 @@ class AuthServiceClass {
       `${CONFIG.API_BASE_URL}${CONFIG.AUTH_ENDPOINTS.GET_CURRENT_USER}`,
       {
         credentials: "include",
-      }
+      },
     );
 
     if (!response.ok) {
@@ -255,7 +255,7 @@ class AuthServiceClass {
 
   private simulateDelay(): Promise<void> {
     return new Promise((resolve) =>
-      setTimeout(resolve, CONFIG.SIMULATION_DELAY)
+      setTimeout(resolve, CONFIG.SIMULATION_DELAY),
     );
   }
 }

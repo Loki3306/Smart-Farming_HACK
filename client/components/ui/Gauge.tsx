@@ -57,12 +57,15 @@ export const Gauge: React.FC<GaugeProps> = ({
         className={`${sizeStyles[size].container} relative rounded-full bg-gradient-to-br from-muted to-muted/50 p-2 border border-border`}
       >
         {/* Background circle */}
-        <svg
-          className="absolute inset-0 w-full h-full"
-          viewBox="0 0 200 200"
-        >
+        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 200 200">
           <defs>
-            <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient
+              id="gaugeGradient"
+              x1="0%"
+              y1="0%"
+              x2="100%"
+              y2="100%"
+            >
               <stop offset="0%" stopColor="rgba(46, 125, 50, 0.2)" />
               <stop offset="100%" stopColor="rgba(76, 175, 80, 0.1)" />
             </linearGradient>
@@ -128,7 +131,9 @@ export const Gauge: React.FC<GaugeProps> = ({
 
       {/* Label and min/max */}
       <div className="text-center">
-        <div className={`${sizeStyles[size].label} font-semibold text-foreground`}>
+        <div
+          className={`${sizeStyles[size].label} font-semibold text-foreground`}
+        >
           {label}
         </div>
         <div className="text-xs text-muted-foreground mt-1">

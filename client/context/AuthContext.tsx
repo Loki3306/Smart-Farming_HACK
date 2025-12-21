@@ -5,7 +5,12 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
-import { User, SignupPayload, LoginPayload, AuthService } from "../services/AuthService";
+import {
+  User,
+  SignupPayload,
+  LoginPayload,
+  AuthService,
+} from "../services/AuthService";
 
 interface AuthContextType {
   user: User | null;
@@ -141,9 +146,7 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
     markOnboardingComplete,
   };
 
-  return (
-    <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = (): AuthContextType => {

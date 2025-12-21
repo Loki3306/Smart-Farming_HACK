@@ -47,9 +47,7 @@ export const Login: React.FC = () => {
             <h1 className="text-3xl font-bold text-foreground">
               Smart Irrigation
             </h1>
-            <p className="text-muted-foreground mt-2">
-              Sign in to your farm
-            </p>
+            <p className="text-muted-foreground mt-2">Sign in to your farm</p>
           </div>
 
           {/* Error Alert */}
@@ -127,7 +125,9 @@ export const Login: React.FC = () => {
 
           {/* Signup Link */}
           <div className="text-center text-sm">
-            <span className="text-muted-foreground">Don't have an account? </span>
+            <span className="text-muted-foreground">
+              Don't have an account?{" "}
+            </span>
             <Link
               to="/signup"
               className="text-primary font-medium hover:underline"

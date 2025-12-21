@@ -50,7 +50,7 @@ export const FarmOnboarding: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setFarmData((prev) => ({
@@ -69,9 +69,12 @@ export const FarmOnboarding: React.FC = () => {
   const validateStep1 = (): boolean => {
     const newErrors: Record<string, string> = {};
     if (!farmData.farmName.trim()) newErrors.farmName = "Farm name is required";
-    if (!farmData.farmLocation.trim()) newErrors.farmLocation = "Location is required";
-    if (!farmData.totalArea.trim()) newErrors.totalArea = "Total area is required";
-    if (isNaN(Number(farmData.totalArea))) newErrors.totalArea = "Must be a valid number";
+    if (!farmData.farmLocation.trim())
+      newErrors.farmLocation = "Location is required";
+    if (!farmData.totalArea.trim())
+      newErrors.totalArea = "Total area is required";
+    if (isNaN(Number(farmData.totalArea)))
+      newErrors.totalArea = "Must be a valid number";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -135,7 +138,9 @@ export const FarmOnboarding: React.FC = () => {
               <span className="font-medium text-foreground">
                 Step {step} of 4
               </span>
-              <span className="text-muted-foreground">{progressPercentage.toFixed(0)}%</span>
+              <span className="text-muted-foreground">
+                {progressPercentage.toFixed(0)}%
+              </span>
             </div>
             <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
               <div
@@ -154,8 +159,8 @@ export const FarmOnboarding: React.FC = () => {
                   s < step
                     ? "bg-primary text-primary-foreground"
                     : s === step
-                    ? "bg-primary text-primary-foreground border-2 border-primary/50"
-                    : "bg-muted text-muted-foreground"
+                      ? "bg-primary text-primary-foreground border-2 border-primary/50"
+                      : "bg-muted text-muted-foreground"
                 }`}
               >
                 {s < step ? <Check className="w-5 h-5" /> : s}
@@ -185,7 +190,9 @@ export const FarmOnboarding: React.FC = () => {
                     className="w-full px-4 py-2 rounded-lg border border-border bg-white text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                   {errors.farmName && (
-                    <p className="text-xs text-red-600 mt-1">{errors.farmName}</p>
+                    <p className="text-xs text-red-600 mt-1">
+                      {errors.farmName}
+                    </p>
                   )}
                 </div>
 
@@ -202,7 +209,9 @@ export const FarmOnboarding: React.FC = () => {
                     className="w-full px-4 py-2 rounded-lg border border-border bg-white text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                   {errors.farmLocation && (
-                    <p className="text-xs text-red-600 mt-1">{errors.farmLocation}</p>
+                    <p className="text-xs text-red-600 mt-1">
+                      {errors.farmLocation}
+                    </p>
                   )}
                 </div>
 
@@ -220,7 +229,9 @@ export const FarmOnboarding: React.FC = () => {
                       className="w-full px-4 py-2 rounded-lg border border-border bg-white text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                     {errors.totalArea && (
-                      <p className="text-xs text-red-600 mt-1">{errors.totalArea}</p>
+                      <p className="text-xs text-red-600 mt-1">
+                        {errors.totalArea}
+                      </p>
                     )}
                   </div>
 
@@ -315,7 +326,9 @@ export const FarmOnboarding: React.FC = () => {
                     className="w-full px-4 py-2 rounded-lg border border-border bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                   {errors.sowingDate && (
-                    <p className="text-xs text-red-600 mt-1">{errors.sowingDate}</p>
+                    <p className="text-xs text-red-600 mt-1">
+                      {errors.sowingDate}
+                    </p>
                   )}
                 </div>
 
@@ -393,7 +406,9 @@ export const FarmOnboarding: React.FC = () => {
                         onChange={handleChange}
                       />
                       <div>
-                        <div className="font-medium text-foreground">Manual</div>
+                        <div className="font-medium text-foreground">
+                          Manual
+                        </div>
                         <div className="text-xs text-muted-foreground">
                           You control all operations
                         </div>
@@ -429,12 +444,16 @@ export const FarmOnboarding: React.FC = () => {
                 <div className="grid grid-cols-2 gap-6 bg-muted/30 rounded-lg p-6">
                   <div>
                     <p className="text-xs text-muted-foreground">Farm Name</p>
-                    <p className="font-semibold text-foreground">{farmData.farmName}</p>
+                    <p className="font-semibold text-foreground">
+                      {farmData.farmName}
+                    </p>
                   </div>
 
                   <div>
                     <p className="text-xs text-muted-foreground">Location</p>
-                    <p className="font-semibold text-foreground">{farmData.farmLocation}</p>
+                    <p className="font-semibold text-foreground">
+                      {farmData.farmLocation}
+                    </p>
                   </div>
 
                   <div>
@@ -452,28 +471,36 @@ export const FarmOnboarding: React.FC = () => {
                   </div>
 
                   <div>
-                    <p className="text-xs text-muted-foreground">Primary Crop</p>
+                    <p className="text-xs text-muted-foreground">
+                      Primary Crop
+                    </p>
                     <p className="font-semibold text-foreground capitalize">
                       {farmData.primaryCrop}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-xs text-muted-foreground">Irrigation Type</p>
+                    <p className="text-xs text-muted-foreground">
+                      Irrigation Type
+                    </p>
                     <p className="font-semibold text-foreground capitalize">
                       {farmData.irrigationType}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-xs text-muted-foreground">Water Source</p>
+                    <p className="text-xs text-muted-foreground">
+                      Water Source
+                    </p>
                     <p className="font-semibold text-foreground capitalize">
                       {farmData.waterSource.replace("-", " ")}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-xs text-muted-foreground">Default Mode</p>
+                    <p className="text-xs text-muted-foreground">
+                      Default Mode
+                    </p>
                     <p className="font-semibold text-foreground capitalize">
                       {farmData.defaultMode}
                     </p>
@@ -482,8 +509,8 @@ export const FarmOnboarding: React.FC = () => {
 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <p className="text-sm text-blue-900">
-                    ✓ Review the information above. You can edit any details later
-                    in your farm settings.
+                    ✓ Review the information above. You can edit any details
+                    later in your farm settings.
                   </p>
                 </div>
               </div>

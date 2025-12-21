@@ -5,7 +5,13 @@ import { Button } from "../ui/Button";
 import { useFarmContext } from "../../context/FarmContext";
 
 export const ControlCenter: React.FC = () => {
-  const { systemStatus, setAutonomous, triggerWaterPump, triggerFertilizer, loading } = useFarmContext();
+  const {
+    systemStatus,
+    setAutonomous,
+    triggerWaterPump,
+    triggerFertilizer,
+    loading,
+  } = useFarmContext();
   const [pumpLoading, setPumpLoading] = useState(false);
   const [fertilizerLoading, setFertilizerLoading] = useState(false);
 
@@ -34,7 +40,9 @@ export const ControlCenter: React.FC = () => {
   return (
     <Card glass className="p-6">
       <div className="space-y-6">
-        <h3 className="text-lg font-semibold text-foreground">Control Center</h3>
+        <h3 className="text-lg font-semibold text-foreground">
+          Control Center
+        </h3>
 
         {/* Autonomous Badge */}
         <div className="flex items-center justify-between p-4 bg-white/20 rounded-lg backdrop-blur-sm border border-white/10">
@@ -55,9 +63,7 @@ export const ControlCenter: React.FC = () => {
             onClick={handleAutonomousToggle}
             disabled={loading}
             className={`relative inline-flex items-center h-8 w-14 rounded-full transition-colors ${
-              systemStatus?.isAutonomous
-                ? "bg-primary"
-                : "bg-muted"
+              systemStatus?.isAutonomous ? "bg-primary" : "bg-muted"
             } ${loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
           >
             <span
@@ -108,7 +114,9 @@ export const ControlCenter: React.FC = () => {
             <div className="flex items-center gap-2">
               <div
                 className={`w-2 h-2 rounded-full ${
-                  systemStatus?.isOnline ? "bg-green-500 animate-pulse" : "bg-red-500"
+                  systemStatus?.isOnline
+                    ? "bg-green-500 animate-pulse"
+                    : "bg-red-500"
                 }`}
               />
               <span className="text-sm font-medium text-foreground">
@@ -117,7 +125,8 @@ export const ControlCenter: React.FC = () => {
             </div>
           </div>
           <div className="text-xs text-muted-foreground">
-            Last updated: {systemStatus?.lastUpdate
+            Last updated:{" "}
+            {systemStatus?.lastUpdate
               ? new Date(systemStatus.lastUpdate).toLocaleTimeString()
               : "—"}
           </div>

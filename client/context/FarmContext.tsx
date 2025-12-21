@@ -1,7 +1,14 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
-import { SensorData, SystemStatus, SensorService } from "../services/SensorService";
+import {
+  SensorData,
+  SystemStatus,
+  SensorService,
+} from "../services/SensorService";
 import { WeatherData, WeatherService } from "../services/WeatherService";
-import { BlockchainRecord, BlockchainService } from "../services/BlockchainService";
+import {
+  BlockchainRecord,
+  BlockchainService,
+} from "../services/BlockchainService";
 import { useAuth } from "./AuthContext";
 
 export interface ActionLogEntry {
@@ -53,9 +60,9 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
   const [sensorData, setSensorData] = useState<SensorData | null>(null);
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
-  const [blockchainRecords, setBlockchainRecords] = useState<BlockchainRecord[]>(
-    []
-  );
+  const [blockchainRecords, setBlockchainRecords] = useState<
+    BlockchainRecord[]
+  >([]);
   const [actionLog, setActionLog] = useState<ActionLogEntry[]>([
     {
       id: "log_001",
@@ -93,7 +100,9 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
       setSensorData(sensor);
       setSystemStatus(status);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load sensor data");
+      setError(
+        err instanceof Error ? err.message : "Failed to load sensor data",
+      );
     } finally {
       setLoading(false);
     }
@@ -104,7 +113,9 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
       const weather = await WeatherService.getCurrentWeather();
       setWeatherData(weather);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load weather data");
+      setError(
+        err instanceof Error ? err.message : "Failed to load weather data",
+      );
     }
   }, []);
 
@@ -114,7 +125,9 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
       setBlockchainRecords(records);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to load blockchain records"
+        err instanceof Error
+          ? err.message
+          : "Failed to load blockchain records",
       );
     }
   }, []);
@@ -124,7 +137,7 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
       setLoading(true);
       await SensorService.setAutonomous(enabled);
       setSystemStatus((prev) =>
-        prev ? { ...prev, isAutonomous: enabled } : null
+        prev ? { ...prev, isAutonomous: enabled } : null,
       );
       addActionLog({
         id: `log_${Date.now()}`,
@@ -169,13 +182,14 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
           id: `log_${Date.now()}`,
           timestamp: new Date(),
           action: "Fertilizer",
-          description: "Manual fertilization triggered – 2kg NPK blend dispensed",
+          description:
+            "Manual fertilization triggered – 2kg NPK blend dispensed",
           type: "fertilization",
         });
       }
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to trigger fertilizer"
+        err instanceof Error ? err.message : "Failed to trigger fertilizer",
       );
     } finally {
       setLoading(false);
@@ -203,9 +217,7 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
     addActionLog,
   };
 
-  return (
-    <FarmContext.Provider value={value}>{children}</FarmContext.Provider>
-  );
+  return <FarmContext.Provider value={value}>{children}</FarmContext.Provider>;
 };
 
 export const useFarmContext = (): FarmContextType => {

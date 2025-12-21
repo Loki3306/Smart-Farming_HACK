@@ -53,12 +53,15 @@ class SensorServiceClass {
         ...this.sensorData,
         soilMoisture: Math.max(
           30,
-          Math.min(90, this.sensorData.soilMoisture + (Math.random() - 0.5) * 5)
+          Math.min(
+            90,
+            this.sensorData.soilMoisture + (Math.random() - 0.5) * 5,
+          ),
         ),
         temperature: this.sensorData.temperature + (Math.random() - 0.5) * 0.5,
         humidity: Math.max(
           40,
-          Math.min(85, this.sensorData.humidity + (Math.random() - 0.5) * 3)
+          Math.min(85, this.sensorData.humidity + (Math.random() - 0.5) * 3),
         ),
         timestamp: new Date(),
       };
@@ -119,7 +122,7 @@ class SensorServiceClass {
 
   private simulateDelay(): Promise<void> {
     return new Promise((resolve) =>
-      setTimeout(resolve, CONFIG.SIMULATION_DELAY)
+      setTimeout(resolve, CONFIG.SIMULATION_DELAY),
     );
   }
 }

@@ -139,7 +139,9 @@ export const AuditTrail: React.FC = () => {
                 {blockchainRecords.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-6 py-12 text-center">
-                      <p className="text-muted-foreground">No audit records yet</p>
+                      <p className="text-muted-foreground">
+                        No audit records yet
+                      </p>
                     </td>
                   </tr>
                 ) : (
@@ -158,7 +160,7 @@ export const AuditTrail: React.FC = () => {
                           </span>
                           <span
                             className={`px-2.5 py-1 rounded-full text-xs font-semibold ${getActionTypeColor(
-                              record.actionType
+                              record.actionType,
                             )}`}
                           >
                             {formatActionType(record.actionType)}
@@ -166,7 +168,10 @@ export const AuditTrail: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-sm text-foreground">
-                        <div className="max-w-xs truncate" title={record.details}>
+                        <div
+                          className="max-w-xs truncate"
+                          title={record.details}
+                        >
                           {record.details}
                         </div>
                       </td>
@@ -174,7 +179,11 @@ export const AuditTrail: React.FC = () => {
                         {record.quantity ? (
                           <>
                             {record.quantity}
-                            {record.unit && <span className="text-xs text-muted-foreground ml-1">{record.unit}</span>}
+                            {record.unit && (
+                              <span className="text-xs text-muted-foreground ml-1">
+                                {record.unit}
+                              </span>
+                            )}
                           </>
                         ) : (
                           <span className="text-muted-foreground">—</span>
@@ -187,10 +196,7 @@ export const AuditTrail: React.FC = () => {
                           </code>
                           <button
                             onClick={() =>
-                              copyToClipboard(
-                                record.transactionHash,
-                                record.id
-                              )
+                              copyToClipboard(record.transactionHash, record.id)
                             }
                             className="p-1 hover:bg-white/20 rounded transition-colors"
                             title="Copy hash"
@@ -231,9 +237,10 @@ export const AuditTrail: React.FC = () => {
                 Blockchain Verification
               </h3>
               <p className="text-blue-800 text-sm">
-                All records are cryptographically verified and stored on an immutable
-                ledger. Each action is timestamped and linked to the previous record,
-                creating an unbreakable chain of custody for your farming operations.
+                All records are cryptographically verified and stored on an
+                immutable ledger. Each action is timestamped and linked to the
+                previous record, creating an unbreakable chain of custody for
+                your farming operations.
               </p>
             </div>
           </div>

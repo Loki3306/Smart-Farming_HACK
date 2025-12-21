@@ -44,9 +44,7 @@ export const ActionLog: React.FC = () => {
                 key={entry.id}
                 className="flex items-start gap-3 p-3 bg-white/20 rounded-lg backdrop-blur-sm border border-white/10 hover:bg-white/30 transition-colors"
               >
-                <div className="flex-shrink-0 mt-1">
-                  {getIcon(entry.type)}
-                </div>
+                <div className="flex-shrink-0 mt-1">{getIcon(entry.type)}</div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1">
@@ -59,7 +57,7 @@ export const ActionLog: React.FC = () => {
                     </div>
                     <span
                       className={`text-xs font-semibold px-2 py-1 rounded-full flex-shrink-0 ${getTypeBadgeColor(
-                        entry.type
+                        entry.type,
                       )}`}
                     >
                       {entry.type.charAt(0).toUpperCase() +

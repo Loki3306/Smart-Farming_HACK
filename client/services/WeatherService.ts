@@ -64,13 +64,15 @@ class WeatherServiceClass {
         ...mockWeatherData,
         humidity: Math.max(
           40,
-          Math.min(85, mockWeatherData.humidity + (Math.random() - 0.5) * 4)
+          Math.min(85, mockWeatherData.humidity + (Math.random() - 0.5) * 4),
         ),
-        temperature:
-          mockWeatherData.temperature + (Math.random() - 0.5) * 1.5,
+        temperature: mockWeatherData.temperature + (Math.random() - 0.5) * 1.5,
         rainProbability: Math.max(
           0,
-          Math.min(100, mockWeatherData.rainProbability + (Math.random() - 0.5) * 10)
+          Math.min(
+            100,
+            mockWeatherData.rainProbability + (Math.random() - 0.5) * 10,
+          ),
         ),
         timestamp: new Date(),
       };
@@ -105,7 +107,7 @@ class WeatherServiceClass {
       return data;
     }
     const response = await fetch(
-      `${CONFIG.API_BASE_URL}/weather/historical?days=${days}`
+      `${CONFIG.API_BASE_URL}/weather/historical?days=${days}`,
     );
     if (!response.ok) throw new Error("Failed to fetch historical weather");
     return response.json();
@@ -113,7 +115,7 @@ class WeatherServiceClass {
 
   private simulateDelay(): Promise<void> {
     return new Promise((resolve) =>
-      setTimeout(resolve, CONFIG.SIMULATION_DELAY)
+      setTimeout(resolve, CONFIG.SIMULATION_DELAY),
     );
   }
 }

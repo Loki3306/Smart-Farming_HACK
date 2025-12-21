@@ -80,7 +80,9 @@ class BlockchainServiceClass {
       await this.simulateDelay();
       return mockRecords;
     }
-    const response = await fetch(`${CONFIG.API_BASE_URL}/blockchain/audit-trail`);
+    const response = await fetch(
+      `${CONFIG.API_BASE_URL}/blockchain/audit-trail`,
+    );
     if (!response.ok) throw new Error("Failed to fetch audit trail");
     return response.json();
   }
@@ -88,12 +90,14 @@ class BlockchainServiceClass {
   async getRecordByHash(transactionHash: string): Promise<BlockchainRecord> {
     if (CONFIG.USE_MOCK_DATA) {
       await this.simulateDelay();
-      const record = mockRecords.find((r) => r.transactionHash === transactionHash);
+      const record = mockRecords.find(
+        (r) => r.transactionHash === transactionHash,
+      );
       if (!record) throw new Error("Record not found");
       return record;
     }
     const response = await fetch(
-      `${CONFIG.API_BASE_URL}/blockchain/record/${transactionHash}`
+      `${CONFIG.API_BASE_URL}/blockchain/record/${transactionHash}`,
     );
     if (!response.ok) throw new Error("Failed to fetch record");
     return response.json();
@@ -103,7 +107,7 @@ class BlockchainServiceClass {
     actionType: BlockchainRecord["actionType"],
     details: string,
     quantity?: number,
-    unit?: string
+    unit?: string,
   ): Promise<BlockchainRecord> {
     if (CONFIG.USE_MOCK_DATA) {
       await this.simulateDelay();
@@ -121,16 +125,19 @@ class BlockchainServiceClass {
       mockRecords.unshift(newRecord);
       return newRecord;
     }
-    const response = await fetch(`${CONFIG.API_BASE_URL}/blockchain/log-action`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        actionType,
-        details,
-        quantity,
-        unit,
-      }),
-    });
+    const response = await fetch(
+      `${CONFIG.API_BASE_URL}/blockchain/log-action`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          actionType,
+          details,
+          quantity,
+          unit,
+        }),
+      },
+    );
     if (!response.ok) throw new Error("Failed to log action");
     return response.json();
   }
@@ -141,7 +148,7 @@ class BlockchainServiceClass {
       return true;
     }
     const response = await fetch(
-      `${CONFIG.API_BASE_URL}/blockchain/verify/${transactionHash}`
+      `${CONFIG.API_BASE_URL}/blockchain/verify/${transactionHash}`,
     );
     if (!response.ok) throw new Error("Failed to verify record");
     const data = await response.json();
@@ -159,7 +166,7 @@ class BlockchainServiceClass {
 
   private simulateDelay(): Promise<void> {
     return new Promise((resolve) =>
-      setTimeout(resolve, CONFIG.SIMULATION_DELAY)
+      setTimeout(resolve, CONFIG.SIMULATION_DELAY),
     );
   }
 }

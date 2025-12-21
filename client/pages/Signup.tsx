@@ -25,7 +25,7 @@ export const Signup: React.FC = () => {
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -260,7 +260,9 @@ export const Signup: React.FC = () => {
 
           {/* Login Link */}
           <div className="text-center text-sm">
-            <span className="text-muted-foreground">Already have an account? </span>
+            <span className="text-muted-foreground">
+              Already have an account?{" "}
+            </span>
             <Link
               to="/login"
               className="text-primary font-medium hover:underline"

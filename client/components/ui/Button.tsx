@@ -26,8 +26,7 @@ export const Button: React.FC<ButtonProps> = ({
       "bg-secondary text-secondary-foreground hover:bg-secondary/80 active:bg-secondary/70",
     outline:
       "border-2 border-primary text-primary hover:bg-primary/10 active:bg-primary/20",
-    ghost:
-      "text-foreground hover:bg-accent/20 active:bg-accent/30",
+    ghost: "text-foreground hover:bg-accent/20 active:bg-accent/30",
   };
 
   const sizes = {
