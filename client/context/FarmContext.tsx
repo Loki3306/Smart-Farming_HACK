@@ -47,6 +47,9 @@ interface FarmContextProviderProps {
 export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
   children,
 }) => {
+  // Get auth context to scope data to authenticated user
+  const { user } = useAuth();
+
   const [sensorData, setSensorData] = useState<SensorData | null>(null);
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
