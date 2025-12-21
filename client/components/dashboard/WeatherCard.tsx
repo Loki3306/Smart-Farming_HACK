@@ -48,7 +48,7 @@ export const WeatherCard: React.FC = () => {
               <span className="text-xs text-muted-foreground">Humidity</span>
             </div>
             <div className="text-2xl font-bold text-foreground">
-              {weatherData?.humidity ?? 0}%
+              {Math.round(weatherData?.humidity ?? 0)}%
             </div>
           </div>
 
@@ -58,7 +58,7 @@ export const WeatherCard: React.FC = () => {
               <span className="text-xs text-muted-foreground">Rain Chance</span>
             </div>
             <div className="text-2xl font-bold text-foreground">
-              {weatherData?.rainProbability ?? 0}%
+              {Math.round(weatherData?.rainProbability ?? 0)}%
             </div>
           </div>
 
