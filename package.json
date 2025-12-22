@@ -21,9 +21,11 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@types/twilio": "^3.19.2",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "ogl": "^1.0.11",
+    "twilio": "^5.11.1",
     "zod": "^3.25.76"
   },
   "devDependencies": {
