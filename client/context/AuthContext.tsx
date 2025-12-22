@@ -49,11 +49,16 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
         setIsLoading(true);
         const currentUser = await AuthService.getCurrentUser();
         if (currentUser) {
+          console.log('[AuthContext] User restored:', currentUser.fullName);
           setUser(currentUser);
           setIsDemoUser(currentUser.isDemoUser || false);
+        } else {
+          console.log('[AuthContext] No user session found');
+          setUser(null);
         }
       } catch (err) {
-        console.error("Failed to initialize auth:", err);
+        console.error("[AuthContext] Failed to initialize auth:", err);
+        setUser(null);
       } finally {
         setIsLoading(false);
       }
@@ -134,8 +139,9 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
       // Persist to localStorage for mock users
       const token = localStorage.getItem('auth_token');
       if (token) {
-        // Store updated user status
+        // Store updated user status AND update the cached user object
         localStorage.setItem('onboarding_completed', 'true');
+        localStorage.setItem('current_user', JSON.stringify(updatedUser));
       }
     }
   }, [user]);

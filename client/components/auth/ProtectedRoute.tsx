@@ -13,7 +13,17 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const { isAuthenticated, user, isLoading, isDemoUser } = useAuth();
 
-  console.log('[ProtectedRoute] isAuthenticated:', isAuthenticated, 'user:', user, 'requireOnboarding:', requireOnboarding);
+  // Debug: Log session status
+  React.useEffect(() => {
+    console.log('=== PROTECTED ROUTE DEBUG ===');
+    console.log('isAuthenticated:', isAuthenticated);
+    console.log('user:', user ? `${user.fullName} (${user.id})` : 'null');
+    console.log('requireOnboarding:', requireOnboarding);
+    console.log('user?.hasCompletedOnboarding:', user?.hasCompletedOnboarding);
+    console.log('localStorage.current_user:', localStorage.getItem('current_user') ? 'EXISTS' : 'MISSING');
+    console.log('localStorage.onboarding_completed:', localStorage.getItem('onboarding_completed'));
+    console.log('=============================');
+  }, [isAuthenticated, user, requireOnboarding]);
 
   // Show loading state
   if (isLoading) {

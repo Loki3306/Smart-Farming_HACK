@@ -134,11 +134,16 @@ class AuthServiceClass {
         isDemoUser: false,
       };
 
-      // Store auth token and user ID in localStorage (for session)
+      // Store auth token and user ID in localStorage (for session persistence)
       const mockToken = this.generateMockToken(user.id);
-      this.setMockCookie("auth_token", mockToken);
+      
+      // CRITICAL: Store all auth data directly in localStorage
+      localStorage.setItem("auth_token", mockToken);
       localStorage.setItem("user_id", user.id);
       localStorage.setItem("current_user", JSON.stringify(user));
+      localStorage.removeItem("onboarding_completed"); // Fresh signup, onboarding not done
+      
+      console.log('[Signup] New user registered:', user.phone, 'Session stored');
 
       return {
         user,
@@ -225,20 +230,25 @@ class AuthServiceClass {
         isDemoUser: false,
       };
 
-      // Store session (clear old cache first)
+      // Store session - CRITICAL: Must use localStorage directly, not setMockCookie
       const mockToken = this.generateMockToken(user.id);
-      this.setMockCookie("auth_token", mockToken);
+      
+      // IMPORTANT: Store all auth data in localStorage for persistence across page reloads
+      localStorage.setItem("auth_token", mockToken);
       localStorage.setItem("user_id", user.id);
       localStorage.setItem("current_user", JSON.stringify(user));
       
-      // Store onboarding status explicitly
+      // Store onboarding status explicitly based on farm data check
       if (hasCompletedOnboarding) {
         localStorage.setItem("onboarding_completed", "true");
-        console.log('[Login] Set onboarding_completed to true');
+        console.log('[Login] Login successful for', userData.phone, '- Onboarding completed: true');
       } else {
         localStorage.removeItem("onboarding_completed");
-        console.log('[Login] Removed onboarding_completed flag');
+        console.log('[Login] Login successful for', userData.phone, '- Onboarding required');
       }
+      
+      console.log('[Login] Session stored. Auth token:', mockToken.substring(0, 20) + '...');
+      console.log('[Login] User object:', JSON.stringify(user));
       
       return {
         user,
@@ -268,10 +278,14 @@ class AuthServiceClass {
   async logout(): Promise<void> {
     if (CONFIG.USE_MOCK_DATA) {
       await this.simulateDelay();
+      console.log('[Logout] Clearing all session data');
+      // Clear all session data
       this.clearMockCookie("auth_token");
+      localStorage.removeItem("auth_token");
       localStorage.removeItem("current_user");
       localStorage.removeItem("user_id");
       localStorage.removeItem("onboarding_completed");
+      console.log('[Logout] All session data cleared');
       return;
     }
 
@@ -293,22 +307,17 @@ class AuthServiceClass {
     if (CONFIG.USE_MOCK_DATA && supabase) {
       await this.simulateDelay();
 
-      // Check for auth token
-      const token = this.getMockCookie("auth_token");
+      // Step 1: Check for cached user first (even if no token - it means browser has localStorage)
+      const cachedUser = localStorage.getItem("current_user");
       const userId = localStorage.getItem("user_id");
       
-      if (!token || !userId) {
-        return null;
-      }
-
-      // Try loading from localStorage cache first (faster)
-      const cachedUser = localStorage.getItem("current_user");
-      if (cachedUser) {
+      if (cachedUser && userId) {
         try {
           const user = JSON.parse(cachedUser) as User;
           
-          // Check onboarding status
+          // Check onboarding status from localStorage
           const onboardingCompleted = localStorage.getItem('onboarding_completed') === 'true';
+          console.log('[Auth] Restored user from cache:', user.fullName, 'Onboarding:', onboardingCompleted);
           
           return {
             ...user,
@@ -316,10 +325,19 @@ class AuthServiceClass {
           };
         } catch (error) {
           console.error('Failed to parse cached user:', error);
+          // Continue to load from Supabase if cache is corrupted
         }
       }
 
-      // If no cache, load from Supabase
+      // Step 2: If no cache, check for auth token
+      const token = this.getMockCookie("auth_token");
+      if (!token || !userId) {
+        console.log('[Auth] No session found (token or userId missing)');
+        return null;
+      }
+
+      // Step 3: Load from Supabase if cache miss
+      console.log('[Auth] Cache miss, loading from Supabase for userId:', userId);
       const { data: userData, error } = await supabase
         .from('farmers')
         .select('*')
@@ -331,22 +349,37 @@ class AuthServiceClass {
         return null;
       }
 
+      // Check if user has completed onboarding (has farm data)
+      const { data: farmData } = await supabase
+        .from('farms')
+        .select('id')
+        .eq('farmer_id', userData.id)
+        .maybeSingle();
+
+      const hasCompletedOnboarding = !!farmData;
+
       // Reconstruct user object
       const user: User = {
         id: userData.id,
-        email: '', // We'd need to decrypt, but don't for security
+        phone: userData.phone,
+        email: userData.email || undefined,
         fullName: userData.name,
-        phoneNumber: '',
         country: 'India',
         state: '',
         experienceLevel: userData.experience as any || 'beginner',
-        hasCompletedOnboarding: true,
+        hasCompletedOnboarding,
         createdAt: new Date(userData.created_at),
         isDemoUser: false,
       };
 
-      // Cache it
+      // Re-cache it for next time
       localStorage.setItem("current_user", JSON.stringify(user));
+      if (hasCompletedOnboarding) {
+        localStorage.setItem("onboarding_completed", "true");
+      } else {
+        localStorage.removeItem("onboarding_completed");
+      }
+      console.log('[Auth] User loaded from Supabase and cached:', user.fullName);
 
       return user;
     }
@@ -377,30 +410,43 @@ class AuthServiceClass {
   }
 
   private setMockCookie(name: string, value: string): void {
-    // Store auth in localStorage to persist across page reloads
-    if (typeof localStorage !== "undefined") {
-      localStorage.setItem(name, value);
+    // Store auth in localStorage to persist across page reloads and devices
+    try {
+      if (typeof localStorage !== "undefined") {
+        localStorage.setItem(name, value);
+        console.log('[Auth] Stored in localStorage:', name);
+      }
+    } catch (error) {
+      console.error('[Auth] Failed to store in localStorage:', error);
     }
   }
 
   private getMockCookie(name: string): string | null {
-    if (typeof localStorage !== "undefined") {
-      return localStorage.getItem(name);
+    try {
+      if (typeof localStorage !== "undefined") {
+        const value = localStorage.getItem(name);
+        if (value) {
+          console.log('[Auth] Retrieved from localStorage:', name);
+        }
+        return value;
+      }
+    } catch (error) {
+      console.error('[Auth] Failed to retrieve from localStorage:', error);
     }
     return null;
   }
 
   private clearMockCookie(name: string): void {
-    if (typeof localStorage !== "undefined") {
-      localStorage.removeItem(name);
+    try {
+      if (typeof localStorage !== "undefined") {
+        localStorage.removeItem(name);
+        console.log('[Auth] Removed from localStorage:', name);
+      }
+    } catch (error) {
+      console.error('[Auth] Failed to remove from localStorage:', error);
     }
   }
 
-  private simulateDelay(): Promise<void> {
-    return new Promise((resolve) =>
-      setTimeout(resolve, CONFIG.SIMULATION_DELAY),
-    );
-  }
-}
+  private simulateDelay(): Promise<void> {\n    return new Promise((resolve) =>\n      setTimeout(resolve, CONFIG.SIMULATION_DELAY),\n    );\n  }\n\n  // Debug function to check session status\n  debugSessionStatus(): void {\n    console.log('=== SESSION DEBUG INFO ===');\n    console.log('localStorage available:', typeof localStorage !== 'undefined');\n    console.log('auth_token:', localStorage.getItem('auth_token') ? 'EXISTS' : 'MISSING');\n    console.log('user_id:', localStorage.getItem('user_id') || 'MISSING');\n    console.log('current_user:', localStorage.getItem('current_user') ? 'EXISTS' : 'MISSING');\n    console.log('onboarding_completed:', localStorage.getItem('onboarding_completed') || 'NOT SET');\n    console.log('========================');\n  }\n}
 
 export const AuthService = new AuthServiceClass();
