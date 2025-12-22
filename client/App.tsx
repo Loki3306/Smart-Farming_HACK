@@ -15,6 +15,15 @@ import { AnimatePresence } from "framer-motion";
 import { AuthContextProvider } from "./context/AuthContext";
 import { FarmContextProvider } from "./context/FarmContext";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import { DashboardLayout } from "./components/layout/DashboardLayout";
+import { Farm } from "./pages/Farm";
+import { Weather } from "./pages/Weather";
+import { Recommendations } from "./pages/Recommendations";
+import { Marketplace } from "./pages/Marketplace";
+import { Learn } from "./pages/Learn";
+import { Community } from "./pages/Community";
+import { Notifications } from "./pages/Notifications";
+import { Settings } from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -45,7 +54,97 @@ function AnimatedRoutes() {
           path="/dashboard"
           element={
             <ProtectedRoute requireOnboarding>
-              <Home />
+              <DashboardLayout>
+                <Home />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/farm"
+          element={
+            <ProtectedRoute requireOnboarding>
+              <DashboardLayout>
+                <Farm />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/weather"
+          element={
+            <ProtectedRoute requireOnboarding>
+              <DashboardLayout>
+                <Weather />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/recommendations"
+          element={
+            <ProtectedRoute requireOnboarding>
+              <DashboardLayout>
+                <Recommendations />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/marketplace"
+          element={
+            <ProtectedRoute requireOnboarding>
+              <DashboardLayout>
+                <Marketplace />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/learn"
+          element={
+            <ProtectedRoute requireOnboarding>
+              <DashboardLayout>
+                <Learn />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/community"
+          element={
+            <ProtectedRoute requireOnboarding>
+              <DashboardLayout>
+                <Community />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute requireOnboarding>
+              <DashboardLayout>
+                <Notifications />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute requireOnboarding>
+              <DashboardLayout>
+                <Settings />
+              </DashboardLayout>
             </ProtectedRoute>
           }
         />
@@ -54,7 +153,9 @@ function AnimatedRoutes() {
           path="/profile"
           element={
             <ProtectedRoute requireOnboarding>
-              <Profile />
+              <DashboardLayout>
+                <Profile />
+              </DashboardLayout>
             </ProtectedRoute>
           }
         />
@@ -63,7 +164,9 @@ function AnimatedRoutes() {
           path="/audit-trail"
           element={
             <ProtectedRoute requireOnboarding>
-              <AuditTrail />
+              <DashboardLayout>
+                <AuditTrail />
+              </DashboardLayout>
             </ProtectedRoute>
           }
         />

@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronLeft, Copy, Check } from "lucide-react";
 import { useFarmContext } from "../context/FarmContext";
-import { Card } from "../components/ui/Card";
-import { Button } from "../components/ui/Button";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export const AuditTrail: React.FC = () => {
   const { blockchainRecords, refreshBlockchain } = useFarmContext();

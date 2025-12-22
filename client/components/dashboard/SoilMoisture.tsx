@@ -1,6 +1,6 @@
 import React from "react";
 import { Gauge } from "../ui/Gauge";
-import { Card } from "../ui/Card";
+import { Card } from "@/components/ui/card";
 import { useFarmContext } from "../../context/FarmContext";
 
 export const SoilMoisture: React.FC = () => {

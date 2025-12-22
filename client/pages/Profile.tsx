@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, User, Phone, Mail, Briefcase, MapPin, Calendar } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { Button } from "../components/ui/Button";
-import { Card } from "../components/ui/Card";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { motion } from "framer-motion";
 
 export const Profile: React.FC = () => {

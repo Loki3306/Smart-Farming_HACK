@@ -15,8 +15,8 @@ import {
   Cpu
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { Button } from "../components/ui/Button";
-import { Card } from "../components/ui/Card";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { OtpInput } from "../components/auth/OtpInput";
 import {
   INDIAN_STATES,

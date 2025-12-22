@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AlertCircle } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { Button } from "../components/ui/Button";
-import { Card } from "../components/ui/Card";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { INDIAN_STATES, INDIAN_FARMER_NAMES } from "../lib/india-data";
 import { motion } from "framer-motion";
 
