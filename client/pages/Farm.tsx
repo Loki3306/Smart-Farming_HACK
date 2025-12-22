@@ -11,9 +11,11 @@ import {
   X,
   Leaf,
   Mountain,
+  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "../context/AuthContext";
 import { INDIAN_STATES, SOIL_TYPES_INDIA } from "../lib/india-data";
 import { motion } from "framer-motion";
@@ -37,6 +39,7 @@ interface FarmData {
 export const Farm: React.FC = () => {
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [farmData, setFarmData] = useState<FarmData>({
     farmName: "My Farm",
     state: "Maharashtra",
@@ -53,15 +56,104 @@ export const Farm: React.FC = () => {
     irrigationType: "drip",
   });
 
-  // Mock soil stats - in production, this would come from sensors
-  const soilStats = {
-    moisture: 45,
-    temperature: 28,
-    ph: 6.8,
-    nitrogen: 42,
-    phosphorus: 35,
-    potassium: 38,
-  };
+  const [soilStats, setSoilStats] = useState({
+    moisture: 0,
+    temperature: 0,
+    ph: 0,
+    nitrogen: 0,
+    phosphorus: 0,
+    potassium: 0,
+  });
+
+  const [usesDemoSensorData, setUsesDemoSensorData] = useState(false);
+
+  // Fetch farm data on mount
+  useEffect(() => {
+    const fetchFarmData = async () => {
+      if (!user?.id) return;
+
+      setLoading(true);
+      try {
+        const farmId = localStorage.getItem('current_farm_id');
+        
+        if (farmId) {
+          // Fetch farm details
+          const farmResponse = await fetch(`/api/farms/${farmId}`);
+          if (farmResponse.ok) {
+            const farmResult = await farmResponse.json();
+            const farm = farmResult.farm;
+            
+            console.log('[Farm] Loaded farm data:', farm);
+            
+            setFarmData({
+              farmName: farm.farm_name || 'My Farm',
+              state: farm.state || 'Maharashtra',
+              city: farm.city || 'Nashik',
+              district: farm.district || 'Nashik',
+              village: farm.village || '',
+              latitude: farm.latitude || null,
+              longitude: farm.longitude || null,
+              areaAcres: farm.area_acres || 5,
+              soilType: farm.soil_type || 'black',
+              crop: farm.crop_type || '',
+              season: farm.season || 'kharif',
+              waterSource: farm.water_source || 'well',
+              irrigationType: farm.irrigation_type || 'drip',
+            });
+          }
+
+          // Fetch latest sensor data for soil stats
+          const sensorResponse = await fetch(`/api/sensors/latest?farmId=${farmId}`);
+          if (sensorResponse.ok) {
+            const sensorResult = await sensorResponse.json();
+            const sensor = sensorResult.sensorData;
+            
+            if (sensor && sensor.soil_moisture) {
+              console.log('[Farm] ✅ Loaded real sensor data:', sensor);
+              setSoilStats({
+                moisture: Math.round(sensor.soil_moisture || 0),
+                temperature: Math.round(sensor.soil_temperature || 0),
+                ph: parseFloat((sensor.soil_ph || 0).toFixed(1)),
+                nitrogen: Math.round(sensor.soil_nitrogen || 0),
+                phosphorus: Math.round(sensor.soil_phosphorus || 0),
+                potassium: Math.round(sensor.soil_potassium || 0),
+              });
+              setUsesDemoSensorData(false);
+            } else {
+              console.log('[Farm] ⚠️ No sensor data found, using demo values');
+              // Use realistic demo values based on soil type
+              setSoilStats({
+                moisture: 45,
+                temperature: 28,
+                ph: 6.8,
+                nitrogen: 42,
+                phosphorus: 35,
+                potassium: 38,
+              });
+              setUsesDemoSensorData(true);
+            }
+          } else {
+            console.log('[Farm] ⚠️ Sensor API failed, using demo values');
+            setSoilStats({
+              moisture: 45,
+              temperature: 28,
+              ph: 6.8,
+              nitrogen: 42,
+              phosphorus: 35,
+              potassium: 38,
+            });
+            setUsesDemoSensorData(true);
+          }
+        }
+      } catch (error) {
+        console.error('[Farm] Error loading data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFarmData();
+  }, [user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -71,10 +163,43 @@ export const Farm: React.FC = () => {
     }));
   };
 
-  const handleSave = () => {
-    // TODO: Save to database
-    console.log("Saving farm data:", farmData);
-    setIsEditing(false);
+  const handleSave = async () => {
+    const farmId = localStorage.getItem('current_farm_id');
+    if (!farmId) {
+      console.error('[Farm] No farm ID found');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/farms/${farmId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          farm_name: farmData.farmName,
+          state: farmData.state,
+          city: farmData.city,
+          district: farmData.district,
+          village: farmData.village,
+          latitude: farmData.latitude,
+          longitude: farmData.longitude,
+          area_acres: farmData.areaAcres,
+          soil_type: farmData.soilType,
+          crop_type: farmData.crop,
+          season: farmData.season,
+          water_source: farmData.waterSource,
+          irrigation_type: farmData.irrigationType,
+        }),
+      });
+
+      if (response.ok) {
+        console.log('[Farm] ✅ Farm data saved successfully');
+        setIsEditing(false);
+      } else {
+        console.error('[Farm] ❌ Failed to save farm data');
+      }
+    } catch (error) {
+      console.error('[Farm] Error saving farm data:', error);
+    }
   };
 
   return (
@@ -325,8 +450,21 @@ export const Farm: React.FC = () => {
       </motion.div>
 
       {/* Soil Stats Section */}
+<<<<<<< Updated upstream
       <div data-tour-id="farm-soil-analytics">
         <h2 className="text-xl font-semibold text-foreground mb-4">Soil Analytics</h2>
+=======
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-foreground">Soil Analytics</h2>
+          {usesDemoSensorData && (
+            <Badge variant="secondary" className="text-xs">
+              <Info className="w-3 h-3 mr-1" />
+              Demo Data - Connect sensors for real-time values
+            </Badge>
+          )}
+        </div>
+>>>>>>> Stashed changes
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <Card className="p-4 text-center">
             <Droplets className="w-8 h-8 text-blue-500 mx-auto mb-2" />

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { motion } from "framer-motion";
+import { WeatherService } from "../services/WeatherService";
 
 interface WeatherDay {
   day: string;
@@ -43,40 +44,101 @@ interface CurrentWeather {
 }
 
 export const Weather: React.FC = () => {
+  const [loading, setLoading] = useState(true);
   const [currentWeather, setCurrentWeather] = useState<CurrentWeather>({
-    temperature: 32,
-    feelsLike: 35,
-    condition: "Partly Cloudy",
-    humidity: 65,
-    windSpeed: 12,
-    windDirection: "NE",
-    visibility: 10,
-    uvIndex: 7,
-    pressure: 1013,
-    sunrise: "06:15",
-    sunset: "18:45",
+    temperature: 0,
+    feelsLike: 0,
+    condition: "Loading...",
+    humidity: 0,
+    windSpeed: 0,
+    windDirection: "",
+    visibility: 0,
+    uvIndex: 0,
+    pressure: 0,
+    sunrise: "--:--",
+    sunset: "--:--",
   });
 
-  const [forecast, setForecast] = useState<WeatherDay[]>([
-    { day: "Today", date: "Dec 22", high: 32, low: 24, condition: "Partly Cloudy", icon: CloudSun, precipitation: 20 },
-    { day: "Mon", date: "Dec 23", high: 30, low: 22, condition: "Sunny", icon: Sun, precipitation: 0 },
-    { day: "Tue", date: "Dec 24", high: 28, low: 21, condition: "Cloudy", icon: Cloud, precipitation: 30 },
-    { day: "Wed", date: "Dec 25", high: 26, low: 20, condition: "Rain", icon: CloudRain, precipitation: 80 },
-    { day: "Thu", date: "Dec 26", high: 27, low: 19, condition: "Rain", icon: CloudRain, precipitation: 60 },
-    { day: "Fri", date: "Dec 27", high: 29, low: 21, condition: "Partly Cloudy", icon: CloudSun, precipitation: 15 },
-    { day: "Sat", date: "Dec 28", high: 31, low: 23, condition: "Sunny", icon: Sun, precipitation: 0 },
-  ]);
+  const [forecast, setForecast] = useState<WeatherDay[]>([]);
+  const [hourlyForecast] = useState([]);
 
-  const [hourlyForecast] = useState([
-    { time: "Now", temp: 32, icon: CloudSun },
-    { time: "1PM", temp: 33, icon: Sun },
-    { time: "2PM", temp: 34, icon: Sun },
-    { time: "3PM", temp: 33, icon: CloudSun },
-    { time: "4PM", temp: 31, icon: CloudSun },
-    { time: "5PM", temp: 29, icon: Cloud },
-    { time: "6PM", temp: 27, icon: Cloud },
-    { time: "7PM", temp: 26, icon: CloudSun },
-  ]);
+  // Fetch real weather data
+  useEffect(() => {
+    const fetchWeather = async () => {
+      setLoading(true);
+      try {
+        // Fetch current weather
+        const current = await WeatherService.getCurrentWeather();
+        console.log('[Weather Page] Current weather:', current);
+        
+        // Calculate sunrise/sunset from timestamp (mock for now, OpenWeather free tier doesn't include this)
+        const now = new Date();
+        const sunriseTime = new Date(now);
+        sunriseTime.setHours(6, 15, 0);
+        const sunsetTime = new Date(now);
+        sunsetTime.setHours(18, 45, 0);
+        
+        setCurrentWeather({
+          temperature: current.temperature,
+          feelsLike: current.feelsLike,
+          condition: current.condition,
+          humidity: current.humidity,
+          windSpeed: current.windSpeed,
+          windDirection: 'N/A', // OpenWeather free tier doesn't include wind direction
+          visibility: 10, // Default visibility
+          uvIndex: current.uvIndex || 0,
+          pressure: current.pressure,
+          sunrise: sunriseTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+          sunset: sunsetTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+        });
+
+        // Fetch forecast
+        const forecastData = await WeatherService.getForecast();
+        console.log('[Weather Page] Forecast:', forecastData);
+        
+        const formattedForecast: WeatherDay[] = forecastData.map((day, index) => {
+          const date = new Date(day.date);
+          const dayName = index === 0 ? 'Today' : date.toLocaleDateString('en-US', { weekday: 'short' });
+          const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          
+          return {
+            day: dayName,
+            date: dateStr,
+            high: day.high,
+            low: day.low,
+            condition: day.condition,
+            icon: getWeatherIconComponent(day.condition),
+            precipitation: day.rainChance,
+          };
+        });
+        
+        setForecast(formattedForecast);
+      } catch (error) {
+        console.error('[Weather Page] Error fetching weather:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWeather();
+    
+    // Refresh weather every 5 minutes
+    const interval = setInterval(fetchWeather, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Helper to map condition string to icon component
+  const getWeatherIconComponent = (condition: string): React.ElementType => {
+    const conditionLower = condition.toLowerCase();
+    if (conditionLower.includes('rain')) return CloudRain;
+    if (conditionLower.includes('thunder')) return CloudLightning;
+    if (conditionLower.includes('snow')) return Snowflake;
+    if (conditionLower.includes('fog') || conditionLower.includes('mist')) return CloudFog;
+    if (conditionLower.includes('cloud') && conditionLower.includes('part')) return CloudSun;
+    if (conditionLower.includes('cloud')) return Cloud;
+    if (conditionLower.includes('clear') || conditionLower.includes('sunny')) return Sun;
+    return CloudSun;
+  };
 
   const getWeatherIcon = (condition: string) => {
     switch (condition.toLowerCase()) {
