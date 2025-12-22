@@ -450,11 +450,7 @@ export const Farm: React.FC = () => {
       </motion.div>
 
       {/* Soil Stats Section */}
-<<<<<<< Updated upstream
       <div data-tour-id="farm-soil-analytics">
-        <h2 className="text-xl font-semibold text-foreground mb-4">Soil Analytics</h2>
-=======
-      <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold text-foreground">Soil Analytics</h2>
           {usesDemoSensorData && (
@@ -464,7 +460,6 @@ export const Farm: React.FC = () => {
             </Badge>
           )}
         </div>
->>>>>>> Stashed changes
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <Card className="p-4 text-center">
             <Droplets className="w-8 h-8 text-blue-500 mx-auto mb-2" />
