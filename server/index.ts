@@ -3,6 +3,18 @@ import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
 import { sendOtp, verifyOtp } from "./routes/otp";
+import { getFarms, getFarmById, createFarm, updateFarm } from "./routes/farms";
+import { 
+  getLatestSensorData, 
+  saveSensorData, 
+  getSensorHistory,
+  getSystemStatus,
+  triggerWaterPump,
+  triggerFertilizer
+} from "./routes/sensors";
+
+// Python AI Backend Configuration
+const PYTHON_AI_URL = process.env.PYTHON_AI_URL || "http://localhost:8000";
 
 export function createServer() {
   const app = express();
@@ -23,6 +35,85 @@ export function createServer() {
   // OTP Routes
   app.post("/api/otp/send", sendOtp);
   app.post("/api/otp/verify", verifyOtp);
+
+  // ============================================================================
+  // FARM MANAGEMENT - Database CRUD operations
+  // ============================================================================
+  app.get("/api/farms", getFarms);
+  app.get("/api/farms/:id", getFarmById);
+  app.post("/api/farms", createFarm);
+  app.put("/api/farms/:id", updateFarm);
+
+  // ============================================================================
+  // SENSOR DATA - IoT sensor readings and system status
+  // ============================================================================
+  app.get("/api/sensors/latest", getLatestSensorData);
+  app.get("/api/sensors/history", getSensorHistory);
+  app.post("/api/sensors", saveSensorData);
+  app.get("/api/sensors/system-status", getSystemStatus);
+  
+  // Sensor Actions
+  app.post("/api/sensors/actions/water-pump", triggerWaterPump);
+  app.post("/api/sensors/actions/fertilizer", triggerFertilizer);
+
+  // ============================================================================
+  // AI RECOMMENDATIONS PROXY - Forward requests to Python FastAPI backend
+  // ============================================================================
+  
+  app.post("/api/recommendations/predict", async (req, res) => {
+    try {
+      console.log("📤 Forwarding recommendation request to Python AI backend...");
+      
+      // Forward request to Python FastAPI
+      const response = await fetch(`${PYTHON_AI_URL}/api/recommendations/predict`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(req.body),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("❌ Python AI backend error:", response.status, errorText);
+        return res.status(response.status).json({
+          error: "AI recommendation service error",
+          details: errorText,
+        });
+      }
+
+      const data = await response.json();
+      console.log(`✅ Received ${data.recommendations?.length || 0} recommendations from AI`);
+      
+      res.json(data);
+    } catch (error) {
+      console.error("❌ Failed to connect to Python AI backend:", error);
+      res.status(503).json({
+        error: "AI recommendation service unavailable",
+        message: "Please ensure Python backend is running on port 8000",
+        details: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
+
+  // Health check for Python AI backend
+  app.get("/api/recommendations/health", async (_req, res) => {
+    try {
+      const response = await fetch(`${PYTHON_AI_URL}/health`);
+      const data = await response.json();
+      res.json({
+        express_status: "healthy",
+        python_ai_status: response.ok ? "healthy" : "unhealthy",
+        python_ai_details: data,
+      });
+    } catch (error) {
+      res.status(503).json({
+        express_status: "healthy",
+        python_ai_status: "unreachable",
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
 
   return app;
 }

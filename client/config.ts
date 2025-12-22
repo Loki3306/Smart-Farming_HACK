@@ -1,5 +1,5 @@
 export const CONFIG = {
-  USE_MOCK_DATA: true,
+  USE_MOCK_DATA: false, // ✅ Using real database now
   API_BASE_URL: "/api",
   SIMULATION_DELAY: 500, // milliseconds
   AUTH_ENDPOINTS: {

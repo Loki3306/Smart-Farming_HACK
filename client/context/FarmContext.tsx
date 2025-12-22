@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+} from "react";
+import CONFIG from "../config";
 import {
   SensorData,
   SystemStatus,
@@ -97,10 +104,84 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const isUuid = useCallback(
+    (value: string) =>
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        value,
+      ),
+    [],
+  );
+
+  const ensureCurrentFarmId = useCallback(async () => {
+    if (!user?.id) return;
+
+    const existing = localStorage.getItem("current_farm_id");
+    if (existing && isUuid(existing)) {
+      // Validate that this farm actually has readings; otherwise, pick another farm.
+      try {
+        const check = await fetch(
+          `${CONFIG.API_BASE_URL}/sensors/latest?farmId=${encodeURIComponent(existing)}`,
+        );
+        if (check.ok) {
+          const payload = await check.json();
+          if (payload?.sensorData) return;
+        }
+      } catch {
+        // ignore and continue to re-pick
+      }
+    }
+
+    try {
+      const response = await fetch(
+        `${CONFIG.API_BASE_URL}/farms?farmerId=${encodeURIComponent(user.id)}`,
+      );
+      if (!response.ok) return;
+
+      const data = await response.json();
+
+      const farms: Array<{ id: string }> = Array.isArray(data?.farms)
+        ? data.farms
+        : [];
+
+      // Prefer a farm that already has sensor readings
+      for (const farm of farms) {
+        if (!farm?.id || !isUuid(farm.id)) continue;
+        try {
+          const r = await fetch(
+            `${CONFIG.API_BASE_URL}/sensors/latest?farmId=${encodeURIComponent(farm.id)}`,
+          );
+          if (!r.ok) continue;
+          const payload = await r.json();
+          if (payload?.sensorData) {
+            localStorage.setItem("current_farm_id", farm.id);
+            return;
+          }
+        } catch {
+          // ignore and try next
+        }
+      }
+
+      // Fallback: just pick the newest farm (server returns created_at desc)
+      const firstFarmId = farms?.[0]?.id;
+      if (firstFarmId && isUuid(firstFarmId)) {
+        localStorage.setItem("current_farm_id", firstFarmId);
+      }
+    } catch (e) {
+      // If this fails, SensorService will gracefully fall back to mock data.
+    }
+  }, [isUuid, user?.id]);
+
+  // When a user logs in / session restores, pick a valid farm UUID
+  useEffect(() => {
+    ensureCurrentFarmId();
+  }, [ensureCurrentFarmId]);
+
   const refreshSensorData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
+
+      await ensureCurrentFarmId();
       const [sensor, status] = await Promise.all([
         SensorService.getSensorData(),
         SensorService.getSystemStatus(),
@@ -114,7 +195,7 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [ensureCurrentFarmId]);
 
   const refreshWeather = useCallback(async () => {
     try {

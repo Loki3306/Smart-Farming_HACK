@@ -4,6 +4,7 @@ import { SoilMoisture } from "../components/dashboard/SoilMoisture";
 import { WeatherCard } from "../components/dashboard/WeatherCard";
 import { ControlCenter } from "../components/dashboard/ControlCenter";
 import { ActionLog } from "../components/dashboard/ActionLog";
+import { FarmerSwitcher } from "../components/demo/FarmerSwitcher";
 import { useFarmContext } from "../context/FarmContext";
 import { useAuth } from "../context/AuthContext";
 import { useInterval } from "../hooks/useInterval";
@@ -61,6 +62,9 @@ export const Home: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-emerald-50/80 to-sage-50 py-8 px-4 sm:px-6 lg:px-8">
+      {/* Demo Farmer Switcher */}
+      <FarmerSwitcher />
+      
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="space-y-4">

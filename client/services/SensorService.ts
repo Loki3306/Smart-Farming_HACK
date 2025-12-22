@@ -42,6 +42,11 @@ const mockSystemStatus: SystemStatus = {
   lastUpdate: new Date(),
 };
 
+const isUuid = (value: string) =>
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    value,
+  );
+
 class SensorServiceClass {
   private sensorData = { ...mockSensorData };
 
@@ -67,9 +72,48 @@ class SensorServiceClass {
       };
       return this.sensorData;
     }
-    const response = await fetch(`${CONFIG.API_BASE_URL}/sensors`);
-    if (!response.ok) throw new Error("Failed to fetch sensor data");
-    return response.json();
+    
+    // Real database call
+    try {
+      const farmId = localStorage.getItem("current_farm_id");
+      if (!farmId || !isUuid(farmId)) {
+        // Farm not selected yet; avoid hammering backend with invalid UUIDs
+        return { ...mockSensorData, timestamp: new Date() };
+      }
+
+      const response = await fetch(`${CONFIG.API_BASE_URL}/sensors/latest?farmId=${farmId}`);
+      
+      if (!response.ok) {
+        console.warn('Failed to fetch sensor data, using mock data');
+        return { ...mockSensorData, timestamp: new Date() };
+      }
+      
+      const data = await response.json();
+      
+      // If no sensor data in database, use mock data
+      if (!data.sensorData) {
+        console.warn('No sensor data in database, using mock data');
+        return { ...mockSensorData, timestamp: new Date() };
+      }
+      
+      return {
+        soilMoisture: data.sensorData.soil_moisture,
+        temperature: data.sensorData.temperature,
+        humidity: data.sensorData.humidity ?? mockSensorData.humidity,
+        npk: {
+          nitrogen: data.sensorData.nitrogen,
+          phosphorus: data.sensorData.phosphorus,
+          potassium: data.sensorData.potassium,
+        },
+        pH: data.sensorData.ph,
+        ec: data.sensorData.ec ?? mockSensorData.ec,
+        timestamp: new Date(data.sensorData.timestamp),
+      };
+    } catch (error) {
+      console.error('Failed to fetch sensor data from database:', error);
+      // Fallback to mock data on error
+      return { ...mockSensorData, timestamp: new Date() };
+    }
   }
 
   async getSystemStatus(): Promise<SystemStatus> {
@@ -77,9 +121,15 @@ class SensorServiceClass {
       await this.simulateDelay();
       return mockSystemStatus;
     }
-    const response = await fetch(`${CONFIG.API_BASE_URL}/system/status`);
+    
+    const farmId = localStorage.getItem("current_farm_id");
+    if (!farmId || !isUuid(farmId)) {
+      return mockSystemStatus;
+    }
+    const response = await fetch(`${CONFIG.API_BASE_URL}/sensors/system-status?farmId=${farmId}`);
     if (!response.ok) throw new Error("Failed to fetch system status");
-    return response.json();
+    const data = await response.json();
+    return data.systemStatus;
   }
 
   async setAutonomous(enabled: boolean): Promise<void> {
@@ -101,11 +151,19 @@ class SensorServiceClass {
       await this.simulateDelay();
       return true;
     }
-    const response = await fetch(`${CONFIG.API_BASE_URL}/actions/water-pump`, {
+    
+    const farmId = localStorage.getItem("current_farm_id");
+    if (!farmId || !isUuid(farmId)) {
+      throw new Error("No farm selected");
+    }
+    const response = await fetch(`${CONFIG.API_BASE_URL}/sensors/actions/water-pump`, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ farmId }),
     });
     if (!response.ok) throw new Error("Failed to trigger water pump");
-    return response.json();
+    const data = await response.json();
+    return data.success;
   }
 
   async triggerFertilizer(): Promise<boolean> {
@@ -113,11 +171,19 @@ class SensorServiceClass {
       await this.simulateDelay();
       return true;
     }
-    const response = await fetch(`${CONFIG.API_BASE_URL}/actions/fertilizer`, {
+    
+    const farmId = localStorage.getItem("current_farm_id");
+    if (!farmId || !isUuid(farmId)) {
+      throw new Error("No farm selected");
+    }
+    const response = await fetch(`${CONFIG.API_BASE_URL}/sensors/actions/fertilizer`, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ farmId }),
     });
     if (!response.ok) throw new Error("Failed to trigger fertilizer");
-    return response.json();
+    const data = await response.json();
+    return data.success;
   }
 
   private simulateDelay(): Promise<void> {

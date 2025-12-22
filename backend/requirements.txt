@@ -5,7 +5,7 @@ python-multipart==0.0.17
 python-dotenv==1.0.1
 
 # CORS and Middleware
-python-cors==1.0.0
+fastapi-cors==0.0.6
 
 # Data Processing and ML
 numpy==1.26.4

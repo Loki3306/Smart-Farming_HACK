@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Lightbulb,
   Leaf,
@@ -16,78 +16,26 @@ import {
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { useFarmContext } from "@/context/FarmContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface Recommendation {
   id: string;
-  type: "irrigation" | "fertilizer" | "pest" | "crop" | "general";
+  type: "irrigation" | "fertilizer" | "pest" | "crop" | "general" | "stress_management" | "soil_treatment";
   priority: "high" | "medium" | "low";
   title: string;
   description: string;
   action: string;
   confidence: number;
-  timestamp: Date;
-  applied: boolean;
+  timestamp: string;
+  applied?: boolean;
 }
 
 export const Recommendations: React.FC = () => {
+  const { sensorData, refreshSensorData } = useFarmContext();
+  const { toast } = useToast();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [recommendations, setRecommendations] = useState<Recommendation[]>([
-    {
-      id: "1",
-      type: "irrigation",
-      priority: "high",
-      title: "Reduce Irrigation Frequency",
-      description: "Based on current soil moisture levels (45%) and weather forecast showing rain in 3 days, reducing irrigation will prevent waterlogging and save water.",
-      action: "Reduce irrigation by 30% for the next 3 days",
-      confidence: 92,
-      timestamp: new Date(),
-      applied: false,
-    },
-    {
-      id: "2",
-      type: "fertilizer",
-      priority: "medium",
-      title: "Apply Nitrogen Fertilizer",
-      description: "Soil nitrogen levels are below optimal (42 kg/ha). Current crop stage requires higher nitrogen for healthy leaf development.",
-      action: "Apply 25 kg/ha of Urea within this week",
-      confidence: 87,
-      timestamp: new Date(Date.now() - 3600000),
-      applied: false,
-    },
-    {
-      id: "3",
-      type: "pest",
-      priority: "high",
-      title: "Pest Alert: Aphid Risk",
-      description: "Weather conditions (warm, humid) are favorable for aphid infestation. Early intervention recommended to prevent crop damage.",
-      action: "Apply neem-based pesticide as preventive measure",
-      confidence: 78,
-      timestamp: new Date(Date.now() - 7200000),
-      applied: true,
-    },
-    {
-      id: "4",
-      type: "crop",
-      priority: "low",
-      title: "Consider Crop Rotation",
-      description: "Continuous cultivation of the same crop may deplete specific soil nutrients. Consider rotating with legumes next season.",
-      action: "Plan for pulses or legumes in Rabi season",
-      confidence: 85,
-      timestamp: new Date(Date.now() - 86400000),
-      applied: false,
-    },
-    {
-      id: "5",
-      type: "general",
-      priority: "medium",
-      title: "Optimal Harvesting Window",
-      description: "Based on crop maturity indicators and weather forecast, the optimal harvesting window is approaching.",
-      action: "Prepare for harvest in 2-3 weeks",
-      confidence: 90,
-      timestamp: new Date(Date.now() - 172800000),
-      applied: false,
-    },
-  ]);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -114,6 +62,10 @@ export const Recommendations: React.FC = () => {
         return "text-red-500 bg-red-100";
       case "crop":
         return "text-amber-500 bg-amber-100";
+      case "stress_management":
+        return "text-orange-500 bg-orange-100";
+      case "soil_treatment":
+        return "text-teal-500 bg-teal-100";
       default:
         return "text-purple-500 bg-purple-100";
     }
@@ -132,13 +84,82 @@ export const Recommendations: React.FC = () => {
     }
   };
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
+    if (!sensorData) {
+      toast({
+        title: "No Sensor Data",
+        description: "Unable to fetch sensor data. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsAnalyzing(true);
-    // Simulate AI analysis
-    setTimeout(() => {
+    
+    try {
+      const response = await fetch('/api/recommendations/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          farm_id: "farm_001",
+          crop_type: "Rice",
+          soil_type: "Clay loam",
+          sensor_data: {
+            moisture: sensorData.soilMoisture,
+            temperature: sensorData.temperature,
+            humidity: sensorData.humidity,
+            nitrogen: sensorData.npk.nitrogen,
+            phosphorus: sensorData.npk.phosphorus,
+            potassium: sensorData.npk.potassium,
+            ph: sensorData.pH,
+            ec: sensorData.ec,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      // Map API response to component state
+      const mappedRecommendations = data.recommendations.map((rec: any) => ({
+        ...rec,
+        applied: false,
+      }));
+
+      setRecommendations(mappedRecommendations);
+      
+      toast({
+        title: "Analysis Complete",
+        description: `Generated ${data.recommendations.length} AI-powered recommendations`,
+      });
+    } catch (error) {
+      console.error('Failed to get recommendations:', error);
+      toast({
+        title: "Analysis Failed",
+        description: "Failed to connect to AI recommendation service. Please ensure backend is running.",
+        variant: "destructive",
+      });
+    } finally {
       setIsAnalyzing(false);
-    }, 3000);
+    }
   };
+
+  // Load sensor data on mount
+  useEffect(() => {
+    if (!sensorData) {
+      refreshSensorData();
+    }
+  }, []);
+
+  // Auto-analyze on component mount if sensor data is available
+  useEffect(() => {
+    if (sensorData && recommendations.length === 0) {
+      handleAnalyze();
+    }
+  }, [sensorData]);
 
   const handleApply = (id: string) => {
     setRecommendations((prev) =>
@@ -150,6 +171,9 @@ export const Recommendations: React.FC = () => {
 
   const pendingCount = recommendations.filter((r) => !r.applied).length;
   const appliedCount = recommendations.filter((r) => r.applied).length;
+  const avgConfidence = recommendations.length > 0
+    ? Math.round(recommendations.reduce((sum, r) => sum + r.confidence, 0) / recommendations.length)
+    : 0;
 
   return (
     <div className="p-6 lg:p-8 space-y-8">
@@ -213,30 +237,30 @@ export const Recommendations: React.FC = () => {
               <TrendingUp className="w-6 h-6 text-blue-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold">87%</p>
+              <p className="text-2xl font-bold">{avgConfidence}%</p>
               <p className="text-sm text-muted-foreground">Avg. Confidence</p>
             </div>
           </div>
         </Card>
       </div>
 
-      {/* Integration Notice */}
-      <Card className="p-6 border-l-4 border-l-purple-500 bg-purple-50">
+      {/* AI Status Notice */}
+      <Card className="p-6 border-l-4 border-l-green-500 bg-green-50">
         <div className="flex items-start gap-4">
-          <Brain className="w-8 h-8 text-purple-600 flex-shrink-0" />
+          <Brain className="w-8 h-8 text-green-600 flex-shrink-0" />
           <div>
-            <h3 className="font-semibold text-purple-900">AI Model Integration Ready</h3>
-            <p className="text-sm text-purple-700 mt-1">
-              This page is prepared for your custom ML model integration. The recommendation engine 
-              can accept predictions from your trained model via API endpoint. Current recommendations 
-              are rule-based placeholders that will be replaced with your model's outputs.
+            <h3 className="font-semibold text-green-900">✅ AI Model Active</h3>
+            <p className="text-sm text-green-700 mt-1">
+              Real-time recommendations powered by FastAPI ML engine. The system analyzes your sensor data 
+              (NPK levels, moisture, pH, temperature) and generates intelligent farming recommendations with 
+              confidence scores. Click "Run AI Analysis" to get fresh predictions based on current conditions.
             </p>
             <div className="mt-3 flex gap-2">
-              <code className="text-xs bg-purple-200 text-purple-800 px-2 py-1 rounded">
-                POST /api/recommendations/predict
+              <code className="text-xs bg-green-200 text-green-800 px-2 py-1 rounded">
+                Python FastAPI Backend
               </code>
-              <code className="text-xs bg-purple-200 text-purple-800 px-2 py-1 rounded">
-                GET /api/recommendations/latest
+              <code className="text-xs bg-green-200 text-green-800 px-2 py-1 rounded">
+                Express Proxy Active
               </code>
             </div>
           </div>
@@ -247,7 +271,16 @@ export const Recommendations: React.FC = () => {
       <div className="space-y-4">
         <h2 className="text-xl font-semibold text-foreground">Active Recommendations</h2>
         
-        {recommendations.map((rec, index) => {
+        {recommendations.length === 0 ? (
+          <Card className="p-8 text-center">
+            <Brain className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">No Recommendations Yet</h3>
+            <p className="text-muted-foreground mb-4">
+              Click "Run AI Analysis" to generate recommendations based on your current farm conditions.
+            </p>
+          </Card>
+        ) : (
+          recommendations.map((rec, index) => {
           const TypeIcon = getTypeIcon(rec.type);
           const typeColor = getTypeColor(rec.type);
           
@@ -309,7 +342,8 @@ export const Recommendations: React.FC = () => {
               </Card>
             </motion.div>
           );
-        })}
+        })
+        )}
       </div>
     </div>
   );

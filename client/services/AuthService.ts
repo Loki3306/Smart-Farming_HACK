@@ -78,7 +78,8 @@ mockUsers.set("test@example.com", {
 
 class AuthServiceClass {
   async signup(payload: SignupPayload): Promise<AuthResponse> {
-    if (CONFIG.USE_MOCK_DATA && supabase) {
+    // AUTH ALWAYS USES SUPABASE DIRECTLY
+    if (supabase) {
       await this.simulateDelay();
 
       const hashedPassword = hashPassword(payload.password);
@@ -171,7 +172,8 @@ class AuthServiceClass {
   }
 
   async login(payload: LoginPayload): Promise<AuthResponse> {
-    if (CONFIG.USE_MOCK_DATA && supabase) {
+    // AUTH ALWAYS USES SUPABASE DIRECTLY
+    if (supabase) {
       await this.simulateDelay();
 
       // Hash password for comparison
@@ -206,11 +208,16 @@ class AuthServiceClass {
       }
 
       // Check if user has completed onboarding (has farm data)
-      const { data: farmData } = await supabase
+      const { data: farmData, error: farmError } = await supabase
         .from('farms')
         .select('id')
         .eq('farmer_id', userData.id)
+        .limit(1)
         .maybeSingle();
+
+      if (farmError) {
+        console.warn('[Login] Farm lookup error (treating as not onboarded):', farmError);
+      }
 
       const hasCompletedOnboarding = !!farmData; // If farm exists, onboarding is complete
       
@@ -237,6 +244,9 @@ class AuthServiceClass {
       localStorage.setItem("auth_token", mockToken);
       localStorage.setItem("user_id", user.id);
       localStorage.setItem("current_user", JSON.stringify(user));
+
+      // Ensure farm selection is recalculated for the newly logged-in user
+      localStorage.removeItem('current_farm_id');
       
       // Store onboarding status explicitly based on farm data check
       if (hasCompletedOnboarding) {
@@ -276,18 +286,17 @@ class AuthServiceClass {
   }
 
   async logout(): Promise<void> {
-    if (CONFIG.USE_MOCK_DATA) {
-      await this.simulateDelay();
-      console.log('[Logout] Clearing all session data');
-      // Clear all session data
-      this.clearMockCookie("auth_token");
-      localStorage.removeItem("auth_token");
-      localStorage.removeItem("current_user");
-      localStorage.removeItem("user_id");
-      localStorage.removeItem("onboarding_completed");
-      console.log('[Logout] All session data cleared');
-      return;
-    }
+    // AUTH is client-side only with localStorage
+    await this.simulateDelay();
+    console.log('[Logout] Clearing all session data');
+    // Clear all session data
+    this.clearMockCookie("auth_token");
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("current_user");
+    localStorage.removeItem("user_id");
+    localStorage.removeItem("onboarding_completed");
+    console.log('[Logout] All session data cleared');
+    return;
 
     // Real backend call
     const response = await fetch(
@@ -304,7 +313,9 @@ class AuthServiceClass {
   }
 
   async getCurrentUser(): Promise<User | null> {
-    if (CONFIG.USE_MOCK_DATA && supabase) {
+    // AUTH ALWAYS USES SUPABASE DIRECTLY (not Express backend)
+    // This is because auth is stored client-side in localStorage
+    if (supabase) {
       await this.simulateDelay();
 
       // Step 1: Check for cached user first (even if no token - it means browser has localStorage)
@@ -350,11 +361,16 @@ class AuthServiceClass {
       }
 
       // Check if user has completed onboarding (has farm data)
-      const { data: farmData } = await supabase
+      const { data: farmData, error: farmError } = await supabase
         .from('farms')
         .select('id')
         .eq('farmer_id', userData.id)
+        .limit(1)
         .maybeSingle();
+
+      if (farmError) {
+        console.warn('[Auth] Farm lookup error (treating as not onboarded):', farmError);
+      }
 
       const hasCompletedOnboarding = !!farmData;
 
@@ -447,6 +463,22 @@ class AuthServiceClass {
     }
   }
 
-  private simulateDelay(): Promise<void> {\n    return new Promise((resolve) =>\n      setTimeout(resolve, CONFIG.SIMULATION_DELAY),\n    );\n  }\n\n  // Debug function to check session status\n  debugSessionStatus(): void {\n    console.log('=== SESSION DEBUG INFO ===');\n    console.log('localStorage available:', typeof localStorage !== 'undefined');\n    console.log('auth_token:', localStorage.getItem('auth_token') ? 'EXISTS' : 'MISSING');\n    console.log('user_id:', localStorage.getItem('user_id') || 'MISSING');\n    console.log('current_user:', localStorage.getItem('current_user') ? 'EXISTS' : 'MISSING');\n    console.log('onboarding_completed:', localStorage.getItem('onboarding_completed') || 'NOT SET');\n    console.log('========================');\n  }\n}
+  private simulateDelay(): Promise<void> {
+    return new Promise((resolve) =>
+      setTimeout(resolve, CONFIG.SIMULATION_DELAY),
+    );
+  }
+
+  // Debug function to check session status
+  debugSessionStatus(): void {
+    console.log('=== SESSION DEBUG INFO ===');
+    console.log('localStorage available:', typeof localStorage !== 'undefined');
+    console.log('auth_token:', localStorage.getItem('auth_token') ? 'EXISTS' : 'MISSING');
+    console.log('user_id:', localStorage.getItem('user_id') || 'MISSING');
+    console.log('current_user:', localStorage.getItem('current_user') ? 'EXISTS' : 'MISSING');
+    console.log('onboarding_completed:', localStorage.getItem('onboarding_completed') || 'NOT SET');
+    console.log('========================');
+  }
+}
 
 export const AuthService = new AuthServiceClass();
