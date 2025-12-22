@@ -150,7 +150,7 @@ export const Community: React.FC = () => {
   return (
     <div className="p-6 lg:p-8 space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="flex items-center justify-between flex-wrap gap-4" data-tour-id="community-header">
         <div>
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
             <Users className="w-8 h-8 text-primary" />
@@ -160,14 +160,14 @@ export const Community: React.FC = () => {
             Connect with fellow farmers, ask questions, share knowledge
           </p>
         </div>
-        <Button className="gap-2">
+        <Button className="gap-2" data-tour-id="community-create-post">
           <Plus className="w-4 h-4" />
           Create Post
         </Button>
       </div>
 
       {/* Search */}
-      <div className="relative">
+      <div className="relative" data-tour-id="community-search">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
         <input
           type="text"
@@ -182,34 +182,31 @@ export const Community: React.FC = () => {
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Tabs */}
-          <div className="flex gap-2 border-b border-border">
+          <div className="flex gap-2 border-b border-border" data-tour-id="community-tabs">
             <button
               onClick={() => setActiveTab("feed")}
-              className={`px-4 py-2 font-medium text-sm transition-colors ${
-                activeTab === "feed"
+              className={`px-4 py-2 font-medium text-sm transition-colors ${activeTab === "feed"
                   ? "text-primary border-b-2 border-primary"
                   : "text-muted-foreground hover:text-foreground"
-              }`}
+                }`}
             >
               Feed
             </button>
             <button
               onClick={() => setActiveTab("questions")}
-              className={`px-4 py-2 font-medium text-sm transition-colors ${
-                activeTab === "questions"
+              className={`px-4 py-2 font-medium text-sm transition-colors ${activeTab === "questions"
                   ? "text-primary border-b-2 border-primary"
                   : "text-muted-foreground hover:text-foreground"
-              }`}
+                }`}
             >
               Questions
             </button>
             <button
               onClick={() => setActiveTab("experts")}
-              className={`px-4 py-2 font-medium text-sm transition-colors ${
-                activeTab === "experts"
+              className={`px-4 py-2 font-medium text-sm transition-colors ${activeTab === "experts"
                   ? "text-primary border-b-2 border-primary"
                   : "text-muted-foreground hover:text-foreground"
-              }`}
+                }`}
             >
               Experts
             </button>
@@ -217,7 +214,7 @@ export const Community: React.FC = () => {
 
           {/* Posts */}
           {(activeTab === "feed" || activeTab === "questions") && (
-            <div className="space-y-4">
+            <div className="space-y-4" data-tour-id="community-posts">
               {posts.map((post, index) => (
                 <motion.div
                   key={post.id}
@@ -338,7 +335,7 @@ export const Community: React.FC = () => {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Trending */}
-          <Card className="p-6">
+          <Card className="p-6" data-tour-id="community-trending">
             <h3 className="font-semibold text-foreground flex items-center gap-2 mb-4">
               <TrendingUp className="w-5 h-5 text-primary" />
               Trending Topics
@@ -360,7 +357,7 @@ export const Community: React.FC = () => {
           </Card>
 
           {/* Community Stats */}
-          <Card className="p-6">
+          <Card className="p-6" data-tour-id="community-stats">
             <h3 className="font-semibold text-foreground mb-4">Community Stats</h3>
             <div className="space-y-3">
               <div className="flex justify-between">

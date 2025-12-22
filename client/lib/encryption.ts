@@ -3,7 +3,7 @@
  * Uses AES-256 encryption for phone, email, and password
  */
 
-import CryptoJS from 'crypto-js';
+import * as CryptoJS from 'crypto-js';
 
 // Encryption key - in production, this should be stored securely
 const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY || 'smartfarm-secure-key-2025';

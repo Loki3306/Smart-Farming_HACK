@@ -14,6 +14,7 @@ import NotFound from "./pages/NotFound";
 import { AnimatePresence } from "framer-motion";
 import { AuthContextProvider } from "./context/AuthContext";
 import { FarmContextProvider } from "./context/FarmContext";
+import { TourContextProvider } from "./context/TourContext";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
 import { Farm } from "./pages/Farm";
@@ -183,11 +184,13 @@ export const App = () => (
     <TooltipProvider>
       <AuthContextProvider>
         <FarmContextProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AnimatedRoutes />
-          </BrowserRouter>
+          <TourContextProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <AnimatedRoutes />
+            </BrowserRouter>
+          </TourContextProvider>
         </FarmContextProvider>
       </AuthContextProvider>
     </TooltipProvider>

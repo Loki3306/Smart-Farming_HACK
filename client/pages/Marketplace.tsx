@@ -176,7 +176,7 @@ export const Marketplace: React.FC = () => {
   return (
     <div className="p-6 lg:p-8 space-y-8">
       {/* Header */}
-      <div>
+      <div data-tour-id="market-header">
         <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
           <ShoppingCart className="w-8 h-8 text-primary" />
           Farmer's Marketplace
@@ -187,7 +187,7 @@ export const Marketplace: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2">
+      <div className="flex gap-2" data-tour-id="market-tabs">
         <Button
           variant={activeTab === "buy" ? "default" : "outline"}
           onClick={() => setActiveTab("buy")}
@@ -209,7 +209,7 @@ export const Marketplace: React.FC = () => {
       {activeTab === "buy" ? (
         <>
           {/* Search and Filters */}
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col md:flex-row gap-4" data-tour-id="market-search">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
@@ -223,7 +223,7 @@ export const Marketplace: React.FC = () => {
           </div>
 
           {/* Categories */}
-          <div className="flex gap-2 overflow-x-auto pb-2">
+          <div className="flex gap-2 overflow-x-auto pb-2" data-tour-id="market-categories">
             {categories.map((cat) => (
               <Button
                 key={cat.id}
@@ -238,7 +238,7 @@ export const Marketplace: React.FC = () => {
           </div>
 
           {/* Products Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-tour-id="market-products">
             {filteredProducts.map((product, index) => (
               <motion.div
                 key={product.id}
@@ -250,7 +250,7 @@ export const Marketplace: React.FC = () => {
                   <div className="p-6">
                     {/* Product Image */}
                     <div className="text-6xl text-center mb-4">{product.image}</div>
-                    
+
                     {/* Badges */}
                     <div className="flex gap-2 mb-3">
                       {product.organic && (
@@ -268,7 +268,7 @@ export const Marketplace: React.FC = () => {
                     {/* Product Info */}
                     <h3 className="font-semibold text-foreground mb-1">{product.name}</h3>
                     <p className="text-sm text-muted-foreground mb-2">{product.seller}</p>
-                    
+
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
                       <MapPin className="w-4 h-4" />
                       {product.location}
@@ -300,7 +300,7 @@ export const Marketplace: React.FC = () => {
       ) : (
         <>
           {/* Sell Tab Content */}
-          <Card className="p-6">
+          <Card className="p-6" data-tour-id="market-sell-listings">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold">Your Listings</h2>
               <Button className="gap-2">

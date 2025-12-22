@@ -58,6 +58,7 @@ import {
   ShoppingBag,
   Check,
 } from "lucide-react";
+import { LandingIntroDialog } from "@/components/LandingIntroDialog";
 
 // ============================================
 // SCROLL-ANIMATED SECTION WRAPPER
@@ -185,7 +186,7 @@ const StickyFarmCycle = ({ onComplete }: { onComplete: () => void }) => {
       const phase = Math.min(4, Math.floor(adjustedPercent / 20));
       setCurrentPhase(phase);
       setScrollPercent(adjustedPercent);
-      
+
       // Trigger completion at CTA section
       if (adjustedPercent >= 100 && !isCompleted) {
         setIsCompleted(true);
@@ -266,7 +267,7 @@ const StickyFarmCycle = ({ onComplete }: { onComplete: () => void }) => {
                       </linearGradient>
                     </defs>
                   </svg>
-                  
+
                   {/* Current phase icon in center */}
                   <div className="absolute inset-0 flex items-center justify-center">
                     {(() => {
@@ -290,9 +291,8 @@ const StickyFarmCycle = ({ onComplete }: { onComplete: () => void }) => {
                   {phases.map((phase, index) => (
                     <motion.div
                       key={phase.label}
-                      className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                        currentPhase >= index ? phase.color : "bg-muted"
-                      }`}
+                      className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${currentPhase >= index ? phase.color : "bg-muted"
+                        }`}
                       animate={currentPhase === index ? { scale: [1, 1.3, 1] } : {}}
                       transition={{ duration: 0.5, repeat: currentPhase === index ? Infinity : 0 }}
                     />
@@ -323,14 +323,14 @@ const StickyFarmCycle = ({ onComplete }: { onComplete: () => void }) => {
                   <div className="relative" style={{ width: 140, height: 140 }}>
                     {/* Outer circle ring for visual guidance */}
                     <div className="absolute inset-3 rounded-full border-2 border-white/30" />
-                    
+
                     {phases.map((phase, index) => {
                       const PhaseIcon = phase.icon;
                       // 5 items, 72 degrees apart, starting from top (-90 degrees)
                       const angleDeg = index * 72 - 90;
                       const angleRad = angleDeg * (Math.PI / 180);
                       const radius = 50; // Distance from center to icon center
-                      
+
                       return (
                         <motion.div
                           key={phase.label}
@@ -338,7 +338,7 @@ const StickyFarmCycle = ({ onComplete }: { onComplete: () => void }) => {
                           animate={{ scale: 1, opacity: 1 }}
                           transition={{ delay: index * 0.1, type: "spring" }}
                           className={`absolute w-9 h-9 rounded-full ${phase.color} flex items-center justify-center shadow-lg border-2 border-white/30`}
-                          style={{ 
+                          style={{
                             left: "50%",
                             top: "50%",
                             marginLeft: radius * Math.cos(angleRad) - 18,
@@ -349,7 +349,7 @@ const StickyFarmCycle = ({ onComplete }: { onComplete: () => void }) => {
                         </motion.div>
                       );
                     })}
-                    
+
                     {/* Center checkmark */}
                     <motion.div
                       initial={{ scale: 0 }}
@@ -468,47 +468,40 @@ const Navbar = ({
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6 }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled
-            ? "bg-background/90 backdrop-blur-lg border-b border-border shadow-sm py-1"
-            : "bg-transparent py-4"
-        }`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
+          ? "bg-background/90 backdrop-blur-lg border-b border-border shadow-sm py-1"
+          : "bg-transparent py-4"
+          }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className={`flex items-center justify-between transition-all duration-300 ${
-            isScrolled ? "h-10 md:h-11" : "h-16 md:h-20"
-          }`}>
+          <div className={`flex items-center justify-between transition-all duration-300 ${isScrolled ? "h-10 md:h-11" : "h-16 md:h-20"
+            }`}>
             {/* Logo */}
             <motion.div
               className="flex items-center gap-2 cursor-pointer"
               whileHover={{ scale: 1.02 }}
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             >
-              <div className={`rounded-xl bg-primary flex items-center justify-center transition-all duration-300 ${
-                isScrolled ? "w-7 h-7 rounded-lg" : "w-10 h-10"
-              }`}>
-                <Leaf className={`text-primary-foreground transition-all duration-300 ${
-                  isScrolled ? "w-4 h-4" : "w-6 h-6"
-                }`} />
+              <div className={`rounded-xl bg-primary flex items-center justify-center transition-all duration-300 ${isScrolled ? "w-7 h-7 rounded-lg" : "w-10 h-10"
+                }`}>
+                <Leaf className={`text-primary-foreground transition-all duration-300 ${isScrolled ? "w-4 h-4" : "w-6 h-6"
+                  }`} />
               </div>
-              <span className={`font-bold text-foreground hidden sm:block transition-all duration-300 ${
-                isScrolled ? "text-base" : "text-xl"
-              }`}>
+              <span className={`font-bold text-foreground hidden sm:block transition-all duration-300 ${isScrolled ? "text-base" : "text-xl"
+                }`}>
                 Krushi Mitra
               </span>
             </motion.div>
 
             {/* Desktop Nav Links */}
-            <div className={`hidden md:flex items-center transition-all duration-300 ${
-              isScrolled ? "gap-6" : "gap-8"
-            }`}>
+            <div className={`hidden md:flex items-center transition-all duration-300 ${isScrolled ? "gap-6" : "gap-8"
+              }`}>
               {navLinks.map((link) => (
                 <button
                   key={link.label}
                   onClick={() => handleNavClick(link)}
-                  className={`text-muted-foreground hover:text-foreground transition-all font-medium flex items-center gap-1 ${
-                    isScrolled ? "text-xs" : "text-sm"
-                  }`}
+                  className={`text-muted-foreground hover:text-foreground transition-all font-medium flex items-center gap-1 ${isScrolled ? "text-xs" : "text-sm"
+                    }`}
                 >
                   {link.label}
                   {link.requiresAuth && !isAuthenticated && (
@@ -519,26 +512,22 @@ const Navbar = ({
             </div>
 
             {/* Desktop CTA */}
-            <div className={`hidden md:flex items-center transition-all duration-300 ${
-              isScrolled ? "gap-2" : "gap-3"
-            }`}>
+            <div className={`hidden md:flex items-center transition-all duration-300 ${isScrolled ? "gap-2" : "gap-3"
+              }`}>
               {isAuthenticated ? (
-                <Button onClick={onDashboard} className={`rounded-full transition-all duration-300 ${
-                  isScrolled ? "h-7 text-xs px-3" : ""
-                }`}>
+                <Button onClick={onDashboard} className={`rounded-full transition-all duration-300 ${isScrolled ? "h-7 text-xs px-3" : ""
+                  }`}>
                   Dashboard
                   <ArrowRight className={`ml-1 transition-all duration-300 ${isScrolled ? "w-3 h-3" : "w-4 h-4"}`} />
                 </Button>
               ) : (
                 <>
-                  <Button variant="ghost" onClick={onLogin} className={`rounded-full transition-all duration-300 ${
-                    isScrolled ? "h-7 text-xs px-3" : ""
-                  }`}>
+                  <Button variant="ghost" onClick={onLogin} className={`rounded-full transition-all duration-300 ${isScrolled ? "h-7 text-xs px-3" : ""
+                    }`}>
                     Login
                   </Button>
-                  <Button onClick={onSignup} className={`rounded-full transition-all duration-300 ${
-                    isScrolled ? "h-7 text-xs px-3" : ""
-                  }`}>
+                  <Button onClick={onSignup} className={`rounded-full transition-all duration-300 ${isScrolled ? "h-7 text-xs px-3" : ""
+                    }`}>
                     Get Started
                   </Button>
                 </>
@@ -891,8 +880,11 @@ export const Landing = () => {
       {/* Scroll to Top Button */}
       <ScrollToTopButton />
 
+      {/* Intro Dialog */}
+      <LandingIntroDialog isAuthenticated={isAuthenticated} />
+
       {/* Sticky Farm Cycle Indicator */}
-      <StickyFarmCycle onComplete={() => {}} />
+      <StickyFarmCycle onComplete={() => { }} />
 
       {/* Floating Agriculture Icons */}
       <FloatingIcons />
@@ -1069,7 +1061,7 @@ export const Landing = () => {
               <div className="relative bg-gradient-to-br from-primary/5 to-emerald-500/5 p-1 rounded-3xl">
                 <div className="relative bg-card rounded-3xl overflow-hidden shadow-2xl border-2 border-primary/20 aspect-video">
                   {/* Actual Video */}
-                  <video 
+                  <video
                     className="w-full h-full object-cover"
                     controls
                     preload="metadata"
@@ -1078,7 +1070,7 @@ export const Landing = () => {
                     <source src="/assets/The_Self-Running_Farm.mp4" type="video/mp4" />
                     Your browser does not support the video tag.
                   </video>
-                  
+
                   {/* Decorative corner elements - inside video */}
                   <div className="absolute top-4 left-4 w-10 h-10 border-l-4 border-t-4 border-white/50 rounded-tl-xl pointer-events-none" />
                   <div className="absolute top-4 right-4 w-10 h-10 border-r-4 border-t-4 border-white/50 rounded-tr-xl pointer-events-none" />
@@ -1391,7 +1383,7 @@ export const Landing = () => {
           <div className="relative rounded-[2.5rem] overflow-hidden">
             {/* Background with gradient and pattern */}
             <div className="absolute inset-0 bg-gradient-to-br from-primary via-emerald-600 to-green-700" />
-            
+
             {/* Animated decorative elements */}
             <div className="absolute inset-0 overflow-hidden">
               <motion.div
@@ -1406,7 +1398,7 @@ export const Landing = () => {
               />
               <div className="absolute top-10 left-10 w-32 h-32 bg-white/5 rounded-full blur-2xl" />
               <div className="absolute bottom-10 right-10 w-48 h-48 bg-white/5 rounded-full blur-3xl" />
-              
+
               {/* Floating agriculture icons */}
               <motion.div
                 animate={{ y: [0, -10, 0] }}

@@ -108,7 +108,7 @@ export const Weather: React.FC = () => {
   return (
     <div className="p-6 lg:p-8 space-y-8">
       {/* Header */}
-      <div>
+      <div data-tour-id="weather-header">
         <h1 className="text-3xl font-bold text-foreground">Weather Forecast</h1>
         <p className="text-muted-foreground mt-1">
           Real-time weather data for your farm location
@@ -121,7 +121,7 @@ export const Weather: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <Card className="p-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+        <Card className="p-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white" data-tour-id="weather-current">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Main Weather */}
             <div className="flex items-center gap-6">
@@ -185,7 +185,7 @@ export const Weather: React.FC = () => {
       </motion.div>
 
       {/* Hourly Forecast */}
-      <div>
+      <div data-tour-id="weather-hourly">
         <h2 className="text-xl font-semibold text-foreground mb-4">Hourly Forecast</h2>
         <Card className="p-4">
           <div className="flex gap-4 overflow-x-auto pb-2">
@@ -204,7 +204,7 @@ export const Weather: React.FC = () => {
       </div>
 
       {/* 7-Day Forecast */}
-      <div>
+      <div data-tour-id="weather-7day">
         <h2 className="text-xl font-semibold text-foreground mb-4">7-Day Forecast</h2>
         <div className="space-y-2">
           {forecast.map((day, index) => (
@@ -243,7 +243,7 @@ export const Weather: React.FC = () => {
       </div>
 
       {/* Farming Insights */}
-      <Card className="p-6 border-l-4 border-l-primary">
+      <Card className="p-6 border-l-4 border-l-primary" data-tour-id="weather-insights">
         <h3 className="font-semibold text-foreground mb-2">🌾 Farming Insights</h3>
         <ul className="space-y-2 text-sm text-muted-foreground">
           <li>• <strong>Rain expected on Dec 25-26:</strong> Consider delaying fertilizer application</li>

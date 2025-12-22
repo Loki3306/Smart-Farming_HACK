@@ -67,7 +67,7 @@ export const Home: React.FC = () => {
       
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="space-y-4">
+        <div className="space-y-4" data-tour-id="dashboard-header">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
               <h1 className="text-4xl sm:text-5xl font-bold text-foreground">
@@ -113,8 +113,8 @@ export const Home: React.FC = () => {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem 
-                    className="cursor-pointer" 
+                  <DropdownMenuItem
+                    className="cursor-pointer"
                     onClick={() => navigate("/profile")}
                   >
                     <User className="mr-2 h-4 w-4" />
@@ -145,19 +145,27 @@ export const Home: React.FC = () => {
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Soil Moisture Hero */}
-            <SoilMoisture />
+            <div data-tour-id="soil-moisture">
+              <SoilMoisture />
+            </div>
 
             {/* Weather Card */}
-            <WeatherCard />
+            <div data-tour-id="weather-card">
+              <WeatherCard />
+            </div>
           </div>
 
           {/* Right Column - Controls & Sidebar */}
           <div className="space-y-6">
             {/* Control Center */}
-            <ControlCenter />
+            <div data-tour-id="control-center">
+              <ControlCenter />
+            </div>
 
             {/* Action Log */}
-            <ActionLog />
+            <div data-tour-id="action-log">
+              <ActionLog />
+            </div>
           </div>
         </div>
 

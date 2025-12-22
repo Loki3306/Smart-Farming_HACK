@@ -12,12 +12,20 @@ import {
   WifiOff,
   CheckCircle,
   AlertCircle,
-  Cpu
+  Cpu,
+  Sprout,
+  Droplets,
+  Sun,
+  Cloud,
+  Wheat,
+  Leaf
 } from "lucide-react";
+import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { OtpInput } from "../components/auth/OtpInput";
+import { FarmOnboardingGuide } from "@/components/FarmOnboardingGuide";
 import {
   INDIAN_STATES,
   SOIL_TYPES_INDIA,
@@ -109,6 +117,10 @@ export const FarmOnboarding: React.FC = () => {
   const [showOtpInput, setShowOtpInput] = useState(false);
   const [sensorConnecting, setSensorConnecting] = useState(false);
   const [saving, setSaving] = useState(false);
+  
+  // For guide component
+  const [currentField, setCurrentField] = useState<string>("");
+  const [guideAction, setGuideAction] = useState<string>("");
 
   // GPS Location Handler with Real Reverse Geocoding
   const handleGetLocation = () => {
@@ -402,8 +414,82 @@ export const FarmOnboarding: React.FC = () => {
   const progressPercentage = (step / 5) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-emerald-50/80 to-sage-50 py-8 px-4">
-      <Card className="w-full max-w-3xl mx-auto p-8">
+    <>
+      {/* Farm Onboarding Guide */}
+      <FarmOnboardingGuide 
+        currentStep={step}
+        currentField={currentField}
+        fieldValues={farmData}
+        onAction={guideAction}
+      />
+      
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-emerald-50/80 to-sage-50 py-8 px-4 pl-[460px] relative overflow-hidden">
+      {/* Floating Background Icons */}
+      <motion.div
+        animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-20 left-20 text-emerald-300/20"
+      >
+        <Sprout size={80} />
+      </motion.div>
+      
+      <motion.div
+        animate={{ y: [0, 15, 0], rotate: [0, -5, 0] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-40 right-32 text-emerald-400/20"
+      >
+        <Wheat size={60} />
+      </motion.div>
+      
+      <motion.div
+        animate={{ y: [0, -25, 0] }}
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-32 left-40 text-emerald-300/25"
+      >
+        <Leaf size={70} />
+      </motion.div>
+      
+      <motion.div
+        animate={{ y: [0, 20, 0], x: [0, 10, 0] }}
+        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-60 right-20 text-emerald-200/20"
+      >
+        <Droplets size={50} />
+      </motion.div>
+      
+      <motion.div
+        animate={{ y: [0, -15, 0], rotate: [0, 10, 0] }}
+        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-48 right-40 text-emerald-400/15"
+      >
+        <Sun size={90} />
+      </motion.div>
+      
+      <motion.div
+        animate={{ x: [0, 20, 0], y: [0, 10, 0] }}
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-32 left-1/3 text-emerald-300/15"
+      >
+        <Cloud size={100} />
+      </motion.div>
+      
+      <motion.div
+        animate={{ y: [0, -18, 0], rotate: [0, -8, 0] }}
+        transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-20 left-1/4 text-emerald-500/20"
+      >
+        <Sprout size={55} />
+      </motion.div>
+      
+      <motion.div
+        animate={{ y: [0, 22, 0] }}
+        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-1/2 right-1/4 text-emerald-300/18"
+      >
+        <Leaf size={65} />
+      </motion.div>
+
+      <Card className="w-full max-w-2xl mx-auto p-8 relative z-10">
         <div className="space-y-8">
           {/* Header */}
           <div className="text-center">
@@ -476,6 +562,7 @@ export const FarmOnboarding: React.FC = () => {
                     name="fullName"
                     value={farmData.fullName}
                     onChange={handleChange}
+                    onFocus={() => setCurrentField("fullName")}
                     placeholder="e.g., Rajesh Kumar"
                     className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-primary"
                   />
@@ -547,13 +634,14 @@ export const FarmOnboarding: React.FC = () => {
                             name="phoneNumber"
                             value={farmData.phoneNumber}
                             onChange={handleChange}
+                            onFocus={() => setCurrentField("phoneNumber")}
                             placeholder="+91 98765 43210"
                             disabled={farmData.phoneVerified}
                             className="w-full pl-10 pr-4 py-3 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-primary disabled:bg-muted"
                           />
                         </div>
                         {!farmData.phoneVerified ? (
-                          <Button type="button" onClick={handleSendOtp} className="gap-2">
+                          <Button type="button" onClick={() => { handleSendOtp(); setGuideAction("OTP_SENT"); }} className="gap-2">
                             Send OTP
                           </Button>
                         ) : (
@@ -607,6 +695,7 @@ export const FarmOnboarding: React.FC = () => {
                     name="farmName"
                     value={farmData.farmName}
                     onChange={handleChange}
+                    onFocus={() => setCurrentField("farmName")}
                     placeholder="e.g., Green Valley Farm"
                     className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-primary"
                   />
@@ -629,7 +718,7 @@ export const FarmOnboarding: React.FC = () => {
                     </div>
                     <Button
                       type="button"
-                      onClick={handleGetLocation}
+                      onClick={() => { handleGetLocation(); setGuideAction("GPS_CLICKED"); }}
                       disabled={gpsLoading}
                       className="gap-2"
                     >
@@ -818,7 +907,7 @@ export const FarmOnboarding: React.FC = () => {
                       </div>
 
                       <Button
-                        onClick={handleConnectSensor}
+                        onClick={() => { handleConnectSensor(); setGuideAction('SENSOR_CONNECTING'); }}
                         disabled={sensorConnecting}
                         className="gap-2 px-8"
                         size="lg"
@@ -1038,7 +1127,8 @@ export const FarmOnboarding: React.FC = () => {
           </div>
         </div>
       </Card>
-    </div>
+      </div>
+    </>
   );
 };
 

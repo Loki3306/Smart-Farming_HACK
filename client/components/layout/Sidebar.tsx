@@ -102,7 +102,7 @@ export const Sidebar: React.FC = () => {
       </div>
 
       {/* Main Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto" data-tour-id="sidebar-nav">
         {mainNavItems.map((item) => (
           <NavItemComponent key={item.path} item={item} />
         ))}

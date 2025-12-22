@@ -80,7 +80,7 @@ export const Farm: React.FC = () => {
   return (
     <div className="p-6 lg:p-8 space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between" data-tour-id="farm-header">
         <div>
           <h1 className="text-3xl font-bold text-foreground">My Farm</h1>
           <p className="text-muted-foreground mt-1">
@@ -112,7 +112,7 @@ export const Farm: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <Card className="p-6">
+        <Card className="p-6" data-tour-id="farm-overview">
           <div className="flex items-start gap-4 mb-6">
             <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
               <Tractor className="w-8 h-8 text-primary" />
@@ -142,7 +142,7 @@ export const Farm: React.FC = () => {
           {/* Farm Details Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Location */}
-            <div className="space-y-4">
+            <div className="space-y-4" data-tour-id="farm-location">
               <h3 className="font-semibold text-foreground flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-primary" />
                 Location Details
@@ -197,7 +197,7 @@ export const Farm: React.FC = () => {
             </div>
 
             {/* Farm Specs */}
-            <div className="space-y-4">
+            <div className="space-y-4" data-tour-id="farm-specs">
               <h3 className="font-semibold text-foreground flex items-center gap-2">
                 <Mountain className="w-4 h-4 text-primary" />
                 Farm Specifications
@@ -256,7 +256,7 @@ export const Farm: React.FC = () => {
             </div>
 
             {/* Irrigation */}
-            <div className="space-y-4">
+            <div className="space-y-4" data-tour-id="farm-irrigation">
               <h3 className="font-semibold text-foreground flex items-center gap-2">
                 <Droplets className="w-4 h-4 text-primary" />
                 Irrigation Details
@@ -325,7 +325,7 @@ export const Farm: React.FC = () => {
       </motion.div>
 
       {/* Soil Stats Section */}
-      <div>
+      <div data-tour-id="farm-soil-analytics">
         <h2 className="text-xl font-semibold text-foreground mb-4">Soil Analytics</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <Card className="p-4 text-center">
@@ -333,13 +333,13 @@ export const Farm: React.FC = () => {
             <p className="text-2xl font-bold text-foreground">{soilStats.moisture}%</p>
             <p className="text-sm text-muted-foreground">Moisture</p>
           </Card>
-          
+
           <Card className="p-4 text-center">
             <Thermometer className="w-8 h-8 text-orange-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-foreground">{soilStats.temperature}°C</p>
             <p className="text-sm text-muted-foreground">Temperature</p>
           </Card>
-          
+
           <Card className="p-4 text-center">
             <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-2">
               <span className="text-purple-600 font-bold text-sm">pH</span>
@@ -347,7 +347,7 @@ export const Farm: React.FC = () => {
             <p className="text-2xl font-bold text-foreground">{soilStats.ph}</p>
             <p className="text-sm text-muted-foreground">pH Level</p>
           </Card>
-          
+
           <Card className="p-4 text-center">
             <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-2">
               <span className="text-green-600 font-bold text-sm">N</span>
@@ -355,7 +355,7 @@ export const Farm: React.FC = () => {
             <p className="text-2xl font-bold text-foreground">{soilStats.nitrogen}</p>
             <p className="text-sm text-muted-foreground">Nitrogen (kg/ha)</p>
           </Card>
-          
+
           <Card className="p-4 text-center">
             <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-2">
               <span className="text-yellow-600 font-bold text-sm">P</span>
@@ -363,7 +363,7 @@ export const Farm: React.FC = () => {
             <p className="text-2xl font-bold text-foreground">{soilStats.phosphorus}</p>
             <p className="text-sm text-muted-foreground">Phosphorus (kg/ha)</p>
           </Card>
-          
+
           <Card className="p-4 text-center">
             <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-2">
               <span className="text-red-600 font-bold text-sm">K</span>
@@ -375,7 +375,7 @@ export const Farm: React.FC = () => {
       </div>
 
       {/* Soil Health Indicator */}
-      <Card className="p-6">
+      <Card className="p-6" data-tour-id="farm-soil-health">
         <h3 className="font-semibold text-foreground mb-4">Overall Soil Health</h3>
         <div className="flex items-center gap-4">
           <div className="flex-1">

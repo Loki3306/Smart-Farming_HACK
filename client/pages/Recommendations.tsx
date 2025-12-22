@@ -178,7 +178,7 @@ export const Recommendations: React.FC = () => {
   return (
     <div className="p-6 lg:p-8 space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="flex items-center justify-between flex-wrap gap-4" data-tour-id="reco-header">
         <div>
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
             <Sparkles className="w-8 h-8 text-primary" />
@@ -192,6 +192,7 @@ export const Recommendations: React.FC = () => {
           onClick={handleAnalyze}
           disabled={isAnalyzing}
           className="gap-2"
+          data-tour-id="reco-analyze-btn"
         >
           {isAnalyzing ? (
             <>
@@ -208,7 +209,7 @@ export const Recommendations: React.FC = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4" data-tour-id="reco-stats">
         <Card className="p-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
@@ -245,7 +246,7 @@ export const Recommendations: React.FC = () => {
       </div>
 
       {/* AI Status Notice */}
-      <Card className="p-6 border-l-4 border-l-green-500 bg-green-50">
+      <Card className="p-6 border-l-4 border-l-green-500 bg-green-50" data-tour-id="reco-integration">
         <div className="flex items-start gap-4">
           <Brain className="w-8 h-8 text-green-600 flex-shrink-0" />
           <div>
@@ -268,7 +269,7 @@ export const Recommendations: React.FC = () => {
       </Card>
 
       {/* Recommendations List */}
-      <div className="space-y-4">
+      <div className="space-y-4" data-tour-id="reco-list">
         <h2 className="text-xl font-semibold text-foreground">Active Recommendations</h2>
         
         {recommendations.length === 0 ? (
@@ -283,7 +284,7 @@ export const Recommendations: React.FC = () => {
           recommendations.map((rec, index) => {
           const TypeIcon = getTypeIcon(rec.type);
           const typeColor = getTypeColor(rec.type);
-          
+
           return (
             <motion.div
               key={rec.id}
@@ -296,7 +297,7 @@ export const Recommendations: React.FC = () => {
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${typeColor}`}>
                     <TypeIcon className="w-6 h-6" />
                   </div>
-                  
+
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-2">
                       <h3 className="font-semibold text-foreground">{rec.title}</h3>
@@ -310,16 +311,16 @@ export const Recommendations: React.FC = () => {
                         </span>
                       )}
                     </div>
-                    
+
                     <p className="text-sm text-muted-foreground mb-3">{rec.description}</p>
-                    
+
                     <div className="flex items-center gap-4 flex-wrap">
                       <div className="flex items-center gap-2 text-sm">
                         <AlertTriangle className="w-4 h-4 text-primary" />
                         <span className="font-medium">Action:</span>
                         <span className="text-muted-foreground">{rec.action}</span>
                       </div>
-                      
+
                       <div className="flex items-center gap-2 text-sm">
                         <Sparkles className="w-4 h-4 text-primary" />
                         <span className="font-medium">Confidence:</span>
@@ -327,7 +328,7 @@ export const Recommendations: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   {!rec.applied && (
                     <Button
                       variant="outline"

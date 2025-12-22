@@ -165,7 +165,7 @@ export const Notifications: React.FC = () => {
   return (
     <div className="p-6 lg:p-8 space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="flex items-center justify-between flex-wrap gap-4" data-tour-id="notif-header">
         <div>
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
             <Bell className="w-8 h-8 text-primary" />
@@ -180,7 +180,7 @@ export const Notifications: React.FC = () => {
             Stay updated with alerts and important information
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2" data-tour-id="notif-actions">
           <Button variant="outline" onClick={markAllAsRead} className="gap-2">
             <Check className="w-4 h-4" />
             Mark All Read
@@ -193,25 +193,23 @@ export const Notifications: React.FC = () => {
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4" data-tour-id="notif-filters">
         <div className="flex gap-2 p-1 bg-muted rounded-lg">
           <button
             onClick={() => setFilter("all")}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              filter === "all"
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${filter === "all"
                 ? "bg-white text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
-            }`}
+              }`}
           >
             All
           </button>
           <button
             onClick={() => setFilter("unread")}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              filter === "unread"
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${filter === "unread"
                 ? "bg-white text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
-            }`}
+              }`}
           >
             Unread ({unreadCount})
           </button>
@@ -219,7 +217,7 @@ export const Notifications: React.FC = () => {
       </div>
 
       {/* Notifications List */}
-      <div className="space-y-3">
+      <div className="space-y-3" data-tour-id="notif-list">
         <AnimatePresence>
           {filteredNotifications.length === 0 ? (
             <Card className="p-12 text-center">
@@ -243,9 +241,8 @@ export const Notifications: React.FC = () => {
                 transition={{ duration: 0.2, delay: index * 0.05 }}
               >
                 <Card
-                  className={`p-4 transition-all hover:shadow-md ${
-                    !notification.read ? "bg-primary/5 border-primary/20" : ""
-                  }`}
+                  className={`p-4 transition-all hover:shadow-md ${!notification.read ? "bg-primary/5 border-primary/20" : ""
+                    }`}
                 >
                   <div className="flex items-start gap-4">
                     {/* Icon */}
@@ -261,9 +258,8 @@ export const Notifications: React.FC = () => {
                         <div>
                           <div className="flex items-center gap-2">
                             <h3
-                              className={`font-semibold ${
-                                !notification.read ? "text-foreground" : "text-muted-foreground"
-                              }`}
+                              className={`font-semibold ${!notification.read ? "text-foreground" : "text-muted-foreground"
+                                }`}
                             >
                               {notification.title}
                             </h3>
@@ -313,7 +309,7 @@ export const Notifications: React.FC = () => {
       </div>
 
       {/* Notification Settings Card */}
-      <Card className="p-6">
+      <Card className="p-6" data-tour-id="notif-settings">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Settings className="w-5 h-5 text-muted-foreground" />

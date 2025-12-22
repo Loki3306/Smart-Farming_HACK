@@ -6,8 +6,8 @@ import { encryptData, hashPassword } from '../lib/encryption';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-const supabase = SUPABASE_URL && SUPABASE_ANON_KEY 
-  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) 
+const supabase = SUPABASE_URL && SUPABASE_ANON_KEY
+  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
 
 export interface SignupPayload {
@@ -51,6 +51,7 @@ const mockUsers: Map<string, User & { password: string }> = new Map();
 // Demo user
 const DEMO_USER: User = {
   id: "demo-user-123",
+  phone: "+1-555-000-0000",
   email: "demo@irrigate.farm",
   fullName: "Demo Farmer",
   country: "United States",
@@ -66,7 +67,7 @@ mockUsers.set("test@example.com", {
   id: "user-001",
   email: "test@example.com",
   fullName: "Test Farmer",
-  phoneNumber: "555-1234",
+  phone: "555-1234",
   country: "United States",
   state: "California",
   experienceLevel: "beginner",
@@ -137,13 +138,13 @@ class AuthServiceClass {
 
       // Store auth token and user ID in localStorage (for session persistence)
       const mockToken = this.generateMockToken(user.id);
-      
+
       // CRITICAL: Store all auth data directly in localStorage
       localStorage.setItem("auth_token", mockToken);
       localStorage.setItem("user_id", user.id);
       localStorage.setItem("current_user", JSON.stringify(user));
       localStorage.removeItem("onboarding_completed"); // Fresh signup, onboarding not done
-      
+
       console.log('[Signup] New user registered:', user.phone, 'Session stored');
 
       return {
@@ -220,7 +221,7 @@ class AuthServiceClass {
       }
 
       const hasCompletedOnboarding = !!farmData; // If farm exists, onboarding is complete
-      
+
       console.log('[Login] User:', userData.phone, 'Farm data:', farmData, 'Onboarding complete:', hasCompletedOnboarding);
 
       // Create user object
@@ -239,7 +240,7 @@ class AuthServiceClass {
 
       // Store session - CRITICAL: Must use localStorage directly, not setMockCookie
       const mockToken = this.generateMockToken(user.id);
-      
+
       // IMPORTANT: Store all auth data in localStorage for persistence across page reloads
       localStorage.setItem("auth_token", mockToken);
       localStorage.setItem("user_id", user.id);
@@ -256,10 +257,10 @@ class AuthServiceClass {
         localStorage.removeItem("onboarding_completed");
         console.log('[Login] Login successful for', userData.phone, '- Onboarding required');
       }
-      
+
       console.log('[Login] Session stored. Auth token:', mockToken.substring(0, 20) + '...');
       console.log('[Login] User object:', JSON.stringify(user));
-      
+
       return {
         user,
         token: mockToken,
@@ -321,15 +322,15 @@ class AuthServiceClass {
       // Step 1: Check for cached user first (even if no token - it means browser has localStorage)
       const cachedUser = localStorage.getItem("current_user");
       const userId = localStorage.getItem("user_id");
-      
+
       if (cachedUser && userId) {
         try {
           const user = JSON.parse(cachedUser) as User;
-          
+
           // Check onboarding status from localStorage
           const onboardingCompleted = localStorage.getItem('onboarding_completed') === 'true';
           console.log('[Auth] Restored user from cache:', user.fullName, 'Onboarding:', onboardingCompleted);
-          
+
           return {
             ...user,
             hasCompletedOnboarding: onboardingCompleted || user.hasCompletedOnboarding,

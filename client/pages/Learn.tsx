@@ -185,7 +185,7 @@ export const Learn: React.FC = () => {
   return (
     <div className="p-6 lg:p-8 space-y-8">
       {/* Header */}
-      <div>
+      <div data-tour-id="learn-header">
         <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
           <GraduationCap className="w-8 h-8 text-primary" />
           Learning Hub
@@ -196,7 +196,7 @@ export const Learn: React.FC = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4" data-tour-id="learn-stats">
         <Card className="p-4 text-center">
           <p className="text-3xl font-bold text-primary">50+</p>
           <p className="text-sm text-muted-foreground">Free Courses</p>
@@ -216,7 +216,7 @@ export const Learn: React.FC = () => {
       </div>
 
       {/* Search */}
-      <div className="relative">
+      <div className="relative" data-tour-id="learn-search">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
         <input
           type="text"
@@ -228,7 +228,7 @@ export const Learn: React.FC = () => {
       </div>
 
       {/* Categories */}
-      <div className="flex gap-3 overflow-x-auto pb-2">
+      <div className="flex gap-3 overflow-x-auto pb-2" data-tour-id="learn-categories">
         {categories.map((cat) => (
           <Button key={cat.id} variant="outline" size="sm" className="whitespace-nowrap gap-2">
             <cat.icon className="w-4 h-4" />
@@ -238,36 +238,33 @@ export const Learn: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-border">
+      <div className="flex gap-2 border-b border-border" data-tour-id="learn-tabs">
         <button
           onClick={() => setActiveTab("courses")}
-          className={`px-4 py-2 font-medium text-sm transition-colors ${
-            activeTab === "courses"
+          className={`px-4 py-2 font-medium text-sm transition-colors ${activeTab === "courses"
               ? "text-primary border-b-2 border-primary"
               : "text-muted-foreground hover:text-foreground"
-          }`}
+            }`}
         >
           <BookOpen className="w-4 h-4 inline-block mr-2" />
           Courses
         </button>
         <button
           onClick={() => setActiveTab("articles")}
-          className={`px-4 py-2 font-medium text-sm transition-colors ${
-            activeTab === "articles"
+          className={`px-4 py-2 font-medium text-sm transition-colors ${activeTab === "articles"
               ? "text-primary border-b-2 border-primary"
               : "text-muted-foreground hover:text-foreground"
-          }`}
+            }`}
         >
           <FileText className="w-4 h-4 inline-block mr-2" />
           Articles
         </button>
         <button
           onClick={() => setActiveTab("videos")}
-          className={`px-4 py-2 font-medium text-sm transition-colors ${
-            activeTab === "videos"
+          className={`px-4 py-2 font-medium text-sm transition-colors ${activeTab === "videos"
               ? "text-primary border-b-2 border-primary"
               : "text-muted-foreground hover:text-foreground"
-          }`}
+            }`}
         >
           <Video className="w-4 h-4 inline-block mr-2" />
           Videos
@@ -276,7 +273,7 @@ export const Learn: React.FC = () => {
 
       {/* Content */}
       {activeTab === "courses" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6" data-tour-id="learn-content">
           {courses.map((course, index) => (
             <motion.div
               key={course.id}
@@ -299,7 +296,7 @@ export const Learn: React.FC = () => {
                       <p className="text-sm text-muted-foreground line-clamp-2">{course.description}</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center justify-between mt-4 pt-4 border-t">
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
