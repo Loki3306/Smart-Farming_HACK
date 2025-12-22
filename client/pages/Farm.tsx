@@ -108,15 +108,15 @@ export const Farm: React.FC = () => {
             const sensorResult = await sensorResponse.json();
             const sensor = sensorResult.sensorData;
             
-            if (sensor && sensor.soil_moisture) {
+            if (sensor && sensor.soil_moisture !== null && sensor.soil_moisture !== undefined) {
               console.log('[Farm] ✅ Loaded real sensor data:', sensor);
               setSoilStats({
                 moisture: Math.round(sensor.soil_moisture || 0),
-                temperature: Math.round(sensor.soil_temperature || 0),
-                ph: parseFloat((sensor.soil_ph || 0).toFixed(1)),
-                nitrogen: Math.round(sensor.soil_nitrogen || 0),
-                phosphorus: Math.round(sensor.soil_phosphorus || 0),
-                potassium: Math.round(sensor.soil_potassium || 0),
+                temperature: Math.round(sensor.temperature || 0),
+                ph: parseFloat((sensor.ph || 0).toFixed(1)),
+                nitrogen: Math.round(sensor.nitrogen || 0),
+                phosphorus: Math.round(sensor.phosphorus || 0),
+                potassium: Math.round(sensor.potassium || 0),
               });
               setUsesDemoSensorData(false);
             } else {
