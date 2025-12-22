@@ -12,6 +12,11 @@ import {
   triggerWaterPump,
   triggerFertilizer
 } from "./routes/sensors";
+import { 
+  getCurrentWeather, 
+  getForecast, 
+  getHistoricalWeather 
+} from "./routes/weather";
 
 // Python AI Backend Configuration
 const PYTHON_AI_URL = process.env.PYTHON_AI_URL || "http://localhost:8000";
@@ -55,6 +60,13 @@ export function createServer() {
   // Sensor Actions
   app.post("/api/sensors/actions/water-pump", triggerWaterPump);
   app.post("/api/sensors/actions/fertilizer", triggerFertilizer);
+
+  // ============================================================================
+  // WEATHER DATA - Real-time weather based on farm GPS location
+  // ============================================================================
+  app.get("/api/weather/current", getCurrentWeather);
+  app.get("/api/weather/forecast", getForecast);
+  app.get("/api/weather/historical", getHistoricalWeather);
 
   // ============================================================================
   // AI RECOMMENDATIONS PROXY - Forward requests to Python FastAPI backend
