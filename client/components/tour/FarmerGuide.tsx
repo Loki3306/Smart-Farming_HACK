@@ -37,10 +37,20 @@ const AnimatedText: React.FC<{ text: string }> = ({ text }) => {
     );
 };
 
-// Voice narration hook
+// Voice narration hook with Hindi support
 const useVoiceNarration = () => {
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [isSupported, setIsSupported] = useState(true);
+
+    // Get stored language preference
+    const getLanguage = (): 'en' | 'hi' => {
+        try {
+            const stored = localStorage.getItem('smartfarm_preferred_language');
+            return stored === 'hi' ? 'hi' : 'en';
+        } catch {
+            return 'en';
+        }
+    };
 
     useEffect(() => {
         // Check if Speech Synthesis is supported
@@ -56,26 +66,43 @@ const useVoiceNarration = () => {
         window.speechSynthesis.cancel();
 
         const utterance = new SpeechSynthesisUtterance(text);
+        const lang = getLanguage();
 
-        // Configure voice settings
-        utterance.lang = 'en-IN'; // English (India) accent
-        utterance.rate = 0.9; // Slightly slower for clarity
-        utterance.pitch = 0.9; // Slightly lower pitch for male voice
+        // Configure voice settings based on language
+        if (lang === 'hi') {
+            utterance.lang = 'hi-IN'; // Hindi (India)
+            utterance.rate = 0.85; // Slightly slower for Hindi clarity
+            utterance.pitch = 1;
+        } else {
+            utterance.lang = 'en-IN'; // English (India) accent
+            utterance.rate = 0.9;
+            utterance.pitch = 0.9;
+        }
         utterance.volume = 1;
 
-        // Try to find a male English voice
+        // Find appropriate voice
         const voices = window.speechSynthesis.getVoices();
-        const maleVoice = voices.find(voice =>
-            voice.lang.startsWith('en') &&
-            (voice.name.toLowerCase().includes('male') ||
-                voice.name.toLowerCase().includes('david') ||
-                voice.name.toLowerCase().includes('james') ||
-                voice.name.toLowerCase().includes('rishi') ||
-                voice.name.toLowerCase().includes('google'))
-        );
+        let selectedVoice = null;
 
-        if (maleVoice) {
-            utterance.voice = maleVoice;
+        if (lang === 'hi') {
+            // Try to find Hindi voice
+            selectedVoice = voices.find(voice =>
+                voice.lang.startsWith('hi') || voice.lang === 'hi-IN'
+            );
+        } else {
+            // Try to find male English voice
+            selectedVoice = voices.find(voice =>
+                voice.lang.startsWith('en') &&
+                (voice.name.toLowerCase().includes('male') ||
+                    voice.name.toLowerCase().includes('david') ||
+                    voice.name.toLowerCase().includes('james') ||
+                    voice.name.toLowerCase().includes('rishi') ||
+                    voice.name.toLowerCase().includes('google'))
+            );
+        }
+
+        if (selectedVoice) {
+            utterance.voice = selectedVoice;
         }
 
         utterance.onstart = () => setIsSpeaking(true);
@@ -210,8 +237,8 @@ export const FarmerGuide: React.FC<FarmerGuideProps> = ({
                                     whileTap={{ scale: 0.95 }}
                                     aria-label={isSpeaking ? "Stop narration" : "Play narration"}
                                     className={`p-1.5 rounded-lg transition-all duration-200 group ${isSpeaking
-                                            ? 'bg-emerald-500/30 border border-emerald-500/50'
-                                            : 'bg-white/10 hover:bg-white/20'
+                                        ? 'bg-emerald-500/30 border border-emerald-500/50'
+                                        : 'bg-white/10 hover:bg-white/20'
                                         }`}
                                 >
                                     {isSpeaking ? (

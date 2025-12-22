@@ -199,9 +199,27 @@ export const DashboardGuide = () => {
 
         const textToSpeak = `${currentMessage.greeting}. ${currentMessage.mainMessage}`;
         const utterance = new SpeechSynthesisUtterance(textToSpeak);
-        utterance.rate = 0.9;
+
+        // Get stored language preference
+        const storedLang = localStorage.getItem('smartfarm_preferred_language');
+        const isHindi = storedLang === 'hi';
+
+        if (isHindi) {
+            utterance.lang = 'hi-IN';
+            utterance.rate = 0.85;
+        } else {
+            utterance.lang = 'en-IN';
+            utterance.rate = 0.9;
+        }
         utterance.pitch = 1;
         utterance.onend = () => setIsSpeaking(false);
+
+        // Try to find appropriate voice
+        const voices = window.speechSynthesis.getVoices();
+        const voice = voices.find(v =>
+            isHindi ? (v.lang.startsWith('hi') || v.lang === 'hi-IN') : v.lang.startsWith('en')
+        );
+        if (voice) utterance.voice = voice;
 
         speechSynthesisRef.current = utterance;
         window.speechSynthesis.speak(utterance);
@@ -221,9 +239,11 @@ export const DashboardGuide = () => {
 
     const handleLanguageSelect = (language: "english" | "hindi") => {
         setSelectedLanguage(language);
-        if (language === "hindi") {
-            alert("Hindi support coming soon! We'll use English for now.");
-        }
+
+        // Save language preference to localStorage
+        const langCode = language === "hindi" ? "hi" : "en";
+        localStorage.setItem('smartfarm_preferred_language', langCode);
+
         setMode("tour-starting");
 
         // Reset only the current page's tour so user can re-watch it

@@ -151,7 +151,7 @@ export const AuthGuide = ({ mode, currentField, fieldValues = {} }: AuthGuidePro
     const [showReaction, setShowReaction] = useState(false);
     const [reactionText, setReactionText] = useState("");
     const [isSpeaking, setIsSpeaking] = useState(false);
-    
+
     const messages = mode === "signup" ? signupMessages : loginMessages;
     const currentMessage = messages[currentStep];
     const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -160,10 +160,10 @@ export const AuthGuide = ({ mode, currentField, fieldValues = {} }: AuthGuidePro
     // Auto-advance to next step when relevant field is filled correctly
     useEffect(() => {
         if (!currentMessage.fieldToWatch) return;
-        
+
         const watchedField = currentMessage.fieldToWatch;
         const value = fieldValues[watchedField];
-        
+
         if (value && String(value).trim()) {
             // Validate based on field type
             let isValid = false;
@@ -174,11 +174,11 @@ export const AuthGuide = ({ mode, currentField, fieldValues = {} }: AuthGuidePro
             } else {
                 isValid = String(value).length > 0;
             }
-            
+
             if (isValid && currentMessage.reactions?.onValid) {
                 setReactionText(currentMessage.reactions.onValid);
                 setShowReaction(true);
-                
+
                 // Auto-advance after showing reaction
                 setTimeout(() => {
                     setShowReaction(false);
@@ -199,7 +199,7 @@ export const AuthGuide = ({ mode, currentField, fieldValues = {} }: AuthGuidePro
     // React to field focus
     useEffect(() => {
         if (!currentMessage.fieldToWatch || !currentField) return;
-        
+
         if (currentField === currentMessage.fieldToWatch && currentMessage.reactions?.onFocus) {
             setReactionText(currentMessage.reactions.onFocus);
             setShowReaction(true);
@@ -212,7 +212,7 @@ export const AuthGuide = ({ mode, currentField, fieldValues = {} }: AuthGuidePro
         const fullText = currentMessage.mainMessage;
         setDisplayedText("");
         setIsTyping(true);
-        
+
         let index = 0;
         typingIntervalRef.current = setInterval(() => {
             if (index < fullText.length) {
@@ -225,7 +225,7 @@ export const AuthGuide = ({ mode, currentField, fieldValues = {} }: AuthGuidePro
                 }
             }
         }, 30); // Typing speed
-        
+
         return () => {
             if (typingIntervalRef.current) {
                 clearInterval(typingIntervalRef.current);
@@ -277,13 +277,31 @@ export const AuthGuide = ({ mode, currentField, fieldValues = {} }: AuthGuidePro
             if (currentMessage.encouragement) {
                 fullText += '. ' + currentMessage.encouragement;
             }
-            
+
             const utterance = new SpeechSynthesisUtterance(fullText);
-            utterance.rate = 0.9;
+
+            // Get stored language preference
+            const storedLang = localStorage.getItem('smartfarm_preferred_language');
+            const isHindi = storedLang === 'hi';
+
+            if (isHindi) {
+                utterance.lang = 'hi-IN';
+                utterance.rate = 0.85;
+            } else {
+                utterance.lang = 'en-IN';
+                utterance.rate = 0.9;
+            }
             utterance.pitch = 1;
-            utterance.lang = 'en-IN'; // Indian English
             utterance.onend = () => setIsSpeaking(false);
             utterance.onerror = () => setIsSpeaking(false);
+
+            // Find appropriate voice
+            const voices = window.speechSynthesis.getVoices();
+            const voice = voices.find(v =>
+                isHindi ? (v.lang.startsWith('hi') || v.lang === 'hi-IN') : v.lang.startsWith('en')
+            );
+            if (voice) utterance.voice = voice;
+
             speechSynthesisRef.current = utterance;
             window.speechSynthesis.speak(utterance);
             setIsSpeaking(true);
@@ -522,13 +540,12 @@ export const AuthGuide = ({ mode, currentField, fieldValues = {} }: AuthGuidePro
                                                     initial={{ scale: 0 }}
                                                     animate={{ scale: 1 }}
                                                     transition={{ delay: index * 0.05 }}
-                                                    className={`h-1.5 rounded-full transition-all ${
-                                                        index === currentStep
+                                                    className={`h-1.5 rounded-full transition-all ${index === currentStep
                                                             ? "bg-emerald-600 w-8"
                                                             : index < currentStep
-                                                            ? "bg-emerald-400 w-1.5"
-                                                            : "bg-emerald-200 w-1.5"
-                                                    }`}
+                                                                ? "bg-emerald-400 w-1.5"
+                                                                : "bg-emerald-200 w-1.5"
+                                                        }`}
                                                 />
                                             ))}
                                         </div>
