@@ -9,6 +9,7 @@ import { AuditTrail } from "./pages/AuditTrail";
 import { Login } from "./pages/Login";
 import { Signup } from "./pages/Signup";
 import { FarmOnboarding } from "./pages/FarmOnboarding";
+import FertilizerRecommendation from "./pages/FertilizerRecommendation";
 import NotFound from "./pages/NotFound";
 import { AuthContextProvider } from "./context/AuthContext";
 import { FarmContextProvider } from "./context/FarmContext";
@@ -57,6 +58,15 @@ export const App = () => (
                 element={
                   <ProtectedRoute requireOnboarding>
                     <AuditTrail />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/fertilizer"
+                element={
+                  <ProtectedRoute requireOnboarding>
+                    <FertilizerRecommendation />
                   </ProtectedRoute>
                 }
               />

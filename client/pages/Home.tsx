@@ -1,5 +1,7 @@
 import React, { useEffect } from "react";
-import { MapPin, Activity } from "lucide-react";
+import { MapPin, Activity, Sprout } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { SoilMoisture } from "../components/dashboard/SoilMoisture";
 import { WeatherCard } from "../components/dashboard/WeatherCard";
 import { ControlCenter } from "../components/dashboard/ControlCenter";
@@ -8,6 +10,7 @@ import { useFarmContext } from "../context/FarmContext";
 import { useInterval } from "../hooks/useInterval";
 
 export const Home: React.FC = () => {
+  const navigate = useNavigate();
   const { refreshSensorData, refreshWeather, refreshBlockchain, systemStatus } =
     useFarmContext();
 
@@ -43,14 +46,26 @@ export const Home: React.FC = () => {
               </p>
             </div>
 
-            {/* System Status Indicator */}
-            <div className="flex items-center gap-4 px-6 py-4 bg-white rounded-xl shadow-sm border border-border">
-              <div className="flex items-center gap-2">
-                <Activity className="w-5 h-5 text-primary" />
-                <div>
-                  <div className="text-sm text-muted-foreground">System</div>
-                  <div className="font-semibold text-foreground">
-                    {systemStatus?.isOnline ? "Online" : "Offline"}
+            <div className="flex items-center gap-3">
+              {/* Fertilizer Recommendation Button */}
+              <Button 
+                onClick={() => navigate('/fertilizer')}
+                className="bg-green-600 hover:bg-green-700 text-white"
+                size="lg"
+              >
+                <Sprout className="w-5 h-5 mr-2" />
+                Fertilizer AI
+              </Button>
+
+              {/* System Status Indicator */}
+              <div className="flex items-center gap-4 px-6 py-4 bg-white rounded-xl shadow-sm border border-border">
+                <div className="flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-primary" />
+                  <div>
+                    <div className="text-sm text-muted-foreground">System</div>
+                    <div className="font-semibold text-foreground">
+                      {systemStatus?.isOnline ? "Online" : "Offline"}
+                    </div>
                   </div>
                 </div>
               </div>
