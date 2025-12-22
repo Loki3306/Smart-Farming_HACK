@@ -55,7 +55,15 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
   children,
 }) => {
   // Get auth context to scope data to authenticated user
-  const { user } = useAuth();
+  // Wrapped in try-catch to handle HMR edge cases
+  let user = null;
+  try {
+    const auth = useAuth();
+    user = auth.user;
+  } catch (error) {
+    // Auth context not ready yet (e.g., during HMR)
+    console.warn('[FarmContext] Auth context not available yet');
+  }
 
   const [sensorData, setSensorData] = useState<SensorData | null>(null);
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);

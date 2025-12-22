@@ -45,23 +45,17 @@ export async function sendOtp(req: Request, res: Response) {
       });
     }
 
-    console.log(`[OTP] Sending OTP to ${phoneNumber}`);
+    console.log(`[OTP] [MOCK MODE] Sending OTP to ${phoneNumber}`);
 
-    // Send OTP via Twilio Verify
-    const client = getTwilioClient();
-    const verification = await client.verify.v2
-      .services(verifySid!)
-      .verifications.create({
-        to: phoneNumber,
-        channel: "sms",
-      });
+    // MOCK MODE - Always return success, use OTP: 123456
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
-    console.log(`[OTP] Verification SID: ${verification.sid}`);
+    console.log(`[OTP] [MOCK MODE] OTP is 123456`);
 
     return res.status(200).json({
       success: true,
-      message: "OTP sent successfully",
-      verificationSid: verification.sid,
+      message: "OTP sent successfully (MOCK: use 123456)",
+      verificationSid: "mock_verification_sid",
     });
   } catch (error: any) {
     console.error("[OTP] Error sending OTP:", error);
@@ -114,29 +108,23 @@ export async function verifyOtp(req: Request, res: Response) {
       });
     }
 
-    console.log(`[OTP] Verifying OTP for ${phoneNumber}`);
+    console.log(`[OTP] [MOCK MODE] Verifying OTP for ${phoneNumber}`);
 
-    // Verify OTP via Twilio Verify
-    const client = getTwilioClient();
-    const verificationCheck = await client.verify.v2
-      .services(verifySid!)
-      .verificationChecks.create({
-        to: phoneNumber,
-        code: code,
-      });
+    // MOCK MODE - Accept 123456 as valid OTP
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
-    console.log(`[OTP] Verification status: ${verificationCheck.status}`);
-
-    if (verificationCheck.status === "approved") {
+    if (code === "123456") {
+      console.log(`[OTP] [MOCK MODE] OTP verified successfully`);
       return res.status(200).json({
         success: true,
         message: "Phone number verified successfully",
         verified: true,
       });
     } else {
+      console.log(`[OTP] [MOCK MODE] Invalid OTP`);
       return res.status(400).json({
         success: false,
-        error: "Invalid or expired code",
+        error: "Invalid code. Use 123456 for mock mode.",
         verified: false,
       });
     }

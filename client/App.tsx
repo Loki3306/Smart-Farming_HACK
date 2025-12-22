@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { Landing } from "./pages/Landing";
 import { Home } from "./pages/Home";
 import { AuditTrail } from "./pages/AuditTrail";
+import { Profile } from "./pages/Profile";
 import { Login } from "./pages/Login";
 import { Signup } from "./pages/Signup";
 import { FarmOnboarding } from "./pages/FarmOnboarding";
@@ -45,6 +46,15 @@ function AnimatedRoutes() {
           element={
             <ProtectedRoute requireOnboarding>
               <Home />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute requireOnboarding>
+              <Profile />
             </ProtectedRoute>
           }
         />

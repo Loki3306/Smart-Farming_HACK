@@ -110,7 +110,7 @@ export const AuditTrail: React.FC = () => {
         </div>
 
         {/* Audit Trail Table */}
-        <Card glass className="overflow-hidden">
+        <Card className="overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>

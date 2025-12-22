@@ -1,10 +1,20 @@
 import CONFIG from "../config";
+import { createClient } from '@supabase/supabase-js';
+import { encryptData, hashPassword } from '../lib/encryption';
+
+// Supabase configuration
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+
+const supabase = SUPABASE_URL && SUPABASE_ANON_KEY 
+  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) 
+  : null;
 
 export interface SignupPayload {
-  email: string;
+  phone: string;
   password: string;
   fullName: string;
-  phoneNumber?: string;
+  email?: string;
   country: string;
   state: string;
   experienceLevel: "beginner" | "intermediate" | "experienced";
@@ -12,15 +22,15 @@ export interface SignupPayload {
 }
 
 export interface LoginPayload {
-  email: string;
+  phone: string;
   password: string;
 }
 
 export interface User {
   id: string;
-  email: string;
+  phone: string;
+  email?: string;
   fullName: string;
-  phoneNumber?: string;
   country: string;
   state: string;
   experienceLevel: "beginner" | "intermediate" | "experienced";
@@ -68,41 +78,70 @@ mockUsers.set("test@example.com", {
 
 class AuthServiceClass {
   async signup(payload: SignupPayload): Promise<AuthResponse> {
-    if (CONFIG.USE_MOCK_DATA) {
+    if (CONFIG.USE_MOCK_DATA && supabase) {
       await this.simulateDelay();
 
-      // Check if user already exists
-      if (mockUsers.has(payload.email)) {
-        throw new Error("Email already registered");
+      const hashedPassword = hashPassword(payload.password);
+
+      // Check if phone already exists
+      const { data: existingUser, error: checkError } = await supabase
+        .from('farmers')
+        .select('id')
+        .eq('phone', payload.phone)
+        .maybeSingle();
+
+      console.log('[Signup] Phone format:', payload.phone);
+
+      if (checkError) {
+        console.error('[Signup] Check error:', checkError);
+        throw new Error("Database error. Please try again.");
       }
 
-      // Create new user
-      const newUser: User & { password: string } = {
-        id: `user-${Date.now()}`,
+      if (existingUser) {
+        throw new Error("Phone number already registered");
+      }
+
+      // Insert user into Supabase
+      const { data: newUser, error } = await supabase
+        .from('farmers')
+        .insert({
+          name: payload.fullName,
+          phone: payload.phone, // Store plain for login
+          email: payload.email || null, // Optional
+          experience: payload.experienceLevel,
+          password: hashedPassword,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('[Signup] Supabase error:', error);
+        throw new Error(error.message || "Signup failed");
+      }
+
+      // Create user object
+      const user: User = {
+        id: newUser.id,
+        phone: payload.phone,
         email: payload.email,
         fullName: payload.fullName,
-        phoneNumber: payload.phoneNumber,
         country: payload.country,
         state: payload.state,
         experienceLevel: payload.experienceLevel,
         preferredLanguage: payload.preferredLanguage,
         hasCompletedOnboarding: false,
-        createdAt: new Date(),
-        password: payload.password, // In real backend, bcrypt would hash this
+        createdAt: new Date(newUser.created_at),
         isDemoUser: false,
       };
 
-      mockUsers.set(payload.email, newUser);
-
-      // Mock JWT token (in real backend, actual JWT would be generated)
-      const mockToken = this.generateMockToken(newUser.id);
-
-      // Mock cookie setting (real backend would set HttpOnly cookie)
+      // Store auth token and user ID in localStorage (for session)
+      const mockToken = this.generateMockToken(user.id);
       this.setMockCookie("auth_token", mockToken);
+      localStorage.setItem("user_id", user.id);
+      localStorage.setItem("current_user", JSON.stringify(user));
 
-      const { password, ...userWithoutPassword } = newUser;
       return {
-        user: userWithoutPassword,
+        user,
         token: mockToken,
       };
     }
@@ -127,22 +166,82 @@ class AuthServiceClass {
   }
 
   async login(payload: LoginPayload): Promise<AuthResponse> {
-    if (CONFIG.USE_MOCK_DATA) {
+    if (CONFIG.USE_MOCK_DATA && supabase) {
       await this.simulateDelay();
 
-      const user = mockUsers.get(payload.email);
+      // Hash password for comparison
+      const hashedPassword = hashPassword(payload.password);
 
-      if (!user || user.password !== payload.password) {
+      console.log('[Login] Querying with phone:', payload.phone);
+
+      // Query Supabase for user (phone is plain text)
+      const { data: userData, error } = await supabase
+        .from('farmers')
+        .select('*')
+        .eq('phone', payload.phone)
+        .maybeSingle();
+
+      console.log('[Login] Query result:', userData ? `Found user with phone: ${userData.phone}` : 'No user found');
+
+      if (error) {
+        console.error('[Login] Supabase error:', error);
+        if (error.code === 'PGRST116') {
+          throw new Error("Database error: Multiple accounts found. Please contact support.");
+        }
+        throw new Error("Login failed. Please try again.");
+      }
+
+      if (!userData) {
+        throw new Error("Invalid phone number or password");
+      }
+
+      // Verify password (compare hashes)
+      if (userData.password !== hashedPassword) {
         throw new Error("Invalid email or password");
       }
 
-      // Mock JWT token
+      // Check if user has completed onboarding (has farm data)
+      const { data: farmData } = await supabase
+        .from('farms')
+        .select('id')
+        .eq('farmer_id', userData.id)
+        .maybeSingle();
+
+      const hasCompletedOnboarding = !!farmData; // If farm exists, onboarding is complete
+      
+      console.log('[Login] User:', userData.phone, 'Farm data:', farmData, 'Onboarding complete:', hasCompletedOnboarding);
+
+      // Create user object
+      const user: User = {
+        id: userData.id,
+        phone: userData.phone,
+        email: userData.email || undefined,
+        fullName: userData.name,
+        country: 'India', // Default
+        state: '', // Load from farms table if needed
+        experienceLevel: userData.experience as any || 'beginner',
+        hasCompletedOnboarding,
+        createdAt: new Date(userData.created_at),
+        isDemoUser: false,
+      };
+
+      // Store session (clear old cache first)
       const mockToken = this.generateMockToken(user.id);
       this.setMockCookie("auth_token", mockToken);
-
-      const { password, ...userWithoutPassword } = user;
+      localStorage.setItem("user_id", user.id);
+      localStorage.setItem("current_user", JSON.stringify(user));
+      
+      // Store onboarding status explicitly
+      if (hasCompletedOnboarding) {
+        localStorage.setItem("onboarding_completed", "true");
+        console.log('[Login] Set onboarding_completed to true');
+      } else {
+        localStorage.removeItem("onboarding_completed");
+        console.log('[Login] Removed onboarding_completed flag');
+      }
+      
       return {
-        user: userWithoutPassword,
+        user,
         token: mockToken,
       };
     }
@@ -170,6 +269,9 @@ class AuthServiceClass {
     if (CONFIG.USE_MOCK_DATA) {
       await this.simulateDelay();
       this.clearMockCookie("auth_token");
+      localStorage.removeItem("current_user");
+      localStorage.removeItem("user_id");
+      localStorage.removeItem("onboarding_completed");
       return;
     }
 
@@ -188,24 +290,65 @@ class AuthServiceClass {
   }
 
   async getCurrentUser(): Promise<User | null> {
-    if (CONFIG.USE_MOCK_DATA) {
+    if (CONFIG.USE_MOCK_DATA && supabase) {
       await this.simulateDelay();
 
-      // Check for mock auth token
+      // Check for auth token
       const token = this.getMockCookie("auth_token");
-      if (!token) {
+      const userId = localStorage.getItem("user_id");
+      
+      if (!token || !userId) {
         return null;
       }
 
-      // Find user by token (simplified)
-      for (const user of mockUsers.values()) {
-        if (this.generateMockToken(user.id) === token) {
-          const { password, ...userWithoutPassword } = user;
-          return userWithoutPassword;
+      // Try loading from localStorage cache first (faster)
+      const cachedUser = localStorage.getItem("current_user");
+      if (cachedUser) {
+        try {
+          const user = JSON.parse(cachedUser) as User;
+          
+          // Check onboarding status
+          const onboardingCompleted = localStorage.getItem('onboarding_completed') === 'true';
+          
+          return {
+            ...user,
+            hasCompletedOnboarding: onboardingCompleted || user.hasCompletedOnboarding,
+          };
+        } catch (error) {
+          console.error('Failed to parse cached user:', error);
         }
       }
 
-      return null;
+      // If no cache, load from Supabase
+      const { data: userData, error } = await supabase
+        .from('farmers')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error || !userData) {
+        console.error('[Auth] Failed to load user from Supabase:', error);
+        return null;
+      }
+
+      // Reconstruct user object
+      const user: User = {
+        id: userData.id,
+        email: '', // We'd need to decrypt, but don't for security
+        fullName: userData.name,
+        phoneNumber: '',
+        country: 'India',
+        state: '',
+        experienceLevel: userData.experience as any || 'beginner',
+        hasCompletedOnboarding: true,
+        createdAt: new Date(userData.created_at),
+        isDemoUser: false,
+      };
+
+      // Cache it
+      localStorage.setItem("current_user", JSON.stringify(user));
+
+      return user;
     }
 
     // Real backend call
@@ -234,22 +377,22 @@ class AuthServiceClass {
   }
 
   private setMockCookie(name: string, value: string): void {
-    // Simulate cookie setting in sessionStorage for demo
-    if (typeof sessionStorage !== "undefined") {
-      sessionStorage.setItem(name, value);
+    // Store auth in localStorage to persist across page reloads
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(name, value);
     }
   }
 
   private getMockCookie(name: string): string | null {
-    if (typeof sessionStorage !== "undefined") {
-      return sessionStorage.getItem(name);
+    if (typeof localStorage !== "undefined") {
+      return localStorage.getItem(name);
     }
     return null;
   }
 
   private clearMockCookie(name: string): void {
-    if (typeof sessionStorage !== "undefined") {
-      sessionStorage.removeItem(name);
+    if (typeof localStorage !== "undefined") {
+      localStorage.removeItem(name);
     }
   }
 

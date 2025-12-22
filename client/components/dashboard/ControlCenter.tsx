@@ -38,7 +38,7 @@ export const ControlCenter: React.FC = () => {
   };
 
   return (
-    <Card glass className="p-6">
+    <Card className="p-6">
       <div className="space-y-6">
         <h3 className="text-lg font-semibold text-foreground">
           Control Center
@@ -77,22 +77,20 @@ export const ControlCenter: React.FC = () => {
         {/* Control Buttons */}
         <div className="space-y-3">
           <Button
-            fullWidth
             onClick={handleWaterPump}
             disabled={systemStatus?.isAutonomous || pumpLoading}
             variant="primary"
-            className="flex items-center justify-center gap-2"
+            className="w-full flex items-center justify-center gap-2"
           >
             <Droplet className="w-4 h-4" />
             {pumpLoading ? "Dispensing..." : "Manual Water Pump"}
           </Button>
 
           <Button
-            fullWidth
             onClick={handleFertilizer}
             disabled={systemStatus?.isAutonomous || fertilizerLoading}
             variant="primary"
-            className="flex items-center justify-center gap-2"
+            className="w-full flex items-center justify-center gap-2"
           >
             <Leaf className="w-4 h-4" />
             {fertilizerLoading ? "Dispensing..." : "Manual Fertilizer"}

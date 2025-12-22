@@ -7,7 +7,7 @@ export const SoilMoisture: React.FC = () => {
   const { sensorData } = useFarmContext();
 
   return (
-    <Card glass className="p-6">
+    <Card className="p-6">
       <div className="space-y-6">
         <div>
           <h3 className="text-lg font-semibold text-foreground mb-2">

@@ -13,10 +13,9 @@ export const Signup: React.FC = () => {
 
   const [formData, setFormData] = useState({
     fullName: "",
-    email: "",
+    phone: "",
     password: "",
     confirmPassword: "",
-    phoneNumber: "",
     country: "India",
     state: "Maharashtra",
     experienceLevel: "beginner" as const,
@@ -37,8 +36,15 @@ export const Signup: React.FC = () => {
   };
 
   const validateForm = (): boolean => {
-    if (!formData.fullName || !formData.email || !formData.password) {
-      setLocalError("Full name, email, and password are required");
+    if (!formData.fullName || !formData.phone || !formData.password) {
+      setLocalError("Full name, phone number, and password are required");
+      return false;
+    }
+
+    // Phone validation - must be 10 digits
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (!phoneRegex.test(formData.phone)) {
+      setLocalError("Please enter a valid 10-digit mobile number");
       return false;
     }
 
@@ -49,11 +55,6 @@ export const Signup: React.FC = () => {
 
     if (formData.password !== formData.confirmPassword) {
       setLocalError("Passwords do not match");
-      return false;
-    }
-
-    if (!formData.email.includes("@")) {
-      setLocalError("Please enter a valid email");
       return false;
     }
 
@@ -72,9 +73,8 @@ export const Signup: React.FC = () => {
     try {
       await signup({
         fullName: formData.fullName,
-        email: formData.email,
+        phone: `+91${formData.phone}`, // Add country code
         password: formData.password,
-        phoneNumber: formData.phoneNumber || undefined,
         country: formData.country,
         state: formData.state,
         experienceLevel: formData.experienceLevel,
@@ -133,20 +133,27 @@ export const Signup: React.FC = () => {
               />
             </div>
 
-            {/* Email */}
+            {/* Phone Number */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
-                Email *
+                Mobile Number *
               </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="your@email.com"
-                className="w-full px-4 py-2 rounded-lg border border-border bg-white text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                disabled={isLoading}
-              />
+              <div className="flex flex-nowrap items-stretch">
+                <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-border bg-muted text-foreground whitespace-nowrap">
+                  +91
+                </span>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="9876543210"
+                  maxLength={10}
+                  className="flex-1 min-w-0 px-4 py-2 rounded-r-lg border border-border bg-white text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  disabled={isLoading}
+                />
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">Enter 10-digit mobile number</p>
             </div>
 
             {/* Password */}
@@ -182,23 +189,8 @@ export const Signup: React.FC = () => {
               </div>
             </div>
 
-            {/* Phone & Location */}
+            {/* Location */}
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  name="phoneNumber"
-                  value={formData.phoneNumber}
-                  onChange={handleChange}
-                  placeholder="+91 98765 43210"
-                  className="w-full px-4 py-2 rounded-lg border border-border bg-white text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                  disabled={isLoading}
-                />
-              </div>
-
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
                   Country *
@@ -261,10 +253,9 @@ export const Signup: React.FC = () => {
 
             {/* Submit */}
             <Button
-              fullWidth
               type="submit"
               disabled={isLoading}
-              className="mt-6"
+              className="w-full mt-6"
             >
               {isLoading ? "Creating Account..." : "Create Account"}
             </Button>

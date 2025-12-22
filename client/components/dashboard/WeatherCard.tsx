@@ -18,7 +18,7 @@ export const WeatherCard: React.FC = () => {
   };
 
   return (
-    <Card glass className="p-6">
+    <Card className="p-6">
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-foreground">Weather</h3>
 
