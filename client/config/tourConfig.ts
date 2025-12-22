@@ -974,8 +974,461 @@ export const tours: Record<string, TourConfig> = {
 };
 
 /**
- * Get tour configuration by ID
+ * Get tour configuration by ID - dynamically builds steps with current language
  */
 export const getTourConfig = (tourId: string): TourConfig | undefined => {
-    return tours[tourId];
+    // Build steps dynamically to get current language
+    const buildMainTourSteps = (): TourStep[] => [
+        {
+            target: '[data-tour-id="dashboard-header"]',
+            title: getContent('welcome').title,
+            content: getContent('welcome').content,
+            placement: 'bottom-start',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="soil-moisture"]',
+            title: getContent('soilMoisture').title,
+            content: getContent('soilMoisture').content,
+            placement: 'right-start',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="weather-card"]',
+            title: getContent('weatherCard').title,
+            content: getContent('weatherCard').content,
+            placement: 'top-end',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="control-center"]',
+            title: getContent('controlCenter').title,
+            content: getContent('controlCenter').content,
+            placement: 'left-start',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="action-log"]',
+            title: getContent('actionLog').title,
+            content: getContent('actionLog').content,
+            placement: 'left-end',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="sidebar-nav"]',
+            title: getContent('sidebar').title,
+            content: getContent('sidebar').content,
+            placement: 'right',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="dashboard-header"]',
+            title: getContent('complete').title,
+            content: getContent('complete').content,
+            placement: 'center',
+            disableBeacon: true,
+        },
+    ];
+
+    const buildFarmTourSteps = (): TourStep[] => [
+        {
+            target: '[data-tour-id="farm-header"]',
+            title: getContent('farmWelcome').title,
+            content: getContent('farmWelcome').content,
+            placement: 'bottom-start',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="farm-overview"]',
+            title: getContent('farmOverview').title,
+            content: getContent('farmOverview').content,
+            placement: 'bottom',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="farm-location"]',
+            title: getContent('farmLocation').title,
+            content: getContent('farmLocation').content,
+            placement: 'right',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="farm-specs"]',
+            title: getContent('farmSpecs').title,
+            content: getContent('farmSpecs').content,
+            placement: 'bottom',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="farm-irrigation"]',
+            title: getContent('farmIrrigation').title,
+            content: getContent('farmIrrigation').content,
+            placement: 'left',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="farm-soil-analytics"]',
+            title: getContent('farmSoilAnalytics').title,
+            content: getContent('farmSoilAnalytics').content,
+            placement: 'top',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="farm-soil-health"]',
+            title: getContent('farmSoilHealth').title,
+            content: getContent('farmSoilHealth').content,
+            placement: 'top',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="farm-header"]',
+            title: getContent('farmComplete').title,
+            content: getContent('farmComplete').content,
+            placement: 'bottom-start',
+            disableBeacon: true,
+        },
+    ];
+
+    const buildWeatherTourSteps = (): TourStep[] => [
+        {
+            target: '[data-tour-id="weather-header"]',
+            title: getContent('weatherWelcome').title,
+            content: getContent('weatherWelcome').content,
+            placement: 'bottom-start',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="weather-current"]',
+            title: getContent('weatherCurrent').title,
+            content: getContent('weatherCurrent').content,
+            placement: 'bottom',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="weather-hourly"]',
+            title: getContent('weatherHourly').title,
+            content: getContent('weatherHourly').content,
+            placement: 'bottom',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="weather-7day"]',
+            title: getContent('weather7Day').title,
+            content: getContent('weather7Day').content,
+            placement: 'top',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="weather-insights"]',
+            title: getContent('weatherInsights').title,
+            content: getContent('weatherInsights').content,
+            placement: 'top',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="weather-header"]',
+            title: getContent('weatherComplete').title,
+            content: getContent('weatherComplete').content,
+            placement: 'bottom-start',
+            disableBeacon: true,
+        },
+    ];
+
+    const buildRecommendationsTourSteps = (): TourStep[] => [
+        {
+            target: '[data-tour-id="reco-header"]',
+            title: getContent('recoWelcome').title,
+            content: getContent('recoWelcome').content,
+            placement: 'bottom-start',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="reco-ai-brain"]',
+            title: getCurrentLanguage() === 'hi' ? "AI विश्लेषण 🧠" : "AI-Powered Analysis 🧠",
+            content: getCurrentLanguage() === 'hi'
+                ? "हमारा AI सिस्टम आपके खेत के डेटा का विश्लेषण करके बेहतर फसल के लिए सुझाव देता है।"
+                : "Our intelligent system uses machine learning to analyze your farm data and provide personalized recommendations for better crop yields.",
+            placement: 'bottom',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="reco-stats"]',
+            title: getContent('recoStats').title,
+            content: getContent('recoStats').content,
+            placement: 'top',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="reco-analyze-btn"]',
+            title: getContent('recoComplete').title,
+            content: getCurrentLanguage() === 'hi'
+                ? "इस बटन पर क्लिक करके AI से सुझाव पाएं। अब आप अपने खेत को और बेहतर बना सकते हैं! 🚀"
+                : "Click this button to get AI-powered recommendations based on your sensor data. You're all set to start optimizing your farm! 🚀",
+            placement: 'top',
+            disableBeacon: true,
+        },
+    ];
+
+    const buildMarketplaceTourSteps = (): TourStep[] => [
+        {
+            target: '[data-tour-id="market-header"]',
+            title: getContent('marketWelcome').title,
+            content: getContent('marketWelcome').content,
+            placement: 'bottom-start',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="market-tabs"]',
+            title: getContent('marketTabs').title,
+            content: getContent('marketTabs').content,
+            placement: 'bottom',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="market-search"]',
+            title: getContent('marketSearch').title,
+            content: getContent('marketSearch').content,
+            placement: 'bottom',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="market-categories"]',
+            title: getContent('marketCategories').title,
+            content: getContent('marketCategories').content,
+            placement: 'bottom',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="market-products"]',
+            title: getContent('marketProducts').title,
+            content: getContent('marketProducts').content,
+            placement: 'top',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="market-header"]',
+            title: getContent('marketComplete').title,
+            content: getContent('marketComplete').content,
+            placement: 'bottom-start',
+            disableBeacon: true,
+        },
+    ];
+
+    const buildLearnTourSteps = (): TourStep[] => [
+        {
+            target: '[data-tour-id="learn-header"]',
+            title: getContent('learnWelcome').title,
+            content: getContent('learnWelcome').content,
+            placement: 'bottom-start',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="learn-stats"]',
+            title: getContent('learnStats').title,
+            content: getContent('learnStats').content,
+            placement: 'bottom',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="learn-search"]',
+            title: getContent('learnSearch').title,
+            content: getContent('learnSearch').content,
+            placement: 'bottom',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="learn-categories"]',
+            title: getContent('learnCategories').title,
+            content: getContent('learnCategories').content,
+            placement: 'bottom',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="learn-tabs"]',
+            title: getContent('learnTabs').title,
+            content: getContent('learnTabs').content,
+            placement: 'bottom',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="learn-content"]',
+            title: getContent('learnContent').title,
+            content: getContent('learnContent').content,
+            placement: 'top',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="learn-header"]',
+            title: getContent('learnComplete').title,
+            content: getContent('learnComplete').content,
+            placement: 'bottom-start',
+            disableBeacon: true,
+        },
+    ];
+
+    const buildCommunityTourSteps = (): TourStep[] => [
+        {
+            target: '[data-tour-id="community-header"]',
+            title: getContent('communityWelcome').title,
+            content: getContent('communityWelcome').content,
+            placement: 'bottom-start',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="community-create-post"]',
+            title: getContent('communityCreatePost').title,
+            content: getContent('communityCreatePost').content,
+            placement: 'bottom',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="community-search"]',
+            title: getContent('communitySearch').title,
+            content: getContent('communitySearch').content,
+            placement: 'bottom',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="community-tabs"]',
+            title: getContent('communityTabs').title,
+            content: getContent('communityTabs').content,
+            placement: 'bottom',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="community-posts"]',
+            title: getContent('communityPosts').title,
+            content: getContent('communityPosts').content,
+            placement: 'right',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="community-trending"]',
+            title: getContent('communityTrending').title,
+            content: getContent('communityTrending').content,
+            placement: 'left',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="community-stats"]',
+            title: getContent('communityStats').title,
+            content: getContent('communityStats').content,
+            placement: 'left',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="community-header"]',
+            title: getContent('communityComplete').title,
+            content: getContent('communityComplete').content,
+            placement: 'bottom-start',
+            disableBeacon: true,
+        },
+    ];
+
+    const buildNotificationsTourSteps = (): TourStep[] => [
+        {
+            target: '[data-tour-id="notif-header"]',
+            title: getContent('notifWelcome').title,
+            content: getContent('notifWelcome').content,
+            placement: 'bottom-start',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="notif-actions"]',
+            title: getContent('notifActions').title,
+            content: getContent('notifActions').content,
+            placement: 'bottom',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="notif-filters"]',
+            title: getContent('notifFilters').title,
+            content: getContent('notifFilters').content,
+            placement: 'bottom',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="notif-list"]',
+            title: getContent('notifList').title,
+            content: getContent('notifList').content,
+            placement: 'left',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="notif-settings"]',
+            title: getContent('notifSettings').title,
+            content: getContent('notifSettings').content,
+            placement: 'top',
+            disableBeacon: true,
+        },
+        {
+            target: '[data-tour-id="notif-header"]',
+            title: getContent('notifComplete').title,
+            content: getContent('notifComplete').content,
+            placement: 'bottom-start',
+            disableBeacon: true,
+        },
+    ];
+
+    const tourBuilders: Record<string, () => TourConfig> = {
+        'main-tour': () => ({
+            id: 'main-tour',
+            name: getCurrentLanguage() === 'hi' ? 'डैशबोर्ड टूर' : 'Dashboard Tour',
+            description: 'Learn about the main dashboard features',
+            steps: buildMainTourSteps(),
+            autoStart: true,
+        }),
+        'farm-tour': () => ({
+            id: 'farm-tour',
+            name: getCurrentLanguage() === 'hi' ? 'मेरा खेत टूर' : 'My Farm Tour',
+            description: 'Learn about farm management and soil analytics',
+            steps: buildFarmTourSteps(),
+            autoStart: true,
+        }),
+        'weather-tour': () => ({
+            id: 'weather-tour',
+            name: getCurrentLanguage() === 'hi' ? 'मौसम टूर' : 'Weather Tour',
+            description: 'Learn about weather forecasts and farming insights',
+            steps: buildWeatherTourSteps(),
+            autoStart: true,
+        }),
+        'recommendations-tour': () => ({
+            id: 'recommendations-tour',
+            name: getCurrentLanguage() === 'hi' ? 'AI सुझाव टूर' : 'AI Recommendations Tour',
+            description: 'Learn about AI-powered farming recommendations',
+            steps: buildRecommendationsTourSteps(),
+            autoStart: true,
+        }),
+        'marketplace-tour': () => ({
+            id: 'marketplace-tour',
+            name: getCurrentLanguage() === 'hi' ? 'बाज़ार टूर' : 'Marketplace Tour',
+            description: 'Learn about buying supplies and selling produce',
+            steps: buildMarketplaceTourSteps(),
+            autoStart: true,
+        }),
+        'learn-tour': () => ({
+            id: 'learn-tour',
+            name: getCurrentLanguage() === 'hi' ? 'सीखने का टूर' : 'Learning Hub Tour',
+            description: 'Learn about free courses, articles, and videos',
+            steps: buildLearnTourSteps(),
+            autoStart: true,
+        }),
+        'community-tour': () => ({
+            id: 'community-tour',
+            name: getCurrentLanguage() === 'hi' ? 'समुदाय टूर' : 'Community Tour',
+            description: 'Learn about connecting with fellow farmers',
+            steps: buildCommunityTourSteps(),
+            autoStart: true,
+        }),
+        'notifications-tour': () => ({
+            id: 'notifications-tour',
+            name: getCurrentLanguage() === 'hi' ? 'सूचनाएं टूर' : 'Notifications Tour',
+            description: 'Learn about alerts and notifications',
+            steps: buildNotificationsTourSteps(),
+            autoStart: true,
+        }),
+    };
+
+    const builder = tourBuilders[tourId];
+    return builder ? builder() : undefined;
 };

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Lottie from "lottie-react";
-import { X, Volume2, VolumeX, Sparkles } from "lucide-react";
+import { X, Volume2, VolumeX, Sparkles, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import farmerAnimation from "@/assets/farmer-intro.json";
 
@@ -18,7 +18,7 @@ interface AuthGuideMessage {
     };
 }
 
-const signupMessages: AuthGuideMessage[] = [
+const signupMessagesEn: AuthGuideMessage[] = [
     {
         greeting: "Namaste! 🙏",
         mainMessage: "I'm Ravi, your farming companion. I've been farming for 20 years and now I help new friends like you get started. Let me guide you through this - it's easier than planting your first crop!",
@@ -100,7 +100,89 @@ const signupMessages: AuthGuideMessage[] = [
     },
 ];
 
-const loginMessages: AuthGuideMessage[] = [
+const signupMessagesHi: AuthGuideMessage[] = [
+    {
+        greeting: "नमस्ते! 🙏",
+        mainMessage: "मैं रवि हूं, आपका खेती साथी। मैं 20 साल से खेती कर रहा हूं और अब आप जैसे नए दोस्तों की मदद करता हूं। चलिए शुरू करते हैं - ये पहली फसल उगाने से भी आसान है!",
+    },
+    {
+        greeting: "मैं आपको क्या बुलाऊं?",
+        mainMessage: "आपका नाम मेरे लिए ज़रूरी है - इससे हमारी दोस्ती बनेगी। अपना असली नाम लिखें, जैसे आप पड़ोसी से मिलते वक्त बताते हैं।",
+        tips: [
+            "अपने दस्तावेजों वाला नाम लिखें",
+            "इससे सब कुछ आपके हिसाब से होगा",
+        ],
+        fieldToWatch: "fullName",
+        reactions: {
+            onFocus: "अच्छा, आप तैयार हैं! लिखिए...",
+            onValid: "आपसे मिलकर खुशी हुई! 😊",
+        },
+    },
+    {
+        greeting: "जुड़ें हमसे",
+        mainMessage: "आपका मोबाइल नंबर खेत की सीधी लाइन है। मौसम, फसल की समस्या, और ज़रूरी अपडेट - सब मैं आपको भेजूंगा।",
+        tips: [
+            "10 अंकों का मोबाइल नंबर डालें",
+            "6, 7, 8, या 9 से शुरू होना चाहिए",
+            "OTP से वेरिफाई होगा",
+        ],
+        fieldToWatch: "phone",
+        reactions: {
+            onFocus: "अच्छा! ध्यान से लिखें...",
+            onValid: "बढ़िया! अब मैं आपसे संपर्क कर सकता हूं 📱",
+            onInvalid: "हम्म... ये सही नहीं लग रहा। नंबर चेक करें?",
+        },
+    },
+    {
+        greeting: "सुरक्षा ज़रूरी है",
+        mainMessage: "ऐसा पासवर्ड चुनें जो आप याद रखें पर दूसरे न समझ पाएं। सोचिए जैसे आपके गोदाम का ताला - मज़बूत रखें!",
+        tips: [
+            "कम से कम 6 अक्षर",
+            "अक्षर और नंबर मिलाएं",
+            "नीचे फिर से लिखना न भूलें!",
+        ],
+        encouragement: "कुछ यादगार पर अनोखा चुनें!",
+        fieldToWatch: "password",
+        reactions: {
+            onFocus: "आराम से, सुरक्षा पहले...",
+            onValid: "बढ़िया! आपका डेटा सुरक्षित है 🔒",
+        },
+    },
+    {
+        greeting: "खेती कहां करते हैं?",
+        mainMessage: "आपकी लोकेशन से मैं सही मौसम, मौसमी सलाह, और पास के किसानों से जोड़ सकता हूं। हर इलाके की अपनी खेती की समझ होती है!",
+        tips: [
+            "ड्रॉपडाउन से अपना राज्य चुनें",
+            "आपके इलाके के हिसाब से सलाह मिलेगी",
+        ],
+        fieldToWatch: "state",
+        reactions: {
+            onFocus: "अपना राज्य चुनें...",
+            onValid: "बढ़िया! मुझे वहां की मिट्टी अच्छे से पता है 🌍",
+        },
+    },
+    {
+        greeting: "अनुभव कितना है?",
+        mainMessage: "नए हों तो चिंता न करें! मैंने कई शुरुआती को सिखाया है। नए हों या पुराने किसान - मैं आपके हिसाब से मदद करूंगा।",
+        tips: [
+            "Beginner: अभी शुरू कर रहे हैं",
+            "Intermediate: थोड़ा अनुभव है",
+            "Advanced: पुराने किसान हैं",
+        ],
+        fieldToWatch: "experienceLevel",
+        reactions: {
+            onFocus: "सच बताइए, कोई फैसला नहीं!",
+            onValid: "समझ गए! आपकी रफ्तार से चलेंगे 🌱",
+        },
+    },
+    {
+        greeting: "आप तैयार हैं! 🎉",
+        mainMessage: "देखा - आपने बढ़िया किया! अब 'Create Account' पर क्लिक करें और खेती का सफर शुरू करें। मैं हर कदम पर साथ हूं!",
+        encouragement: "कृषि मित्र परिवार में आपका स्वागत है! 🌾",
+    },
+];
+
+const loginMessagesEn: AuthGuideMessage[] = [
     {
         greeting: "Welcome back, friend! 👋",
         mainMessage: "Ravi here! Good to see you again. Let's get you back to your farm dashboard. Your crops are waiting!",
@@ -135,6 +217,41 @@ const loginMessages: AuthGuideMessage[] = [
     },
 ];
 
+const loginMessagesHi: AuthGuideMessage[] = [
+    {
+        greeting: "फिर से स्वागत है, दोस्त! 👋",
+        mainMessage: "रवि यहां है! फिर से मिलकर अच्छा लगा। चलिए आपको वापस खेत के डैशबोर्ड पर ले चलते हैं। आपकी फसलें इंतज़ार कर रही हैं!",
+    },
+    {
+        greeting: "आपका नंबर?",
+        mainMessage: "साइनअप वाला मोबाइल नंबर डालें। इससे मुझे पता चलेगा कि आप ही हैं, कोई और नहीं जो आपके खेत की जानकारी देखने की कोशिश कर रहा।",
+        tips: [
+            "साइनअप वाला 10 अंकों का नंबर",
+            "6, 7, 8, या 9 से शुरू होना चाहिए",
+        ],
+        fieldToWatch: "phone",
+        reactions: {
+            onFocus: "ध्यान से लिखें...",
+            onValid: "अरे हां, मुझे याद है आप! 📱",
+            onInvalid: "हम्म, नंबर फिर चेक करें?",
+        },
+    },
+    {
+        greeting: "और पासवर्ड?",
+        mainMessage: "अपना पासवर्ड डालें। भूल गए तो चिंता नहीं - नीचे रीसेट का ऑप्शन है। सबके साथ होता है कभी-कभी!",
+        fieldToWatch: "password",
+        reactions: {
+            onFocus: "आराम से लिखें...",
+            onValid: "मिल गया! चलते हैं 🔓",
+        },
+    },
+    {
+        greeting: "तैयार हैं! 🚜",
+        mainMessage: "'Sign In' पर क्लिक करें और वापस डैशबोर्ड पर पहुंचें - सारा डेटा, जानकारी, और लाइव मॉनिटरिंग। काम पर लौटते हैं!",
+        encouragement: "आपका खेत इंतज़ार कर रहा है!",
+    },
+];
+
 interface AuthGuideProps {
     mode: "signup" | "login";
     currentField?: string;
@@ -151,7 +268,19 @@ export const AuthGuide = ({ mode, currentField, fieldValues = {} }: AuthGuidePro
     const [showReaction, setShowReaction] = useState(false);
     const [reactionText, setReactionText] = useState("");
     const [isSpeaking, setIsSpeaking] = useState(false);
+    const [lang, setLang] = useState<'en' | 'hi'>(() => {
+        const stored = localStorage.getItem('smartfarm_preferred_language');
+        return stored === 'hi' ? 'hi' : 'en';
+    });
 
+    const toggleLanguage = () => {
+        const newLang = lang === 'en' ? 'hi' : 'en';
+        setLang(newLang);
+        localStorage.setItem('smartfarm_preferred_language', newLang);
+    };
+
+    const signupMessages = lang === 'hi' ? signupMessagesHi : signupMessagesEn;
+    const loginMessages = lang === 'hi' ? loginMessagesHi : loginMessagesEn;
     const messages = mode === "signup" ? signupMessages : loginMessages;
     const currentMessage = messages[currentStep];
     const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -431,6 +560,14 @@ export const AuthGuide = ({ mode, currentField, fieldValues = {} }: AuthGuidePro
                                     </div>
                                     <div className="flex items-center gap-1">
                                         <button
+                                            onClick={toggleLanguage}
+                                            className="flex items-center gap-1 px-2 py-1 text-xs rounded-full hover:bg-emerald-100 text-emerald-600 transition-colors"
+                                            title={lang === 'en' ? 'Switch to Hindi' : 'Switch to English'}
+                                        >
+                                            <Globe className="w-3 h-3" />
+                                            {lang === 'en' ? 'हिंदी' : 'EN'}
+                                        </button>
+                                        <button
                                             onClick={handleSpeak}
                                             className="p-2 rounded-full hover:bg-emerald-100 text-emerald-600 transition-colors"
                                             title={isSpeaking ? "Stop speaking" : "Listen"}
@@ -541,10 +678,10 @@ export const AuthGuide = ({ mode, currentField, fieldValues = {} }: AuthGuidePro
                                                     animate={{ scale: 1 }}
                                                     transition={{ delay: index * 0.05 }}
                                                     className={`h-1.5 rounded-full transition-all ${index === currentStep
-                                                            ? "bg-emerald-600 w-8"
-                                                            : index < currentStep
-                                                                ? "bg-emerald-400 w-1.5"
-                                                                : "bg-emerald-200 w-1.5"
+                                                        ? "bg-emerald-600 w-8"
+                                                        : index < currentStep
+                                                            ? "bg-emerald-400 w-1.5"
+                                                            : "bg-emerald-200 w-1.5"
                                                         }`}
                                                 />
                                             ))}

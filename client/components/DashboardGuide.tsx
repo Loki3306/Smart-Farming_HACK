@@ -38,24 +38,27 @@ export const DashboardGuide = () => {
     const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
 
     // Map routes to their tour IDs and page names
-    const routeTourMap: Record<string, { tourId: string; pageName: string }> = {
-        '/dashboard': { tourId: 'main-tour', pageName: 'Dashboard' },
-        '/farm': { tourId: 'farm-tour', pageName: 'Farm Management' },
-        '/weather': { tourId: 'weather-tour', pageName: 'Weather' },
-        '/recommendations': { tourId: 'recommendations-tour', pageName: 'Recommendations' },
-        '/marketplace': { tourId: 'marketplace-tour', pageName: 'Marketplace' },
-        '/learn': { tourId: 'learn-tour', pageName: 'Learning Center' },
-        '/community': { tourId: 'community-tour', pageName: 'Community' },
-        '/notifications': { tourId: 'notifications-tour', pageName: 'Notifications' },
+    const routeTourMap: Record<string, { tourId: string; pageName: string; pageNameHi: string }> = {
+        '/dashboard': { tourId: 'main-tour', pageName: 'Dashboard', pageNameHi: 'डैशबोर्ड' },
+        '/farm': { tourId: 'farm-tour', pageName: 'Farm Management', pageNameHi: 'खेत प्रबंधन' },
+        '/weather': { tourId: 'weather-tour', pageName: 'Weather', pageNameHi: 'मौसम' },
+        '/recommendations': { tourId: 'recommendations-tour', pageName: 'Recommendations', pageNameHi: 'सुझाव' },
+        '/marketplace': { tourId: 'marketplace-tour', pageName: 'Marketplace', pageNameHi: 'बाज़ार' },
+        '/learn': { tourId: 'learn-tour', pageName: 'Learning Center', pageNameHi: 'सीखने का केंद्र' },
+        '/community': { tourId: 'community-tour', pageName: 'Community', pageNameHi: 'समुदाय' },
+        '/notifications': { tourId: 'notifications-tour', pageName: 'Notifications', pageNameHi: 'सूचनाएं' },
     };
 
-    const currentRoute = routeTourMap[location.pathname] || { tourId: 'main-tour', pageName: 'this page' };
+    const currentRoute = routeTourMap[location.pathname] || { tourId: 'main-tour', pageName: 'this page', pageNameHi: 'यह पेज' };
 
-    // Messages for different modes
-    const messages: Record<"welcome" | "languageSelect" | "helpMenu" | "tourStarting", GuideMessage> = {
+    // Get stored language preference
+    const getStoredLang = () => localStorage.getItem('smartfarm_preferred_language') === 'hi';
+
+    // Messages for different modes - bilingual
+    const messagesEn: Record<"welcome" | "languageSelect" | "helpMenu" | "tourStarting", GuideMessage> = {
         welcome: {
             greeting: "Namaste! Welcome to your Smart Farm Dashboard! 🌾",
-            mainMessage: "I'm here to help you make the most of your dashboard! I can give you a guided tour of all the features, answer your questions, and help you navigate through the system. What would you like to do?",
+            mainMessage: "I'm Ravi, your farming companion! I can give you a guided tour of all the features, answer your questions, and help you navigate. What would you like to do?",
             tips: [
                 "Get a step-by-step tour of the dashboard",
                 "Learn about specific features",
@@ -65,7 +68,7 @@ export const DashboardGuide = () => {
         },
         languageSelect: {
             greeting: "Choose your language 🌍",
-            mainMessage: "Would you like the tour in English or Hindi? Don't worry, you can change this anytime from settings!",
+            mainMessage: "Would you like the tour in English or Hindi? Don't worry, you can change this anytime!",
         },
         helpMenu: {
             greeting: "How can I help you? 🤝",
@@ -76,6 +79,34 @@ export const DashboardGuide = () => {
             mainMessage: "Great choice! I'll walk you through each section of this page. Feel free to skip or pause anytime. Ready? Let's go!",
         },
     };
+
+    const messagesHi: Record<"welcome" | "languageSelect" | "helpMenu" | "tourStarting", GuideMessage> = {
+        welcome: {
+            greeting: "नमस्ते! स्मार्ट फार्म डैशबोर्ड में आपका स्वागत है! 🌾",
+            mainMessage: "मैं रवि हूं, आपका खेती साथी! मैं आपको सभी सुविधाओं का टूर दे सकता हूं, आपके सवालों का जवाब दे सकता हूं। क्या करना चाहेंगे?",
+            tips: [
+                "डैशबोर्ड का स्टेप-बाय-स्टेप टूर लें",
+                "विशेष सुविधाओं के बारे में जानें",
+                "आम कामों में मदद पाएं",
+                "तकनीकी समस्याओं के लिए सपोर्ट से संपर्क करें",
+            ],
+        },
+        languageSelect: {
+            greeting: "अपनी भाषा चुनें 🌍",
+            mainMessage: "टूर English में चाहिए या हिंदी में? चिंता न करें, आप इसे कभी भी बदल सकते हैं!",
+        },
+        helpMenu: {
+            greeting: "मैं आपकी कैसे मदद कर सकता हूं? 🤝",
+            mainMessage: "मैं यहां आपकी सहायता के लिए हूं! जो मदद चाहिए वो चुनें।",
+        },
+        tourStarting: {
+            greeting: "चलिए टूर शुरू करते हैं! 🚀",
+            mainMessage: "बढ़िया! मैं आपको इस पेज के हर हिस्से के बारे में बताऊंगा। जब चाहें रुक सकते हैं। तैयार? चलिए!",
+        },
+    };
+
+    // Get messages based on current language
+    const messages = getStoredLang() ? messagesHi : messagesEn;
 
     const stopTyping = () => {
         if (typingIntervalRef.current) {
@@ -98,42 +129,45 @@ export const DashboardGuide = () => {
         setDisplayedText("");
     };
 
+    const isHindi = getStoredLang();
     const helpOptions: HelpOption[] = [
         {
             id: "tour",
             icon: <Play className="w-5 h-5" />,
-            title: `Tour ${currentRoute.pageName}`,
-            description: "Step-by-step walkthrough of this page",
+            title: isHindi ? `${currentRoute.pageNameHi} का टूर` : `Tour ${currentRoute.pageName}`,
+            description: isHindi ? "इस पेज का स्टेप-बाय-स्टेप गाइड" : "Step-by-step walkthrough of this page",
             action: () => setMode("language-select"),
         },
         {
             id: "learn",
             icon: <BookOpen className="w-5 h-5" />,
-            title: "Feature Documentation",
-            description: "View detailed guides and tutorials",
+            title: isHindi ? "फीचर डॉक्यूमेंटेशन" : "Feature Documentation",
+            description: isHindi ? "विस्तृत गाइड और ट्यूटोरियल देखें" : "View detailed guides and tutorials",
             action: () => {
-                // Show information about where to find help
-                alert(`📚 Feature Documentation\n\nFor detailed guides and tutorials:\n• Check the Learning Center page from the navigation\n• Use the tour feature to learn interactively\n• Contact support for specific questions\n\nTip: Each page has its own guided tour - just click the tour button!`);
+                const msg = isHindi
+                    ? `📚 फीचर डॉक्यूमेंटेशन\n\nविस्तृत गाइड के लिए:\n• नेविगेशन से Learning Center पर जाएं\n• टूर फीचर से इंटरैक्टिव सीखें\n• विशेष सवालों के लिए सपोर्ट से संपर्क करें`
+                    : `📚 Feature Documentation\n\nFor detailed guides and tutorials:\n• Check the Learning Center page from the navigation\n• Use the tour feature to learn interactively\n• Contact support for specific questions`;
+                alert(msg);
             },
         },
         {
             id: "faq",
             icon: <MessageCircle className="w-5 h-5" />,
-            title: "Common Questions",
-            description: "Quick answers to frequent queries",
+            title: isHindi ? "आम सवाल" : "Common Questions",
+            description: isHindi ? "अक्सर पूछे जाने वाले सवालों के जवाब" : "Quick answers to frequent queries",
             action: () => {
-                // Show FAQ modal or navigate to FAQ
-                alert("FAQ section coming soon! For now, use the help menu or contact support.");
+                const msg = isHindi ? "FAQ सेक्शन जल्द आ रहा है! फिलहाल हेल्प मेन्यू या सपोर्ट से संपर्क करें।" : "FAQ section coming soon! For now, use the help menu or contact support.";
+                alert(msg);
             },
         },
         {
             id: "support",
             icon: <Phone className="w-5 h-5" />,
-            title: "Contact Support",
-            description: "Get help from our team",
+            title: isHindi ? "सपोर्ट से संपर्क करें" : "Contact Support",
+            description: isHindi ? "हमारी टीम से मदद पाएं" : "Get help from our team",
             action: () => {
-                // Open support contact modal
-                alert("Support: Email us at support@smartfarm.com or call 1800-FARM-HELP");
+                const msg = isHindi ? "सपोर्ट: support@smartfarm.com पर ईमेल करें या 1800-FARM-HELP पर कॉल करें" : "Support: Email us at support@smartfarm.com or call 1800-FARM-HELP";
+                alert(msg);
             },
         },
     ];
