@@ -168,6 +168,7 @@ export const OtpInput: React.FC<OtpInputProps> = ({
             onChange={(e) => handleChange(index, e.target.value)}
             onKeyDown={(e) => handleKeyDown(index, e)}
             disabled={isVerifying || success}
+            aria-label={`OTP digit ${index + 1}`}
             className={`w-12 h-14 text-center text-2xl font-bold rounded-lg border-2 transition-all
               ${
                 success

@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     # FastAPI Configuration
     APP_NAME: str = "Autonomous Smart Farming System"
     DEBUG: bool = True
-    CORS_ORIGINS: List[str] = ["http://localhost:5173", "http://localhost:8080", "http://localhost:3000"]
+    CORS_ORIGINS: List[str] = ["http://localhost:5173", "http://localhost:8080", "http://localhost:3000", "http://localhost:5000"]
     
     # Standalone Mode (runs without Redis, InfluxDB, PostgreSQL)
     STANDALONE_MODE: bool = False
