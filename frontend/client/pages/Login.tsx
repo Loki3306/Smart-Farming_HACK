@@ -9,7 +9,7 @@ export const Login: React.FC = () => {
   const navigate = useNavigate();
   const { login, skipLoginAsDemo, error, clearError, isLoading } = useAuth();
 
-  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
 
@@ -18,14 +18,24 @@ export const Login: React.FC = () => {
     clearError();
     setLocalError(null);
 
-    if (!email || !password) {
-      setLocalError("Please enter email and password");
+    if (!phone || !password) {
+      setLocalError("Please enter mobile number and password");
+      return;
+    }
+
+    // Phone validation - must be 10 digits
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (!phoneRegex.test(phone)) {
+      setLocalError("Please enter a valid 10-digit mobile number");
       return;
     }
 
     try {
-      await login({ email, password });
-      navigate("/onboarding");
+      await login({ phone: `+91${phone}`, password });
+      // Navigation will be handled by router based on onboarding status
+      // If completed, ProtectedRoute will allow access to dashboard
+      // If not completed, will redirect to onboarding
+      navigate("/dashboard");
     } catch (err) {
       setLocalError(err instanceof Error ? err.message : "Login failed");
     }
@@ -62,16 +72,22 @@ export const Login: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
-                Email
+                Mobile Number
               </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                className="w-full px-4 py-2 rounded-lg border border-border bg-white text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                disabled={isLoading}
-              />
+              <div className="flex flex-nowrap items-stretch">
+                <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-border bg-muted text-foreground whitespace-nowrap">
+                  +91
+                </span>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="9876543210"
+                  maxLength={10}
+                  className="flex-1 min-w-0 px-4 py-2 rounded-r-lg border border-border bg-white text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  disabled={isLoading}
+                />
+              </div>
             </div>
 
             <div>
@@ -91,7 +107,7 @@ export const Login: React.FC = () => {
             <Button
               type="submit"
               disabled={isLoading}
-              className="mt-2 w-full"
+              className="w-full mt-2"
             >
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>

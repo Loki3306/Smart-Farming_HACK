@@ -83,6 +83,8 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
       setIsLoading(true);
       setError(null);
       const response = await AuthService.login(payload);
+      console.log('[AuthContext] Login response user:', response.user);
+      console.log('[AuthContext] hasCompletedOnboarding:', response.user.hasCompletedOnboarding);
       setUser(response.user);
       setIsDemoUser(false);
     } catch (err) {
@@ -123,10 +125,18 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
 
   const markOnboardingComplete = useCallback(() => {
     if (user) {
-      setUser({
+      const updatedUser = {
         ...user,
         hasCompletedOnboarding: true,
-      });
+      };
+      setUser(updatedUser);
+      
+      // Persist to localStorage for mock users
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        // Store updated user status
+        localStorage.setItem('onboarding_completed', 'true');
+      }
     }
   }, [user]);
 

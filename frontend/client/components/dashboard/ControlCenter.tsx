@@ -38,7 +38,7 @@ export const ControlCenter: React.FC = () => {
   };
 
   return (
-    <Card className="p-6 bg-white/70 backdrop-blur-sm">
+    <Card className="p-6">
       <div className="space-y-6">
         <h3 className="text-lg font-semibold text-foreground">
           Control Center
@@ -62,7 +62,6 @@ export const ControlCenter: React.FC = () => {
           <button
             onClick={handleAutonomousToggle}
             disabled={loading}
-            aria-label="Toggle autonomous mode"
             className={`relative inline-flex items-center h-8 w-14 rounded-full transition-colors ${
               systemStatus?.isAutonomous ? "bg-primary" : "bg-muted"
             } ${loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
@@ -80,7 +79,7 @@ export const ControlCenter: React.FC = () => {
           <Button
             onClick={handleWaterPump}
             disabled={systemStatus?.isAutonomous || pumpLoading}
-            variant="default"
+            variant="primary"
             className="w-full flex items-center justify-center gap-2"
           >
             <Droplet className="w-4 h-4" />
@@ -90,7 +89,7 @@ export const ControlCenter: React.FC = () => {
           <Button
             onClick={handleFertilizer}
             disabled={systemStatus?.isAutonomous || fertilizerLoading}
-            variant="default"
+            variant="primary"
             className="w-full flex items-center justify-center gap-2"
           >
             <Leaf className="w-4 h-4" />

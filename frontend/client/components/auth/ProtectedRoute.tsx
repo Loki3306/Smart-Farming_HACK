@@ -13,6 +13,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const { isAuthenticated, user, isLoading, isDemoUser } = useAuth();
 
+  console.log('[ProtectedRoute] isAuthenticated:', isAuthenticated, 'user:', user, 'requireOnboarding:', requireOnboarding);
+
   // Show loading state
   if (isLoading) {
     return (
@@ -27,11 +29,13 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Not authenticated - redirect to login
   if (!isAuthenticated) {
+    console.log('[ProtectedRoute] Not authenticated, redirecting to login');
     return <Navigate to="/login" replace />;
   }
 
   // Check onboarding requirement
   if (requireOnboarding && !user?.hasCompletedOnboarding) {
+    console.log('[ProtectedRoute] Onboarding required but not complete, redirecting to onboarding');
     return <Navigate to="/onboarding" replace />;
   }
 
