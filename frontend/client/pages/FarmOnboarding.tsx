@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight, ChevronLeft, Check, MapPin, Loader } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { Button } from "../components/ui/Button";
-import { Card } from "../components/ui/Card";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   INDIAN_STATES,
   INDIAN_FARM_LOCATIONS,
@@ -224,11 +224,12 @@ export const FarmOnboarding: React.FC = () => {
                 </h2>
 
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
+                  <label htmlFor="farmName" className="block text-sm font-medium text-foreground mb-2">
                     Farm Name *
                   </label>
                   <input
                     type="text"
+                    id="farmName"
                     name="farmName"
                     value={farmData.farmName}
                     onChange={handleChange}
@@ -243,12 +244,13 @@ export const FarmOnboarding: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
+                  <label htmlFor="farmLocation" className="block text-sm font-medium text-foreground mb-2">
                     Farm Location (Village/City) *
                   </label>
                   <div className="flex gap-2">
                     <input
                       type="text"
+                      id="farmLocation"
                       name="farmLocation"
                       value={farmData.farmLocation}
                       onChange={handleChange}
@@ -287,10 +289,11 @@ export const FarmOnboarding: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
+                  <label htmlFor="state" className="block text-sm font-medium text-foreground mb-2">
                     State *
                   </label>
                   <select
+                    id="state"
                     name="state"
                     value={farmData.state}
                     onChange={handleChange}
@@ -306,11 +309,12 @@ export const FarmOnboarding: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
+                    <label htmlFor="totalArea" className="block text-sm font-medium text-foreground mb-2">
                       Total Area *
                     </label>
                     <input
                       type="number"
+                      id="totalArea"
                       name="totalArea"
                       value={farmData.totalArea}
                       onChange={handleChange}
@@ -325,10 +329,11 @@ export const FarmOnboarding: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
+                    <label htmlFor="areaUnit" className="block text-sm font-medium text-foreground mb-2">
                       Unit *
                     </label>
                     <select
+                      id="areaUnit"
                       name="areaUnit"
                       value={farmData.areaUnit}
                       onChange={handleChange}
@@ -341,10 +346,11 @@ export const FarmOnboarding: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
+                  <label htmlFor="soilType" className="block text-sm font-medium text-foreground mb-2">
                     Soil Type *
                   </label>
                   <select
+                    id="soilType"
                     name="soilType"
                     value={farmData.soilType}
                     onChange={handleChange}
@@ -369,10 +375,11 @@ export const FarmOnboarding: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
+                    <label htmlFor="primaryCrop" className="block text-sm font-medium text-foreground mb-2">
                       Primary Crop *
                     </label>
                     <select
+                      id="primaryCrop"
                       name="primaryCrop"
                       value={farmData.primaryCrop}
                       onChange={handleChange}
@@ -387,10 +394,11 @@ export const FarmOnboarding: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
+                    <label htmlFor="cropSeason" className="block text-sm font-medium text-foreground mb-2">
                       Crop Season *
                     </label>
                     <select
+                      id="cropSeason"
                       name="cropSeason"
                       value={farmData.cropSeason}
                       onChange={handleChange}
@@ -406,11 +414,12 @@ export const FarmOnboarding: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
+                  <label htmlFor="sowingDate" className="block text-sm font-medium text-foreground mb-2">
                     Sowing Date *
                   </label>
                   <input
                     type="date"
+                    id="sowingDate"
                     name="sowingDate"
                     value={farmData.sowingDate}
                     onChange={handleChange}
@@ -424,10 +433,11 @@ export const FarmOnboarding: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
+                  <label htmlFor="irrigationType" className="block text-sm font-medium text-foreground mb-2">
                     Irrigation Type *
                   </label>
                   <select
+                    id="irrigationType"
                     name="irrigationType"
                     value={farmData.irrigationType}
                     onChange={handleChange}
@@ -440,10 +450,11 @@ export const FarmOnboarding: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
+                  <label htmlFor="waterSource" className="block text-sm font-medium text-foreground mb-2">
                     Water Source *
                   </label>
                   <select
+                    id="waterSource"
                     name="waterSource"
                     value={farmData.waterSource}
                     onChange={handleChange}
@@ -478,6 +489,7 @@ export const FarmOnboarding: React.FC = () => {
                         value="autonomous"
                         checked={farmData.defaultMode === "autonomous"}
                         onChange={handleChange}
+                        aria-label="Autonomous mode"
                       />
                       <div>
                         <div className="font-medium text-foreground">
@@ -496,6 +508,7 @@ export const FarmOnboarding: React.FC = () => {
                         value="manual"
                         checked={farmData.defaultMode === "manual"}
                         onChange={handleChange}
+                        aria-label="Manual mode"
                       />
                       <div>
                         <div className="font-medium text-foreground">
@@ -510,10 +523,11 @@ export const FarmOnboarding: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
+                  <label htmlFor="measurementUnits" className="block text-sm font-medium text-foreground mb-2">
                     Measurement Units *
                   </label>
                   <select
+                    id="measurementUnits"
                     name="measurementUnits"
                     value={farmData.measurementUnits}
                     onChange={handleChange}

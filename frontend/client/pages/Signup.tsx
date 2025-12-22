@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AlertCircle } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { Button } from "../components/ui/Button";
-import { Card } from "../components/ui/Card";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { INDIAN_STATES, INDIAN_FARMER_NAMES } from "../lib/india-data";
 
 export const Signup: React.FC = () => {
@@ -112,11 +112,12 @@ export const Signup: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Full Name */}
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
+              <label htmlFor="fullName" className="block text-sm font-medium text-foreground mb-2">
                 Full Name *
               </label>
               <input
                 type="text"
+                id="fullName"
                 name="fullName"
                 value={formData.fullName}
                 onChange={handleChange}
@@ -128,11 +129,12 @@ export const Signup: React.FC = () => {
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
                 Email *
               </label>
               <input
                 type="email"
+                id="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
@@ -145,11 +147,12 @@ export const Signup: React.FC = () => {
             {/* Password */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
                   Password *
                 </label>
                 <input
                   type="password"
+                  id="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
@@ -160,11 +163,12 @@ export const Signup: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-foreground mb-2">
                   Confirm Password *
                 </label>
                 <input
                   type="password"
+                  id="confirmPassword"
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
@@ -178,11 +182,12 @@ export const Signup: React.FC = () => {
             {/* Phone & Location */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <label htmlFor="phoneNumber" className="block text-sm font-medium text-foreground mb-2">
                   Phone Number
                 </label>
                 <input
                   type="tel"
+                  id="phoneNumber"
                   name="phoneNumber"
                   value={formData.phoneNumber}
                   onChange={handleChange}
@@ -193,10 +198,11 @@ export const Signup: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <label htmlFor="country" className="block text-sm font-medium text-foreground mb-2">
                   Country *
                 </label>
-                <select
+                <select 
+                  id="country"
                   name="country"
                   value={formData.country}
                   onChange={handleChange}
@@ -216,10 +222,11 @@ export const Signup: React.FC = () => {
             {/* State and Experience */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <label htmlFor="state" className="block text-sm font-medium text-foreground mb-2">
                   State/Province *
                 </label>
                 <select
+                  id="state"
                   name="state"
                   value={formData.state}
                   onChange={handleChange}
@@ -235,10 +242,11 @@ export const Signup: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <label htmlFor="experienceLevel" className="block text-sm font-medium text-foreground mb-2">
                   Experience Level *
                 </label>
                 <select
+                  id="experienceLevel"
                   name="experienceLevel"
                   value={formData.experienceLevel}
                   onChange={handleChange}
@@ -254,10 +262,9 @@ export const Signup: React.FC = () => {
 
             {/* Submit */}
             <Button
-              fullWidth
               type="submit"
               disabled={isLoading}
-              className="mt-6"
+              className="mt-6 w-full"
             >
               {isLoading ? "Creating Account..." : "Create Account"}
             </Button>
