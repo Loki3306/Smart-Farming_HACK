@@ -2,15 +2,17 @@
 
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-18-blue.svg)](https://react.dev/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A production-ready, AI-driven autonomous farming system that combines IoT sensors, satellite data, weather forecasts, and blockchain audit trails to optimize irrigation and fertilization decisions in real-time.
+A production-ready, AI-driven autonomous farming system with **ML-powered fertilizer recommendations**, IoT sensors, satellite data, weather forecasts, and blockchain audit trails to optimize irrigation and fertilization decisions in real-time.
 
 ---
 
 ## ✨ Features
 
+- 🌱 **ML Fertilizer Recommendations** - Random Forest models predict what, how much, and when to fertilize
 - 🤖 **Multi-Agent AI System** - 5 specialized agents working collaboratively
 - 📡 **Real-time IoT Integration** - MQTT sensor data via HiveMQ Cloud
 - 🌍 **External Data Enrichment** - OpenWeatherMap + NASA Earthdata
@@ -24,10 +26,32 @@ A production-ready, AI-driven autonomous farming system that combines IoT sensor
 
 ---
 
+## 📁 Project Structure
+
+```
+📂 backend/              Python FastAPI + ML models
+   ├── app/agents/       Multi-agent AI system
+   ├── app/api/          REST API endpoints
+   ├── app/ml_models/    🌱 ML recommendation engine
+   ├── data/             Training datasets (8000+ records)
+   └── models/           Trained ML models (.pkl)
+
+📂 frontend/             React + TypeScript
+   ├── client/pages/     Page components
+   ├── client/components/ Reusable UI components
+   ├── client/services/  API service layers
+   └── server/           Express dev server (proxy)
+```
+
+See [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) for complete directory structure.
+
+---
+
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Python 3.11+
+- Node.js 18+ & PNPM
 - Docker & Docker Compose (recommended)
 - Git (optional)
 
@@ -38,13 +62,16 @@ A production-ready, AI-driven autonomous farming system that combines IoT sensor
 git clone <repository-url>
 cd Smart-Farming_HACK
 
-# Run setup script
-# Windows:
-.\setup.bat
+# Install backend dependencies
+cd backend
+pip install -r requirements.txt
+python train_fertilizer_model.py  # Train ML models (first time)
+cd ..
 
-# Linux/Mac:
-chmod +x setup.sh
-./setup.sh
+# Install frontend dependencies
+cd frontend
+pnpm install
+cd ..
 ```
 
 ### 2. Start Services

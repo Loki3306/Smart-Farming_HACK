@@ -23,7 +23,9 @@ services:
       - influxdb
       - postgres
     volumes:
-      - ./app:/app/app
+      - ./backend/app:/app/app
+      - ./backend/models:/app/models
+      - ./backend/data:/app/data
     restart: unless-stopped
     networks:
       - smart-farming-network
