@@ -1,6 +1,6 @@
 import React from "react";
 import { Droplet, Leaf, Info } from "lucide-react";
-import { Card } from "../ui/Card";
+import { Card } from "@/components/ui/card";
 import { useFarmContext } from "../../context/FarmContext";
 
 export const ActionLog: React.FC = () => {

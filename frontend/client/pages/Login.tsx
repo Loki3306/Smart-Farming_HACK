@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AlertCircle } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { Button } from "../components/ui/Button";
-import { Card } from "../components/ui/Card";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -89,10 +89,9 @@ export const Login: React.FC = () => {
             </div>
 
             <Button
-              fullWidth
               type="submit"
               disabled={isLoading}
-              className="mt-2"
+              className="mt-2 w-full"
             >
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
@@ -111,10 +110,10 @@ export const Login: React.FC = () => {
           {/* Demo Mode */}
           <div className="space-y-2">
             <Button
-              fullWidth
               variant="outline"
               onClick={handleDemoLogin}
               disabled={isLoading}
+              className="w-full"
             >
               Continue as Demo Farmer
             </Button>

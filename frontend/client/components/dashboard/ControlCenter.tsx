@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Droplet, Leaf, Zap } from "lucide-react";
-import { Card } from "../ui/Card";
-import { Button } from "../ui/Button";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useFarmContext } from "../../context/FarmContext";
 
 export const ControlCenter: React.FC = () => {
@@ -38,7 +38,7 @@ export const ControlCenter: React.FC = () => {
   };
 
   return (
-    <Card glass className="p-6">
+    <Card className="p-6 bg-white/70 backdrop-blur-sm">
       <div className="space-y-6">
         <h3 className="text-lg font-semibold text-foreground">
           Control Center
@@ -62,6 +62,7 @@ export const ControlCenter: React.FC = () => {
           <button
             onClick={handleAutonomousToggle}
             disabled={loading}
+            aria-label="Toggle autonomous mode"
             className={`relative inline-flex items-center h-8 w-14 rounded-full transition-colors ${
               systemStatus?.isAutonomous ? "bg-primary" : "bg-muted"
             } ${loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
@@ -77,22 +78,20 @@ export const ControlCenter: React.FC = () => {
         {/* Control Buttons */}
         <div className="space-y-3">
           <Button
-            fullWidth
             onClick={handleWaterPump}
             disabled={systemStatus?.isAutonomous || pumpLoading}
-            variant="primary"
-            className="flex items-center justify-center gap-2"
+            variant="default"
+            className="w-full flex items-center justify-center gap-2"
           >
             <Droplet className="w-4 h-4" />
             {pumpLoading ? "Dispensing..." : "Manual Water Pump"}
           </Button>
 
           <Button
-            fullWidth
             onClick={handleFertilizer}
             disabled={systemStatus?.isAutonomous || fertilizerLoading}
-            variant="primary"
-            className="flex items-center justify-center gap-2"
+            variant="default"
+            className="w-full flex items-center justify-center gap-2"
           >
             <Leaf className="w-4 h-4" />
             {fertilizerLoading ? "Dispensing..." : "Manual Fertilizer"}

@@ -1,7 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "../components/ui/Button";
+import { Button } from "@/components/ui/button";
 
 const NotFound = () => {
   const location = useLocation();
@@ -21,7 +21,7 @@ const NotFound = () => {
           Oops! This page doesn't exist
         </p>
         <Link to="/">
-          <Button variant="primary" size="lg">
+          <Button variant="default" size="lg">
             Return to Dashboard
           </Button>
         </Link>

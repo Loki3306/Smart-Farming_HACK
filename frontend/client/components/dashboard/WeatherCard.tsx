@@ -1,6 +1,6 @@
 import React from "react";
 import { Cloud, CloudRain, Wind, Droplets, Sun } from "lucide-react";
-import { Card } from "../ui/Card";
+import { Card } from "@/components/ui/card";
 import { useFarmContext } from "../../context/FarmContext";
 
 export const WeatherCard: React.FC = () => {
