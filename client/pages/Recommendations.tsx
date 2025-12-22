@@ -97,7 +97,7 @@ export const Recommendations: React.FC = () => {
 
   const simulateProcessStep = async (stepIndex: number) => {
     await new Promise(resolve => setTimeout(resolve, 400 + Math.random() * 300));
-    setProcessSteps(prev => 
+    setProcessSteps(prev =>
       prev.map((step, idx) => {
         if (idx === stepIndex) {
           return { ...step, status: "completed" };
@@ -120,13 +120,13 @@ export const Recommendations: React.FC = () => {
     }
 
     setIsAnalyzing(true);
-    
+
     // Reset process steps
     setProcessSteps(prev => prev.map((step, idx) => ({
       ...step,
       status: idx === 0 ? "processing" : "pending"
     })));
-    
+
     try {
       // Simulate process steps animation
       for (let i = 0; i < processSteps.length; i++) {
@@ -159,7 +159,7 @@ export const Recommendations: React.FC = () => {
       }
 
       const data = await response.json();
-      
+
       // Map API response to component state
       const mappedRecommendations = data.recommendations.map((rec: any) => ({
         ...rec,
@@ -169,7 +169,7 @@ export const Recommendations: React.FC = () => {
       }));
 
       setRecommendations(mappedRecommendations);
-      
+
       toast({
         title: "Analysis Complete",
         description: `Generated ${mappedRecommendations.length} AI-powered recommendations`,
@@ -260,10 +260,10 @@ export const Recommendations: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col items-center justify-center min-h-[500px] space-y-6"
         >
-          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center" data-tour-id="reco-ai-brain">
             <Brain className="w-16 h-16 text-primary" />
           </div>
-          
+
           <div className="text-center space-y-2 max-w-md">
             <h2 className="text-3xl font-bold text-foreground">AI-Powered Recommendations</h2>
             <p className="text-muted-foreground text-lg">
@@ -271,7 +271,7 @@ export const Recommendations: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 w-full max-w-3xl justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 w-full max-w-3xl justify-center" data-tour-id="reco-stats">
             <Card className="p-4 text-center flex-1">
               <Database className="w-8 h-8 text-blue-500 mx-auto mb-2" />
               <p className="text-sm font-medium">Sensor Analysis</p>
@@ -294,6 +294,7 @@ export const Recommendations: React.FC = () => {
             size="lg"
             className="gap-2 px-8 mt-4"
             disabled={!sensorData}
+            data-tour-id="reco-analyze-btn"
           >
             <Brain className="w-5 h-5" />
             Get AI Recommendations
@@ -328,14 +329,14 @@ export const Recommendations: React.FC = () => {
             <div className="space-y-4">
               {processSteps.map((step) => (
                 <div key={step.id} className="flex items-center gap-4">
-                   <div className="w-6 flex justify-center">
-                      {step.status === "completed" && <CheckCircle className="w-5 h-5 text-green-500" />}
-                      {step.status === "processing" && <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />}
-                      {step.status === "pending" && <div className="w-2 h-2 rounded-full bg-gray-300" />}
-                   </div>
-                   <span className={`${step.status === "processing" ? "text-primary font-medium" : step.status === "completed" ? "text-foreground" : "text-muted-foreground"}`}>
-                     {step.label}
-                   </span>
+                  <div className="w-6 flex justify-center">
+                    {step.status === "completed" && <CheckCircle className="w-5 h-5 text-green-500" />}
+                    {step.status === "processing" && <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />}
+                    {step.status === "pending" && <div className="w-2 h-2 rounded-full bg-gray-300" />}
+                  </div>
+                  <span className={`${step.status === "processing" ? "text-primary font-medium" : step.status === "completed" ? "text-foreground" : "text-muted-foreground"}`}>
+                    {step.label}
+                  </span>
                 </div>
               ))}
             </div>
@@ -347,10 +348,10 @@ export const Recommendations: React.FC = () => {
       {recommendations.length > 0 && !isAnalyzing && (
         <div className="space-y-4" data-tour-id="reco-list">
           <div className="flex items-center justify-between">
-             <h2 className="text-xl font-semibold text-foreground">Your Recommendations</h2>
-             <span className="text-sm text-muted-foreground">{recommendations.length} insights found</span>
+            <h2 className="text-xl font-semibold text-foreground">Your Recommendations</h2>
+            <span className="text-sm text-muted-foreground">{recommendations.length} insights found</span>
           </div>
-          
+
           <div className="grid grid-cols-1 gap-4">
             {recommendations.map((rec, index) => {
               const TypeIcon = getTypeIcon(rec.type);
@@ -363,7 +364,7 @@ export const Recommendations: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
                 >
-                  <Card 
+                  <Card
                     className={`p-6 cursor-pointer hover:shadow-lg transition-all border-l-4 ${rec.applied ? "opacity-60 border-l-green-500" : "border-l-primary"}`}
                     onClick={() => setSelectedRecommendation(rec)}
                   >
@@ -394,7 +395,7 @@ export const Recommendations: React.FC = () => {
                             <span className="font-medium">Confidence:</span>
                             <span className="text-muted-foreground">{rec.confidence}%</span>
                           </div>
-                          
+
                           <div className="flex items-center gap-1 text-primary text-sm font-medium hover:underline">
                             View Details
                             <ChevronRight className="w-4 h-4" />

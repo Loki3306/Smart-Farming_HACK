@@ -31,9 +31,9 @@ export const DashboardGuide = () => {
     const [isTyping, setIsTyping] = useState(false);
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [selectedLanguage, setSelectedLanguage] = useState<"english" | "hindi" | null>(null);
-    
+
     const location = useLocation();
-    const { startTour, resetAllProgress } = useTour();
+    const { startTour, resetTourProgress } = useTour();
     const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
     const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
 
@@ -202,7 +202,7 @@ export const DashboardGuide = () => {
         utterance.rate = 0.9;
         utterance.pitch = 1;
         utterance.onend = () => setIsSpeaking(false);
-        
+
         speechSynthesisRef.current = utterance;
         window.speechSynthesis.speak(utterance);
         setIsSpeaking(true);
@@ -225,10 +225,10 @@ export const DashboardGuide = () => {
             alert("Hindi support coming soon! We'll use English for now.");
         }
         setMode("tour-starting");
-        
-        // Start tour for the current page after a brief delay
+
+        // Reset only the current page's tour so user can re-watch it
         setTimeout(() => {
-            resetAllProgress();
+            resetTourProgress(currentRoute.tourId);
             setTimeout(() => {
                 startTour(currentRoute.tourId);
                 // Important: reset state before hiding so reopening never gets stuck on "Starting tour..."
