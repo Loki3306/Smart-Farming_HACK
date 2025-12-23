@@ -17,6 +17,7 @@ import {
   getForecast, 
   getHistoricalWeather 
 } from "./routes/weather";
+import learnRouter from "./routes/learn";
 
 // Python AI Backend Configuration
 const PYTHON_AI_URL = process.env.PYTHON_AI_URL || "http://localhost:8000";
@@ -67,6 +68,13 @@ export function createServer() {
   app.get("/api/weather/current", getCurrentWeather);
   app.get("/api/weather/forecast", getForecast);
   app.get("/api/weather/historical", getHistoricalWeather);
+
+  // ============================================================================
+  // LEARN PLATFORM - Courses, articles, videos, progress tracking
+  // ============================================================================
+  console.log("📚 Registering Learn routes...");
+  app.use("/api/learn", learnRouter);
+  console.log("✅ Learn routes registered at /api/learn");
 
   // ============================================================================
   // AI RECOMMENDATIONS PROXY - Forward requests to Python FastAPI backend

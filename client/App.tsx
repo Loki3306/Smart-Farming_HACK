@@ -22,6 +22,10 @@ import { Weather } from "./pages/Weather";
 import { Recommendations } from "./pages/Recommendations";
 import { Marketplace } from "./pages/Marketplace";
 import { Learn } from "./pages/Learn";
+import { ArticleDetail } from "./pages/ArticleDetail";
+import { CourseDetail } from "./pages/CourseDetail";
+import { CoursePlayer } from "./pages/CoursePlayer";
+import QuizPlayer from "./pages/QuizPlayer";
 import { Community } from "./pages/Community";
 import { Notifications } from "./pages/Notifications";
 import { Settings } from "./pages/Settings";
@@ -113,6 +117,46 @@ function AnimatedRoutes() {
               <DashboardLayout>
                 <Learn />
               </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/learn/articles/:id"
+          element={
+            <ProtectedRoute requireOnboarding>
+              <DashboardLayout>
+                <ArticleDetail />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/learn/courses/:courseId"
+          element={
+            <ProtectedRoute requireOnboarding>
+              <DashboardLayout>
+                <CourseDetail />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/learn/courses/:courseId/lesson/:lessonId"
+          element={
+            <ProtectedRoute requireOnboarding>
+              <CoursePlayer />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/learn/quiz/:quizId"
+          element={
+            <ProtectedRoute requireOnboarding>
+              <QuizPlayer />
             </ProtectedRoute>
           }
         />
