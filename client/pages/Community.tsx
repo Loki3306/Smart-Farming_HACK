@@ -174,7 +174,7 @@ export const Community: React.FC = () => {
           placeholder="Search posts, topics, farmers..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-10 pr-4 py-3 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-primary"
+          className="w-full pl-10 pr-4 py-3 rounded-lg border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary"
         />
       </div>
 
@@ -186,8 +186,8 @@ export const Community: React.FC = () => {
             <button
               onClick={() => setActiveTab("feed")}
               className={`px-4 py-2 font-medium text-sm transition-colors ${activeTab === "feed"
-                  ? "text-primary border-b-2 border-primary"
-                  : "text-muted-foreground hover:text-foreground"
+                ? "text-primary border-b-2 border-primary"
+                : "text-muted-foreground hover:text-foreground"
                 }`}
             >
               Feed
@@ -195,8 +195,8 @@ export const Community: React.FC = () => {
             <button
               onClick={() => setActiveTab("questions")}
               className={`px-4 py-2 font-medium text-sm transition-colors ${activeTab === "questions"
-                  ? "text-primary border-b-2 border-primary"
-                  : "text-muted-foreground hover:text-foreground"
+                ? "text-primary border-b-2 border-primary"
+                : "text-muted-foreground hover:text-foreground"
                 }`}
             >
               Questions
@@ -204,8 +204,8 @@ export const Community: React.FC = () => {
             <button
               onClick={() => setActiveTab("experts")}
               className={`px-4 py-2 font-medium text-sm transition-colors ${activeTab === "experts"
-                  ? "text-primary border-b-2 border-primary"
-                  : "text-muted-foreground hover:text-foreground"
+                ? "text-primary border-b-2 border-primary"
+                : "text-muted-foreground hover:text-foreground"
                 }`}
             >
               Experts

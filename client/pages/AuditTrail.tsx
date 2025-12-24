@@ -24,9 +24,9 @@ export const AuditTrail: React.FC = () => {
       case "autonomous_action":
         return "bg-amber-100 text-amber-700";
       case "system_status":
-        return "bg-gray-100 text-gray-700";
+        return "bg-muted text-foreground";
       default:
-        return "bg-gray-100 text-gray-700";
+        return "bg-muted text-foreground";
     }
   };
 
@@ -114,7 +114,7 @@ export const AuditTrail: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-border bg-white/30 backdrop-blur-sm">
+                <tr className="border-b border-border bg-card/30 dark:bg-card/30 backdrop-blur-sm">
                   <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
                     Time
                   </th>
@@ -148,7 +148,7 @@ export const AuditTrail: React.FC = () => {
                   blockchainRecords.map((record) => (
                     <tr
                       key={record.id}
-                      className="hover:bg-white/20 transition-colors"
+                      className="hover:bg-card/20 dark:bg-card/20 transition-colors"
                     >
                       <td className="px-6 py-4 text-sm text-foreground whitespace-nowrap">
                         {record.timestamp.toLocaleTimeString()}
@@ -191,14 +191,14 @@ export const AuditTrail: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-sm">
                         <div className="flex items-center gap-2">
-                          <code className="text-xs bg-white/30 px-2 py-1 rounded font-mono text-foreground/80">
+                          <code className="text-xs bg-card/30 dark:bg-card/30 px-2 py-1 rounded font-mono text-foreground/80">
                             {record.transactionHash.substring(0, 12)}...
                           </code>
                           <button
                             onClick={() =>
                               copyToClipboard(record.transactionHash, record.id)
                             }
-                            className="p-1 hover:bg-white/20 rounded transition-colors"
+                            className="p-1 hover:bg-card/20 dark:bg-card/20 rounded transition-colors"
                             title="Copy hash"
                           >
                             {copiedHash === record.id ? (

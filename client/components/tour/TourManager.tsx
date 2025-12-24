@@ -254,9 +254,9 @@ export const TourManager: React.FC<TourManagerProps> = ({
             {/* Loading indicator while waiting for navigation */}
             {isWaiting && (
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30">
-                    <div className="bg-white rounded-xl p-6 shadow-xl flex items-center gap-3">
+                    <div className="bg-card rounded-xl p-6 shadow-xl flex items-center gap-3">
                         <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-                        <span className="text-gray-700 font-medium">Loading next step...</span>
+                        <span className="text-foreground font-medium">Loading next step...</span>
                     </div>
                 </div>
             )}

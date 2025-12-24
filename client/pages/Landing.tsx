@@ -315,14 +315,14 @@ const StickyFarmCycle = ({ onComplete }: { onComplete: () => void }) => {
                 key="completed"
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="bg-gradient-to-br from-primary/80 to-emerald-600/80 backdrop-blur-xl rounded-3xl shadow-2xl p-5 text-white border border-white/20"
+                className="bg-gradient-to-br from-primary/80 to-emerald-600/80 backdrop-blur-xl rounded-3xl shadow-2xl p-5 text-white border border-border/50"
               >
                 {/* Circular completion display */}
                 <div className="flex flex-col items-center">
                   {/* All icons in a circle around checkmark */}
                   <div className="relative" style={{ width: 140, height: 140 }}>
                     {/* Outer circle ring for visual guidance */}
-                    <div className="absolute inset-3 rounded-full border-2 border-white/30" />
+                    <div className="absolute inset-3 rounded-full border-2 border-border/50" />
 
                     {phases.map((phase, index) => {
                       const PhaseIcon = phase.icon;
@@ -337,7 +337,7 @@ const StickyFarmCycle = ({ onComplete }: { onComplete: () => void }) => {
                           initial={{ scale: 0, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
                           transition={{ delay: index * 0.1, type: "spring" }}
-                          className={`absolute w-9 h-9 rounded-full ${phase.color} flex items-center justify-center shadow-lg border-2 border-white/30`}
+                          className={`absolute w-9 h-9 rounded-full ${phase.color} flex items-center justify-center shadow-lg border-2 border-border/50`}
                           style={{
                             left: "50%",
                             top: "50%",
@@ -357,7 +357,7 @@ const StickyFarmCycle = ({ onComplete }: { onComplete: () => void }) => {
                       transition={{ delay: 0.5, type: "spring" }}
                       className="absolute inset-0 flex items-center justify-center"
                     >
-                      <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-xl">
+                      <div className="w-14 h-14 rounded-full bg-card flex items-center justify-center shadow-xl">
                         <Check className="w-8 h-8 text-primary" />
                       </div>
                     </motion.div>
@@ -368,13 +368,13 @@ const StickyFarmCycle = ({ onComplete }: { onComplete: () => void }) => {
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: 1 }}
                     transition={{ duration: 0.8, delay: 0.3 }}
-                    className="mt-4 h-1.5 w-full bg-white/30 rounded-full overflow-hidden origin-left"
+                    className="mt-4 h-1.5 w-full bg-card/30 dark:bg-card/30 rounded-full overflow-hidden origin-left"
                   >
                     <motion.div
                       initial={{ scaleX: 0 }}
                       animate={{ scaleX: 1 }}
                       transition={{ duration: 0.6, delay: 0.6 }}
-                      className="h-full w-full bg-white rounded-full origin-left"
+                      className="h-full w-full bg-card rounded-full origin-left"
                     />
                   </motion.div>
 
@@ -1072,10 +1072,10 @@ export const Landing = () => {
                   </video>
 
                   {/* Decorative corner elements - inside video */}
-                  <div className="absolute top-4 left-4 w-10 h-10 border-l-4 border-t-4 border-white/50 rounded-tl-xl pointer-events-none" />
-                  <div className="absolute top-4 right-4 w-10 h-10 border-r-4 border-t-4 border-white/50 rounded-tr-xl pointer-events-none" />
-                  <div className="absolute bottom-4 left-4 w-10 h-10 border-l-4 border-b-4 border-white/50 rounded-bl-xl pointer-events-none" />
-                  <div className="absolute bottom-4 right-4 w-10 h-10 border-r-4 border-b-4 border-white/50 rounded-br-xl pointer-events-none" />
+                  <div className="absolute top-4 left-4 w-10 h-10 border-l-4 border-t-4 border-border/50 rounded-tl-xl pointer-events-none" />
+                  <div className="absolute top-4 right-4 w-10 h-10 border-r-4 border-t-4 border-border/50 rounded-tr-xl pointer-events-none" />
+                  <div className="absolute bottom-4 left-4 w-10 h-10 border-l-4 border-b-4 border-border/50 rounded-bl-xl pointer-events-none" />
+                  <div className="absolute bottom-4 right-4 w-10 h-10 border-r-4 border-b-4 border-border/50 rounded-br-xl pointer-events-none" />
                 </div>
               </div>
             </motion.div>
@@ -1389,15 +1389,15 @@ export const Landing = () => {
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
-                className="absolute -top-20 -right-20 w-80 h-80 border border-white/10 rounded-full"
+                className="absolute -top-20 -right-20 w-80 h-80 border border-border/50 rounded-full"
               />
               <motion.div
                 animate={{ rotate: -360 }}
                 transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-                className="absolute -bottom-32 -left-32 w-96 h-96 border border-white/10 rounded-full"
+                className="absolute -bottom-32 -left-32 w-96 h-96 border border-border/50 rounded-full"
               />
-              <div className="absolute top-10 left-10 w-32 h-32 bg-white/5 rounded-full blur-2xl" />
-              <div className="absolute bottom-10 right-10 w-48 h-48 bg-white/5 rounded-full blur-3xl" />
+              <div className="absolute top-10 left-10 w-32 h-32 bg-card/5 dark:bg-card/5 rounded-full blur-2xl" />
+              <div className="absolute bottom-10 right-10 w-48 h-48 bg-card/5 dark:bg-card/5 rounded-full blur-3xl" />
 
               {/* Floating agriculture icons */}
               <motion.div
@@ -1431,7 +1431,7 @@ export const Landing = () => {
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-white/90 text-sm font-medium mb-6"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card/10 dark:bg-card/10 backdrop-blur-sm text-white/90 text-sm font-medium mb-6"
                 >
                   <Sprout className="w-4 h-4" />
                   <span>Start Your Smart Farming Journey</span>
@@ -1452,7 +1452,7 @@ export const Landing = () => {
                     <Button
                       size="lg"
                       onClick={handleViewDashboard}
-                      className="rounded-full px-10 py-7 text-lg gap-2 bg-white text-primary hover:bg-white/90 shadow-xl hover:shadow-2xl transition-all"
+                      className="rounded-full px-10 py-7 text-lg gap-2 bg-card text-primary hover:bg-card/90 dark:bg-card/90 shadow-xl hover:shadow-2xl transition-all"
                     >
                       Go to Dashboard
                       <ArrowRight className="w-5 h-5" />
@@ -1462,7 +1462,7 @@ export const Landing = () => {
                       <Button
                         size="lg"
                         onClick={handleSignup}
-                        className="rounded-full px-10 py-7 text-lg gap-2 bg-white text-emerald-700 font-semibold hover:bg-gray-100 shadow-xl hover:shadow-2xl transition-all border-0"
+                        className="rounded-full px-10 py-7 text-lg gap-2 bg-card text-emerald-700 font-semibold hover:bg-muted shadow-xl hover:shadow-2xl transition-all border-0"
                       >
                         Get Started Free
                         <ArrowRight className="w-5 h-5" />
@@ -1471,7 +1471,7 @@ export const Landing = () => {
                         size="lg"
                         variant="outline"
                         onClick={handleTryDemo}
-                        className="rounded-full px-10 py-7 text-lg gap-2 bg-white/20 border-2 border-white text-white font-semibold hover:bg-white hover:text-emerald-700 backdrop-blur-sm transition-all"
+                        className="rounded-full px-10 py-7 text-lg gap-2 bg-card/20 dark:bg-card/20 border-2 border-white text-white font-semibold hover:bg-card hover:text-emerald-700 backdrop-blur-sm transition-all"
                       >
                         <Play className="w-5 h-5" />
                         Watch Demo

@@ -352,7 +352,7 @@ export const CoursePlayer: React.FC = () => {
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -300, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="w-80 bg-white border-r border-border flex flex-col fixed h-full z-20 lg:relative"
+            className="w-80 bg-card border-r border-border flex flex-col fixed h-full z-20 lg:relative"
           >
             {/* Sidebar Header */}
             <div className="p-4 border-b">
@@ -397,7 +397,7 @@ export const CoursePlayer: React.FC = () => {
                     className={`w-full text-left p-3 rounded-lg mb-1 flex items-start gap-3 transition-colors ${
                       isActive
                         ? "bg-primary/10 border border-primary/20"
-                        : "hover:bg-gray-50"
+                        : "hover:bg-muted/50"
                     }`}
                   >
                     <div
@@ -406,7 +406,7 @@ export const CoursePlayer: React.FC = () => {
                           ? "bg-green-500 text-white"
                           : isActive
                           ? "bg-primary text-white"
-                          : "bg-gray-200 text-gray-600"
+                          : "bg-muted text-muted-foreground"
                       }`}
                     >
                       {isCompleted ? (
@@ -441,7 +441,7 @@ export const CoursePlayer: React.FC = () => {
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col min-h-screen">
         {/* Top Bar */}
-        <header className="bg-white border-b p-4 flex items-center justify-between">
+        <header className="bg-card border-b p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {!sidebarOpen && (
               <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
@@ -524,7 +524,7 @@ export const CoursePlayer: React.FC = () => {
                         <h3 className="text-xl font-semibold mb-2 relative z-10">{currentLesson.title}</h3>
                         <p className="text-gray-300 text-sm mb-4 relative z-10">Video Lesson</p>
                         {currentLesson.duration && (
-                          <p className="text-gray-400 text-xs flex items-center gap-1 relative z-10">
+                          <p className="text-muted-foreground text-xs flex items-center gap-1 relative z-10">
                             <Clock className="w-3 h-3" />
                             Duration: {currentLesson.duration}
                           </p>
@@ -555,7 +555,7 @@ export const CoursePlayer: React.FC = () => {
                         onComplete={() => handleMarkComplete()}
                       />
                     ) : (
-                      <div className="bg-gray-50 rounded-lg p-6">
+                      <div className="bg-muted/50 rounded-lg p-6">
                         <h2 className="text-xl font-semibold mb-4">{currentLesson.title}</h2>
                         <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
                           {currentLesson.description || "Lesson content will be displayed here."}
@@ -599,7 +599,7 @@ export const CoursePlayer: React.FC = () => {
                         <p className="text-muted-foreground mb-6">
                           Test your knowledge and earn badges for great performance!
                         </p>
-                        <p className="text-sm text-gray-500">Quiz is being prepared...</p>
+                        <p className="text-sm text-muted-foreground">Quiz is being prepared...</p>
                       </div>
                     )}
                   </div>
@@ -715,12 +715,12 @@ export const CoursePlayer: React.FC = () => {
                             transition={{ delay: 0.3 }}
                             className="mb-6 inline-block"
                           >
-                            <div className="bg-white rounded-xl p-4 shadow-lg border-2 border-yellow-400">
+                            <div className="bg-card rounded-xl p-4 shadow-lg border-2 border-yellow-400">
                               <div className="flex items-center gap-3">
                                 <div className="text-4xl">🎓</div>
                                 <div className="text-left">
                                   <p className="text-xs text-yellow-600 font-medium uppercase tracking-wide">Badge Earned!</p>
-                                  <p className="text-lg font-bold text-gray-800">{badgeEarned}</p>
+                                  <p className="text-lg font-bold text-foreground">{badgeEarned}</p>
                                 </div>
                               </div>
                             </div>

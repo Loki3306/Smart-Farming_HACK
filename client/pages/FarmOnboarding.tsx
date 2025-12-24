@@ -564,7 +564,7 @@ export const FarmOnboarding: React.FC = () => {
                     onChange={handleChange}
                     onFocus={() => setCurrentField("fullName")}
                     placeholder="e.g., Rajesh Kumar"
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-4 py-3 rounded-lg border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                   {errors.fullName && (
                     <p className="text-xs text-red-600 mt-1">{errors.fullName}</p>
@@ -581,7 +581,7 @@ export const FarmOnboarding: React.FC = () => {
                     value={farmData.email}
                     onChange={handleChange}
                     placeholder="your@email.com"
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-4 py-3 rounded-lg border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                   {errors.email && (
                     <p className="text-xs text-red-600 mt-1">{errors.email}</p>
@@ -596,7 +596,7 @@ export const FarmOnboarding: React.FC = () => {
                     name="yearsExperience"
                     value={farmData.yearsExperience}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-4 py-3 rounded-lg border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary"
                   >
                     <option value="">Select...</option>
                     <option value="less-than-1">Less than 1 year</option>
@@ -637,7 +637,7 @@ export const FarmOnboarding: React.FC = () => {
                             onFocus={() => setCurrentField("phoneNumber")}
                             placeholder="+91 98765 43210"
                             disabled={farmData.phoneVerified}
-                            className="w-full pl-10 pr-4 py-3 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-primary disabled:bg-muted"
+                            className="w-full pl-10 pr-4 py-3 rounded-lg border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary disabled:bg-muted"
                           />
                         </div>
                         {!farmData.phoneVerified ? (
@@ -697,7 +697,7 @@ export const FarmOnboarding: React.FC = () => {
                     onChange={handleChange}
                     onFocus={() => setCurrentField("farmName")}
                     placeholder="e.g., Green Valley Farm"
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-4 py-3 rounded-lg border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                   {errors.farmName && (
                     <p className="text-xs text-red-600 mt-1">{errors.farmName}</p>
@@ -742,7 +742,7 @@ export const FarmOnboarding: React.FC = () => {
                   </div>
                   
                   {farmData.latitude && farmData.longitude && (
-                    <div className="bg-white rounded p-3 text-sm space-y-1">
+                    <div className="bg-card rounded p-3 text-sm space-y-1">
                       <p className="text-green-600 font-medium flex items-center gap-1">
                         <CheckCircle className="w-4 h-4" />
                         Location captured!
@@ -773,7 +773,7 @@ export const FarmOnboarding: React.FC = () => {
                       value={farmData.city}
                       onChange={handleChange}
                       placeholder="Auto-filled from GPS"
-                      className="w-full px-4 py-3 rounded-lg border border-border bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-4 py-3 rounded-lg border border-border bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
                   <div>
@@ -786,7 +786,7 @@ export const FarmOnboarding: React.FC = () => {
                       value={farmData.district}
                       onChange={handleChange}
                       placeholder="Auto-filled from GPS"
-                      className="w-full px-4 py-3 rounded-lg border border-border bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-4 py-3 rounded-lg border border-border bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
                 </div>
@@ -802,7 +802,7 @@ export const FarmOnboarding: React.FC = () => {
                       value={farmData.village}
                       onChange={handleChange}
                       placeholder="Auto-filled from GPS"
-                      className="w-full px-4 py-3 rounded-lg border border-border bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-4 py-3 rounded-lg border border-border bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
                   <div>
@@ -813,7 +813,7 @@ export const FarmOnboarding: React.FC = () => {
                       name="state"
                       value={farmData.state}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-4 py-3 rounded-lg border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary"
                     >
                       <option value="">Select State</option>
                       {INDIAN_STATES.map((state) => (
@@ -839,13 +839,13 @@ export const FarmOnboarding: React.FC = () => {
                         placeholder="e.g., 5"
                         min="0"
                         step="0.1"
-                        className="flex-1 px-4 py-3 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="flex-1 px-4 py-3 rounded-lg border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                       <select
                         name="areaUnit"
                         value={farmData.areaUnit}
                         onChange={handleChange}
-                        className="px-4 py-3 rounded-lg border border-border bg-white"
+                        className="px-4 py-3 rounded-lg border border-border bg-card"
                       >
                         <option value="acres">Acres</option>
                         <option value="hectares">Hectares</option>
@@ -863,7 +863,7 @@ export const FarmOnboarding: React.FC = () => {
                       name="soilType"
                       value={farmData.soilType}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-4 py-3 rounded-lg border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary"
                     >
                       {SOIL_TYPES_INDIA.map((soil) => (
                         <option key={soil.value} value={soil.value}>
@@ -891,7 +891,7 @@ export const FarmOnboarding: React.FC = () => {
                 <div className="bg-gradient-to-br from-emerald-50 to-blue-50 border border-emerald-200 rounded-xl p-6 text-center space-y-4">
                   {!farmData.sensorConnected ? (
                     <>
-                      <div className="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center shadow-md">
+                      <div className="w-20 h-20 mx-auto bg-card rounded-full flex items-center justify-center shadow-md">
                         {sensorConnecting ? (
                           <Loader className="w-10 h-10 text-primary animate-spin" />
                         ) : (
@@ -948,7 +948,7 @@ export const FarmOnboarding: React.FC = () => {
                         </p>
                       </div>
 
-                      <div className="bg-white rounded-lg p-4 text-left space-y-2">
+                      <div className="bg-card rounded-lg p-4 text-left space-y-2">
                         <p className="text-sm font-medium">Receiving data:</p>
                         <div className="grid grid-cols-3 gap-2 text-xs">
                           <div className="bg-green-50 p-2 rounded text-center">

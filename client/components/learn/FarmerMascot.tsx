@@ -108,18 +108,18 @@ export const FarmerMascot: React.FC<FarmerMascotProps> = ({
             exit={{ opacity: 0, scale: 0.8, y: 10 }}
             className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-10 w-48 sm:w-64`}
           >
-            <div className="relative bg-white rounded-2xl shadow-lg border-2 border-green-200 p-4">
-              <p className="text-gray-700 font-medium leading-relaxed text-sm">{message}</p>
+            <div className="relative bg-card rounded-2xl shadow-lg border-2 border-green-200 p-4">
+              <p className="text-foreground font-medium leading-relaxed text-sm">{message}</p>
               {onBubbleClose && (
                 <button
                   onClick={onBubbleClose}
-                  className="absolute -top-2 -right-2 w-5 h-5 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center text-xs"
+                  className="absolute -top-2 -right-2 w-5 h-5 bg-muted hover:bg-muted rounded-full flex items-center justify-center text-xs"
                 >
                   ×
                 </button>
               )}
               {/* Speech bubble tail */}
-              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-r-2 border-b-2 border-green-200 transform rotate-45" />
+              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-card border-r-2 border-b-2 border-green-200 transform rotate-45" />
             </div>
           </motion.div>
         )}

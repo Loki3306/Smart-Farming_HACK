@@ -12,7 +12,7 @@ export const WeatherCard: React.FC = () => {
       return <CloudRain className="w-12 h-12 text-blue-500" />;
     }
     if (lowerCondition.includes("cloudy")) {
-      return <Cloud className="w-12 h-12 text-gray-500" />;
+      return <Cloud className="w-12 h-12 text-muted-foreground" />;
     }
     return <Sun className="w-12 h-12 text-amber-500" />;
   };
@@ -42,7 +42,7 @@ export const WeatherCard: React.FC = () => {
 
         {/* Weather Metrics Grid */}
         <div className="grid grid-cols-2 gap-4 border-t border-border/30 pt-4">
-          <div className="bg-white/20 rounded-lg p-3 backdrop-blur-sm border border-white/10">
+          <div className="bg-card/20 dark:bg-card/20 rounded-lg p-3 backdrop-blur-sm border border-border/50">
             <div className="flex items-center gap-2 mb-1">
               <Droplets className="w-4 h-4 text-blue-500" />
               <span className="text-xs text-muted-foreground">Humidity</span>
@@ -52,7 +52,7 @@ export const WeatherCard: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white/20 rounded-lg p-3 backdrop-blur-sm border border-white/10">
+          <div className="bg-card/20 dark:bg-card/20 rounded-lg p-3 backdrop-blur-sm border border-border/50">
             <div className="flex items-center gap-2 mb-1">
               <CloudRain className="w-4 h-4 text-blue-500" />
               <span className="text-xs text-muted-foreground">Rain Chance</span>
@@ -62,7 +62,7 @@ export const WeatherCard: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white/20 rounded-lg p-3 backdrop-blur-sm border border-white/10">
+          <div className="bg-card/20 dark:bg-card/20 rounded-lg p-3 backdrop-blur-sm border border-border/50">
             <div className="flex items-center gap-2 mb-1">
               <Wind className="w-4 h-4 text-cyan-500" />
               <span className="text-xs text-muted-foreground">Wind Speed</span>
@@ -72,7 +72,7 @@ export const WeatherCard: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white/20 rounded-lg p-3 backdrop-blur-sm border border-white/10">
+          <div className="bg-card/20 dark:bg-card/20 rounded-lg p-3 backdrop-blur-sm border border-border/50">
             <div className="flex items-center gap-2 mb-1">
               <Sun className="w-4 h-4 text-yellow-500" />
               <span className="text-xs text-muted-foreground">UV Index</span>

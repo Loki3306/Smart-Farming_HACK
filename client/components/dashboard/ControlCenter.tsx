@@ -45,7 +45,7 @@ export const ControlCenter: React.FC = () => {
         </h3>
 
         {/* Autonomous Badge */}
-        <div className="flex items-center justify-between p-4 bg-white/20 rounded-lg backdrop-blur-sm border border-white/10">
+        <div className="flex items-center justify-between p-4 bg-card/20 dark:bg-card/20 rounded-lg backdrop-blur-sm border border-border/50">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/20">
               <Zap className="w-5 h-5 text-primary" />
@@ -67,7 +67,7 @@ export const ControlCenter: React.FC = () => {
             } ${loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
           >
             <span
-              className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-lg transition-transform ${
+              className={`inline-block h-6 w-6 transform rounded-full bg-card shadow-lg transition-transform ${
                 systemStatus?.isAutonomous ? "translate-x-7" : "translate-x-1"
               }`}
             />

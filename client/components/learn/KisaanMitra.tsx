@@ -391,17 +391,17 @@ export const KisaanMitra: React.FC<KisaanMitraProps> = ({
             className="relative mb-2"
             style={{ maxWidth: config.bubbleWidth }}
           >
-            <div className="bg-white rounded-2xl shadow-xl border-2 border-green-300 p-4 relative">
+            <div className="bg-card rounded-2xl shadow-xl border-2 border-green-300 p-4 relative">
               {/* Close button */}
               <button
                 onClick={handleDismiss}
-                className="absolute -top-2 -right-2 w-6 h-6 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
+                className="absolute -top-2 -right-2 w-6 h-6 bg-muted hover:bg-muted rounded-full flex items-center justify-center transition-colors"
               >
-                <X className="w-4 h-4 text-gray-600" />
+                <X className="w-4 h-4 text-muted-foreground" />
               </button>
               
               {/* Message text with typing effect */}
-              <p className="text-gray-800 leading-relaxed text-sm font-medium whitespace-pre-line">
+              <p className="text-foreground leading-relaxed text-sm font-medium whitespace-pre-line">
                 {displayedText}
                 {isTyping && <span className="animate-pulse">|</span>}
               </p>
@@ -420,7 +420,7 @@ export const KisaanMitra: React.FC<KisaanMitraProps> = ({
               )}
               
               {/* Speech bubble tail */}
-              <div className="absolute -bottom-2 left-8 w-4 h-4 bg-white border-r-2 border-b-2 border-green-300 transform rotate-45" />
+              <div className="absolute -bottom-2 left-8 w-4 h-4 bg-card border-r-2 border-b-2 border-green-300 transform rotate-45" />
             </div>
           </motion.div>
         )}
@@ -433,7 +433,7 @@ export const KisaanMitra: React.FC<KisaanMitraProps> = ({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            className="bg-white rounded-xl shadow-lg border border-gray-200 p-2 mb-2"
+            className="bg-card rounded-xl shadow-lg border border-border p-2 mb-2"
             style={{ width: config.bubbleWidth }}
           >
             <div className="space-y-1">
@@ -449,7 +449,7 @@ export const KisaanMitra: React.FC<KisaanMitraProps> = ({
                       : "भाषा हिंदी में बदल गई! 🇮🇳");
                   }, 100);
                 }}
-                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-blue-50 rounded-lg text-left text-sm border-b border-gray-100 mb-1"
+                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-blue-50 rounded-lg text-left text-sm border-b border-border mb-1"
               >
                 <Globe className="w-4 h-4 text-blue-600" />
                 <span className="flex-1">{currentLanguage === 'hindi' ? 'Switch to English' : 'हिंदी में बदलें'}</span>

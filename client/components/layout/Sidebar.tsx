@@ -159,7 +159,7 @@ export const Sidebar: React.FC = () => {
           onClick={handleLogout}
           className={cn(
             "w-full flex items-center gap-3 px-3 py-2.5 mt-2 rounded-lg transition-all",
-            "text-muted-foreground hover:bg-red-50 hover:text-red-600",
+            "text-muted-foreground hover:bg-destructive/10 hover:text-destructive dark:hover:bg-destructive/20",
             isCollapsed && "justify-center px-2"
           )}
         >
@@ -171,7 +171,7 @@ export const Sidebar: React.FC = () => {
       {/* Collapse Toggle (Desktop only) */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 rounded-full bg-white border border-border shadow-sm items-center justify-center hover:bg-muted transition-colors"
+        className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 rounded-full bg-card border border-border shadow-sm items-center justify-center hover:bg-muted transition-colors"
       >
         {isCollapsed ? (
           <ChevronRight className="w-4 h-4" />
@@ -187,7 +187,7 @@ export const Sidebar: React.FC = () => {
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsMobileOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-white shadow-md border border-border"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-card shadow-md border border-border"
       >
         <Menu className="w-5 h-5" />
       </button>
@@ -203,7 +203,7 @@ export const Sidebar: React.FC = () => {
       {/* Mobile Sidebar */}
       <aside
         className={cn(
-          "lg:hidden fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-border transform transition-transform duration-300",
+          "lg:hidden fixed inset-y-0 left-0 z-50 w-72 bg-sidebar-background border-r border-sidebar-border transform transition-transform duration-300",
           isMobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -219,7 +219,7 @@ export const Sidebar: React.FC = () => {
       {/* Desktop Sidebar */}
       <aside
         className={cn(
-          "hidden lg:block fixed inset-y-0 left-0 z-30 bg-white border-r border-border transition-all duration-300",
+          "hidden lg:block fixed inset-y-0 left-0 z-30 bg-sidebar-background border-r border-sidebar-border transition-all duration-300",
           isCollapsed ? "w-20" : "w-64"
         )}
       >

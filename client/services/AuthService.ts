@@ -248,7 +248,7 @@ class AuthServiceClass {
 
       // Ensure farm selection is recalculated for the newly logged-in user
       localStorage.removeItem('current_farm_id');
-      
+
       // Store onboarding status explicitly based on farm data check
       if (hasCompletedOnboarding) {
         localStorage.setItem("onboarding_completed", "true");
@@ -311,6 +311,59 @@ class AuthServiceClass {
     if (!response.ok) {
       throw new Error("Logout failed");
     }
+  }
+
+  async updateProfile(updates: { fullName?: string; email?: string; phone?: string }): Promise<User> {
+    const userId = localStorage.getItem("user_id");
+    if (!userId) {
+      throw new Error("No user logged in");
+    }
+
+    if (supabase) {
+      await this.simulateDelay();
+
+      // Map frontend field names to database column names
+      const dbUpdates: Record<string, any> = {};
+      if (updates.fullName !== undefined) dbUpdates.name = updates.fullName;
+      if (updates.email !== undefined) dbUpdates.email = updates.email;
+      if (updates.phone !== undefined) dbUpdates.phone = updates.phone;
+
+      // Update in Supabase
+      const { data, error } = await supabase
+        .from('farmers')
+        .update(dbUpdates)
+        .eq('id', userId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('[UpdateProfile] Supabase error:', error);
+        throw new Error(error.message || "Failed to update profile");
+      }
+
+      // Get current user from cache and update it
+      const cachedUser = localStorage.getItem("current_user");
+      if (cachedUser) {
+        const user = JSON.parse(cachedUser) as User;
+        const updatedUser: User = {
+          ...user,
+          fullName: updates.fullName ?? user.fullName,
+          email: updates.email ?? user.email,
+          phone: updates.phone ?? user.phone,
+        };
+
+        // Update cache
+        localStorage.setItem("current_user", JSON.stringify(updatedUser));
+        console.log('[UpdateProfile] Profile updated successfully:', updatedUser.fullName);
+
+        return updatedUser;
+      }
+
+      throw new Error("User session not found");
+    }
+
+    // Fallback for non-Supabase (shouldn't happen in production)
+    throw new Error("Database not available");
   }
 
   async getCurrentUser(): Promise<User | null> {
