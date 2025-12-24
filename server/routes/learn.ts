@@ -53,7 +53,8 @@ router.use(parseAuthToken);
 
 // Middleware: Check authentication (requires parseAuthToken to be called first)
 const checkAuth = (req: Request, res: Response, next: Function) => {
-  const farmerId = (req as any).user?.id;
+  // In development/demo, allow a fallback user id if no auth token is present
+  const farmerId = (req as any).user?.id || process.env.DEMO_FARMER_ID;
   if (!farmerId) {
     return res.status(401).json({
       success: false,
@@ -224,11 +225,26 @@ router.get('/courses', async (req: Request, res: Response) => {
 
     if (error) return errorResponse(res, 500, 'Failed to fetch courses', error);
 
+    // Update lesson count for each course by counting actual lessons in course_lessons table
+    const coursesWithLessonCount = await Promise.all(
+      (data || []).map(async (course: any) => {
+        const { count: lessonCount } = await supabase
+          .from('course_lessons')
+          .select('*', { count: 'exact', head: true })
+          .eq('course_id', course.id);
+        
+        return {
+          ...course,
+          lessons: lessonCount || 0
+        };
+      })
+    );
+
     // Return flat paginated response (not wrapped in successResponse)
     // Always return success even if page is beyond available data
     return res.status(200).json({
       success: true,
-      data: data || [],
+      data: coursesWithLessonCount,
       pagination: {
         current_page: Math.floor(offset / limit) + 1,
         total_pages: Math.max(Math.ceil((count || 0) / limit), 0),
@@ -2320,6 +2336,54 @@ router.get('/quizzes/:quizId/attempts/:attemptId', checkAuth, async (req: Reques
         time_spent: attempt.time_spent_seconds,
       },
     }, 'Attempt details fetched successfully');
+  } catch (error) {
+    return errorResponse(res, 500, 'Internal server error', error);
+  }
+});
+
+// GET /learn/lessons/:lessonId/quiz - Get quiz with questions for a lesson (simplified for our JSONB structure)
+router.get('/lessons/:lessonId/quiz', async (req: Request, res: Response) => {
+  try {
+    const { lessonId } = req.params;
+
+    // Get quiz for this lesson
+    const { data: quiz, error: quizError } = await supabase
+      .from('quizzes')
+      .select('*')
+      .eq('lesson_id', lessonId)
+      .single();
+
+    if (quizError || !quiz) {
+      return errorResponse(res, 404, 'Quiz not found for this lesson', quizError);
+    }
+
+    // Get questions (our structure has options as JSONB)
+    const { data: questions, error: questionsError } = await supabase
+      .from('quiz_questions')
+      .select('*')
+      .eq('quiz_id', quiz.id)
+      .order('order_index', { ascending: true });
+
+    if (questionsError) {
+      return errorResponse(res, 400, 'Failed to fetch questions', questionsError);
+    }
+
+    // Transform to the format our QuizPlayer expects
+    const formattedQuestions = (questions || []).map((q: any) => {
+      const options = q.options || [];
+      const correctIndex = options.findIndex((opt: any) => opt.is_correct);
+      
+      return {
+        question: q.question_text,
+        options: options.map((opt: any) => opt.text),
+        correctIndex: correctIndex >= 0 ? correctIndex : 0,
+        explanation: q.explanation || '',
+      };
+    });
+
+    return successResponse(res, {
+      questions: formattedQuestions,
+    }, 'Quiz fetched successfully');
   } catch (error) {
     return errorResponse(res, 500, 'Internal server error', error);
   }

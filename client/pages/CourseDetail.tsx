@@ -14,12 +14,15 @@ import {
   GraduationCap,
   Trophy,
   ChevronRight,
+  Map,
+  List,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
 import * as LearnService from "@/services/LearnService";
+import { LearningRoadmap } from "@/components/learn/LearningRoadmap";
 
 interface Lesson {
   id: string;
@@ -47,6 +50,7 @@ export const CourseDetail: React.FC = () => {
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [enrollment, setEnrollment] = useState<LearnService.Enrollment | null>(null);
   const [lessonProgress, setLessonProgress] = useState<Record<string, string>>({});
+  const [viewMode, setViewMode] = useState<'roadmap' | 'classic'>('roadmap');
 
   useEffect(() => {
     if (courseId) {
@@ -194,14 +198,62 @@ export const CourseDetail: React.FC = () => {
   const totalLessons = course.lessons?.length || 1;
   const progressPercent = Math.round((completedLessons / totalLessons) * 100);
 
+  // Handler for starting a lesson from roadmap
+  const handleStartLesson = (lessonId: string) => {
+    navigate(`/learn/courses/${courseId}/lesson/${lessonId}`);
+  };
+
+  // Show gamified roadmap view by default
+  if (viewMode === 'roadmap' && course.lessons && course.lessons.length > 0) {
+    return (
+      <LearningRoadmap
+        courseId={courseId!}
+        courseTitle={course.title}
+        lessons={course.lessons}
+        lessonProgress={lessonProgress}
+        isEnrolled={isEnrolled}
+        onStartLesson={handleStartLesson}
+        onEnroll={handleEnroll}
+        totalXP={course.lessons.length * 20}
+        earnedXP={completedLessons * 20}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto p-6 lg:p-8">
-        {/* Back Button */}
-        <Button variant="ghost" className="mb-6" onClick={() => navigate("/learn")}>
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Learn
-        </Button>
+        {/* Back Button & View Toggle */}
+        <div className="flex items-center justify-between mb-6">
+          <Button variant="ghost" onClick={() => navigate("/learn")}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Learn
+          </Button>
+          
+          {/* View Mode Toggle */}
+          {course.lessons && course.lessons.length > 0 && (
+            <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
+              <Button
+                variant={viewMode === 'roadmap' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('roadmap')}
+                className="gap-2"
+              >
+                <Map className="w-4 h-4" />
+                <span className="hidden sm:inline">Roadmap</span>
+              </Button>
+              <Button
+                variant={viewMode === 'classic' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('classic')}
+                className="gap-2"
+              >
+                <List className="w-4 h-4" />
+                <span className="hidden sm:inline">Classic</span>
+              </Button>
+            </div>
+          )}
+        </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content */}

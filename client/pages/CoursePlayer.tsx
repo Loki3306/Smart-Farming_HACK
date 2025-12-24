@@ -22,6 +22,8 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
 import * as LearnService from "@/services/LearnService";
+import { RichArticleViewer, QuizPlayer } from "@/components/learn";
+import type { ArticleContent, QuizData } from "@/components/learn";
 
 interface Lesson {
   id: string;
@@ -54,6 +56,8 @@ export const CoursePlayer: React.FC = () => {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
   const [badgeEarned, setBadgeEarned] = useState<string | null>(null);
+  const [quizData, setQuizData] = useState<QuizData | null>(null);
+  const [loadingQuiz, setLoadingQuiz] = useState(false);
 
   // Extract YouTube video ID for thumbnail
   const getYouTubeThumbnail = (url: string): string | null => {
@@ -74,8 +78,32 @@ export const CoursePlayer: React.FC = () => {
     if (course?.lessons && lessonId) {
       const lesson = course.lessons.find((l) => l.id === lessonId);
       setCurrentLesson(lesson || null);
+      
+      // Fetch quiz data if this is a quiz lesson
+      if (lesson && lesson.content_type === 'quiz') {
+        fetchQuizData(lesson.id);
+      } else {
+        setQuizData(null);
+      }
     }
   }, [course, lessonId]);
+
+  const fetchQuizData = async (lessonId: string) => {
+    try {
+      setLoadingQuiz(true);
+      const response = await fetch(`/api/learn/lessons/${lessonId}/quiz`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data) {
+          setQuizData(data.data);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch quiz:', err);
+    } finally {
+      setLoadingQuiz(false);
+    }
+  };
 
   const fetchCourseData = async (id: string) => {
     try {
@@ -166,6 +194,14 @@ export const CoursePlayer: React.FC = () => {
   const handleCompleteCourse = async () => {
     if (!courseId) return;
     
+    // Check if all lessons are completed before allowing course completion
+    if (!allLessonsCompleted()) {
+      const totalLessons = course?.lessons?.length || 0;
+      const completedCount = Object.values(lessonProgress).filter(s => s === 'completed').length;
+      alert(`Please complete all lessons first. You've completed ${completedCount} out of ${totalLessons} lessons.`);
+      return;
+    }
+    
     try {
       setCompleting(true);
       console.log('[CoursePlayer] Calling completeCourse API for:', courseId);
@@ -186,8 +222,8 @@ export const CoursePlayer: React.FC = () => {
       }
     } catch (err: any) {
       console.error("[CoursePlayer] Failed to complete course:", err);
-      // Show celebration anyway if all lessons are done
-      setShowCelebration(true);
+      // Show error message
+      alert(err.message || 'Failed to complete course. Please complete all lessons first.');
     } finally {
       setCompleting(false);
     }
@@ -247,6 +283,12 @@ export const CoursePlayer: React.FC = () => {
   const currentIndex = course?.lessons?.findIndex((l) => l.id === currentLesson?.id) ?? -1;
   const hasPrev = currentIndex > 0;
   const hasNext = currentIndex < (course?.lessons?.length || 0) - 1;
+  
+  // Check if all lessons are completed
+  const allLessonsCompleted = () => {
+    if (!course?.lessons) return false;
+    return course.lessons.every(lesson => isLessonCompleted(lesson.id));
+  };
 
   if (loading) {
     return (
@@ -470,42 +512,52 @@ export const CoursePlayer: React.FC = () => {
 
                 {/* Text Content */}
                 {currentLesson.content_type === 'text' && (
-                  <div className="prose prose-lg max-w-none mb-6">
+                  <div className="mb-6">
                     <div className="bg-gray-50 rounded-lg p-6">
                       <h2 className="text-xl font-semibold mb-4">{currentLesson.title}</h2>
-                      <p className="text-muted-foreground whitespace-pre-wrap">
+                      <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
                         {currentLesson.description || "Lesson content will be displayed here."}
                       </p>
+                      <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                        <p className="text-sm text-blue-800">
+                          💡 <strong>Coming Soon:</strong> Rich interactive content with tips, examples, and step-by-step guides will be available here!
+                        </p>
+                      </div>
                     </div>
                   </div>
                 )}
 
                 {/* Quiz Content */}
                 {currentLesson.content_type === 'quiz' && (
-                  <div className="text-center py-12">
-                    <Trophy className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
-                    <h2 className="text-xl font-semibold mb-2">Quiz Time!</h2>
-                    <p className="text-muted-foreground mb-6">
-                      Test your knowledge and earn badges for great performance!
-                    </p>
-                    {currentLesson.content_url ? (
-                      <Button
-                        onClick={() => {
-                          navigate(`/learn/quiz/${currentLesson.content_url}`, {
-                            state: { 
-                              courseId, 
-                              courseTitle: course?.title,
-                              lessonId: currentLesson.id
-                            }
-                          });
+                  <div>
+                    {loadingQuiz ? (
+                      <div className="text-center py-12">
+                        <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+                        <p className="text-muted-foreground">Loading quiz...</p>
+                      </div>
+                    ) : quizData && quizData.questions && quizData.questions.length > 0 ? (
+                      <QuizPlayer
+                        title={currentLesson.title}
+                        description={currentLesson.description}
+                        quiz={quizData}
+                        passingScore={60}
+                        onComplete={(score, passed) => {
+                          console.log(`Quiz completed: ${score}% - ${passed ? 'Passed' : 'Failed'}`);
+                          if (passed) {
+                            // Automatically mark lesson as complete on passing
+                            handleMarkComplete();
+                          }
                         }}
-                        className="bg-yellow-500 hover:bg-yellow-600"
-                      >
-                        <Play className="w-4 h-4 mr-2" />
-                        Start Quiz
-                      </Button>
+                      />
                     ) : (
-                      <p className="text-sm text-gray-500">Quiz is being prepared...</p>
+                      <div className="text-center py-12">
+                        <Trophy className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+                        <h2 className="text-xl font-semibold mb-2">Quiz Time!</h2>
+                        <p className="text-muted-foreground mb-6">
+                          Test your knowledge and earn badges for great performance!
+                        </p>
+                        <p className="text-sm text-gray-500">Quiz is being prepared...</p>
+                      </div>
                     )}
                   </div>
                 )}
@@ -559,7 +611,8 @@ export const CoursePlayer: React.FC = () => {
                         size="lg" 
                         className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
                         onClick={handleCompleteCourse}
-                        disabled={completing}
+                        disabled={completing || !allLessonsCompleted()}
+                        title={!allLessonsCompleted() ? "Complete all lessons first" : "Complete the course"}
                       >
                         {completing ? (
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
