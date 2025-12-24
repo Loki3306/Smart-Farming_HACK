@@ -63,6 +63,35 @@ export const CourseDetail: React.FC = () => {
     }
   }, [courseId]);
 
+  // Refetch progress when component regains focus (returning from lesson)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && courseId) {
+        const token = localStorage.getItem('auth_token');
+        if (token) {
+          checkEnrollmentStatus(courseId);
+        }
+      }
+    };
+
+    const handleFocus = () => {
+      if (courseId) {
+        const token = localStorage.getItem('auth_token');
+        if (token) {
+          checkEnrollmentStatus(courseId);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [courseId]);
+
   const fetchCourse = async (cId: string) => {
     try {
       setLoading(true);
@@ -201,6 +230,16 @@ export const CourseDetail: React.FC = () => {
   // Handler for starting a lesson from roadmap
   const handleStartLesson = (lessonId: string) => {
     navigate(`/learn/courses/${courseId}/lesson/${lessonId}`);
+  };
+
+  // Refetch progress data (called from child components or after navigation)
+  const refetchProgress = async () => {
+    if (courseId) {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        await checkEnrollmentStatus(courseId);
+      }
+    }
   };
 
   // Show gamified roadmap view by default

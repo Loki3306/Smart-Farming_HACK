@@ -10,6 +10,7 @@ export type Language = 'en' | 'hi';
 interface LanguageContextType {
     language: Language;
     setLanguage: (lang: Language) => void;
+    toggleLanguage: () => void;
     t: (enText: string, hiText: string) => string;
 }
 
@@ -36,13 +37,18 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
         }
     };
 
+    const toggleLanguage = () => {
+        const newLang = language === 'hi' ? 'en' : 'hi';
+        setLanguage(newLang);
+    };
+
     // Simple translation helper
     const t = (enText: string, hiText: string): string => {
         return language === 'hi' ? hiText : enText;
     };
 
     return (
-        <LanguageContext.Provider value={{ language, setLanguage, t }}>
+        <LanguageContext.Provider value={{ language, setLanguage, toggleLanguage, t }}>
             {children}
         </LanguageContext.Provider>
     );

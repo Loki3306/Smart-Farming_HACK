@@ -11,10 +11,12 @@ import {
   Flame,
   Award,
   ChevronRight,
+  Globe,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { FarmerMascot, MASCOT_MESSAGES } from './FarmerMascot';
+import { KisaanMitra, MascotContext } from './KisaanMitra';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface Lesson {
   id: string;
@@ -73,8 +75,10 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
 }) => {
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
-  const [mascotMessage, setMascotMessage] = useState<string | null>(null);
-  const [mascotMood, setMascotMood] = useState<'happy' | 'teaching' | 'celebrating' | 'warning'>('happy');
+  const { language, toggleLanguage } = useLanguage();
+  const isHindi = language === 'hi';
+  const [mascotContext, setMascotContext] = useState<MascotContext | undefined>(undefined);
+  const [mascotMessage, setMascotMessage] = useState<string | undefined>(undefined);
   const [showMascot, setShowMascot] = useState(true);
   const [activeNodeIndex, setActiveNodeIndex] = useState<number | null>(null);
   const [justCompleted, setJustCompleted] = useState<string | null>(null);
@@ -91,6 +95,13 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
   );
   const currentLesson = firstIncompleteIndex >= 0 ? lessons[firstIncompleteIndex] : null;
 
+  // Calculate path progress based on actual completed lessons
+  // The path should fill up to the first incomplete lesson (or 100% if all complete)
+  const pathProgressValue = lessons.length === 0 ? 0 :
+    firstIncompleteIndex === -1 ? 1 : // All lessons completed
+    firstIncompleteIndex === 0 ? 0 : // No lessons completed
+    firstIncompleteIndex / lessons.length; // Fill up to first incomplete lesson
+
   // Scroll-based animations
   const { scrollYProgress } = useScroll({ container: containerRef });
   const pathProgress = useTransform(scrollYProgress, [0, 1], [0, 100]);
@@ -98,19 +109,19 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
   // Show welcome message on mount
   useEffect(() => {
     if (completedCount === 0 && isEnrolled) {
-      setMascotMessage(MASCOT_MESSAGES.firstLessonEn);
-      setMascotMood('teaching');
+      setMascotContext('new_level');
     } else if (completedCount > 0 && completedCount < lessons.length) {
-      setMascotMessage(MASCOT_MESSAGES.encouragementEn);
-      setMascotMood('happy');
+      setMascotContext('during_lesson');
     } else if (completedCount === lessons.length && lessons.length > 0) {
-      setMascotMessage(MASCOT_MESSAGES.levelCompleteEn);
-      setMascotMood('celebrating');
+      setMascotContext('course_complete');
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 3000);
     }
 
-    const timer = setTimeout(() => setMascotMessage(null), 5000);
+    const timer = setTimeout(() => {
+      setMascotContext(undefined);
+      setMascotMessage(undefined);
+    }, 6000);
     return () => clearTimeout(timer);
   }, [completedCount, isEnrolled, lessons.length]);
 
@@ -121,16 +132,16 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
     const isCurrentOrPrevious = index <= firstIncompleteIndex || firstIncompleteIndex === -1;
 
     if (isLocked) {
-      setMascotMessage("पहले कोर्स में enroll करें!");
-      setMascotMood('warning');
-      setTimeout(() => setMascotMessage(null), 3000);
+      setMascotContext('locked_level');
+      setMascotMessage(undefined);
+      setTimeout(() => setMascotContext(undefined), 4000);
       return;
     }
 
     if (!isPreviousCompleted && !lesson.is_preview && index !== 0) {
-      setMascotMessage(MASCOT_MESSAGES.warningSkipEn);
-      setMascotMood('warning');
-      setTimeout(() => setMascotMessage(null), 3000);
+      setMascotContext('locked_level');
+      setMascotMessage(undefined);
+      setTimeout(() => setMascotContext(undefined), 4000);
       return;
     }
 
@@ -227,18 +238,32 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                 onClick={() => navigate('/learn')}
                 className="text-green-700 hover:bg-green-100"
               >
-                ← वापस
+                {isHindi ? '← वापस' : '← Back'}
               </Button>
               <div>
                 <h1 className="text-lg font-bold text-green-900">{courseTitle}</h1>
-                <p className="text-sm text-green-600">{completedCount}/{lessons.length} चरण पूरे</p>
+                <p className="text-sm text-green-600">
+                  {completedCount}/{lessons.length} {isHindi ? 'चरण पूरे' : 'steps complete'}
+                </p>
               </div>
             </div>
             
-            {/* XP Display */}
-            <div className="flex items-center gap-2 bg-amber-100 rounded-full px-4 py-2">
-              <Zap className="w-5 h-5 text-amber-600" />
-              <span className="font-bold text-amber-700">{earnedXP} XP</span>
+            <div className="flex items-center gap-2">
+              {/* Language Toggle Button */}
+              <button
+                onClick={toggleLanguage}
+                className="flex items-center gap-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-full px-3 py-2 transition-colors border border-blue-200"
+                title={isHindi ? 'Switch to English' : 'हिंदी में बदलें'}
+              >
+                <Globe className="w-4 h-4" />
+                <span className="text-sm font-medium">{isHindi ? 'EN' : 'हिं'}</span>
+              </button>
+              
+              {/* XP Display */}
+              <div className="flex items-center gap-2 bg-amber-100 rounded-full px-4 py-2">
+                <Zap className="w-5 h-5 text-amber-600" />
+                <span className="font-bold text-amber-700">{earnedXP} XP</span>
+              </div>
             </div>
           </div>
 
@@ -258,7 +283,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
           {/* Badges row */}
           {earnedBadges.length > 0 && (
             <div className="flex items-center gap-2 mt-3 overflow-x-auto pb-1">
-              <span className="text-xs text-green-600 whitespace-nowrap">बैज:</span>
+              <span className="text-xs text-green-600 whitespace-nowrap">{isHindi ? 'बैज:' : 'Badges:'}</span>
               {earnedBadges.map((badge) => (
                 <motion.div
                   key={badge.id}
@@ -267,7 +292,9 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                   className="flex items-center gap-1 bg-white rounded-full px-2 py-1 shadow-sm border border-amber-200"
                 >
                   <span className="text-lg">{badge.emoji}</span>
-                  <span className="text-xs font-medium text-amber-700 whitespace-nowrap">{badge.nameEn}</span>
+                  <span className="text-xs font-medium text-amber-700 whitespace-nowrap">
+                    {isHindi ? badge.name : badge.nameEn}
+                  </span>
                 </motion.div>
               ))}
             </div>
@@ -275,16 +302,25 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
         </div>
       </div>
 
-      {/* Mascot */}
-      <div className="fixed bottom-6 right-6 z-30">
-        <FarmerMascot
-          mood={mascotMood}
-          message={mascotMessage || undefined}
-          size="lg"
-          showBubble={!!mascotMessage}
-          onBubbleClose={() => setMascotMessage(null)}
-        />
-      </div>
+      {/* Interactive Farmer Mascot - KisaanMitra (positioned near roadmap on right side) */}
+      <KisaanMitra
+        context={mascotContext}
+        message={mascotMessage}
+        position="roadmap-right"
+        size="lg"
+        showHelpMenu
+        onDismiss={() => {
+          setMascotContext(undefined);
+          setMascotMessage(undefined);
+        }}
+        enableIdleAnimations
+        lessonContext={{
+          lessonTitle: currentLesson?.title,
+          lessonNumber: firstIncompleteIndex >= 0 ? firstIncompleteIndex + 1 : lessons.length,
+          totalLessons: lessons.length,
+          topic: courseTitle,
+        }}
+      />
 
       {/* Roadmap Container */}
       <div ref={containerRef} className="relative z-10 max-w-2xl mx-auto px-4 py-8">
@@ -297,19 +333,19 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
           >
             <span className="flex items-center gap-2">
               <Flame className="w-5 h-5" />
-              आपकी स्मार्ट खेती यात्रा शुरू करें!
+              {isHindi ? 'आपकी स्मार्ट खेती यात्रा शुरू करें!' : 'Start Your Smart Farming Journey!'}
             </span>
           </motion.div>
         </div>
 
         {/* Roadmap path with nodes */}
-        <div className="relative" style={{ minHeight: `${lessons.length * 150 + 100}px` }}>
+        <div className="relative" style={{ minHeight: `${lessons.length * 180 + 100}px` }}>
           {/* SVG Path */}
           <svg
-            className="absolute top-0 left-0 w-full pointer-events-none"
-            viewBox={`0 0 500 ${lessons.length * 150 + 100}`}
-            style={{ height: `${lessons.length * 150 + 100}px` }}
-            preserveAspectRatio="xMidYMid meet"
+            className="absolute top-0 left-0 w-full h-full pointer-events-none"
+            viewBox={`0 0 100 ${lessons.length * 180 + 100}`}
+            style={{ height: `${lessons.length * 180 + 100}px` }}
+            preserveAspectRatio="none"
           >
             <defs>
               <linearGradient id="pathGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -319,7 +355,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
               </linearGradient>
               {/* Glow filter */}
               <filter id="glow">
-                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                <feGaussianBlur stdDeviation="0.5" result="coloredBlur"/>
                 <feMerge>
                   <feMergeNode in="coloredBlur"/>
                   <feMergeNode in="SourceGraphic"/>
@@ -331,21 +367,23 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
               d={generatePath(lessons.length)}
               fill="none"
               stroke="#E0E0E0"
-              strokeWidth="8"
+              strokeWidth="1.5"
               strokeLinecap="round"
-              strokeDasharray="12 8"
+              strokeDasharray="3 2"
+              vectorEffect="non-scaling-stroke"
             />
-            {/* Progress path */}
+            {/* Progress path - dynamically generated based on completed lessons */}
             <motion.path
-              d={generatePath(lessons.length)}
+              d={generateProgressPath(lessons, lessonProgress)}
               fill="none"
               stroke="url(#pathGradient)"
-              strokeWidth="8"
+              strokeWidth="1.5"
               strokeLinecap="round"
               filter="url(#glow)"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: progressPercent / 100 }}
-              transition={{ duration: 1, ease: 'easeOut' }}
+              vectorEffect="non-scaling-stroke"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
             />
           </svg>
 
@@ -355,19 +393,19 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
               const status = getLessonStatus(lesson, index);
               const isEven = index % 2 === 0;
               const theme = LEVEL_THEMES[index % LEVEL_THEMES.length];
-              const yPosition = index * 150 + 30;
-              const xOffset = isEven ? '25%' : '75%';
+              const yPosition = index * 180 + 50;
+              const xPercent = isEven ? 30 : 70;
 
               return (
                 <motion.div
                   key={lesson.id}
                   initial={{ opacity: 0, scale: 0.8, y: 20 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
-                  transition={{ delay: index * 0.15, duration: 0.4 }}
-                  className="absolute w-36 sm:w-40"
+                  transition={{ delay: index * 0.1, duration: 0.4 }}
+                  className="absolute w-40 sm:w-44"
                   style={{
                     top: `${yPosition}px`,
-                    left: xOffset,
+                    left: `${xPercent}%`,
                     transform: 'translateX(-50%)',
                   }}
                 >
@@ -398,8 +436,8 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
               <div className="flex items-center gap-3">
                 <Trophy className="w-8 h-8" />
                 <div>
-                  <p className="font-bold text-lg">बधाई हो! 🎉</p>
-                  <p className="text-sm opacity-90">आपने कोर्स पूरा किया!</p>
+                  <p className="font-bold text-lg">{isHindi ? 'बधाई हो!' : 'Congratulations!'} 🎉</p>
+                  <p className="text-sm opacity-90">{isHindi ? 'आपने कोर्स पूरा किया!' : 'You completed the course!'}</p>
                 </div>
               </div>
             </div>
@@ -415,14 +453,14 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
           >
             <div className="max-w-md mx-auto bg-white rounded-2xl shadow-xl p-4 border-2 border-green-500">
               <p className="text-center text-green-800 font-medium mb-3">
-                इस यात्रा को शुरू करने के लिए enroll करें!
+                {isHindi ? 'इस यात्रा को शुरू करने के लिए enroll करें!' : 'Enroll to start this learning journey!'}
               </p>
               <Button
                 onClick={onEnroll}
                 className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-lg py-6"
               >
                 <Play className="w-5 h-5 mr-2" />
-                अभी शुरू करें - मुफ्त!
+                {isHindi ? 'अभी शुरू करें - मुफ्त!' : 'Start Now - Free!'}
               </Button>
             </div>
           </motion.div>
@@ -550,7 +588,7 @@ const LessonNode: React.FC<LessonNodeProps> = ({
             )}
             <div className="flex items-center justify-between">
               <span className="text-xs text-gray-500">
-                {lesson.content_type === 'video' ? '🎥 वीडियो' : lesson.content_type === 'quiz' ? '📝 क्विज़' : '📖 पाठ'}
+                {lesson.content_type === 'video' ? '🎥 Video' : lesson.content_type === 'quiz' ? '📝 Quiz' : '📖 Lesson'}
               </span>
               <ChevronRight className="w-4 h-4 text-green-500" />
             </div>
@@ -561,21 +599,20 @@ const LessonNode: React.FC<LessonNodeProps> = ({
   );
 };
 
-// Generate SVG path for roadmap (using pixel values for 500px width container)
+// Generate SVG path for roadmap - matches node positions exactly
 const generatePath = (nodeCount: number): string => {
   if (nodeCount === 0) return '';
   
-  // Assuming container width of ~500px, we'll use proportional values
-  const width = 500;
-  const leftX = width * 0.25;  // 25% from left
-  const rightX = width * 0.75; // 75% from left
+  // ViewBox is 100 units wide, nodes at 30 and 70 to match 30% and 70% CSS positioning
+  const leftX = 30;
+  const rightX = 70;
   
   let d = '';
   
   for (let i = 0; i < nodeCount; i++) {
     const isEven = i % 2 === 0;
     const currentX = isEven ? leftX : rightX;
-    const currentY = i * 150 + 50;
+    const currentY = i * 180 + 50;
     
     if (i === 0) {
       d = `M ${currentX} ${currentY}`;
@@ -584,11 +621,55 @@ const generatePath = (nodeCount: number): string => {
     if (i < nodeCount - 1) {
       const nextIsEven = (i + 1) % 2 === 0;
       const nextX = nextIsEven ? leftX : rightX;
-      const nextY = (i + 1) * 150 + 50;
-      const controlY = currentY + 75;
+      const nextY = (i + 1) * 180 + 50;
+      const midY = currentY + 90; // Halfway between nodes
       
-      // Create smooth S-curve
-      d += ` C ${currentX} ${controlY}, ${nextX} ${controlY}, ${nextX} ${nextY}`;
+      // Create smooth S-curve between nodes
+      d += ` C ${currentX} ${midY}, ${nextX} ${midY}, ${nextX} ${nextY}`;
+    }
+  }
+  
+  return d;
+};
+
+// Generate progress path - only draws up to last completed node
+const generateProgressPath = (lessons: Lesson[], lessonProgress: Record<string, string>): string => {
+  if (lessons.length === 0) return '';
+  
+  // Find the last completed lesson index
+  let lastCompletedIndex = -1;
+  for (let i = 0; i < lessons.length; i++) {
+    if (lessonProgress[lessons[i].id] === 'completed') {
+      lastCompletedIndex = i;
+    } else {
+      break; // Stop at first incomplete lesson (sequential completion)
+    }
+  }
+  
+  if (lastCompletedIndex === -1) return ''; // No lessons completed
+  
+  // Generate path only up to last completed node
+  const leftX = 30;
+  const rightX = 70;
+  let d = '';
+  
+  for (let i = 0; i <= lastCompletedIndex; i++) {
+    const isEven = i % 2 === 0;
+    const currentX = isEven ? leftX : rightX;
+    const currentY = i * 180 + 50;
+    
+    if (i === 0) {
+      d = `M ${currentX} ${currentY}`;
+    }
+    
+    if (i < lastCompletedIndex) {
+      const nextIsEven = (i + 1) % 2 === 0;
+      const nextX = nextIsEven ? leftX : rightX;
+      const nextY = (i + 1) * 180 + 50;
+      const midY = currentY + 90;
+      
+      // Create smooth S-curve between nodes
+      d += ` C ${currentX} ${midY}, ${nextX} ${midY}, ${nextX} ${nextY}`;
     }
   }
   

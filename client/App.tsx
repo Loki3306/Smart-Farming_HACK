@@ -15,6 +15,7 @@ import { AnimatePresence } from "framer-motion";
 import { AuthContextProvider } from "./context/AuthContext";
 import { FarmContextProvider } from "./context/FarmContext";
 import { TourContextProvider } from "./context/TourContext";
+import { LanguageProvider } from "./context/LanguageContext";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
 import { Farm } from "./pages/Farm";
@@ -226,17 +227,19 @@ function AnimatedRoutes() {
 export const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <AuthContextProvider>
-        <FarmContextProvider>
-          <TourContextProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <AnimatedRoutes />
-            </BrowserRouter>
-          </TourContextProvider>
-        </FarmContextProvider>
-      </AuthContextProvider>
+      <LanguageProvider>
+        <AuthContextProvider>
+          <FarmContextProvider>
+            <TourContextProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <AnimatedRoutes />
+              </BrowserRouter>
+            </TourContextProvider>
+          </FarmContextProvider>
+        </AuthContextProvider>
+      </LanguageProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
