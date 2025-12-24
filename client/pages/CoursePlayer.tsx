@@ -58,6 +58,8 @@ export const CoursePlayer: React.FC = () => {
   const [badgeEarned, setBadgeEarned] = useState<string | null>(null);
   const [quizData, setQuizData] = useState<QuizData | null>(null);
   const [loadingQuiz, setLoadingQuiz] = useState(false);
+  const [articleContent, setArticleContent] = useState<ArticleContent | null>(null);
+  const [loadingArticle, setLoadingArticle] = useState(false);
 
   // Extract YouTube video ID for thumbnail
   const getYouTubeThumbnail = (url: string): string | null => {
@@ -82,11 +84,39 @@ export const CoursePlayer: React.FC = () => {
       // Fetch quiz data if this is a quiz lesson
       if (lesson && lesson.content_type === 'quiz') {
         fetchQuizData(lesson.id);
+        setArticleContent(null);
+      } else if (lesson && lesson.content_type === 'text') {
+        // Fetch article content for text lessons
+        fetchArticleContent(lesson.id);
+        setQuizData(null);
       } else {
         setQuizData(null);
+        setArticleContent(null);
       }
     }
   }, [course, lessonId]);
+
+  const fetchArticleContent = async (lessonId: string) => {
+    try {
+      setLoadingArticle(true);
+      const response = await fetch(`/api/learn/lessons/${lessonId}/content`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data?.hasRichContent) {
+          setArticleContent(data.data.article);
+        } else {
+          setArticleContent(null);
+        }
+      } else {
+        setArticleContent(null);
+      }
+    } catch (err) {
+      console.error('Failed to fetch article content:', err);
+      setArticleContent(null);
+    } finally {
+      setLoadingArticle(false);
+    }
+  };
 
   const fetchQuizData = async (lessonId: string) => {
     try {
@@ -510,20 +540,33 @@ export const CoursePlayer: React.FC = () => {
                   </div>
                 )}
 
-                {/* Text Content */}
+                {/* Text Content - Rich Articles */}
                 {currentLesson.content_type === 'text' && (
                   <div className="mb-6">
-                    <div className="bg-gray-50 rounded-lg p-6">
-                      <h2 className="text-xl font-semibold mb-4">{currentLesson.title}</h2>
-                      <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                        {currentLesson.description || "Lesson content will be displayed here."}
-                      </p>
-                      <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                        <p className="text-sm text-blue-800">
-                          💡 <strong>Coming Soon:</strong> Rich interactive content with tips, examples, and step-by-step guides will be available here!
-                        </p>
+                    {loadingArticle ? (
+                      <div className="text-center py-12">
+                        <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+                        <p className="text-muted-foreground">Loading lesson content...</p>
                       </div>
-                    </div>
+                    ) : articleContent ? (
+                      <RichArticleViewer 
+                        title={currentLesson.title}
+                        article={articleContent}
+                        onComplete={() => handleMarkComplete()}
+                      />
+                    ) : (
+                      <div className="bg-gray-50 rounded-lg p-6">
+                        <h2 className="text-xl font-semibold mb-4">{currentLesson.title}</h2>
+                        <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
+                          {currentLesson.description || "Lesson content will be displayed here."}
+                        </p>
+                        <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                          <p className="text-sm text-blue-800">
+                            💡 <strong>Coming Soon:</strong> Rich interactive content with tips, examples, and step-by-step guides will be available here!
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 

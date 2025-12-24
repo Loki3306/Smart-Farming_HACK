@@ -340,12 +340,12 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
 
         {/* Roadmap path with nodes */}
         <div className="relative" style={{ minHeight: `${lessons.length * 180 + 100}px` }}>
-          {/* SVG Path */}
+          {/* SVG Path - viewBox 100 wide so 30/70 = 30%/70% */}
           <svg
             className="absolute top-0 left-0 w-full h-full pointer-events-none"
             viewBox={`0 0 100 ${lessons.length * 180 + 100}`}
-            style={{ height: `${lessons.length * 180 + 100}px` }}
             preserveAspectRatio="none"
+            style={{ height: `${lessons.length * 180 + 100}px` }}
           >
             <defs>
               <linearGradient id="pathGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -355,32 +355,30 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
               </linearGradient>
               {/* Glow filter */}
               <filter id="glow">
-                <feGaussianBlur stdDeviation="0.5" result="coloredBlur"/>
+                <feGaussianBlur stdDeviation="0.3" result="coloredBlur"/>
                 <feMerge>
                   <feMergeNode in="coloredBlur"/>
                   <feMergeNode in="SourceGraphic"/>
                 </feMerge>
               </filter>
             </defs>
-            {/* Background path */}
+            {/* Background path (dashed gray) */}
             <path
               d={generatePath(lessons.length)}
               fill="none"
-              stroke="#E0E0E0"
-              strokeWidth="1.5"
+              stroke="#D1D5DB"
+              strokeWidth="0.8"
               strokeLinecap="round"
-              strokeDasharray="3 2"
-              vectorEffect="non-scaling-stroke"
+              strokeDasharray="2 1.5"
             />
-            {/* Progress path - dynamically generated based on completed lessons */}
+            {/* Progress path (solid green gradient) */}
             <motion.path
               d={generateProgressPath(lessons, lessonProgress)}
               fill="none"
               stroke="url(#pathGradient)"
-              strokeWidth="1.5"
+              strokeWidth="0.8"
               strokeLinecap="round"
               filter="url(#glow)"
-              vectorEffect="non-scaling-stroke"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
@@ -394,6 +392,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
               const isEven = index % 2 === 0;
               const theme = LEVEL_THEMES[index % LEVEL_THEMES.length];
               const yPosition = index * 180 + 50;
+              // Node center positions: 30% for even, 70% for odd
               const xPercent = isEven ? 30 : 70;
 
               return (
@@ -599,20 +598,21 @@ const LessonNode: React.FC<LessonNodeProps> = ({
   );
 };
 
-// Generate SVG path for roadmap - matches node positions exactly
+// ViewBox is 100 units wide, so X=30 = 30%, X=70 = 70% (matches CSS left positioning)
+const LEFT_X = 30;
+const RIGHT_X = 70;
+const NODE_CENTER_OFFSET = 40; // Half the node height to hit center
+
+// Generate SVG path for roadmap - connects through center of each node
 const generatePath = (nodeCount: number): string => {
   if (nodeCount === 0) return '';
-  
-  // ViewBox is 100 units wide, nodes at 30 and 70 to match 30% and 70% CSS positioning
-  const leftX = 30;
-  const rightX = 70;
   
   let d = '';
   
   for (let i = 0; i < nodeCount; i++) {
     const isEven = i % 2 === 0;
-    const currentX = isEven ? leftX : rightX;
-    const currentY = i * 180 + 50;
+    const currentX = isEven ? LEFT_X : RIGHT_X;
+    const currentY = i * 180 + 50 + NODE_CENTER_OFFSET;
     
     if (i === 0) {
       d = `M ${currentX} ${currentY}`;
@@ -620,11 +620,11 @@ const generatePath = (nodeCount: number): string => {
     
     if (i < nodeCount - 1) {
       const nextIsEven = (i + 1) % 2 === 0;
-      const nextX = nextIsEven ? leftX : rightX;
-      const nextY = (i + 1) * 180 + 50;
-      const midY = currentY + 90; // Halfway between nodes
+      const nextX = nextIsEven ? LEFT_X : RIGHT_X;
+      const nextY = (i + 1) * 180 + 50 + NODE_CENTER_OFFSET;
+      const midY = (currentY + nextY) / 2;
       
-      // Create smooth S-curve between nodes
+      // Smooth S-curve between nodes
       d += ` C ${currentX} ${midY}, ${nextX} ${midY}, ${nextX} ${nextY}`;
     }
   }
@@ -642,21 +642,18 @@ const generateProgressPath = (lessons: Lesson[], lessonProgress: Record<string, 
     if (lessonProgress[lessons[i].id] === 'completed') {
       lastCompletedIndex = i;
     } else {
-      break; // Stop at first incomplete lesson (sequential completion)
+      break;
     }
   }
   
-  if (lastCompletedIndex === -1) return ''; // No lessons completed
+  if (lastCompletedIndex === -1) return '';
   
-  // Generate path only up to last completed node
-  const leftX = 30;
-  const rightX = 70;
   let d = '';
   
   for (let i = 0; i <= lastCompletedIndex; i++) {
     const isEven = i % 2 === 0;
-    const currentX = isEven ? leftX : rightX;
-    const currentY = i * 180 + 50;
+    const currentX = isEven ? LEFT_X : RIGHT_X;
+    const currentY = i * 180 + 50 + NODE_CENTER_OFFSET;
     
     if (i === 0) {
       d = `M ${currentX} ${currentY}`;
@@ -664,11 +661,10 @@ const generateProgressPath = (lessons: Lesson[], lessonProgress: Record<string, 
     
     if (i < lastCompletedIndex) {
       const nextIsEven = (i + 1) % 2 === 0;
-      const nextX = nextIsEven ? leftX : rightX;
-      const nextY = (i + 1) * 180 + 50;
-      const midY = currentY + 90;
+      const nextX = nextIsEven ? LEFT_X : RIGHT_X;
+      const nextY = (i + 1) * 180 + 50 + NODE_CENTER_OFFSET;
+      const midY = (currentY + nextY) / 2;
       
-      // Create smooth S-curve between nodes
       d += ` C ${currentX} ${midY}, ${nextX} ${midY}, ${nextX} ${nextY}`;
     }
   }

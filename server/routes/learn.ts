@@ -430,6 +430,90 @@ router.get('/courses/:id/lessons', async (req: Request, res: Response) => {
   }
 });
 
+// GET /learn/lessons/:lessonId/content - Get rich content for a lesson
+router.get('/lessons/:lessonId/content', async (req: Request, res: Response) => {
+  try {
+    const { lessonId } = req.params;
+    
+    // First get the lesson to know its title
+    const { data: lesson, error } = await supabase
+      .from('course_lessons')
+      .select('id, title, description, content_type')
+      .eq('id', lessonId)
+      .single();
+    
+    if (error || !lesson) {
+      return errorResponse(res, 404, 'Lesson not found');
+    }
+    
+    // Import and find matching content - use dynamic import for the ts file
+    const contentModule = await import('../data/lesson-rich-content');
+    const LESSON_RICH_CONTENT = contentModule.LESSON_RICH_CONTENT || contentModule.default;
+    
+    // Find content by matching title
+    const normalizedTitle = lesson.title.toLowerCase().trim();
+    let content = null;
+    let matchedKey = null;
+    
+    // Exact match first
+    for (const [key, value] of Object.entries(LESSON_RICH_CONTENT)) {
+      if (normalizedTitle === key.toLowerCase()) {
+        content = value;
+        matchedKey = key;
+        break;
+      }
+    }
+    
+    // Partial match (title contains key or key contains title)
+    if (!content) {
+      for (const [key, value] of Object.entries(LESSON_RICH_CONTENT)) {
+        const keyLower = key.toLowerCase();
+        if (normalizedTitle.includes(keyLower) || keyLower.includes(normalizedTitle)) {
+          content = value;
+          matchedKey = key;
+          break;
+        }
+      }
+    }
+    
+    // Word-based fuzzy matching
+    if (!content) {
+      const titleWords = normalizedTitle.split(/[\s&,()-]+/).filter(w => w.length > 2);
+      let bestMatch = { key: '', value: null as any, score: 0 };
+      
+      for (const [key, value] of Object.entries(LESSON_RICH_CONTENT)) {
+        const keyWords = key.toLowerCase().split(/[\s&,()-]+/).filter(w => w.length > 2);
+        const matches = titleWords.filter(tw => 
+          keyWords.some(kw => kw.includes(tw) || tw.includes(kw))
+        );
+        const score = matches.length;
+        if (score >= 2 && score > bestMatch.score) {
+          bestMatch = { key, value, score };
+        }
+      }
+      
+      if (bestMatch.value) {
+        content = bestMatch.value;
+        matchedKey = bestMatch.key;
+      }
+    }
+    
+    console.log(`[Lesson Content] "${lesson.title}" → Matched: "${matchedKey || 'none'}"`);
+    
+    return successResponse(res, {
+      lesson_id: lesson.id,
+      title: lesson.title,
+      description: lesson.description,
+      content_type: lesson.content_type,
+      article: content || null,
+      hasRichContent: !!content
+    }, 'Lesson content fetched');
+  } catch (error) {
+    console.error('[Lesson Content Error]', error);
+    return errorResponse(res, 500, 'Internal server error', error);
+  }
+});
+
 // ============================================
 // ARTICLES ENDPOINTS (6)
 // ============================================
