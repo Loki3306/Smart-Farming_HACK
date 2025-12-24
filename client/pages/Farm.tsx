@@ -247,9 +247,11 @@ export const Farm: React.FC = () => {
                 <input
                   type="text"
                   name="farmName"
+                  id="farmName"
                   value={farmData.farmName}
                   onChange={handleChange}
                   className="text-2xl font-bold w-full px-2 py-1 border border-border rounded-lg"
+                  aria-label="Farm Name"
                 />
               ) : (
                 <h2 className="text-2xl font-bold text-foreground">{farmData.farmName}</h2>
@@ -274,10 +276,11 @@ export const Farm: React.FC = () => {
               </h3>
               <div className="space-y-3">
                 <div>
-                  <label className="text-sm text-muted-foreground">State</label>
+                  <label htmlFor="state" className="text-sm text-muted-foreground">State</label>
                   {isEditing ? (
                     <select
                       name="state"
+                      id="state"
                       value={farmData.state}
                       onChange={handleChange}
                       className="w-full px-3 py-2 border border-border rounded-lg"
@@ -291,11 +294,12 @@ export const Farm: React.FC = () => {
                   )}
                 </div>
                 <div>
-                  <label className="text-sm text-muted-foreground">District</label>
+                  <label htmlFor="district" className="text-sm text-muted-foreground">District</label>
                   {isEditing ? (
                     <input
                       type="text"
                       name="district"
+                      id="district"
                       value={farmData.district}
                       onChange={handleChange}
                       className="w-full px-3 py-2 border border-border rounded-lg"
@@ -305,11 +309,12 @@ export const Farm: React.FC = () => {
                   )}
                 </div>
                 <div>
-                  <label className="text-sm text-muted-foreground">City</label>
+                  <label htmlFor="city" className="text-sm text-muted-foreground">City</label>
                   {isEditing ? (
                     <input
                       type="text"
                       name="city"
+                      id="city"
                       value={farmData.city}
                       onChange={handleChange}
                       className="w-full px-3 py-2 border border-border rounded-lg"
@@ -329,12 +334,13 @@ export const Farm: React.FC = () => {
               </h3>
               <div className="space-y-3">
                 <div>
-                  <label className="text-sm text-muted-foreground">Total Area</label>
+                  <label htmlFor="areaAcres" className="text-sm text-muted-foreground">Total Area</label>
                   {isEditing ? (
                     <div className="flex gap-2">
                       <input
                         type="number"
                         name="areaAcres"
+                        id="areaAcres"
                         value={farmData.areaAcres}
                         onChange={handleChange}
                         className="flex-1 px-3 py-2 border border-border rounded-lg"
@@ -346,10 +352,11 @@ export const Farm: React.FC = () => {
                   )}
                 </div>
                 <div>
-                  <label className="text-sm text-muted-foreground">Soil Type</label>
+                  <label htmlFor="soilType" className="text-sm text-muted-foreground">Soil Type</label>
                   {isEditing ? (
                     <select
                       name="soilType"
+                      id="soilType"
                       value={farmData.soilType}
                       onChange={handleChange}
                       className="w-full px-3 py-2 border border-border rounded-lg"
@@ -363,11 +370,12 @@ export const Farm: React.FC = () => {
                   )}
                 </div>
                 <div>
-                  <label className="text-sm text-muted-foreground">Current Crop</label>
+                  <label htmlFor="crop" className="text-sm text-muted-foreground">Current Crop</label>
                   {isEditing ? (
                     <input
                       type="text"
                       name="crop"
+                      id="crop"
                       value={farmData.crop}
                       onChange={handleChange}
                       placeholder="e.g., Rice, Wheat, Cotton"
@@ -388,10 +396,11 @@ export const Farm: React.FC = () => {
               </h3>
               <div className="space-y-3">
                 <div>
-                  <label className="text-sm text-muted-foreground">Water Source</label>
+                  <label htmlFor="waterSource" className="text-sm text-muted-foreground">Water Source</label>
                   {isEditing ? (
                     <select
                       name="waterSource"
+                      id="waterSource"
                       value={farmData.waterSource}
                       onChange={handleChange}
                       className="w-full px-3 py-2 border border-border rounded-lg"
@@ -408,10 +417,11 @@ export const Farm: React.FC = () => {
                   )}
                 </div>
                 <div>
-                  <label className="text-sm text-muted-foreground">Irrigation Type</label>
+                  <label htmlFor="irrigationType" className="text-sm text-muted-foreground">Irrigation Type</label>
                   {isEditing ? (
                     <select
                       name="irrigationType"
+                      id="irrigationType"
                       value={farmData.irrigationType}
                       onChange={handleChange}
                       className="w-full px-3 py-2 border border-border rounded-lg"
@@ -427,10 +437,11 @@ export const Farm: React.FC = () => {
                   )}
                 </div>
                 <div>
-                  <label className="text-sm text-muted-foreground">Season</label>
+                  <label htmlFor="season" className="text-sm text-muted-foreground">Season</label>
                   {isEditing ? (
                     <select
                       name="season"
+                      id="season"
                       value={farmData.season}
                       onChange={handleChange}
                       className="w-full px-3 py-2 border border-border rounded-lg"

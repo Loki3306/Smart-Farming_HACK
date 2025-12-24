@@ -138,6 +138,30 @@ model_loader = ModelLoader()
 class RecommendationEngine:
     """Generate farming recommendations from sensor data"""
     
+    # Supported crops with optimal conditions
+    SUPPORTED_CROPS = {
+        'rice': {'optimal_moisture': (70, 90), 'optimal_temp': (20, 35), 'optimal_ph': (5.5, 7.0)},
+        'wheat': {'optimal_moisture': (50, 70), 'optimal_temp': (15, 25), 'optimal_ph': (6.0, 7.5)},
+        'cotton': {'optimal_moisture': (60, 80), 'optimal_temp': (21, 30), 'optimal_ph': (6.5, 8.0)},
+        'maize': {'optimal_moisture': (60, 75), 'optimal_temp': (18, 27), 'optimal_ph': (5.8, 7.0)},
+        'sugarcane': {'optimal_moisture': (65, 85), 'optimal_temp': (21, 27), 'optimal_ph': (6.0, 7.5)},
+        'tomato': {'optimal_moisture': (60, 80), 'optimal_temp': (20, 27), 'optimal_ph': (6.0, 6.8)},
+        'potato': {'optimal_moisture': (60, 75), 'optimal_temp': (15, 20), 'optimal_ph': (5.2, 6.0)},
+        'onion': {'optimal_moisture': (65, 75), 'optimal_temp': (13, 24), 'optimal_ph': (6.0, 7.0)},
+    }
+    
+    @staticmethod
+    def validate_crop_type(crop_type: str) -> tuple[bool, str]:
+        """Validate if crop type is supported"""
+        if not crop_type or not crop_type.strip() or crop_type.lower() == "unknown":
+            return False, "Crop type not specified. Please configure your crop in Farm settings."
+        
+        crop_lower = crop_type.strip().lower()
+        if crop_lower not in RecommendationEngine.SUPPORTED_CROPS:
+            return True, f"Crop '{crop_type}' is valid but not in our optimized list. Using general recommendations."
+        
+        return True, ""
+    
     @staticmethod
     def generate_recommendations(
         farm_id: str,
@@ -150,18 +174,86 @@ class RecommendationEngine:
         Generate actionable recommendations based on sensor data.
         Uses rule-based logic + ML models (when available).
         """
+        print("\n" + "="*70)
+        print("🤖 AI RECOMMENDATION ENGINE STARTED")
+        print("="*70)
+        print(f"📋 Request Details:")
+        print(f"   Farm ID: {farm_id}")
+        print(f"   🌾 Crop Type: '{crop_type}'")
+        print(f"   🏞️  Soil Type: {soil_type}")
+        print(f"   🌡️  Sensor Data:")
+        print(f"      - Moisture: {sensor_data.moisture}%")
+        print(f"      - Temperature: {sensor_data.temperature}°C")
+        print(f"      - pH: {sensor_data.ph}")
+        print(f"      - NPK: N={sensor_data.nitrogen}, P={sensor_data.phosphorus}, K={sensor_data.potassium}")
+        
         recommendations = []
         timestamp = datetime.now()
         rec_id_counter = 1
+        
+        # Validate crop type first
+        print(f"\n🔍 Step 1: Validating crop type...")
+        is_valid, validation_msg = RecommendationEngine.validate_crop_type(crop_type)
+        print(f"   Validation result: {'✅ VALID' if is_valid else '❌ INVALID'}")
+        if validation_msg:
+            print(f"   Message: {validation_msg}")
+        
+        if not is_valid:
+            print(f"\n⚠️  STOPPING: Crop not configured properly")
+            recommendations.append(Recommendation(
+                id="config_error",
+                type="general",
+                priority="high",
+                title="Crop Configuration Required",
+                description=validation_msg,
+                action="Go to Farm Settings and configure your crop type before getting personalized recommendations.",
+                confidence=100,
+                timestamp=timestamp
+            ))
+            print(f"   Returning configuration error recommendation")
+            print("="*70 + "\n")
+            return recommendations
+        
+        # Add info message for unsupported crops
+        if validation_msg and crop_type.lower() not in RecommendationEngine.SUPPORTED_CROPS:
+            print(f"\n💡 Info: Crop '{crop_type}' not in optimized list, using general recommendations")
+            recommendations.append(Recommendation(
+                id="crop_info",
+                type="general",
+                priority="low",
+                title=f"Growing {crop_type}",
+                description=validation_msg,
+                action="Recommendations will be based on general agricultural best practices. Consider consulting with local agricultural experts for crop-specific guidance.",
+                confidence=85,
+                timestamp=timestamp
+            ))
+            rec_id_counter += 1
+        
+        # Get crop-specific optimal conditions
+        crop_lower = crop_type.lower()
+        optimal_conditions = RecommendationEngine.SUPPORTED_CROPS.get(crop_lower, {
+            'optimal_moisture': (60, 80),
+            'optimal_temp': (20, 30),
+            'optimal_ph': (6.0, 7.5)
+        })
+        
+        print(f"\n🎯 Step 2: Using optimal conditions for {crop_type}:")
+        print(f"   Moisture range: {optimal_conditions['optimal_moisture'][0]}-{optimal_conditions['optimal_moisture'][1]}%")
+        print(f"   Temperature range: {optimal_conditions['optimal_temp'][0]}-{optimal_conditions['optimal_temp'][1]}°C")
+        print(f"   pH range: {optimal_conditions['optimal_ph'][0]}-{optimal_conditions['optimal_ph'][1]}")
         
         # Add variability to confidence scores based on data quality
         import random
         confidence_variance = random.uniform(-3, 3)  # ±3% variance
         
+        print(f"\n🔬 Step 3: Loading ML Models...")
         # Use ML models if available
         fertilizer_model = model_loader.models.get('fertilizer_recommender')
         agronomist_agent = model_loader.models.get('agronomist')
         meteorologist_agent = model_loader.models.get('meteorologist')
+        print(f"   Fertilizer Model: {'✅ Loaded' if fertilizer_model else '❌ Not available'}")
+        print(f"   Agronomist Agent: {'✅ Loaded' if agronomist_agent else '❌ Not available'}")
+        print(f"   Meteorologist Agent: {'✅ Loaded' if meteorologist_agent else '❌ Not available'}")
         
         # Get ML predictions if models are loaded
         ml_fertilizer_recs = []
@@ -182,13 +274,15 @@ class RecommendationEngine:
         agronomist_analysis = None
         if agronomist_agent:
             try:
-                agronomist_analysis = agronomist_agent.analyze_crop_health(
+                # The module exports an 'agent' instance with analyze_crop_health method
+                agronomist_analysis = agronomist_agent.agent.analyze_crop_health(
                     crop_type,
                     "vegetative",  # Could be dynamic based on time of year
                     sensor_data.temperature,
                     sensor_data.humidity,
                     sensor_data.rainfall if sensor_data.rainfall else 0
                 )
+                print(f"   ✅ Agronomist analysis returned {len(agronomist_analysis.get('alerts', []))} alerts")
             except Exception as e:
                 print(f"⚠️ Agronomist agent error: {e}")
         
@@ -223,7 +317,7 @@ class RecommendationEngine:
                 title="Nitrogen Deficiency Detected",
                 description=f"Soil nitrogen is critically low ({sensor_data.nitrogen:.1f} mg/kg). ML model analysis confirms immediate action needed. This affects plant growth and leaf development.",
                 action=ml_action,
-                confidence=min(98, max(85, 92 + confidence_variance)),
+                confidence=round(min(98, max(85, 92 + confidence_variance)), 1),
                 timestamp=timestamp
             ))
             rec_id_counter += 1
@@ -235,7 +329,7 @@ class RecommendationEngine:
                 title="Nitrogen Levels Optimal",
                 description=f"Nitrogen content is sufficient ({sensor_data.nitrogen:.1f} mg/kg). No immediate action needed.",
                 action="Continue monitoring. Retest in 14 days.",
-                confidence=min(95, max(82, 88 + confidence_variance)),
+                confidence=round(min(95, max(82, 88 + confidence_variance)), 1),
                 timestamp=timestamp
             ))
             rec_id_counter += 1
@@ -255,7 +349,7 @@ class RecommendationEngine:
                 title="Phosphorus Deficiency",
                 description=f"Phosphorus is below optimal level ({sensor_data.phosphorus:.1f} mg/kg). Important for root development and flowering.",
                 action=ml_action,
-                confidence=min(95, max(80, 87 + confidence_variance)),
+                confidence=round(min(95, max(80, 87 + confidence_variance)), 1),
                 timestamp=timestamp
             ))
             rec_id_counter += 1
@@ -275,12 +369,78 @@ class RecommendationEngine:
                 title="Potassium Deficiency",
                 description=f"Potassium level is low ({sensor_data.potassium:.1f} mg/kg). Essential for disease resistance and fruit quality.",
                 action=ml_action,
-                confidence=min(93, max(78, 85 + confidence_variance)),
+                confidence=round(min(93, max(78, 85 + confidence_variance)), 1),
+                timestamp=timestamp
+            ))
+            rec_id_counter += 1
+        elif sensor_data.potassium >= 150 and sensor_data.potassium <= 250:
+            recommendations.append(Recommendation(
+                id=f"fert_{rec_id_counter}",
+                type="fertilizer",
+                priority="low",
+                title="Potassium Levels Optimal",
+                description=f"Potassium content ({sensor_data.potassium:.1f} mg/kg) is within ideal range for healthy crop development.",
+                action="Continue monitoring. Maintain current fertilization schedule.",
+                confidence=round(min(92, max(80, 86 + confidence_variance)), 1),
                 timestamp=timestamp
             ))
             rec_id_counter += 1
         
-        # --- IRRIGATION RECOMMENDATIONS (Enhanced with Weather Analysis) ---
+        # Phosphorus range check (20-50 is moderate)
+        if sensor_data.phosphorus >= 20 and sensor_data.phosphorus < 50:
+            recommendations.append(Recommendation(
+                id=f"fert_{rec_id_counter}",
+                type="fertilizer",
+                priority="low",
+                title="Phosphorus Levels Moderate",
+                description=f"Phosphorus ({sensor_data.phosphorus:.1f} mg/kg) is adequate but could be improved for better root development.",
+                action="Consider applying light phosphate top-dressing during next fertilization cycle.",
+                confidence=round(min(90, max(75, 82 + confidence_variance)), 1),
+                timestamp=timestamp
+            ))
+            rec_id_counter += 1
+        
+        # Nitrogen sufficiency message (when in good range)
+        if sensor_data.nitrogen >= 100 and sensor_data.nitrogen <= 200:
+            recommendations.append(Recommendation(
+                id=f"fert_{rec_id_counter}",
+                type="fertilizer",
+                priority="low",
+                title="Nitrogen Levels Optimal",
+                description=f"Nitrogen content ({sensor_data.nitrogen:.1f} mg/kg) is excellent for vegetative growth and chlorophyll production.",
+                action="No action needed. Continue current nitrogen management.",
+                confidence=round(min(94, max(82, 88 + confidence_variance)), 1),
+                timestamp=timestamp
+            ))
+            rec_id_counter += 1
+        
+        # EC/Salinity check
+        if sensor_data.ec > 2.5:
+            recommendations.append(Recommendation(
+                id=f"soil_{rec_id_counter}",
+                type="soil_treatment",
+                priority="medium",
+                title="Soil Salinity Elevated",
+                description=f"Electrical conductivity ({sensor_data.ec:.2f} dS/m) indicates elevated salinity that may stress crops.",
+                action="Apply gypsum treatment. Improve drainage. Use low-salt irrigation water if available.",
+                confidence=round(min(91, max(78, 84 + confidence_variance)), 1),
+                timestamp=timestamp
+            ))
+            rec_id_counter += 1
+        elif sensor_data.ec <= 2.5:
+            recommendations.append(Recommendation(
+                id=f"soil_{rec_id_counter}",
+                type="soil_treatment",
+                priority="low",
+                title="Soil Salinity Normal",
+                description=f"Electrical conductivity ({sensor_data.ec:.2f} dS/m) is within acceptable range for most crops.",
+                action="Continue monitoring EC levels periodically.",
+                confidence=round(min(92, max(80, 86 + confidence_variance)), 1),
+                timestamp=timestamp
+            ))
+            rec_id_counter += 1
+        
+        # --- IRRIGATION RECOMMENDATIONS (Enhanced with Weather Analysis & Crop-Specific) ---
         
         irrigation_adjustment = 1.0
         if weather_analysis and 'alerts' in weather_analysis:
@@ -290,33 +450,45 @@ class RecommendationEngine:
                 elif alert['type'] == 'heat_wave':
                     irrigation_adjustment = 1.5
         
-        if sensor_data.moisture < 30:
+        # Crop-specific moisture thresholds
+        min_moisture, max_moisture = optimal_conditions['optimal_moisture']
+        
+        print(f"\n💧 Step 4: Analyzing Irrigation for {crop_type}...")
+        print(f"   Current moisture: {sensor_data.moisture:.1f}%")
+        print(f"   Optimal range for {crop_type}: {min_moisture}-{max_moisture}%")
+        
+        if sensor_data.moisture < min_moisture:
+            print(f"   🚨 LOW MOISTURE DETECTED: {sensor_data.moisture:.1f}% < {min_moisture}%")
+            print(f"   Generating HIGH priority irrigation recommendation")
             water_depth = int(50 * irrigation_adjustment)
+            severity = "critically" if sensor_data.moisture < (min_moisture - 20) else "moderately"
             recommendations.append(Recommendation(
                 id=f"irr_{rec_id_counter}",
                 type="irrigation",
-                priority="high",
-                title="Urgent Irrigation Needed",
-                description=f"Soil moisture is critically low ({sensor_data.moisture:.1f}%). ML weather analysis considered. Plants are experiencing water stress. Immediate irrigation required to prevent crop damage.",
-                action=f"Irrigate immediately with {water_depth}mm water depth. Monitor soil moisture every 6 hours.",
-                confidence=min(99, max(90, 96 + confidence_variance)),
+                priority="high" if sensor_data.moisture < (min_moisture - 20) else "medium",
+                title=f"Irrigation Needed for {crop_type}",
+                description=f"Soil moisture is {severity} low ({sensor_data.moisture:.1f}%) for {crop_type}. Optimal range is {min_moisture}-{max_moisture}%. ML weather analysis considered. Immediate irrigation required to prevent crop stress.",
+                action=f"Irrigate with {water_depth}mm water depth. Monitor soil moisture every 6 hours until levels reach {min_moisture}%.",
+                confidence=round(min(99, max(90, 96 + confidence_variance)), 1),
                 timestamp=timestamp
             ))
             rec_id_counter += 1
-        elif sensor_data.moisture > 75:
+        elif sensor_data.moisture > max_moisture:
+            print(f"   ⚠️ HIGH MOISTURE: {sensor_data.moisture:.1f}% > {max_moisture}%")
+            print(f"   Generating reduce irrigation recommendation")
             pause_days = 3 if weather_condition and 'rain' in weather_condition.lower() else 5
             recommendations.append(Recommendation(
                 id=f"irr_{rec_id_counter}",
                 type="irrigation",
                 priority="medium",
-                title="Reduce Irrigation Frequency",
-                description=f"Soil moisture is high ({sensor_data.moisture:.1f}%). Risk of waterlogging and root diseases. Reduce irrigation to allow soil to drain.",
-                action=f"Pause irrigation for next {pause_days} days. Check drainage system.",
-                confidence=min(96, max(85, 91 + confidence_variance)),
+                title=f"Reduce Irrigation - {crop_type} Optimal Range Exceeded",
+                description=f"Soil moisture is high ({sensor_data.moisture:.1f}%) for {crop_type}. Optimal range is {min_moisture}-{max_moisture}%. Risk of waterlogging and root diseases.",
+                action=f"Pause irrigation for next {pause_days} days. Check drainage system. Monitor for fungal diseases.",
+                confidence=round(min(96, max(85, 91 + confidence_variance)), 1),
                 timestamp=timestamp
             ))
             rec_id_counter += 1
-        elif sensor_data.moisture >= 40 and sensor_data.moisture <= 60:
+        elif sensor_data.moisture >= min_moisture and sensor_data.moisture <= max_moisture:
             recommendations.append(Recommendation(
                 id=f"irr_{rec_id_counter}",
                 type="irrigation",
@@ -324,7 +496,7 @@ class RecommendationEngine:
                 title="Irrigation Levels Optimal",
                 description=f"Soil moisture is in optimal range ({sensor_data.moisture:.1f}%). Continue current irrigation schedule.",
                 action="Maintain current irrigation schedule. Monitor daily.",
-                confidence=min(95, max(82, 89 + confidence_variance)),
+                confidence=round(min(95, max(82, 89 + confidence_variance)), 1),
                 timestamp=timestamp
             ))
             rec_id_counter += 1
@@ -340,7 +512,7 @@ class RecommendationEngine:
                         title=alert['message'],
                         description=f"Agronomist AI analysis: {alert['message']}. Impact: {alert.get('farming_impact', 'Immediate attention needed')}",
                         action=alert.get('action', 'Consult agronomist for specific actions'),
-                        confidence=min(96, max(84, 90 + confidence_variance)),
+                        confidence=round(min(96, max(84, 90 + confidence_variance)), 1),
                         timestamp=timestamp
                     ))
                     rec_id_counter += 1
@@ -399,6 +571,58 @@ class RecommendationEngine:
                 timestamp=timestamp
             ))
             rec_id_counter += 1
+        elif sensor_data.ph >= 5.5 and sensor_data.ph <= 8.5:
+            # pH in good range
+            recommendations.append(Recommendation(
+                id=f"ph_{rec_id_counter}",
+                type="soil_treatment",
+                priority="low",
+                title="Soil pH Optimal",
+                description=f"Soil pH ({sensor_data.ph:.1f}) is within ideal range for most crops. Nutrient availability is optimal.",
+                action="Continue monitoring pH levels monthly. Maintain current soil management practices.",
+                confidence=round(89 + confidence_variance, 1),
+                timestamp=timestamp
+            ))
+            rec_id_counter += 1
+        
+        # --- HUMIDITY-BASED RECOMMENDATIONS ---
+        
+        if sensor_data.humidity > 85:
+            recommendations.append(Recommendation(
+                id=f"humidity_{rec_id_counter}",
+                type="general",
+                priority="medium",
+                title="High Humidity Alert",
+                description=f"Air humidity ({sensor_data.humidity:.0f}%) is elevated. Increased risk of fungal diseases.",
+                action="Monitor for signs of fungal infection. Improve air circulation. Consider preventive fungicide application.",
+                confidence=round(86 + confidence_variance, 1),
+                timestamp=timestamp
+            ))
+            rec_id_counter += 1
+        elif sensor_data.humidity < 40:
+            recommendations.append(Recommendation(
+                id=f"humidity_{rec_id_counter}",
+                type="general",
+                priority="medium",
+                title="Low Humidity Warning",
+                description=f"Air humidity ({sensor_data.humidity:.0f}%) is low. May cause water stress and reduced photosynthesis.",
+                action="Increase irrigation frequency. Consider misting during peak heat hours. Apply mulch to retain moisture.",
+                confidence=round(84 + confidence_variance, 1),
+                timestamp=timestamp
+            ))
+            rec_id_counter += 1
+        else:
+            recommendations.append(Recommendation(
+                id=f"humidity_{rec_id_counter}",
+                type="general",
+                priority="low",
+                title="Humidity Levels Normal",
+                description=f"Air humidity ({sensor_data.humidity:.0f}%) is within optimal range for crop growth.",
+                action="Continue monitoring. Current conditions favorable for most crops.",
+                confidence=round(88 + confidence_variance, 1),
+                timestamp=timestamp
+            ))
+            rec_id_counter += 1
         
         # --- WEATHER-BASED RECOMMENDATIONS ---
         
@@ -434,6 +658,12 @@ class RecommendationEngine:
         # Sort recommendations by priority
         priority_order = {"high": 0, "medium": 1, "low": 2}
         recommendations.sort(key=lambda x: priority_order.get(x.priority, 3))
+        
+        print(f"\n✅ Step 5: Recommendation Generation Complete")
+        print(f"   Total recommendations: {len(recommendations)}")
+        for idx, rec in enumerate(recommendations, 1):
+            print(f"   {idx}. [{rec.priority.upper()}] {rec.type}: {rec.title} (confidence: {rec.confidence:.1f}%)")
+        print("="*70 + "\n")
         
         return recommendations
 

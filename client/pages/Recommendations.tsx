@@ -22,6 +22,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFarmContext } from "@/context/FarmContext";
+import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -51,10 +52,13 @@ interface ProcessStep {
 
 export const Recommendations: React.FC = () => {
   const { sensorData, refreshSensorData } = useFarmContext();
+  const { user } = useAuth();
   const { toast } = useToast();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [selectedRecommendation, setSelectedRecommendation] = useState<Recommendation | null>(null);
+  const [farmData, setFarmData] = useState<any>(null);
+  const [loadingFarm, setLoadingFarm] = useState(true);
   const [processSteps, setProcessSteps] = useState<ProcessStep[]>([
     { id: 1, label: "Collecting sensor data", status: "pending" },
     { id: 2, label: "Analyzing soil nutrients (NPK)", status: "pending" },
@@ -110,6 +114,21 @@ export const Recommendations: React.FC = () => {
   };
 
   const handleAnalyze = async () => {
+    // Get crop_type value and check all conditions
+    const cropType = farmData?.crop_type;
+    
+    // STRICT CHECK: Block if no crop
+    if (!farmData || cropType === null || cropType === undefined || cropType === "" || (typeof cropType === 'string' && cropType.trim() === "")) {
+      toast({
+        title: "No Crop Configured",
+        description: "Please configure your crop type in the Farm settings before getting recommendations.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    console.log('[Recommendations] Starting AI analysis for crop:', cropType);
+    
     if (!sensorData) {
       toast({
         title: "No Sensor Data",
@@ -134,31 +153,40 @@ export const Recommendations: React.FC = () => {
       }
 
       // Actual API call
+      const requestPayload = {
+        farm_id: farmData?.farm_id || "farm_001",
+        crop_type: farmData?.crop_type || "Unknown",
+        soil_type: farmData?.soil_type || "Clay loam",
+        sensor_data: {
+          moisture: sensorData.soilMoisture,
+          temperature: sensorData.temperature,
+          humidity: sensorData.humidity,
+          nitrogen: sensorData.npk.nitrogen,
+          phosphorus: sensorData.npk.phosphorus,
+          potassium: sensorData.npk.potassium,
+          ph: sensorData.pH,
+          ec: sensorData.ec,
+        },
+      };
+      
+      console.log('[Recommendations] 📤 Sending request to AI backend:', requestPayload);
+      console.log('[Recommendations] 🌾 CROP TYPE BEING SENT:', requestPayload.crop_type);
+      
       const response = await fetch('/api/recommendations/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          farm_id: "farm_001",
-          crop_type: "Rice",
-          soil_type: "Clay loam",
-          sensor_data: {
-            moisture: sensorData.soilMoisture,
-            temperature: sensorData.temperature,
-            humidity: sensorData.humidity,
-            nitrogen: sensorData.npk.nitrogen,
-            phosphorus: sensorData.npk.phosphorus,
-            potassium: sensorData.npk.potassium,
-            ph: sensorData.pH,
-            ec: sensorData.ec,
-          },
-        }),
+        body: JSON.stringify(requestPayload),
       });
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[Recommendations] ❌ API Error:', response.status, errorText);
         throw new Error(`API error: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('[Recommendations] ✅ Received response from AI backend:', data);
+      console.log('[Recommendations] 📊 Number of recommendations:', data.recommendations?.length);
 
       // Map API response to component state
       const mappedRecommendations = data.recommendations.map((rec: any) => ({
@@ -189,6 +217,50 @@ export const Recommendations: React.FC = () => {
       setProcessSteps(prev => prev.map(step => ({ ...step, status: "pending" })));
     }
   };
+
+  // Load farm data on mount
+  useEffect(() => {
+    const loadFarmData = async () => {
+      const farmId = localStorage.getItem('current_farm_id');
+      
+      if (!farmId) {
+        console.log('[Recommendations] ⚠️ No farm ID in localStorage');
+        setLoadingFarm(false);
+        return;
+      }
+
+      console.log('[Recommendations] 📡 Fetching farm data for farm ID:', farmId);
+      try {
+        const response = await fetch(`/api/farms/${farmId}`);
+        if (response.ok) {
+          const result = await response.json();
+          const farm = result.farm;
+          console.log('[Recommendations] ✅ Farm data loaded:', {
+            crop_type: farm.crop_type,
+            soil_type: farm.soil_type,
+            farm_id: farm.id,
+            full_response: farm
+          });
+          
+          // Map to the expected structure
+          setFarmData({
+            farm_id: farm.id,
+            crop_type: farm.crop_type,
+            soil_type: farm.soil_type,
+            farm_name: farm.farm_name
+          });
+        } else {
+          console.error('[Recommendations] ❌ Failed to fetch farm data:', response.status);
+        }
+      } catch (error) {
+        console.error('[Recommendations] ❌ Error loading farm data:', error);
+      } finally {
+        setLoadingFarm(false);
+      }
+    };
+
+    loadFarmData();
+  }, [user]);
 
   // Load sensor data on mount
   useEffect(() => {
@@ -229,11 +301,19 @@ export const Recommendations: React.FC = () => {
           <p className="text-muted-foreground mt-1">
             Smart suggestions powered by machine learning
           </p>
+          {farmData?.crop_type && (
+            <div className="mt-2 flex items-center gap-2">
+              <Leaf className="w-4 h-4 text-green-600" />
+              <span className="text-sm font-medium text-green-600">
+                Current Crop: {farmData.crop_type}
+              </span>
+            </div>
+          )}
         </div>
         {recommendations.length > 0 && (
           <Button
             onClick={handleAnalyze}
-            disabled={isAnalyzing}
+            disabled={isAnalyzing || loadingFarm}
             variant="outline"
             className="gap-2"
             data-tour-id="reco-analyze-btn"
@@ -293,18 +373,32 @@ export const Recommendations: React.FC = () => {
             onClick={handleAnalyze}
             size="lg"
             className="gap-2 px-8 mt-4"
-            disabled={!sensorData}
+            disabled={!sensorData || !farmData?.crop_type || loadingFarm}
             data-tour-id="reco-analyze-btn"
           >
             <Brain className="w-5 h-5" />
             Get AI Recommendations
           </Button>
 
-          {!sensorData && (
+          {loadingFarm ? (
+            <p className="text-sm text-muted-foreground">
+              Loading farm data...
+            </p>
+          ) : !farmData?.crop_type ? (
+            <div className="text-center space-y-2">
+              <p className="text-sm text-amber-600 font-medium flex items-center justify-center gap-1">
+                <AlertTriangle className="w-4 h-4" />
+                No crop configured
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Please set your crop type in <a href="/farm" className="text-primary underline">Farm Settings</a> before getting recommendations.
+              </p>
+            </div>
+          ) : !sensorData ? (
             <p className="text-sm text-amber-600">
               Waiting for sensor data...
             </p>
-          )}
+          ) : null}
         </motion.div>
       )}
 
@@ -393,7 +487,7 @@ export const Recommendations: React.FC = () => {
                           <div className="flex items-center gap-2 text-sm">
                             <Sparkles className="w-4 h-4 text-primary" />
                             <span className="font-medium">Confidence:</span>
-                            <span className="text-muted-foreground">{rec.confidence}%</span>
+                            <span className="text-muted-foreground">{rec.confidence.toFixed(1)}%</span>
                           </div>
 
                           <div className="flex items-center gap-1 text-primary text-sm font-medium hover:underline">
@@ -440,7 +534,7 @@ export const Recommendations: React.FC = () => {
                 <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-4 rounded-lg">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium text-foreground">AI Confidence Score</span>
-                    <span className="text-2xl font-bold text-primary">{selectedRecommendation.confidence}%</span>
+                    <span className="text-2xl font-bold text-primary">{selectedRecommendation.confidence.toFixed(1)}%</span>
                   </div>
                   <div className="w-full bg-muted rounded-full h-2">
                     <motion.div
