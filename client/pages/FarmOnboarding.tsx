@@ -669,7 +669,7 @@ export const FarmOnboarding: React.FC = () => {
                 ) : (
                   <Card className="p-4">
                     <OtpInput
-                      phoneNumber={farmData.phoneNumber}
+                      phoneNumber={validateIndianPhone(farmData.phoneNumber).normalized || farmData.phoneNumber}
                       onVerified={handlePhoneVerified}
                       onCancel={() => setShowOtpInput(false)}
                     />

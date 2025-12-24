@@ -45,17 +45,35 @@ export async function sendOtp(req: Request, res: Response) {
       });
     }
 
-    console.log(`[OTP] [MOCK MODE] Sending OTP to ${phoneNumber}`);
+    // Check if Twilio is configured
+    if (!accountSid || !authToken || !verifySid) {
+      console.log(`[OTP] [MOCK MODE] Twilio not configured, sending mock OTP to ${phoneNumber}`);
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      console.log(`[OTP] [MOCK MODE] OTP is 123456`);
+      return res.status(200).json({
+        success: true,
+        message: "OTP sent successfully (MOCK: use 123456)",
+        verificationSid: "mock_verification_sid",
+      });
+    }
 
-    // MOCK MODE - Always return success, use OTP: 123456
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // REAL MODE - Use Twilio Verify API
+    console.log(`[OTP] Sending OTP to ${phoneNumber} via Twilio`);
 
-    console.log(`[OTP] [MOCK MODE] OTP is 123456`);
+    const client = getTwilioClient();
+    const verification = await client.verify.v2
+      .services(verifySid!)
+      .verifications.create({
+        to: phoneNumber,
+        channel: "sms",
+      });
+
+    console.log(`[OTP] OTP sent successfully. Status: ${verification.status}`);
 
     return res.status(200).json({
       success: true,
-      message: "OTP sent successfully (MOCK: use 123456)",
-      verificationSid: "mock_verification_sid",
+      message: "OTP sent successfully",
+      verificationSid: verification.sid,
     });
   } catch (error: any) {
     console.error("[OTP] Error sending OTP:", error);
@@ -108,23 +126,51 @@ export async function verifyOtp(req: Request, res: Response) {
       });
     }
 
-    console.log(`[OTP] [MOCK MODE] Verifying OTP for ${phoneNumber}`);
+    // Check if Twilio is configured
+    if (!accountSid || !authToken || !verifySid) {
+      console.log(`[OTP] [MOCK MODE] Twilio not configured, verifying mock OTP for ${phoneNumber}`);
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      
+      if (code === "123456") {
+        console.log(`[OTP] [MOCK MODE] OTP verified successfully`);
+        return res.status(200).json({
+          success: true,
+          message: "Phone number verified successfully",
+          verified: true,
+        });
+      } else {
+        console.log(`[OTP] [MOCK MODE] Invalid OTP`);
+        return res.status(400).json({
+          success: false,
+          error: "Invalid code. Use 123456 for mock mode.",
+          verified: false,
+        });
+      }
+    }
 
-    // MOCK MODE - Accept 123456 as valid OTP
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    // REAL MODE - Use Twilio Verify API
+    console.log(`[OTP] Verifying OTP for ${phoneNumber} via Twilio`);
 
-    if (code === "123456") {
-      console.log(`[OTP] [MOCK MODE] OTP verified successfully`);
+    const client = getTwilioClient();
+    const verificationCheck = await client.verify.v2
+      .services(verifySid!)
+      .verificationChecks.create({
+        to: phoneNumber,
+        code: code,
+      });
+
+    if (verificationCheck.status === "approved") {
+      console.log(`[OTP] OTP verified successfully for ${phoneNumber}`);
       return res.status(200).json({
         success: true,
         message: "Phone number verified successfully",
         verified: true,
       });
     } else {
-      console.log(`[OTP] [MOCK MODE] Invalid OTP`);
+      console.log(`[OTP] OTP verification failed. Status: ${verificationCheck.status}`);
       return res.status(400).json({
         success: false,
-        error: "Invalid code. Use 123456 for mock mode.",
+        error: "Invalid or expired code. Please try again.",
         verified: false,
       });
     }
