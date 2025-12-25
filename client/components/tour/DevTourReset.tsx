@@ -71,7 +71,7 @@ export const DevTourReset: React.FC<DevTourResetProps> = ({ devOnly = true }) =>
                     onClick={handleReset}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors border border-gray-200 shadow-sm"
+                    className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground bg-muted rounded-lg hover:bg-muted transition-colors border border-border shadow-sm"
                 >
                     <RotateCcw className="w-3 h-3" />
                     Reset Tours

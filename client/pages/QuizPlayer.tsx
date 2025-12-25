@@ -229,7 +229,7 @@ export default function QuizPlayer() {
       <div className="min-h-screen bg-gradient-to-b from-green-50 to-white flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-green-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading quiz...</p>
+          <p className="text-muted-foreground">Loading quiz...</p>
         </div>
       </div>
     );
@@ -243,7 +243,7 @@ export default function QuizPlayer() {
           <CardContent className="pt-6 text-center">
             <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
             <h2 className="text-xl font-bold mb-2">Unable to Load Quiz</h2>
-            <p className="text-gray-600 mb-4">{error}</p>
+            <p className="text-muted-foreground mb-4">{error}</p>
             <Button onClick={() => navigate(-1)}>Go Back</Button>
           </CardContent>
         </Card>
@@ -270,7 +270,7 @@ export default function QuizPlayer() {
                 <h1 className="text-3xl font-bold text-green-700 mb-2">
                   🎉 Congratulations!
                 </h1>
-                <p className="text-gray-600">You passed the quiz!</p>
+                <p className="text-muted-foreground">You passed the quiz!</p>
               </>
             ) : (
               <>
@@ -280,7 +280,7 @@ export default function QuizPlayer() {
                 <h1 className="text-3xl font-bold text-orange-700 mb-2">
                   Keep Learning!
                 </h1>
-                <p className="text-gray-600">You need {results.passing_score}% to pass. Try again!</p>
+                <p className="text-muted-foreground">You need {results.passing_score}% to pass. Try again!</p>
               </>
             )}
           </motion.div>
@@ -290,26 +290,26 @@ export default function QuizPlayer() {
             <CardContent className="pt-6">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                 <div>
-                  <div className="text-3xl font-bold text-gray-900">{results.percentage}%</div>
-                  <div className="text-sm text-gray-500">Score</div>
+                  <div className="text-3xl font-bold text-foreground">{results.percentage}%</div>
+                  <div className="text-sm text-muted-foreground">Score</div>
                 </div>
                 <div>
                   <div className="text-3xl font-bold text-green-600">
                     {results.results.filter((r) => r.is_correct).length}
                   </div>
-                  <div className="text-sm text-gray-500">Correct</div>
+                  <div className="text-sm text-muted-foreground">Correct</div>
                 </div>
                 <div>
                   <div className="text-3xl font-bold text-red-600">
                     {results.results.filter((r) => !r.is_correct).length}
                   </div>
-                  <div className="text-sm text-gray-500">Wrong</div>
+                  <div className="text-sm text-muted-foreground">Wrong</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-gray-900">
+                  <div className="text-3xl font-bold text-foreground">
                     {results.score}/{results.max_score}
                   </div>
-                  <div className="text-sm text-gray-500">Points</div>
+                  <div className="text-sm text-muted-foreground">Points</div>
                 </div>
               </div>
             </CardContent>
@@ -366,7 +366,7 @@ export default function QuizPlayer() {
                         </p>
                       )}
                       {result.explanation && (
-                        <p className="text-sm text-gray-600 mt-2 italic">
+                        <p className="text-sm text-muted-foreground mt-2 italic">
                           💡 {result.explanation}
                         </p>
                       )}
@@ -407,7 +407,7 @@ export default function QuizPlayer() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white border-b shadow-sm">
+      <div className="sticky top-0 z-10 bg-card border-b shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -415,10 +415,10 @@ export default function QuizPlayer() {
                 <ArrowLeft className="w-5 h-5" />
               </Button>
               <div>
-                <h1 className="font-semibold text-gray-900 truncate max-w-[200px] md:max-w-none">
+                <h1 className="font-semibold text-foreground truncate max-w-[200px] md:max-w-none">
                   {quiz?.title}
                 </h1>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   Question {currentQuestionIndex + 1} of {questions.length}
                 </p>
               </div>
@@ -430,7 +430,7 @@ export default function QuizPlayer() {
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${
                   timeRemaining <= 120
                     ? 'bg-red-100 text-red-700'
-                    : 'bg-gray-100 text-gray-700'
+                    : 'bg-muted text-foreground'
                 }`}
               >
                 <Timer className="w-4 h-4" />
@@ -442,7 +442,7 @@ export default function QuizPlayer() {
           {/* Progress Bar */}
           <div className="mt-3">
             <Progress value={progress} className="h-2" />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               {answeredCount} of {questions.length} answered
             </p>
           </div>
@@ -473,7 +473,7 @@ export default function QuizPlayer() {
                           {currentQuestion.points} point{currentQuestion.points > 1 ? 's' : ''}
                         </Badge>
                       </div>
-                      <h2 className="text-xl font-semibold text-gray-900">
+                      <h2 className="text-xl font-semibold text-foreground">
                         {currentQuestion.question_text}
                       </h2>
                     </div>
@@ -516,7 +516,7 @@ export default function QuizPlayer() {
                           className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all ${
                             answers.get(currentQuestion.id)?.selected_option_id === option.id
                               ? 'border-green-500 bg-green-50'
-                              : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                              : 'border-border hover:border-border hover:bg-muted/50'
                           }`}
                         >
                           <RadioGroupItem value={option.id} id={option.id} />
@@ -615,7 +615,7 @@ export default function QuizPlayer() {
                         ? 'bg-green-600 text-white ring-2 ring-green-600 ring-offset-2'
                         : isAnswered
                         ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        : 'bg-muted text-muted-foreground hover:bg-muted'
                     }`}
                   >
                     {idx + 1}
@@ -626,13 +626,13 @@ export default function QuizPlayer() {
                 );
               })}
             </div>
-            <div className="flex items-center gap-4 mt-4 text-xs text-gray-500">
+            <div className="flex items-center gap-4 mt-4 text-xs text-muted-foreground">
               <div className="flex items-center gap-1">
                 <div className="w-3 h-3 bg-green-100 rounded" />
                 Answered
               </div>
               <div className="flex items-center gap-1">
-                <div className="w-3 h-3 bg-gray-100 rounded" />
+                <div className="w-3 h-3 bg-muted rounded" />
                 Not Answered
               </div>
               <div className="flex items-center gap-1">

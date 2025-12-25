@@ -114,20 +114,20 @@ export const RichArticleViewer: React.FC<RichArticleViewerProps> = ({
               <Card className={`overflow-hidden transition-colors ${isRead ? 'border-green-200 bg-green-50/30' : ''}`}>
                 <button
                   onClick={() => toggleSection(index)}
-                  className="w-full p-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
+                  className="w-full p-4 flex items-center justify-between text-left hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                      isRead ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
+                      isRead ? 'bg-green-500 text-white' : 'bg-muted text-muted-foreground'
                     }`}>
                       {isRead ? '✓' : index + 1}
                     </div>
                     <h3 className="font-semibold text-lg">{section.title}</h3>
                   </div>
                   {isExpanded ? (
-                    <ChevronUp className="w-5 h-5 text-gray-500" />
+                    <ChevronUp className="w-5 h-5 text-muted-foreground" />
                   ) : (
-                    <ChevronDown className="w-5 h-5 text-gray-500" />
+                    <ChevronDown className="w-5 h-5 text-muted-foreground" />
                   )}
                 </button>
                 
@@ -142,7 +142,7 @@ export const RichArticleViewer: React.FC<RichArticleViewerProps> = ({
                     >
                       <div className="px-4 pb-4 pt-0">
                         <div className="pl-11">
-                          <p className="text-gray-700 leading-relaxed whitespace-pre-wrap mb-4">
+                          <p className="text-foreground leading-relaxed whitespace-pre-wrap mb-4">
                             {section.content}
                           </p>
                           
@@ -203,14 +203,14 @@ export const RichArticleViewer: React.FC<RichArticleViewerProps> = ({
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden"
               >
-                <div className="p-4 bg-white">
+                <div className="p-4 bg-card">
                   <ul className="space-y-3">
                     {article.commonMistakes.map((mistake, index) => (
                       <li key={index} className="flex items-start gap-3">
                         <span className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 text-sm font-bold text-red-600">
                           ✗
                         </span>
-                        <span className="text-gray-700">{mistake}</span>
+                        <span className="text-foreground">{mistake}</span>
                       </li>
                     ))}
                   </ul>
@@ -250,12 +250,12 @@ export const RichArticleViewer: React.FC<RichArticleViewerProps> = ({
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden"
               >
-                <div className="p-4 bg-white">
+                <div className="p-4 bg-card">
                   <ul className="space-y-3">
                     {article.actionItems.map((item, index) => (
                       <li key={index} className="flex items-start gap-3">
                         <CheckSquare className="w-5 h-5 text-purple-500 flex-shrink-0 mt-0.5" />
-                        <span className="text-gray-700">{item}</span>
+                        <span className="text-foreground">{item}</span>
                       </li>
                     ))}
                   </ul>

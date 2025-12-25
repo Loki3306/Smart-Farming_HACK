@@ -99,8 +99,8 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
   // The path should fill up to the first incomplete lesson (or 100% if all complete)
   const pathProgressValue = lessons.length === 0 ? 0 :
     firstIncompleteIndex === -1 ? 1 : // All lessons completed
-    firstIncompleteIndex === 0 ? 0 : // No lessons completed
-    firstIncompleteIndex / lessons.length; // Fill up to first incomplete lesson
+      firstIncompleteIndex === 0 ? 0 : // No lessons completed
+        firstIncompleteIndex / lessons.length; // Fill up to first incomplete lesson
 
   // Scroll-based animations
   const { scrollYProgress } = useScroll({ container: containerRef });
@@ -164,7 +164,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
   });
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-green-50 via-amber-50/30 to-sky-50 overflow-hidden">
+    <div className="relative min-h-screen bg-gradient-to-b from-green-50 via-amber-50/30 to-sky-50 dark:from-background dark:via-background dark:to-background overflow-hidden">
       {/* Confetti Animation */}
       <AnimatePresence>
         {showConfetti && (
@@ -206,7 +206,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
         <motion.div
           animate={{ scale: [1, 1.1, 1], opacity: [0.8, 1, 0.8] }}
           transition={{ duration: 4, repeat: Infinity }}
-          className="absolute top-10 right-10 w-24 h-24 bg-yellow-300 rounded-full blur-sm opacity-60"
+          className="absolute top-10 right-10 w-24 h-24 bg-yellow-300 dark:bg-yellow-500 rounded-full blur-sm opacity-60 dark:opacity-40"
         />
         {/* Clouds */}
         <motion.div
@@ -224,11 +224,11 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
           ☁️
         </motion.div>
         {/* Ground/Field pattern */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-green-200/50 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-green-200/50 to-transparent dark:from-green-900/30 dark:to-transparent" />
       </div>
 
       {/* Header with progress */}
-      <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-green-100 shadow-sm">
+      <div className="sticky top-0 z-20 bg-card/80 dark:bg-card/80 backdrop-blur-md border-b border-green-100 shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
@@ -236,40 +236,40 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate('/learn')}
-                className="text-green-700 hover:bg-green-100"
+                className="text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30"
               >
                 {isHindi ? '← वापस' : '← Back'}
               </Button>
               <div>
-                <h1 className="text-lg font-bold text-green-900">{courseTitle}</h1>
-                <p className="text-sm text-green-600">
+                <h1 className="text-lg font-bold text-green-900 dark:text-green-100">{courseTitle}</h1>
+                <p className="text-sm text-green-600 dark:text-green-400">
                   {completedCount}/{lessons.length} {isHindi ? 'चरण पूरे' : 'steps complete'}
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2">
               {/* Language Toggle Button */}
               <button
                 onClick={toggleLanguage}
-                className="flex items-center gap-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-full px-3 py-2 transition-colors border border-blue-200"
+                className="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full px-3 py-2 transition-colors border border-blue-200 dark:border-blue-700"
                 title={isHindi ? 'Switch to English' : 'हिंदी में बदलें'}
               >
                 <Globe className="w-4 h-4" />
                 <span className="text-sm font-medium">{isHindi ? 'EN' : 'हिं'}</span>
               </button>
-              
+
               {/* XP Display */}
-              <div className="flex items-center gap-2 bg-amber-100 rounded-full px-4 py-2">
+              <div className="flex items-center gap-2 bg-amber-100 dark:bg-amber-900/40 rounded-full px-4 py-2">
                 <Zap className="w-5 h-5 text-amber-600" />
-                <span className="font-bold text-amber-700">{earnedXP} XP</span>
+                <span className="font-bold text-amber-700 dark:text-amber-300">{earnedXP} XP</span>
               </div>
             </div>
           </div>
 
           {/* Progress bar */}
           <div className="relative">
-            <Progress value={progressPercent} className="h-3 bg-green-100" />
+            <Progress value={progressPercent} className="h-3 bg-green-100 dark:bg-green-900/50" />
             <motion.div
               className="absolute top-1/2 -translate-y-1/2 text-lg"
               style={{ left: `${Math.min(progressPercent, 95)}%` }}
@@ -283,16 +283,16 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
           {/* Badges row */}
           {earnedBadges.length > 0 && (
             <div className="flex items-center gap-2 mt-3 overflow-x-auto pb-1">
-              <span className="text-xs text-green-600 whitespace-nowrap">{isHindi ? 'बैज:' : 'Badges:'}</span>
+              <span className="text-xs text-green-600 dark:text-green-400 whitespace-nowrap">{isHindi ? 'बैज:' : 'Badges:'}</span>
               {earnedBadges.map((badge) => (
                 <motion.div
                   key={badge.id}
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="flex items-center gap-1 bg-white rounded-full px-2 py-1 shadow-sm border border-amber-200"
+                  className="flex items-center gap-1 bg-card rounded-full px-2 py-1 shadow-sm border border-amber-200 dark:border-amber-700"
                 >
                   <span className="text-lg">{badge.emoji}</span>
-                  <span className="text-xs font-medium text-amber-700 whitespace-nowrap">
+                  <span className="text-xs font-medium text-amber-700 dark:text-amber-300 whitespace-nowrap">
                     {isHindi ? badge.name : badge.nameEn}
                   </span>
                 </motion.div>
@@ -355,10 +355,10 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
               </linearGradient>
               {/* Glow filter */}
               <filter id="glow">
-                <feGaussianBlur stdDeviation="0.3" result="coloredBlur"/>
+                <feGaussianBlur stdDeviation="0.3" result="coloredBlur" />
                 <feMerge>
-                  <feMergeNode in="coloredBlur"/>
-                  <feMergeNode in="SourceGraphic"/>
+                  <feMergeNode in="coloredBlur" />
+                  <feMergeNode in="SourceGraphic" />
                 </feMerge>
               </filter>
             </defs>
@@ -450,8 +450,8 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
             animate={{ opacity: 1, y: 0 }}
             className="fixed bottom-24 left-4 right-4 z-20"
           >
-            <div className="max-w-md mx-auto bg-white rounded-2xl shadow-xl p-4 border-2 border-green-500">
-              <p className="text-center text-green-800 font-medium mb-3">
+            <div className="max-w-md mx-auto bg-card rounded-2xl shadow-xl p-4 border-2 border-green-500">
+              <p className="text-center text-green-800 dark:text-green-300 font-medium mb-3">
                 {isHindi ? 'इस यात्रा को शुरू करने के लिए enroll करें!' : 'Enroll to start this learning journey!'}
               </p>
               <Button
@@ -502,9 +502,8 @@ const LessonNode: React.FC<LessonNodeProps> = ({
       onMouseLeave={onLeave}
       whileHover={{ scale: isLocked ? 1 : 1.05 }}
       whileTap={{ scale: isLocked ? 1 : 0.95 }}
-      className={`relative flex flex-col items-center transition-all duration-300 ${
-        isLocked ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
-      }`}
+      className={`relative flex flex-col items-center transition-all duration-300 ${isLocked ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+        }`}
     >
       {/* Glow effect for current */}
       {isCurrent && (
@@ -520,31 +519,29 @@ const LessonNode: React.FC<LessonNodeProps> = ({
 
       {/* Main node */}
       <div
-        className={`relative w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${
-          isCompleted
-            ? 'bg-gradient-to-br from-green-400 to-green-600 ring-4 ring-green-200'
-            : isCurrent
+        className={`relative w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${isCompleted
+          ? 'bg-gradient-to-br from-green-400 to-green-600 ring-4 ring-green-200'
+          : isCurrent
             ? `bg-gradient-to-br ${theme.color} ring-4 ring-offset-2 ring-green-400 animate-pulse`
-            : 'bg-gray-200 ring-2 ring-gray-300'
-        }`}
+            : 'bg-muted ring-2 ring-gray-300'
+          }`}
       >
         {isCompleted ? (
           <CheckCircle className="w-10 h-10 text-white" />
         ) : isLocked ? (
-          <Lock className="w-8 h-8 text-gray-400" />
+          <Lock className="w-8 h-8 text-muted-foreground" />
         ) : (
           <span className="text-4xl">{theme.emoji}</span>
         )}
 
         {/* Level number badge */}
         <div
-          className={`absolute -top-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ${
-            isCompleted
-              ? 'bg-amber-400 text-amber-900'
-              : isCurrent
+          className={`absolute -top-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ${isCompleted
+            ? 'bg-amber-400 text-amber-900'
+            : isCurrent
               ? 'bg-green-500 text-white'
-              : 'bg-gray-300 text-gray-600'
-          }`}
+              : 'bg-muted text-muted-foreground'
+            }`}
         >
           {index + 1}
         </div>
@@ -563,12 +560,12 @@ const LessonNode: React.FC<LessonNodeProps> = ({
 
       {/* Label */}
       <div className={`mt-3 text-center ${isLocked ? 'opacity-50' : ''}`}>
-        <p className={`font-semibold text-sm ${isCompleted ? 'text-green-700' : isCurrent ? 'text-green-600' : 'text-gray-500'}`}>
+        <p className={`font-semibold text-sm ${isCompleted ? 'text-green-700' : isCurrent ? 'text-green-600' : 'text-muted-foreground'}`}>
           {theme.nameEn}
         </p>
-        <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{lesson.title}</p>
+        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{lesson.title}</p>
         {lesson.duration && (
-          <p className="text-xs text-gray-400 mt-1">⏱️ {lesson.duration}</p>
+          <p className="text-xs text-muted-foreground mt-1">⏱️ {lesson.duration}</p>
         )}
       </div>
 
@@ -579,14 +576,14 @@ const LessonNode: React.FC<LessonNodeProps> = ({
             initial={{ opacity: 0, y: 10, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.9 }}
-            className="absolute top-full mt-2 bg-white rounded-xl shadow-xl p-3 w-48 z-10 border border-green-200"
+            className="absolute top-full mt-2 bg-card rounded-xl shadow-xl p-3 w-48 z-10 border border-green-200"
           >
             <p className="font-medium text-green-800 text-sm mb-1">{lesson.title}</p>
             {lesson.description && (
-              <p className="text-xs text-gray-600 mb-2 line-clamp-2">{lesson.description}</p>
+              <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{lesson.description}</p>
             )}
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-muted-foreground">
                 {lesson.content_type === 'video' ? '🎥 Video' : lesson.content_type === 'quiz' ? '📝 Quiz' : '📖 Lesson'}
               </span>
               <ChevronRight className="w-4 h-4 text-green-500" />
@@ -606,36 +603,36 @@ const NODE_CENTER_OFFSET = 40; // Half the node height to hit center
 // Generate SVG path for roadmap - connects through center of each node
 const generatePath = (nodeCount: number): string => {
   if (nodeCount === 0) return '';
-  
+
   let d = '';
-  
+
   for (let i = 0; i < nodeCount; i++) {
     const isEven = i % 2 === 0;
     const currentX = isEven ? LEFT_X : RIGHT_X;
     const currentY = i * 180 + 50 + NODE_CENTER_OFFSET;
-    
+
     if (i === 0) {
       d = `M ${currentX} ${currentY}`;
     }
-    
+
     if (i < nodeCount - 1) {
       const nextIsEven = (i + 1) % 2 === 0;
       const nextX = nextIsEven ? LEFT_X : RIGHT_X;
       const nextY = (i + 1) * 180 + 50 + NODE_CENTER_OFFSET;
       const midY = (currentY + nextY) / 2;
-      
+
       // Smooth S-curve between nodes
       d += ` C ${currentX} ${midY}, ${nextX} ${midY}, ${nextX} ${nextY}`;
     }
   }
-  
+
   return d;
 };
 
 // Generate progress path - only draws up to last completed node
 const generateProgressPath = (lessons: Lesson[], lessonProgress: Record<string, string>): string => {
   if (lessons.length === 0) return '';
-  
+
   // Find the last completed lesson index
   let lastCompletedIndex = -1;
   for (let i = 0; i < lessons.length; i++) {
@@ -645,30 +642,30 @@ const generateProgressPath = (lessons: Lesson[], lessonProgress: Record<string, 
       break;
     }
   }
-  
+
   if (lastCompletedIndex === -1) return '';
-  
+
   let d = '';
-  
+
   for (let i = 0; i <= lastCompletedIndex; i++) {
     const isEven = i % 2 === 0;
     const currentX = isEven ? LEFT_X : RIGHT_X;
     const currentY = i * 180 + 50 + NODE_CENTER_OFFSET;
-    
+
     if (i === 0) {
       d = `M ${currentX} ${currentY}`;
     }
-    
+
     if (i < lastCompletedIndex) {
       const nextIsEven = (i + 1) % 2 === 0;
       const nextX = nextIsEven ? LEFT_X : RIGHT_X;
       const nextY = (i + 1) * 180 + 50 + NODE_CENTER_OFFSET;
       const midY = (currentY + nextY) / 2;
-      
+
       d += ` C ${currentX} ${midY}, ${nextX} ${midY}, ${nextX} ${nextY}`;
     }
   }
-  
+
   return d;
 };
 

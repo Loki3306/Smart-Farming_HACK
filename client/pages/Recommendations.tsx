@@ -95,7 +95,7 @@ export const Recommendations: React.FC = () => {
       case "high": return "bg-red-100 text-red-700";
       case "medium": return "bg-yellow-100 text-yellow-700";
       case "low": return "bg-green-100 text-green-700";
-      default: return "bg-gray-100 text-gray-700";
+      default: return "bg-muted text-foreground";
     }
   };
 
@@ -426,7 +426,7 @@ export const Recommendations: React.FC = () => {
                   <div className="w-6 flex justify-center">
                     {step.status === "completed" && <CheckCircle className="w-5 h-5 text-green-500" />}
                     {step.status === "processing" && <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />}
-                    {step.status === "pending" && <div className="w-2 h-2 rounded-full bg-gray-300" />}
+                    {step.status === "pending" && <div className="w-2 h-2 rounded-full bg-muted" />}
                   </div>
                   <span className={`${step.status === "processing" ? "text-primary font-medium" : step.status === "completed" ? "text-foreground" : "text-muted-foreground"}`}>
                     {step.label}

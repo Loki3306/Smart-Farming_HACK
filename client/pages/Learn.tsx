@@ -260,7 +260,7 @@ export const Learn: React.FC = () => {
       case "advanced":
         return "bg-purple-100 text-purple-700";
       default:
-        return "bg-gray-100 text-gray-700";
+        return "bg-muted text-foreground";
     }
   };
 
@@ -358,12 +358,12 @@ export const Learn: React.FC = () => {
           placeholder={`Search for ${activeTab}...`}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-10 pr-12 py-3 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+          className="w-full pl-10 pr-12 py-3 rounded-lg border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary transition-all"
         />
         {searchQuery && (
           <button
             onClick={() => setSearchQuery("")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-full transition-colors"
             aria-label="Clear search"
           >
             <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -549,7 +549,7 @@ export const Learn: React.FC = () => {
                           Featured
                         </span>
                       )}
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-foreground">
                         {article.category}
                       </span>
                     </div>
@@ -566,7 +566,7 @@ export const Learn: React.FC = () => {
                   <div className="flex flex-col items-center gap-2 ml-4">
                     <button
                       onClick={(e) => handleLikeArticle(article.id, e)}
-                      className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                      className="p-2 hover:bg-muted rounded-full transition-colors"
                     >
                       <Heart className="w-5 h-5 text-muted-foreground hover:text-red-500" />
                     </button>
@@ -609,7 +609,7 @@ export const Learn: React.FC = () => {
                     <span className="text-6xl">{video.thumbnail_emoji || "🎬"}</span>
                   )}
                   <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 hover:opacity-100 transition-opacity">
-                    <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-full bg-card/90 dark:bg-card/90 flex items-center justify-center">
                       <Play className="w-8 h-8 text-primary ml-1" />
                     </div>
                   </div>

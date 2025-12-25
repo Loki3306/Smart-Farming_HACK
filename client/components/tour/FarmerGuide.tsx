@@ -181,7 +181,7 @@ export const FarmerGuide: React.FC<FarmerGuideProps> = ({
                 className="relative max-w-sm"
             >
                 {/* Main Card - Sharp, minimal design */}
-                <div className="bg-white rounded-xl shadow-lg border border-gray-200/80 overflow-hidden backdrop-blur-sm">
+                <div className="bg-card rounded-xl shadow-lg border border-border/80 overflow-hidden backdrop-blur-sm">
                     {/* Header - Clean, subtle gradient */}
                     <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 px-4 py-3 flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -219,8 +219,8 @@ export const FarmerGuide: React.FC<FarmerGuideProps> = ({
                                     <span className="text-emerald-400 text-xs font-medium">
                                         {index + 1}
                                     </span>
-                                    <span className="text-gray-500 text-xs">/</span>
-                                    <span className="text-gray-400 text-xs">
+                                    <span className="text-muted-foreground text-xs">/</span>
+                                    <span className="text-muted-foreground text-xs">
                                         {size}
                                     </span>
                                 </div>
@@ -238,13 +238,13 @@ export const FarmerGuide: React.FC<FarmerGuideProps> = ({
                                     aria-label={isSpeaking ? "Stop narration" : "Play narration"}
                                     className={`p-1.5 rounded-lg transition-all duration-200 group ${isSpeaking
                                         ? 'bg-emerald-500/30 border border-emerald-500/50'
-                                        : 'bg-white/10 hover:bg-white/20'
+                                        : 'bg-card/10 dark:bg-card/10 hover:bg-card/20 dark:bg-card/20'
                                         }`}
                                 >
                                     {isSpeaking ? (
                                         <VolumeX className="w-4 h-4 text-emerald-400" />
                                     ) : (
-                                        <Volume2 className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors" />
+                                        <Volume2 className="w-4 h-4 text-muted-foreground group-hover:text-white transition-colors" />
                                     )}
                                 </motion.button>
                             )}
@@ -253,15 +253,15 @@ export const FarmerGuide: React.FC<FarmerGuideProps> = ({
                             <button
                                 onClick={handleClose}
                                 aria-label="Close tour"
-                                className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-200 group"
+                                className="p-1.5 rounded-lg bg-card/10 dark:bg-card/10 hover:bg-card/20 dark:bg-card/20 transition-all duration-200 group"
                             >
-                                <X className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors" />
+                                <X className="w-4 h-4 text-muted-foreground group-hover:text-white transition-colors" />
                             </button>
                         </div>
                     </div>
 
                     {/* Progress Bar - Thin and elegant */}
-                    <div className="h-0.5 bg-gray-100">
+                    <div className="h-0.5 bg-muted">
                         <motion.div
                             className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400"
                             initial={{ width: 0 }}
@@ -272,7 +272,7 @@ export const FarmerGuide: React.FC<FarmerGuideProps> = ({
 
                     {/* Content */}
                     <div className="px-4 py-4">
-                        <p className="text-gray-600 text-sm leading-relaxed">
+                        <p className="text-muted-foreground text-sm leading-relaxed">
                             <AnimatedText text={step.content as string} />
                         </p>
                     </div>
@@ -287,7 +287,7 @@ export const FarmerGuide: React.FC<FarmerGuideProps> = ({
                                     stop(); // Stop speech on skip
                                     skipProps.onClick?.(e);
                                 }}
-                                className="text-xs text-gray-400 hover:text-gray-600 transition-colors font-medium"
+                                className="text-xs text-muted-foreground hover:text-muted-foreground transition-colors font-medium"
                             >
                                 Skip
                             </button>
@@ -306,7 +306,7 @@ export const FarmerGuide: React.FC<FarmerGuideProps> = ({
                                     }}
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
-                                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-muted-foreground bg-muted rounded-lg hover:bg-muted transition-colors"
                                 >
                                     <ChevronLeft className="w-3.5 h-3.5" />
                                     Back
@@ -322,7 +322,7 @@ export const FarmerGuide: React.FC<FarmerGuideProps> = ({
                                 }}
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
-                                className="flex items-center gap-1 px-4 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
+                                className="flex items-center gap-1 px-4 py-1.5 text-xs font-medium text-white bg-foreground rounded-lg hover:bg-foreground transition-colors"
                             >
                                 {isLastStep ? (
                                     <>

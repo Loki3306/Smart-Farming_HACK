@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Bell,
   AlertTriangle,
@@ -14,6 +14,14 @@ import {
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { useSettings } from "@/context/SettingsContext";
+import {
+  playNotificationSound,
+  vibrateDevice,
+  isNotificationTypeEnabled,
+  type NotificationTypeConfig
+} from "@/services/NotificationService";
 
 interface Notification {
   id: string;
@@ -26,6 +34,17 @@ interface Notification {
 }
 
 export const Notifications: React.FC = () => {
+  const navigate = useNavigate();
+  const { settings } = useSettings();
+
+  // Build alert type config from settings
+  const alertTypeConfig: NotificationTypeConfig = {
+    moisture: settings.moistureAlerts,
+    weather: settings.weatherAlerts,
+    pest: settings.pestAlerts,
+    harvest: settings.harvestAlerts,
+  };
+
   const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: "1",
@@ -85,6 +104,16 @@ export const Notifications: React.FC = () => {
 
   const [filter, setFilter] = useState<"all" | "unread">("all");
 
+  // Test notification function - plays sound and vibrates if enabled
+  const testNotification = async () => {
+    if (settings.notificationSound) {
+      await playNotificationSound();
+    }
+    if (settings.vibration) {
+      vibrateDevice();
+    }
+  };
+
   const getIcon = (type: Notification["type"]) => {
     switch (type) {
       case "alert":
@@ -115,7 +144,7 @@ export const Notifications: React.FC = () => {
       case "crop":
         return "text-green-500 bg-green-100";
       default:
-        return "text-gray-500 bg-gray-100";
+        return "text-muted-foreground bg-muted";
     }
   };
 
@@ -156,9 +185,13 @@ export const Notifications: React.FC = () => {
     setNotifications([]);
   };
 
-  const filteredNotifications = notifications.filter((n) =>
-    filter === "all" ? true : !n.read
-  );
+  // Filter by read status AND by alert type settings
+  const filteredNotifications = notifications.filter((n) => {
+    // First filter by read status
+    if (filter === "unread" && n.read) return false;
+    // Then filter by alert type settings
+    return isNotificationTypeEnabled(n.type, alertTypeConfig);
+  });
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -198,8 +231,8 @@ export const Notifications: React.FC = () => {
           <button
             onClick={() => setFilter("all")}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${filter === "all"
-                ? "bg-white text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
+              ? "bg-card text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
               }`}
           >
             All
@@ -207,8 +240,8 @@ export const Notifications: React.FC = () => {
           <button
             onClick={() => setFilter("unread")}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${filter === "unread"
-                ? "bg-white text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
+              ? "bg-card text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
               }`}
           >
             Unread ({unreadCount})
@@ -320,7 +353,14 @@ export const Notifications: React.FC = () => {
               </p>
             </div>
           </div>
-          <Button variant="outline">Configure</Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={testNotification}>
+              🔊 Test Sound
+            </Button>
+            <Button variant="outline" onClick={() => navigate('/settings')}>
+              Configure
+            </Button>
+          </div>
         </div>
       </Card>
     </div>

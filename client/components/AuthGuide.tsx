@@ -524,7 +524,7 @@ export const AuthGuide = ({ mode, currentField, fieldValues = {} }: AuthGuidePro
                                 />
 
                                 {/* Header */}
-                                <div className="relative flex items-center justify-between px-5 py-3 border-b border-emerald-200/30 bg-white/40">
+                                <div className="relative flex items-center justify-between px-5 py-3 border-b border-emerald-200/30 bg-card/40 dark:bg-card/40">
                                     <div className="flex items-center gap-3">
                                         <motion.div
                                             animate={{ rotate: isTyping ? [0, -5, 5, 0] : 0 }}
@@ -612,7 +612,7 @@ export const AuthGuide = ({ mode, currentField, fieldValues = {} }: AuthGuidePro
                                             />
                                         </div>
                                         {/* Message bubble */}
-                                        <div className="flex-1 bg-white/80 rounded-2xl px-4 py-3 shadow-sm">
+                                        <div className="flex-1 bg-card/80 dark:bg-card/80 rounded-2xl px-4 py-3 shadow-sm">
                                             <h4 className="text-base font-bold text-emerald-700 mb-1">
                                                 {currentMessage.greeting}
                                             </h4>

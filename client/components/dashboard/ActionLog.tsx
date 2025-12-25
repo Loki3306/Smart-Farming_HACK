@@ -13,7 +13,7 @@ export const ActionLog: React.FC = () => {
       case "fertilization":
         return <Leaf className="w-4 h-4 text-emerald-600" />;
       default:
-        return <Info className="w-4 h-4 text-gray-500" />;
+        return <Info className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
@@ -24,7 +24,7 @@ export const ActionLog: React.FC = () => {
       case "fertilization":
         return "bg-emerald-100 text-emerald-700";
       default:
-        return "bg-gray-100 text-gray-700";
+        return "bg-muted text-foreground";
     }
   };
 
@@ -42,7 +42,7 @@ export const ActionLog: React.FC = () => {
             {actionLog.slice(0, 8).map((entry) => (
               <div
                 key={entry.id}
-                className="flex items-start gap-3 p-3 bg-white/20 rounded-lg backdrop-blur-sm border border-white/10 hover:bg-white/30 transition-colors"
+                className="flex items-start gap-3 p-3 bg-card/20 dark:bg-card/20 rounded-lg backdrop-blur-sm border border-border/50 hover:bg-card/30 dark:bg-card/30 transition-colors"
               >
                 <div className="flex-shrink-0 mt-1">{getIcon(entry.type)}</div>
                 <div className="flex-1 min-w-0">

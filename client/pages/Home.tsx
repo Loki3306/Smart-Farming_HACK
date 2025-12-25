@@ -152,7 +152,7 @@ export const Home: React.FC = () => {
             {/* System Status & User Profile */}
             <div className="flex items-center gap-4">
               {/* Status Indicator */}
-              <div className="px-6 py-4 bg-white rounded-xl shadow-sm border border-border">
+              <div className="px-6 py-4 bg-card rounded-xl shadow-sm border border-border">
                 <div className="flex items-center gap-2">
                   <Activity className="w-5 h-5 text-primary" />
                   <div>
