@@ -91,7 +91,7 @@ export const Login: React.FC = () => {
                     onFocus={() => setCurrentField("phone")}
                     placeholder="9876543210"
                     maxLength={10}
-                    className="flex-1 min-w-0 px-4 py-2 rounded-r-lg border border-border bg-white text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="flex-1 min-w-0 px-4 py-2 rounded-r-lg border border-border bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     disabled={isLoading}
                   />
                 </div>
@@ -107,7 +107,7 @@ export const Login: React.FC = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   onFocus={() => setCurrentField("password")}
                   placeholder="••••••••"
-                  className="w-full px-4 py-2 rounded-lg border border-border bg-white text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 py-2 rounded-lg border border-border bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                   disabled={isLoading}
                 />
               </div>
@@ -127,7 +127,7 @@ export const Login: React.FC = () => {
                 <div className="w-full border-t border-border"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-muted-foreground">Or</span>
+                <span className="px-2 bg-card text-muted-foreground">Or</span>
               </div>
             </div>
 

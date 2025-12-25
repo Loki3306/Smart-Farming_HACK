@@ -174,14 +174,14 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
             </p>
 
             {/* Score Display */}
-            <div className="bg-white rounded-xl p-6 mb-6 shadow-sm">
+            <div className="bg-card rounded-xl p-6 mb-6 shadow-sm">
               <div className="text-5xl font-bold mb-2" style={{ color: passed ? '#22c55e' : '#f97316' }}>
                 {score.percent}%
               </div>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 {score.correct} out of {score.total} correct
               </p>
-              <p className="text-sm text-gray-500 mt-2">
+              <p className="text-sm text-muted-foreground mt-2">
                 <Clock className="inline w-4 h-4 mr-1" />
                 Time: {formatTime(elapsedTime)}
               </p>
@@ -189,7 +189,7 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
 
             {/* Question Review */}
             <div className="mb-6 text-left">
-              <h3 className="font-semibold text-gray-700 mb-3">Question Review:</h3>
+              <h3 className="font-semibold text-foreground mb-3">Question Review:</h3>
               <div className="space-y-2">
                 {quiz.questions.map((q, index) => {
                   const wasCorrect = answers[index] === q.correctIndex;
@@ -205,7 +205,7 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
                       ) : (
                         <XCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
                       )}
-                      <span className="text-sm text-gray-700 truncate">
+                      <span className="text-sm text-foreground truncate">
                         Q{index + 1}: {q.question.substring(0, 50)}...
                       </span>
                     </div>
@@ -252,14 +252,14 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
-          <h1 className="text-xl font-bold text-gray-800">{title}</h1>
-          <div className="flex items-center gap-2 text-gray-500">
+          <h1 className="text-xl font-bold text-foreground">{title}</h1>
+          <div className="flex items-center gap-2 text-muted-foreground">
             <Clock className="w-4 h-4" />
             <span>{formatTime(elapsedTime)}</span>
           </div>
         </div>
         <Progress value={progress} className="h-2" />
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-sm text-muted-foreground mt-1">
           Question {currentQuestionIndex + 1} of {quiz.questions.length}
         </p>
       </div>
@@ -274,7 +274,7 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
           transition={{ duration: 0.3 }}
         >
           <Card className="p-6 mb-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-6">
+            <h2 className="text-lg font-semibold text-foreground mb-6">
               {currentQuestion.question}
             </h2>
 
@@ -284,7 +284,7 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
                 const isSelected = selectedAnswer === index;
                 const isCorrectOption = index === currentQuestion.correctIndex;
                 
-                let optionStyle = 'border-gray-200 hover:border-primary hover:bg-primary/5';
+                let optionStyle = 'border-border hover:border-primary hover:bg-primary/5';
                 if (hasAnswered) {
                   if (isCorrectOption) {
                     optionStyle = 'border-green-500 bg-green-50';
@@ -312,7 +312,7 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
                           ? 'bg-red-500 text-white'
                           : isSelected
                           ? 'bg-primary text-white'
-                          : 'bg-gray-100 text-gray-600'
+                          : 'bg-muted text-muted-foreground'
                       }`}>
                         {hasAnswered && isCorrectOption ? (
                           <CheckCircle className="w-5 h-5" />
@@ -322,7 +322,7 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
                           String.fromCharCode(65 + index) // A, B, C, D
                         )}
                       </div>
-                      <span className="text-gray-700">{option}</span>
+                      <span className="text-foreground">{option}</span>
                     </div>
                   </button>
                 );

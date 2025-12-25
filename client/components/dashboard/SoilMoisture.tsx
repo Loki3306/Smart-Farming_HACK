@@ -32,7 +32,7 @@ export const SoilMoisture: React.FC = () => {
 
         {/* NPK Indicators */}
         <div className="grid grid-cols-3 gap-4">
-          <div className="bg-white/30 rounded-lg p-4 text-center backdrop-blur-sm border border-white/20">
+          <div className="bg-card/30 dark:bg-card/30 rounded-lg p-4 text-center backdrop-blur-sm border border-border/50">
             <div className="text-2xl font-bold text-primary">
               {sensorData?.npk.nitrogen ?? 0}
             </div>
@@ -40,7 +40,7 @@ export const SoilMoisture: React.FC = () => {
             <div className="text-xs font-semibold text-foreground">mg/kg</div>
           </div>
 
-          <div className="bg-white/30 rounded-lg p-4 text-center backdrop-blur-sm border border-white/20">
+          <div className="bg-card/30 dark:bg-card/30 rounded-lg p-4 text-center backdrop-blur-sm border border-border/50">
             <div className="text-2xl font-bold text-primary">
               {sensorData?.npk.phosphorus ?? 0}
             </div>
@@ -48,7 +48,7 @@ export const SoilMoisture: React.FC = () => {
             <div className="text-xs font-semibold text-foreground">mg/kg</div>
           </div>
 
-          <div className="bg-white/30 rounded-lg p-4 text-center backdrop-blur-sm border border-white/20">
+          <div className="bg-card/30 dark:bg-card/30 rounded-lg p-4 text-center backdrop-blur-sm border border-border/50">
             <div className="text-2xl font-bold text-primary">
               {sensorData?.npk.potassium ?? 0}
             </div>

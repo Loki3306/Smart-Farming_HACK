@@ -26,6 +26,7 @@ interface AuthContextType {
   skipLoginAsDemo: () => void;
   clearError: () => void;
   markOnboardingComplete: () => void;
+  updateProfile: (updates: { fullName?: string; email?: string; phone?: string }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -135,7 +136,7 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
         hasCompletedOnboarding: true,
       };
       setUser(updatedUser);
-      
+
       // Persist to localStorage for mock users
       const token = localStorage.getItem('auth_token');
       if (token) {
@@ -145,6 +146,21 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
       }
     }
   }, [user]);
+
+  const updateProfile = useCallback(async (updates: { fullName?: string; email?: string; phone?: string }) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const updatedUser = await AuthService.updateProfile(updates);
+      setUser(updatedUser);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to update profile";
+      setError(message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   const isAuthenticated = user !== null;
 
@@ -160,6 +176,7 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
     skipLoginAsDemo,
     clearError,
     markOnboardingComplete,
+    updateProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

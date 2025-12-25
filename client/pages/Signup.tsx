@@ -139,7 +139,7 @@ export const Signup: React.FC = () => {
                   onChange={handleChange}
                   onFocus={() => handleFocus("fullName")}
                   placeholder={INDIAN_FARMER_NAMES[Math.floor(Math.random() * INDIAN_FARMER_NAMES.length)]}
-                  className="w-full px-4 py-2 rounded-lg border border-border bg-white text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 py-2 rounded-lg border border-border bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                   disabled={isLoading}
                 />
               </div>
@@ -161,7 +161,7 @@ export const Signup: React.FC = () => {
                     onFocus={() => handleFocus("phone")}
                     placeholder="9876543210"
                     maxLength={10}
-                    className="flex-1 min-w-0 px-4 py-2 rounded-r-lg border border-border bg-white text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="flex-1 min-w-0 px-4 py-2 rounded-r-lg border border-border bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     disabled={isLoading}
                   />
                 </div>
@@ -181,7 +181,7 @@ export const Signup: React.FC = () => {
                     onChange={handleChange}
                     onFocus={() => handleFocus("password")}
                     placeholder="••••••••"
-                    className="w-full px-4 py-2 rounded-lg border border-border bg-white text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-4 py-2 rounded-lg border border-border bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     disabled={isLoading}
                   />
                 </div>
@@ -197,7 +197,7 @@ export const Signup: React.FC = () => {
                     onChange={handleChange}
                     onFocus={() => handleFocus("confirmPassword")}
                     placeholder="••••••••"
-                    className="w-full px-4 py-2 rounded-lg border border-border bg-white text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-4 py-2 rounded-lg border border-border bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     disabled={isLoading}
                   />
                 </div>
@@ -214,7 +214,7 @@ export const Signup: React.FC = () => {
                     value={formData.country}
                     onChange={handleChange}
                     onFocus={() => handleFocus("country")}
-                    className="w-full px-4 py-2 rounded-lg border border-border bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-4 py-2 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     disabled={isLoading}
                   >
                     <option>India</option>
@@ -238,7 +238,7 @@ export const Signup: React.FC = () => {
                     value={formData.state}
                     onChange={handleChange}
                     onFocus={() => handleFocus("state")}
-                    className="w-full px-4 py-2 rounded-lg border border-border bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-4 py-2 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     disabled={isLoading}
                   >
                     {INDIAN_STATES.map((state) => (
@@ -258,7 +258,7 @@ export const Signup: React.FC = () => {
                     value={formData.experienceLevel}
                     onChange={handleChange}
                     onFocus={() => handleFocus("experienceLevel")}
-                    className="w-full px-4 py-2 rounded-lg border border-border bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-4 py-2 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     disabled={isLoading}
                   >
                     <option value="beginner">Beginner</option>

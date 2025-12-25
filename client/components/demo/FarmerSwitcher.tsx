@@ -52,10 +52,10 @@ const DEMO_FARMERS = [
 ];
 
 export function FarmerSwitcher() {
-  const { user, login } = useAuth();
+  const { user, login, logout } = useAuth();
   const { toast } = useToast();
   const [switching, setSwitching] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(true);
   const [originalUser, setOriginalUser] = useState<{ phone: string; name: string } | null>(null);
 
   const currentFarmer = DEMO_FARMERS.find(f => f.phone === user?.phone);
@@ -83,7 +83,7 @@ export function FarmerSwitcher() {
     try {
       // Quick switch with demo password
       await login({ phone: farmer.phone, password: 'demo123' });
-      
+
       toast({
         title: `Switched to ${farmer.name}`,
         description: `${farmer.icon} ${farmer.description}: ${farmer.scenario}`,
@@ -117,15 +117,15 @@ export function FarmerSwitcher() {
     }
 
     setSwitching(true);
-    
+
     // Check if original account is a demo farmer
     const isDemoFarmer = DEMO_FARMERS.some(f => f.phone === originalUser.phone);
-    
+
     if (isDemoFarmer) {
       // Demo farmer - use demo password
       try {
         await login({ phone: originalUser.phone, password: 'demo123' });
-        
+
         toast({
           title: `Restored to ${originalUser.name}`,
           description: 'Back to your original account',
@@ -151,14 +151,11 @@ export function FarmerSwitcher() {
         description: 'You will be logged out. Please log back in with your credentials.',
         duration: 4000,
       });
-      
+
       // Small delay for toast to show
       setTimeout(async () => {
         try {
-          const { logout } = useAuth.getState?.() || {};
-          if (logout) {
-            await logout();
-          }
+          await logout();
           localStorage.removeItem('current_farm_id');
           window.location.href = '/login';
         } catch (error) {
@@ -183,13 +180,13 @@ export function FarmerSwitcher() {
   const isOnOriginalAccount = originalUser?.phone === user?.phone;
 
   return (
-    <div className="fixed top-4 right-4 z-50 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg shadow-lg max-w-md transition-all">
+    <div className="fixed top-4 right-4 z-50 bg-card/95 dark:bg-card/95 backdrop-blur-sm border border-border rounded-lg shadow-lg max-w-md transition-all">
       {/* Minimized State */}
       {isMinimized ? (
         <div className="p-3 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-blue-600" />
-            <span className="font-semibold text-sm text-gray-700">Demo Mode</span>
+            <span className="font-semibold text-sm text-foreground">Demo Mode</span>
             {!isOnOriginalAccount && (
               <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
                 Switched
@@ -225,7 +222,7 @@ export function FarmerSwitcher() {
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4 text-blue-600" />
-              <span className="font-semibold text-sm text-gray-700">Demo Mode</span>
+              <span className="font-semibold text-sm text-foreground">Demo Mode</span>
             </div>
             <Button
               variant="ghost"
@@ -239,12 +236,12 @@ export function FarmerSwitcher() {
 
           <div className="space-y-3">
             {/* Current User Info */}
-            <div className="text-xs text-gray-600 bg-gray-50 p-2 rounded">
+            <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
               <div className="flex items-center justify-between">
                 <div>
                   Current: <span className="font-semibold">{currentFarmer?.name || user?.fullName}</span>
                   <br />
-                  <span className="text-gray-500">
+                  <span className="text-muted-foreground">
                     {currentFarmer?.icon} {currentFarmer?.description}
                   </span>
                 </div>
@@ -282,8 +279,8 @@ export function FarmerSwitcher() {
               </SelectTrigger>
               <SelectContent>
                 {DEMO_FARMERS.map((farmer) => (
-                  <SelectItem 
-                    key={farmer.id} 
+                  <SelectItem
+                    key={farmer.id}
                     value={farmer.id}
                     disabled={farmer.phone === user?.phone}
                   >
@@ -291,7 +288,7 @@ export function FarmerSwitcher() {
                       <span>{farmer.icon}</span>
                       <div className="text-left">
                         <div className="font-medium">{farmer.name}</div>
-                        <div className="text-xs text-gray-500">{farmer.description}</div>
+                        <div className="text-xs text-muted-foreground">{farmer.description}</div>
                       </div>
                     </div>
                   </SelectItem>
@@ -301,17 +298,17 @@ export function FarmerSwitcher() {
 
             {/* Info Footer */}
             <div className="pt-2 border-t space-y-2">
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-muted-foreground">
                 💡 Each farmer has different sensor data to showcase AI adaptability
               </div>
-              
+
               {/* Reset Original Account */}
               {originalUser && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={handleClearOriginal}
-                  className="h-7 px-2 text-xs text-gray-500 hover:text-gray-700 w-full"
+                  className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground w-full"
                 >
                   <X className="h-3 w-3 mr-1" />
                   Reset Original Account

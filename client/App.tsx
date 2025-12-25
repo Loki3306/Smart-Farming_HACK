@@ -16,6 +16,7 @@ import { AuthContextProvider } from "./context/AuthContext";
 import { FarmContextProvider } from "./context/FarmContext";
 import { TourContextProvider } from "./context/TourContext";
 import { LanguageProvider } from "./context/LanguageContext";
+import { SettingsProvider } from "./context/SettingsContext";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
 import { Farm } from "./pages/Farm";
@@ -229,15 +230,17 @@ export const App = () => (
     <TooltipProvider>
       <LanguageProvider>
         <AuthContextProvider>
-          <FarmContextProvider>
-            <TourContextProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <AnimatedRoutes />
-              </BrowserRouter>
-            </TourContextProvider>
-          </FarmContextProvider>
+          <SettingsProvider>
+            <FarmContextProvider>
+              <TourContextProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <AnimatedRoutes />
+                </BrowserRouter>
+              </TourContextProvider>
+            </FarmContextProvider>
+          </SettingsProvider>
         </AuthContextProvider>
       </LanguageProvider>
     </TooltipProvider>

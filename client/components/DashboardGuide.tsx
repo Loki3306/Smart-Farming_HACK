@@ -25,7 +25,7 @@ interface GuideMessage {
 export const DashboardGuide = () => {
     const [isVisible, setIsVisible] = useState(false);
     const [isDismissed, setIsDismissed] = useState(false);
-    const [isMinimized, setIsMinimized] = useState(false);
+    const [isMinimized, setIsMinimized] = useState(true);
     const [mode, setMode] = useState<GuideMode>("welcome");
     const [displayedText, setDisplayedText] = useState("");
     const [isTyping, setIsTyping] = useState(false);
@@ -334,6 +334,7 @@ export const DashboardGuide = () => {
                     <Lottie
                         animationData={farmerAnimation}
                         loop
+                        initialSegment={[0, 70]}
                         className="w-16 h-16"
                     />
                 </motion.button>
@@ -358,6 +359,7 @@ export const DashboardGuide = () => {
                                     <Lottie
                                         animationData={farmerAnimation}
                                         loop
+                                        initialSegment={[0, 70]}
                                         className="w-10 h-10"
                                     />
                                 </div>
@@ -370,7 +372,7 @@ export const DashboardGuide = () => {
                                 {canGoBack && (
                                     <button
                                         onClick={handleBack}
-                                        className="p-2 hover:bg-white/60 rounded-lg transition-colors"
+                                        className="p-2 hover:bg-card/60 dark:bg-card/60 rounded-lg transition-colors"
                                         title="Back"
                                     >
                                         <ArrowLeft className="w-5 h-5 text-foreground" />
@@ -378,7 +380,7 @@ export const DashboardGuide = () => {
                                 )}
                                 <button
                                     onClick={handleSpeak}
-                                    className="p-2 hover:bg-white/60 rounded-lg transition-colors"
+                                    className="p-2 hover:bg-card/60 dark:bg-card/60 rounded-lg transition-colors"
                                     title={isSpeaking ? "Stop speaking" : "Read aloud"}
                                 >
                                     {isSpeaking ? (
@@ -389,14 +391,14 @@ export const DashboardGuide = () => {
                                 </button>
                                 <button
                                     onClick={handleMinimize}
-                                    className="p-2 hover:bg-white/60 rounded-lg transition-colors"
+                                    className="p-2 hover:bg-card/60 dark:bg-card/60 rounded-lg transition-colors"
                                     title="Minimize"
                                 >
                                     <div className="w-5 h-0.5 bg-foreground/70 rounded"></div>
                                 </button>
                                 <button
                                     onClick={handleDismiss}
-                                    className="p-2 hover:bg-white/60 rounded-lg transition-colors"
+                                    className="p-2 hover:bg-card/60 dark:bg-card/60 rounded-lg transition-colors"
                                     title="Close guide"
                                 >
                                     <X className="w-5 h-5 text-foreground" />
@@ -412,6 +414,7 @@ export const DashboardGuide = () => {
                                     <Lottie
                                         animationData={farmerAnimation}
                                         loop
+                                        initialSegment={[0, 70]}
                                         className="w-6 h-6"
                                     />
                                 </div>
@@ -447,10 +450,10 @@ export const DashboardGuide = () => {
                                                     {option.icon}
                                                 </div>
                                                 <div className="flex-1">
-                                                    <h4 className="font-semibold text-gray-900 text-sm">
+                                                    <h4 className="font-semibold text-foreground text-sm">
                                                         {option.title}
                                                     </h4>
-                                                    <p className="text-xs text-gray-600 mt-0.5">
+                                                    <p className="text-xs text-muted-foreground mt-0.5">
                                                         {option.description}
                                                     </p>
                                                 </div>
@@ -504,7 +507,7 @@ export const DashboardGuide = () => {
                                             <span>हिंदी</span>
                                         </motion.button>
                                     </div>
-                                    <p className="text-xs text-gray-500 text-center">
+                                    <p className="text-xs text-muted-foreground text-center">
                                         You can change this anytime from settings
                                     </p>
                                 </motion.div>
@@ -525,6 +528,7 @@ export const DashboardGuide = () => {
                                         <Lottie
                                             animationData={farmerAnimation}
                                             loop
+                                            initialSegment={[0, 70]}
                                         />
                                     </motion.div>
                                     <p className="text-muted-foreground font-semibold">

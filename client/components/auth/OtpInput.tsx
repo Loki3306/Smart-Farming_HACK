@@ -176,7 +176,7 @@ export const OtpInput: React.FC<OtpInputProps> = ({
                     ? "border-red-500 bg-red-50 text-red-700"
                     : digit
                       ? "border-primary bg-primary/5"
-                      : "border-border bg-white"
+                      : "border-border bg-card"
               }
               focus:outline-none focus:ring-2 focus:ring-primary/50
               disabled:opacity-50 disabled:cursor-not-allowed
