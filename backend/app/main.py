@@ -102,8 +102,7 @@ class ModelLoader:
     def load_models(self):
         """Attempt to load compiled model modules"""
         modules_to_load = {
-            'fertilizer_recommender': 'ml_models.fertilizer_recommender',
-            'trained_models': 'ml_models.trained_models',  # NEW: Real ML models
+            'trained_models': 'ml_models.trained_models',  # Real ML models for fertilizer, crop, irrigation
             'agronomist': 'agents.agronomist',
             'auditor': 'agents.auditor',
             'gatekeeper': 'agents.gatekeeper',
@@ -251,11 +250,9 @@ class RecommendationEngine:
         
         print(f"\n🔬 Step 3: Loading ML Models...")
         # Use ML models if available
-        fertilizer_model = model_loader.models.get('fertilizer_recommender')
-        trained_models = model_loader.models.get('trained_models')  # NEW: Real ML models
+        trained_models = model_loader.models.get('trained_models')  # Real ML models
         agronomist_agent = model_loader.models.get('agronomist')
         meteorologist_agent = model_loader.models.get('meteorologist')
-        print(f"   Fertilizer Model: {'✅ Loaded' if fertilizer_model else '❌ Not available'}")
         print(f"   Trained ML Models: {'✅ Loaded' if trained_models else '❌ Not available'}")
         print(f"   Agronomist Agent: {'✅ Loaded' if agronomist_agent else '❌ Not available'}")
         print(f"   Meteorologist Agent: {'✅ Loaded' if meteorologist_agent else '❌ Not available'}")
