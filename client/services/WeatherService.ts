@@ -34,26 +34,65 @@ const mockWeatherData: WeatherData = {
 
 const mockForecast: ForecastData[] = [
   {
-    date: new Date(Date.now() + 86400000),
+    date: new Date(Date.now()),
     high: 28,
-    low: 18,
-    rainChance: 10,
-    condition: "Sunny",
+    low: 17,
+    rainChance: 0,
+    condition: "Clear",
+  },
+  {
+    date: new Date(Date.now() + 86400000),
+    high: 27,
+    low: 16,
+    rainChance: 0,
+    condition: "Clear",
   },
   {
     date: new Date(Date.now() + 172800000),
+    high: 28,
+    low: 16,
+    rainChance: 0,
+    condition: "Clear",
+  },
+  {
+    date: new Date(Date.now() + 259200000),
     high: 26,
     low: 17,
     rainChance: 35,
     condition: "Cloudy",
   },
   {
-    date: new Date(Date.now() + 259200000),
+    date: new Date(Date.now() + 345600000),
+    high: 24,
+    low: 16,
+    rainChance: 45,
+    condition: "Cloudy",
+  },
+  {
+    date: new Date(Date.now() + 432000000),
     high: 22,
     low: 15,
     rainChance: 65,
     condition: "Rainy",
   },
+  {
+    date: new Date(Date.now() + 518400000),
+    high: 25,
+    low: 16,
+    rainChance: 20,
+    condition: "Partly Cloudy",
+  },
+];
+
+const mockHourlyForecast = [
+  { time: "Now", temp: 18, condition: "Clear" },
+  { time: "3 PM", temp: 19, condition: "Clear" },
+  { time: "6 PM", temp: 18, condition: "Clear" },
+  { time: "9 PM", temp: 17, condition: "Clear" },
+  { time: "12 AM", temp: 17, condition: "Clear" },
+  { time: "3 AM", temp: 16, condition: "Clear" },
+  { time: "6 AM", temp: 16, condition: "Clear" },
+  { time: "9 AM", temp: 18, condition: "Clear" },
 ];
 
 class WeatherServiceClass {
@@ -155,10 +194,10 @@ class WeatherServiceClass {
     return response.json();
   }
 
-  async getForecast(): Promise<ForecastData[]> {
+  async getForecast(): Promise<any> {
     if (CONFIG.USE_MOCK_DATA) {
       await this.simulateDelay();
-      return mockForecast;
+      return { forecast: mockForecast, hourly: mockHourlyForecast };
     }
     
     // Try to get user's current GPS location first

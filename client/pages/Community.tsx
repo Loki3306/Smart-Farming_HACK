@@ -30,6 +30,7 @@ import {
   RefreshCw,
   Wifi,
   WifiOff,
+  Flag,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -59,20 +60,24 @@ import {
   useCommunityExperts,
   useCommunityStats,
   usePostReactions,
+  useSavedPosts,
+  useReportedPosts,
 } from "@/hooks/useCommunity";
 import type {
   Post as ApiPost,
   Expert as ApiExpert,
   PostType as ApiPostType,
   ReactionType as ApiReactionType,
+  ShareMethod,
 } from "@/services/communityApi";
 import { PostCard } from "@/components/community/PostCard";
+import NotificationBell from "@/components/community/NotificationBell";
 
 // ==================== TYPES ====================
 
 type PostType = ApiPostType;
 type ReactionType = ApiReactionType;
-type TabType = "posts" | "experts";
+type TabType = "posts" | "experts" | "saved" | "reports";
 
 interface Post extends Omit<ApiPost, 'reaction_counts' | 'post_type' | 'author_id' | 'image_url' | 'is_trending' | 'has_expert_reply' | 'comment_count'> {
   postType: PostType;
@@ -218,11 +223,6 @@ export const Community: React.FC = () => {
     image: null,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showMascot, setShowMascot] = useState(true);
-  const [mascotMessage, setMascotMessage] = useState({
-    message: "अपने खेत का अनुभव लिखिए, इससे दूसरे किसानों को मदद मिलेगी।",
-    subMessage: "Share your farming experience to help others!",
-  });
 
   const { toast } = useToast();
   
@@ -254,6 +254,22 @@ export const Community: React.FC = () => {
     loading: statsLoading,
   } = useCommunityStats();
   
+  // Saved posts hook
+  const {
+    savedPostIds,
+    loading: savedPostsLoading,
+    toggleSave,
+    isSaved,
+  } = useSavedPosts(userId);
+  
+  // Reported posts hook
+  const {
+    reportedPostIds,
+    hasReported,
+    addReport,
+    userReports,
+  } = useReportedPosts(userId);
+  
   // Transform API data to component format
   const posts = useMemo(() => apiPosts.map(transformPost), [apiPosts]);
   const experts = useMemo(() => apiExperts.map(transformExpert), [apiExperts]);
@@ -276,7 +292,14 @@ export const Community: React.FC = () => {
 
   // Helper Functions
   const formatTimeAgo = (date: Date): string => {
-    const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+    // Ensure we're working with proper Date object from ISO string
+    // JavaScript Date automatically handles UTC to local conversion
+    const timestamp = new Date(date);
+    const now = new Date();
+    
+    // Calculate difference in seconds and subtract 5.5 hours (19800 seconds) to fix timezone
+    const seconds = Math.floor((now.getTime() - timestamp.getTime()) / 1000) - 19800;
+    
     if (seconds < 60) return "Just now";
     const minutes = Math.floor(seconds / 60);
     if (minutes < 60) return `${minutes}m ago`;
@@ -284,7 +307,13 @@ export const Community: React.FC = () => {
     if (hours < 24) return `${hours}h ago`;
     const days = Math.floor(hours / 24);
     if (days < 7) return `${days}d ago`;
-    return date.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+    
+    // For older dates, show in IST format
+    return timestamp.toLocaleDateString("en-IN", { 
+      day: "numeric", 
+      month: "short",
+      timeZone: "Asia/Kolkata"
+    });
   };
 
   const getHeatColor = (heat: "hot" | "warm" | "rising"): string => {
@@ -346,12 +375,6 @@ export const Community: React.FC = () => {
           title: "Post shared! 🎉",
           description: "Your experience is now visible to the community.",
         });
-
-        setMascotMessage({
-          message: "बहुत बढ़िया! आपकी पोस्ट से दूसरों को मदद मिलेगी।",
-          subMessage: "Great job! Your post will help other farmers.",
-        });
-        setShowMascot(true);
       }
     } catch (error) {
       toast({
@@ -367,8 +390,25 @@ export const Community: React.FC = () => {
   // Handle reaction - will be connected to usePostReactions hook
   const handleReaction = async (postId: string, reactionType: ReactionType) => {
     try {
-      const { reactionsApi } = await import('@/services/communityApi');
+      const { reactionsApi, notificationsApi } = await import('@/services/communityApi');
       await reactionsApi.toggleReaction(postId, userId, reactionType);
+      
+      // Find the post to get the author
+      const post = posts.find(p => p.id === postId);
+      if (post && post.author_id !== userId) {
+        // Create notification for post author
+        try {
+          await notificationsApi.createNotification(
+            post.author_id,
+            userId,
+            'reaction',
+            `reacted ${REACTION_CONFIG[reactionType].emoji} to your post`,
+            postId
+          );
+        } catch (notifError) {
+          console.error('Failed to create notification:', notifError);
+        }
+      }
       
       toast({
         title: `${REACTION_CONFIG[reactionType].emoji} ${REACTION_CONFIG[reactionType].label}`,
@@ -405,6 +445,137 @@ export const Community: React.FC = () => {
     }
   };
 
+  // Handle bookmark toggle
+  const handleToggleSave = async (postId: string) => {
+    try {
+      await toggleSave(postId);
+      const nowSaved = isSaved(postId);
+      toast({
+        title: nowSaved ? "📌 Saved!" : "Removed",
+        description: nowSaved 
+          ? "Post saved to your collection." 
+          : "Post removed from saved items.",
+        duration: 2000,
+      });
+    } catch (error) {
+      toast({
+        title: "Failed to save post",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Handle share
+  const handleShare = async (postId: string, method: ShareMethod) => {
+    try {
+      const { sharingApi } = await import('@/services/communityApi');
+      await sharingApi.trackShare(postId, userId, method);
+      
+      // Don't show toast for copy_link - ShareDialog handles it
+      if (method !== 'copy_link') {
+        const methodLabels: Record<ShareMethod, string> = {
+          whatsapp: '📱 WhatsApp',
+          copy_link: '📋 Link',
+          native_share: '📤 Share',
+          download: '💾 Download',
+        };
+        
+        toast({
+          title: `Shared via ${methodLabels[method]}`,
+          description: "Thank you for spreading knowledge!",
+          duration: 2000,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to track share:', error);
+    }
+  };
+
+  // Handle edit post
+  const handleEdit = async (postId: string, updates: Partial<ApiPost>) => {
+    try {
+      const { postsApi } = await import('@/services/communityApi');
+      await postsApi.updatePost(postId, userId, updates);
+      
+      toast({
+        title: "✅ Updated!",
+        description: "Your post has been updated successfully.",
+        duration: 2000,
+      });
+      
+      // Refresh posts
+      refreshPosts();
+    } catch (error) {
+      console.error('Failed to update post:', error);
+      toast({
+        title: "Failed to update post",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Handle delete post
+  const handleDelete = async (postId: string) => {
+    try {
+      const { postsApi } = await import('@/services/communityApi');
+      await postsApi.deletePost(postId, userId);
+      
+      toast({
+        title: "🗑️ Deleted!",
+        description: "Your post has been removed.",
+        duration: 2000,
+      });
+      
+      // Refresh posts
+      refreshPosts();
+    } catch (error) {
+      console.error('Failed to delete post:', error);
+      toast({
+        title: "Failed to delete post",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Handle report post
+  const handleReport = async (postId: string, reason: string, details: string) => {
+    try {
+      const { reportingApi } = await import('@/services/communityApi');
+      await reportingApi.reportPost(postId, userId, reason as any, details);
+      
+      // Add to local reported posts
+      addReport(postId);
+      
+      toast({
+        title: "🚩 Report Submitted",
+        description: "Thank you for helping keep our community safe. We'll review this report.",
+        duration: 3000,
+      });
+    } catch (error: any) {
+      console.error('Failed to report post:', error);
+      
+      if (error.message === 'You have already reported this post') {
+        toast({
+          title: "Already Reported",
+          description: "You've already reported this post. Our team is reviewing it.",
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: "Failed to submit report",
+          description: "Please try again.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  // Filter saved posts
+  const savedPosts = posts.filter(post => savedPostIds.has(post.id));
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50/50 to-background">
       {/* Connection Status Banner */}
@@ -440,6 +611,7 @@ export const Community: React.FC = () => {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            <NotificationBell userId={userId} />
             <Button
               variant="outline"
               size="icon"
@@ -531,6 +703,50 @@ export const Community: React.FC = () => {
               />
             )}
           </button>
+          <button
+            onClick={() => setActiveTab("saved")}
+            className={`px-6 py-3 font-medium text-base transition-all relative flex items-center gap-2 ${
+              activeTab === "saved"
+                ? "text-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Bookmark className="w-4 h-4" />
+            Saved
+            {savedPostIds.size > 0 && (
+              <Badge variant="secondary" className="ml-1 bg-primary/10 text-primary text-xs">
+                {savedPostIds.size}
+              </Badge>
+            )}
+            {activeTab === "saved" && (
+              <motion.div
+                layoutId="activeTab"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"
+              />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab("reports")}
+            className={`px-6 py-3 font-medium text-base transition-all relative flex items-center gap-2 ${
+              activeTab === "reports"
+                ? "text-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Flag className="w-4 h-4" />
+            My Reports
+            {reportedPostIds.size > 0 && (
+              <Badge variant="secondary" className="ml-1 bg-primary/10 text-primary text-xs">
+                {reportedPostIds.size}
+              </Badge>
+            )}
+            {activeTab === "reports" && (
+              <motion.div
+                layoutId="activeTab"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"
+              />
+            )}
+          </button>
         </motion.div>
 
         {/* ==================== MAIN CONTENT GRID ==================== */}
@@ -599,6 +815,14 @@ export const Community: React.FC = () => {
                       onReaction={(postId, reactionType) => handleReaction(postId, reactionType as ApiReactionType)}
                       formatTimeAgo={formatTimeAgo}
                       index={index}
+                      isSaved={isSaved(post.id)}
+                      onToggleSave={handleToggleSave}
+                      onShare={handleShare}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                      onReport={handleReport}
+                      hasReported={hasReported(post.id)}
+                      shareCount={0}
                     />
                   ))}
                   
@@ -735,6 +959,177 @@ export const Community: React.FC = () => {
                     </motion.div>
                   ))}
                   </div>
+                </motion.div>
+              )}
+
+              {/* SAVED POSTS TAB */}
+              {activeTab === "saved" && (
+                <motion.div
+                  key="saved"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  className="space-y-4"
+                >
+                  {/* Loading State */}
+                  {savedPostsLoading && (
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
+                      <p className="text-muted-foreground">Loading saved posts...</p>
+                    </div>
+                  )}
+                  
+                  {/* Empty State */}
+                  {!savedPostsLoading && savedPosts.length === 0 && (
+                    <Card className="p-8 text-center">
+                      <Bookmark className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                      <h3 className="font-semibold text-lg mb-2">No saved posts yet</h3>
+                      <p className="text-muted-foreground mb-4">
+                        Bookmark posts to save them for later reference
+                      </p>
+                      <Button onClick={() => setActiveTab("posts")}>
+                        <TrendingUp className="w-4 h-4 mr-2" />
+                        Browse Posts
+                      </Button>
+                    </Card>
+                  )}
+                  
+                  {/* Saved Posts List */}
+                  {savedPosts.map((post, index) => (
+                    <PostCard
+                      key={post.id}
+                      post={post}
+                      onReaction={(postId, reactionType) => handleReaction(postId, reactionType as ApiReactionType)}
+                      formatTimeAgo={formatTimeAgo}
+                      index={index}
+                      isSaved={true}
+                      onToggleSave={handleToggleSave}
+                      onShare={handleShare}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                      onReport={handleReport}
+                      hasReported={hasReported(post.id)}
+                      shareCount={0}
+                    />
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* REPORTS TAB */}
+            <AnimatePresence mode="wait">
+              {activeTab === "reports" && (
+                <motion.div
+                  key="reports"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  className="space-y-4"
+                >
+                  {userReports.length === 0 ? (
+                    <Card className="bg-muted/30">
+                      <CardContent className="py-16 text-center">
+                        <div className="flex flex-col items-center gap-4">
+                          <div className="p-4 rounded-full bg-muted">
+                            <Flag className="w-8 h-8 text-muted-foreground" />
+                          </div>
+                          <div className="space-y-2">
+                            <p className="text-lg font-medium text-foreground">No Reports Yet</p>
+                            <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+                              You haven't reported any posts. Use the report feature to flag inappropriate content.
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <div className="space-y-4">
+                      {userReports.map((report, index) => (
+                        <motion.div
+                          key={report.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                        >
+                          <Card className="overflow-hidden">
+                            <CardContent className="p-4">
+                              <div className="space-y-3">
+                                {/* Report Header */}
+                                <div className="flex items-start justify-between gap-4">
+                                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                                    <div className="p-2 rounded-lg bg-orange-100 text-orange-600 shrink-0">
+                                      <Flag className="w-4 h-4" />
+                                    </div>
+                                    <div className="flex-1 min-w-0 space-y-1">
+                                      <div className="flex items-center gap-2 flex-wrap">
+                                        <span className="text-sm font-medium text-foreground">
+                                          Report #{report.id.slice(0, 8)}
+                                        </span>
+                                        <Badge
+                                          variant={
+                                            report.status === "resolved"
+                                              ? "default"
+                                              : report.status === "pending"
+                                              ? "secondary"
+                                              : "outline"
+                                          }
+                                          className="text-xs"
+                                        >
+                                          {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
+                                        </Badge>
+                                      </div>
+                                      <p className="text-xs text-muted-foreground">
+                                        {formatTimeAgo(new Date(report.created_at))}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Report Reason */}
+                                <div className="pl-11 space-y-2">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs font-medium text-muted-foreground">Reason:</span>
+                                    <Badge variant="outline" className="text-xs">
+                                      {report.reason === "spam"
+                                        ? "🚫 Spam"
+                                        : report.reason === "inappropriate"
+                                        ? "⚠️ Inappropriate"
+                                        : report.reason === "misinformation"
+                                        ? "❌ Misinformation"
+                                        : report.reason === "harassment"
+                                        ? "🛡️ Harassment"
+                                        : "📝 Other"}
+                                    </Badge>
+                                  </div>
+
+                                  {/* Report Details (if any) */}
+                                  {report.details && (
+                                    <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                                      <p className="text-xs text-muted-foreground leading-relaxed">
+                                        {report.details}
+                                      </p>
+                                    </div>
+                                  )}
+
+                                  {/* Post Preview (if available) */}
+                                  {report.post_id && (
+                                    <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
+                                      <p className="text-xs font-medium text-muted-foreground mb-1">
+                                        Reported Post ID:
+                                      </p>
+                                      <p className="text-xs text-muted-foreground/80 font-mono">
+                                        {report.post_id.slice(0, 16)}...
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -887,7 +1282,10 @@ export const Community: React.FC = () => {
                   <Button 
                     variant="secondary" 
                     className="w-full font-medium"
-                    onClick={() => setActiveTab("experts")}
+                    onClick={() => {
+                      setActiveTab("experts");
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
                   >
                     Ask an Expert
                   </Button>
@@ -1070,38 +1468,6 @@ export const Community: React.FC = () => {
             </AnimatePresence>
           </DialogContent>
         </Dialog>
-
-        {/* ==================== FARMER MASCOT ==================== */}
-        <AnimatePresence>
-          {showMascot && (
-            <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.95 }}
-              className="fixed bottom-6 right-6 z-50 max-w-sm"
-            >
-              <Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200 shadow-lg">
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="text-4xl flex-shrink-0">👨‍🌾</div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-amber-900">{mascotMessage.message}</p>
-                      {mascotMessage.subMessage && (
-                        <p className="text-xs text-amber-700 mt-1">{mascotMessage.subMessage}</p>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => setShowMascot(false)}
-                      className="text-amber-500 hover:text-amber-700 transition-colors flex-shrink-0"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
     </div>
   );

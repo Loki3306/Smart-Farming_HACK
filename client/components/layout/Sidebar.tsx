@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, Link } from "react-router-dom";
 import {
   LayoutDashboard,
   Tractor,
@@ -86,20 +86,23 @@ export const Sidebar: React.FC = () => {
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className={cn(
-        "flex items-center gap-3 px-4 py-6 border-b border-border",
-        isCollapsed && "justify-center px-2"
-      )}>
-        <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+      <Link
+        to="/dashboard"
+        className={cn(
+          "flex items-center gap-3 px-4 py-6 border-b border-border cursor-pointer hover:scale-105 transition-transform",
+          isCollapsed && "justify-center px-2"
+        )}
+      >
+        <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center hover:rotate-12 transition-transform">
           <Leaf className="w-6 h-6 text-primary-foreground" />
         </div>
         {!isCollapsed && (
           <div>
-            <h1 className="font-bold text-lg text-foreground">SmartFarm</h1>
+            <h1 className="font-bold text-lg text-foreground">Krushi Unnati</h1>
             <p className="text-xs text-muted-foreground">AI-Powered Farming</p>
           </div>
         )}
-      </div>
+      </Link>
 
       {/* Main Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto" data-tour-id="sidebar-nav">

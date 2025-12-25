@@ -20,26 +20,65 @@ const mockWeatherData = {
 
 const mockForecast = [
   {
-    date: new Date(Date.now() + 86400000),
+    date: new Date(Date.now()),
     high: 28,
-    low: 18,
-    rainChance: 10,
-    condition: "Sunny",
+    low: 17,
+    rainChance: 0,
+    condition: "Clear",
+  },
+  {
+    date: new Date(Date.now() + 86400000),
+    high: 27,
+    low: 16,
+    rainChance: 0,
+    condition: "Clear",
   },
   {
     date: new Date(Date.now() + 172800000),
+    high: 28,
+    low: 16,
+    rainChance: 0,
+    condition: "Clear",
+  },
+  {
+    date: new Date(Date.now() + 259200000),
     high: 26,
     low: 17,
     rainChance: 35,
     condition: "Cloudy",
   },
   {
-    date: new Date(Date.now() + 259200000),
+    date: new Date(Date.now() + 345600000),
+    high: 24,
+    low: 16,
+    rainChance: 45,
+    condition: "Cloudy",
+  },
+  {
+    date: new Date(Date.now() + 432000000),
     high: 22,
     low: 15,
     rainChance: 65,
     condition: "Rainy",
   },
+  {
+    date: new Date(Date.now() + 518400000),
+    high: 25,
+    low: 16,
+    rainChance: 20,
+    condition: "Partly Cloudy",
+  },
+];
+
+const mockHourlyForecast = [
+  { time: "Now", temp: 18, condition: "Clear" },
+  { time: "3 PM", temp: 19, condition: "Clear" },
+  { time: "6 PM", temp: 18, condition: "Clear" },
+  { time: "9 PM", temp: 17, condition: "Clear" },
+  { time: "12 AM", temp: 17, condition: "Clear" },
+  { time: "3 AM", temp: 16, condition: "Clear" },
+  { time: "6 AM", temp: 16, condition: "Clear" },
+  { time: "9 AM", temp: 18, condition: "Clear" },
 ];
 
 // Get current farm's location
@@ -184,12 +223,13 @@ export const getForecast = async (req: Request, res: Response) => {
       console.warn('[Weather] No OpenWeatherMap API key. Using mock forecast.');
       return res.json({
         forecast: mockForecast,
+        hourly: mockHourlyForecast,
         location: location.state ? `${location.city}, ${location.state}` : location.city,
         source: 'mock',
       });
     }
 
-    // Fetch forecast from OpenWeatherMap (5 day / 3 hour forecast)
+    // Fetch forecast from OpenWeatherMap 2.5 API (5-day forecast, 3-hour intervals)
     const url = `${OPENWEATHER_BASE_URL}/forecast?lat=${location.latitude}&lon=${location.longitude}&units=metric&appid=${OPENWEATHER_API_KEY}`;
     const response = await fetch(url);
 
@@ -199,38 +239,50 @@ export const getForecast = async (req: Request, res: Response) => {
 
     const data = await response.json();
 
-    // Process forecast data - group by day and get high/low
-    const dailyData: { [key: string]: any } = {};
+    // Group forecast by day and get daily high/low
+    const dailyMap = new Map<string, any>();
     
     data.list.forEach((item: any) => {
       const date = new Date(item.dt * 1000);
       const dateKey = date.toISOString().split('T')[0];
       
-      if (!dailyData[dateKey]) {
-        dailyData[dateKey] = {
-          date,
-          temps: [],
-          conditions: [],
-          rainChances: [],
-        };
+      if (!dailyMap.has(dateKey)) {
+        dailyMap.set(dateKey, {
+          date: new Date(dateKey),
+          high: item.main.temp_max,
+          low: item.main.temp_min,
+          rainChance: Math.round((item.pop || 0) * 100),
+          condition: mapWeatherCondition(item.weather[0].id, item.weather[0].main),
+          temps: [item.main.temp],
+        });
+      } else {
+        const existing = dailyMap.get(dateKey);
+        existing.high = Math.max(existing.high, item.main.temp_max);
+        existing.low = Math.min(existing.low, item.main.temp_min);
+        existing.rainChance = Math.max(existing.rainChance, Math.round((item.pop || 0) * 100));
+        existing.temps.push(item.main.temp);
       }
-      
-      dailyData[dateKey].temps.push(item.main.temp);
-      dailyData[dateKey].conditions.push(mapWeatherCondition(item.weather[0].id, item.weather[0].main));
-      dailyData[dateKey].rainChances.push(item.pop * 100); // Probability of precipitation
     });
 
-    // Convert to forecast array
-    const forecast = Object.values(dailyData).slice(0, 3).map((day: any) => ({
+    // Convert to array and take first 7 days
+    const forecast = Array.from(dailyMap.values()).slice(0, 7).map(day => ({
       date: day.date,
-      high: Math.round(Math.max(...day.temps)),
-      low: Math.round(Math.min(...day.temps)),
-      rainChance: Math.round(Math.max(...day.rainChances)),
-      condition: day.conditions[Math.floor(day.conditions.length / 2)], // Middle of day
+      high: Math.round(day.high),
+      low: Math.round(day.low),
+      rainChance: day.rainChance,
+      condition: day.condition,
+    }));
+
+    // Get hourly forecast for next 24 hours (8 data points at 3-hour intervals)
+    const hourlyForecast = data.list.slice(0, 8).map((hour: any) => ({
+      time: new Date(hour.dt * 1000).toLocaleTimeString('en-US', { hour: 'numeric', hour12: true }),
+      temp: Math.round(hour.main.temp),
+      condition: mapWeatherCondition(hour.weather[0].id, hour.weather[0].main),
     }));
 
     res.json({
       forecast,
+      hourly: hourlyForecast,
       location: `${location.city}, ${location.state}`,
       source: 'openweathermap',
     });
@@ -242,6 +294,7 @@ export const getForecast = async (req: Request, res: Response) => {
     const location = await getFarmLocation(req.query.farmId as string | undefined);
     res.json({
       forecast: mockForecast,
+      hourly: mockHourlyForecast,
       location: `${location.city}, ${location.state}`,
       source: 'mock_fallback',
       error: error instanceof Error ? error.message : 'Weather API error',

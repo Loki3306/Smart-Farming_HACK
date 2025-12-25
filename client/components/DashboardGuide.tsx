@@ -166,7 +166,7 @@ export const DashboardGuide = () => {
             title: isHindi ? "सपोर्ट से संपर्क करें" : "Contact Support",
             description: isHindi ? "हमारी टीम से मदद पाएं" : "Get help from our team",
             action: () => {
-                const msg = isHindi ? "सपोर्ट: support@smartfarm.com पर ईमेल करें या 1800-FARM-HELP पर कॉल करें" : "Support: Email us at support@smartfarm.com or call 1800-FARM-HELP";
+                const msg = isHindi ? "सपोर्ट: support@krushiunnati.com पर ईमेल करें या 1800-FARM-HELP पर कॉल करें" : "Support: Email us at support@krushiunnati.com or call 1800-FARM-HELP";
                 alert(msg);
             },
         },

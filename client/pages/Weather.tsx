@@ -60,7 +60,6 @@ export const Weather: React.FC = () => {
   });
 
   const [forecast, setForecast] = useState<WeatherDay[]>([]);
-  const [hourlyForecast] = useState([]);
 
   // Fetch real weather data
   useEffect(() => {
@@ -96,7 +95,10 @@ export const Weather: React.FC = () => {
         const forecastData = await WeatherService.getForecast();
         console.log('[Weather Page] Forecast:', forecastData);
         
-        const formattedForecast: WeatherDay[] = forecastData.map((day, index) => {
+        // Extract daily forecast
+        const dailyForecast = forecastData.forecast || forecastData;
+        
+        const formattedForecast: WeatherDay[] = dailyForecast.map((day: any, index: number) => {
           const date = new Date(day.date);
           const dayName = index === 0 ? 'Today' : date.toLocaleDateString('en-US', { weekday: 'short' });
           const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -246,25 +248,6 @@ export const Weather: React.FC = () => {
         </Card>
       </motion.div>
 
-      {/* Hourly Forecast */}
-      <div data-tour-id="weather-hourly">
-        <h2 className="text-xl font-semibold text-foreground mb-4">Hourly Forecast</h2>
-        <Card className="p-4">
-          <div className="flex gap-4 overflow-x-auto pb-2">
-            {hourlyForecast.map((hour, index) => (
-              <div
-                key={index}
-                className="flex flex-col items-center min-w-[70px] p-3 rounded-lg hover:bg-muted transition-colors"
-              >
-                <p className="text-sm text-muted-foreground">{hour.time}</p>
-                <hour.icon className="w-8 h-8 my-2 text-primary" />
-                <p className="font-semibold">{hour.temp}°</p>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
-
       {/* 7-Day Forecast */}
       <div data-tour-id="weather-7day">
         <h2 className="text-xl font-semibold text-foreground mb-4">7-Day Forecast</h2>
@@ -308,10 +291,30 @@ export const Weather: React.FC = () => {
       <Card className="p-6 border-l-4 border-l-primary" data-tour-id="weather-insights">
         <h3 className="font-semibold text-foreground mb-2">🌾 Farming Insights</h3>
         <ul className="space-y-2 text-sm text-muted-foreground">
-          <li>• <strong>Rain expected on Dec 25-26:</strong> Consider delaying fertilizer application</li>
-          <li>• <strong>High UV index today:</strong> Ideal for drying harvested crops</li>
-          <li>• <strong>Low wind conditions:</strong> Good day for spraying pesticides</li>
-          <li>• <strong>Soil moisture:</strong> Expected to increase after Wednesday's rain</li>
+          {forecast.length > 0 && forecast.some(day => day.precipitation > 50) && (
+            <li>• <strong>Rain expected on {forecast.find(day => day.precipitation > 50)?.day}:</strong> Consider delaying fertilizer application</li>
+          )}
+          {currentWeather.uvIndex >= 6 && (
+            <li>• <strong>High UV index today:</strong> Ideal for drying harvested crops</li>
+          )}
+          {currentWeather.windSpeed < 15 && (
+            <li>• <strong>Low wind conditions:</strong> Good day for spraying pesticides</li>
+          )}
+          {currentWeather.windSpeed >= 15 && (
+            <li>• <strong>High wind conditions:</strong> Avoid spraying pesticides today</li>
+          )}
+          {forecast.length > 0 && forecast.some(day => day.precipitation > 50) && (
+            <li>• <strong>Soil moisture:</strong> Expected to increase after upcoming rain</li>
+          )}
+          {currentWeather.temperature > 30 && (
+            <li>• <strong>High temperature alert:</strong> Ensure adequate irrigation for crops</li>
+          )}
+          {currentWeather.humidity < 40 && (
+            <li>• <strong>Low humidity:</strong> Monitor crops for water stress</li>
+          )}
+          {currentWeather.humidity > 80 && (
+            <li>• <strong>High humidity:</strong> Watch for fungal diseases in crops</li>
+          )}
         </ul>
       </Card>
     </div>

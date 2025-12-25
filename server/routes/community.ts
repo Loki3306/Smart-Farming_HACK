@@ -225,6 +225,44 @@ router.delete('/posts/:id', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * PATCH /api/community/posts/:id
+ * Update a post (author only)
+ */
+router.patch('/posts/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { author_id, content, post_type, crop, method, tags, image_url } = req.body;
+
+    // Build update object with only provided fields
+    const updates: any = {
+      updated_at: new Date().toISOString(),
+    };
+    
+    if (content !== undefined) updates.content = content;
+    if (post_type !== undefined) updates.post_type = post_type;
+    if (crop !== undefined) updates.crop = crop || null;
+    if (method !== undefined) updates.method = method || null;
+    if (tags !== undefined) updates.tags = tags || [];
+    if (image_url !== undefined) updates.image_url = image_url || null;
+
+    const { data, error } = await supabase
+      .from('community_posts')
+      .update(updates)
+      .eq('id', id)
+      .eq('author_id', author_id) // Only author can update
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json(data);
+  } catch (error: any) {
+    console.error('Error updating post:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ============================================================================
 // REACTIONS ENDPOINTS
 // ============================================================================
@@ -361,7 +399,8 @@ router.post('/posts/:id/comments', async (req: Request, res: Response) => {
         post_id,
         author_id,
         content,
-        is_expert_reply
+        is_expert_reply,
+        created_at: new Date().toISOString()
       }])
       .select(`
         *,

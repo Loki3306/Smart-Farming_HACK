@@ -21,12 +21,14 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@rive-app/react-canvas": "^4.25.1",
     "@supabase/supabase-js": "^2.89.0",
     "@types/twilio": "^3.19.2",
     "canvas-confetti": "^1.9.4",
     "crypto-js": "^4.2.0",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
+    "html2canvas": "^1.4.1",
     "lottie-react": "^2.4.1",
     "ogl": "^1.0.11",
     "react-joyride": "^2.9.3",

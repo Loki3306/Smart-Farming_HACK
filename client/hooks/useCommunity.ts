@@ -607,3 +607,316 @@ export function useOptimisticUpdate<T>(
 
   return { value, update, isUpdating, pendingValue };
 }
+
+// ============================================================================
+// useSavedPosts - Bookmark/Save posts functionality
+// ============================================================================
+
+interface UseSavedPostsReturn {
+  savedPostIds: Set<string>;
+  loading: boolean;
+  error: string | null;
+  toggleSave: (postId: string) => Promise<void>;
+  isSaved: (postId: string) => boolean;
+  refresh: () => Promise<void>;
+}
+
+export function useSavedPosts(userId: string): UseSavedPostsReturn {
+  const [savedPostIds, setSavedPostIds] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const channelRef = useRef<RealtimeChannel | null>(null);
+
+  // Fetch saved post IDs
+  const fetchSavedPosts = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const { savedPostsApi } = await import('../services/communityApi');
+      const ids = await savedPostsApi.getSavedPostIds(userId);
+      setSavedPostIds(ids);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch saved posts');
+      console.error('[useSavedPosts] Error fetching saved posts:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
+
+  // Initial fetch
+  useEffect(() => {
+    fetchSavedPosts();
+  }, [fetchSavedPosts]);
+
+  // Subscribe to real-time updates
+  useEffect(() => {
+    const setupRealtimeSubscription = async () => {
+      const { savedPostsApi } = await import('../services/communityApi');
+      
+      channelRef.current = savedPostsApi.subscribeSavedPosts(
+        userId,
+        (savedPost, eventType) => {
+          if (eventType === 'INSERT') {
+            setSavedPostIds(prev => new Set([...prev, savedPost.post_id]));
+          } else if (eventType === 'DELETE') {
+            setSavedPostIds(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(savedPost.post_id);
+              return newSet;
+            });
+          }
+        }
+      );
+    };
+
+    setupRealtimeSubscription();
+
+    return () => {
+      if (channelRef.current) {
+        realtime.unsubscribe(channelRef.current);
+      }
+    };
+  }, [userId]);
+
+  // Toggle save/unsave
+  const toggleSave = useCallback(async (postId: string) => {
+    const wasSaved = savedPostIds.has(postId);
+    
+    // Optimistic update
+    setSavedPostIds(prev => {
+      const newSet = new Set(prev);
+      if (wasSaved) {
+        newSet.delete(postId);
+      } else {
+        newSet.add(postId);
+      }
+      return newSet;
+    });
+
+    try {
+      const { savedPostsApi } = await import('../services/communityApi');
+      await savedPostsApi.toggleSave(userId, postId);
+    } catch (err) {
+      // Revert on error
+      setSavedPostIds(prev => {
+        const newSet = new Set(prev);
+        if (wasSaved) {
+          newSet.add(postId);
+        } else {
+          newSet.delete(postId);
+        }
+        return newSet;
+      });
+      console.error('[useSavedPosts] Error toggling save:', err);
+      throw err;
+    }
+  }, [userId, savedPostIds]);
+
+  const isSaved = useCallback((postId: string) => {
+    return savedPostIds.has(postId);
+  }, [savedPostIds]);
+
+  return {
+    savedPostIds,
+    loading,
+    error,
+    toggleSave,
+    isSaved,
+    refresh: fetchSavedPosts,
+  };
+}
+
+// ============================================================================
+// useReportedPosts - Track posts user has reported
+// ============================================================================
+
+interface UseReportedPostsReturn {
+  reportedPostIds: Set<string>;
+  loading: boolean;
+  error: string | null;
+  hasReported: (postId: string) => boolean;
+  addReport: (postId: string) => void;
+  userReports: any[];
+  refresh: () => Promise<void>;
+}
+
+export function useReportedPosts(userId: string): UseReportedPostsReturn {
+  const [reportedPostIds, setReportedPostIds] = useState<Set<string>>(new Set());
+  const [userReports, setUserReports] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchReportedPosts = useCallback(async () => {
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { reportingApi } = await import('../services/communityApi');
+      const reports = await reportingApi.getUserReports(userId);
+      
+      const postIds = new Set(reports.map(r => r.post_id));
+      setReportedPostIds(postIds);
+      setUserReports(reports);
+      setError(null);
+    } catch (err) {
+      console.error('[useReportedPosts] Error fetching reports:', err);
+      setError('Failed to load reported posts');
+      setReportedPostIds(new Set());
+      setUserReports([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    fetchReportedPosts();
+  }, [fetchReportedPosts]);
+
+  const hasReported = useCallback((postId: string) => {
+    return reportedPostIds.has(postId);
+  }, [reportedPostIds]);
+
+  const addReport = useCallback((postId: string) => {
+    setReportedPostIds(prev => new Set([...prev, postId]));
+  }, []);
+
+  return {
+    reportedPostIds,
+    loading,
+    error,
+    hasReported,
+    addReport,
+    userReports,
+    refresh: fetchReportedPosts,
+  };
+}
+
+// ============================================================================
+// useNotifications - Real-time notifications
+// ============================================================================
+
+interface UseNotificationsReturn {
+  notifications: any[];
+  unreadCount: number;
+  loading: boolean;
+  error: string | null;
+  markAsRead: (id: string) => Promise<void>;
+  markAllAsRead: () => Promise<void>;
+  deleteNotification: (id: string) => Promise<void>;
+  refresh: () => Promise<void>;
+}
+
+export function useNotifications(userId: string): UseNotificationsReturn {
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const channelRef = useRef<RealtimeChannel | null>(null);
+
+  const fetchNotifications = useCallback(async () => {
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { notificationsApi } = await import('../services/communityApi');
+      const [notifs, count] = await Promise.all([
+        notificationsApi.getNotifications(userId, 50),
+        notificationsApi.getUnreadCount(userId),
+      ]);
+      
+      setNotifications(notifs);
+      setUnreadCount(count);
+      setError(null);
+    } catch (err) {
+      console.error('[useNotifications] Error fetching notifications:', err);
+      setError('Failed to load notifications');
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  // Subscribe to real-time notifications
+  useEffect(() => {
+    if (!userId) return;
+
+    const setupSubscription = async () => {
+      const { notificationsApi } = await import('../services/communityApi');
+      
+      channelRef.current = notificationsApi.subscribeToNotifications(
+        userId,
+        (newNotification) => {
+          setNotifications(prev => [newNotification, ...prev]);
+          setUnreadCount(prev => prev + 1);
+        }
+      );
+    };
+
+    setupSubscription();
+
+    return () => {
+      if (channelRef.current) {
+        channelRef.current.unsubscribe();
+      }
+    };
+  }, [userId]);
+
+  const markAsRead = useCallback(async (id: string) => {
+    try {
+      const { notificationsApi } = await import('../services/communityApi');
+      await notificationsApi.markAsRead(id);
+      
+      setNotifications(prev =>
+        prev.map(n => (n.id === id ? { ...n, read: true } : n))
+      );
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (err) {
+      console.error('[useNotifications] Error marking as read:', err);
+    }
+  }, []);
+
+  const markAllAsRead = useCallback(async () => {
+    try {
+      const { notificationsApi } = await import('../services/communityApi');
+      await notificationsApi.markAllAsRead(userId);
+      
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      setUnreadCount(0);
+    } catch (err) {
+      console.error('[useNotifications] Error marking all as read:', err);
+    }
+  }, [userId]);
+
+  const deleteNotification = useCallback(async (id: string) => {
+    try {
+      const { notificationsApi } = await import('../services/communityApi');
+      await notificationsApi.deleteNotification(id);
+      
+      setNotifications(prev => prev.filter(n => n.id !== id));
+      setUnreadCount(prev => {
+        const deleted = notifications.find(n => n.id === id);
+        return deleted && !deleted.read ? Math.max(0, prev - 1) : prev;
+      });
+    } catch (err) {
+      console.error('[useNotifications] Error deleting notification:', err);
+    }
+  }, [notifications]);
+
+  return {
+    notifications,
+    unreadCount,
+    loading,
+    error,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+    refresh: fetchNotifications,
+  };
+}

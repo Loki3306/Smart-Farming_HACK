@@ -769,7 +769,7 @@ export const Settings: React.FC = () => {
                       </div>
                     </a>
                     <a
-                      href="https://wa.me/919876543210?text=Hi%2C%20I%20need%20help%20with%20SmartFarm%20app"
+                      href="https://wa.me/919876543210?text=Hi%2C%20I%20need%20help%20with%20Krushi%20Unnati%20app"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
@@ -785,8 +785,8 @@ export const Settings: React.FC = () => {
 
                 {/* App Version */}
                 <div className="mt-6 p-4 bg-primary/10 rounded-lg text-center">
-                  <p className="text-sm text-muted-foreground">SmartFarm Version 1.0.0</p>
-                  <p className="text-xs text-muted-foreground mt-1">© 2024 SmartFarm Technologies</p>
+                  <p className="text-sm text-muted-foreground">Krushi Unnati Version 1.0.0</p>
+                  <p className="text-xs text-muted-foreground mt-1">© 2024 Krushi Unnati Technologies</p>
                 </div>
               </Card>
             </motion.div>

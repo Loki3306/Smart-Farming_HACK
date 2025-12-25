@@ -5,7 +5,6 @@ import {
   Droplets,
   Bug,
   FlaskConical,
-  TrendingUp,
   AlertTriangle,
   CheckCircle,
   Clock,
@@ -16,7 +15,6 @@ import {
   Activity,
   Zap,
   ChevronRight,
-  X,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,6 +29,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { FarmAnalysisLoader } from "@/components/FarmAnalysisLoader";
 
 interface Recommendation {
   id: string;
@@ -44,12 +43,6 @@ interface Recommendation {
   applied?: boolean;
 }
 
-interface ProcessStep {
-  id: number;
-  label: string;
-  status: "pending" | "processing" | "completed";
-}
-
 export const Recommendations: React.FC = () => {
   const { sensorData, refreshSensorData } = useFarmContext();
   const { user } = useAuth();
@@ -59,14 +52,7 @@ export const Recommendations: React.FC = () => {
   const [selectedRecommendation, setSelectedRecommendation] = useState<Recommendation | null>(null);
   const [farmData, setFarmData] = useState<any>(null);
   const [loadingFarm, setLoadingFarm] = useState(true);
-  const [processSteps, setProcessSteps] = useState<ProcessStep[]>([
-    { id: 1, label: "Collecting sensor data", status: "pending" },
-    { id: 2, label: "Analyzing soil nutrients (NPK)", status: "pending" },
-    { id: 3, label: "Evaluating environmental conditions", status: "pending" },
-    { id: 4, label: "Running ML prediction models", status: "pending" },
-    { id: 5, label: "Calculating confidence scores", status: "pending" },
-    { id: 6, label: "Generating recommendations", status: "pending" },
-  ]);
+  const [analysisComplete, setAnalysisComplete] = useState(false);
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -99,20 +85,6 @@ export const Recommendations: React.FC = () => {
     }
   };
 
-  const simulateProcessStep = async (stepIndex: number) => {
-    await new Promise(resolve => setTimeout(resolve, 400 + Math.random() * 300));
-    setProcessSteps(prev =>
-      prev.map((step, idx) => {
-        if (idx === stepIndex) {
-          return { ...step, status: "completed" };
-        } else if (idx === stepIndex + 1) {
-          return { ...step, status: "processing" };
-        }
-        return step;
-      })
-    );
-  };
-
   const handleAnalyze = async () => {
     // Get crop_type value and check all conditions
     const cropType = farmData?.crop_type;
@@ -139,18 +111,9 @@ export const Recommendations: React.FC = () => {
     }
 
     setIsAnalyzing(true);
-
-    // Reset process steps
-    setProcessSteps(prev => prev.map((step, idx) => ({
-      ...step,
-      status: idx === 0 ? "processing" : "pending"
-    })));
+    setAnalysisComplete(false);
 
     try {
-      // Simulate process steps animation
-      for (let i = 0; i < processSteps.length; i++) {
-        await simulateProcessStep(i);
-      }
 
       // Actual API call
       const requestPayload = {
@@ -197,6 +160,9 @@ export const Recommendations: React.FC = () => {
       }));
 
       setRecommendations(mappedRecommendations);
+      
+      // Signal that analysis is complete for the loader
+      setAnalysisComplete(true);
 
       toast({
         title: "Analysis Complete",
@@ -206,16 +172,19 @@ export const Recommendations: React.FC = () => {
 
     } catch (error) {
       console.error('Failed to get recommendations:', error);
+      setAnalysisComplete(true); // Allow loader to exit gracefully
       toast({
         title: "Analysis Failed",
         description: "Failed to connect to AI recommendation service. Please ensure backend is running.",
         variant: "destructive",
       });
-    } finally {
-      setIsAnalyzing(false);
-      // Reset steps for next time
-      setProcessSteps(prev => prev.map(step => ({ ...step, status: "pending" })));
     }
+  };
+
+  // Callback when loader animation completes its exit sequence
+  const handleLoaderComplete = () => {
+    setIsAnalyzing(false);
+    setAnalysisComplete(false);
   };
 
   // Load farm data on mount
@@ -402,41 +371,12 @@ export const Recommendations: React.FC = () => {
         </motion.div>
       )}
 
-      {/* 2. Analyzing State (Progress Steps) */}
-      {isAnalyzing && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="space-y-6"
-        >
-          <Card className="p-8 max-w-2xl mx-auto">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <RefreshCw className="w-6 h-6 text-primary animate-spin" />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold">Analyzing Your Farm Data</h3>
-                <p className="text-sm text-muted-foreground">Our AI models are processing real-time metrics...</p>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              {processSteps.map((step) => (
-                <div key={step.id} className="flex items-center gap-4">
-                  <div className="w-6 flex justify-center">
-                    {step.status === "completed" && <CheckCircle className="w-5 h-5 text-green-500" />}
-                    {step.status === "processing" && <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />}
-                    {step.status === "pending" && <div className="w-2 h-2 rounded-full bg-muted" />}
-                  </div>
-                  <span className={`${step.status === "processing" ? "text-primary font-medium" : step.status === "completed" ? "text-foreground" : "text-muted-foreground"}`}>
-                    {step.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </motion.div>
-      )}
+      {/* 2. Farm Analysis Loader (Rive Animation) */}
+      <FarmAnalysisLoader
+        isVisible={isAnalyzing}
+        analysisComplete={analysisComplete}
+        onComplete={handleLoaderComplete}
+      />
 
       {/* 3. Results List State */}
       {recommendations.length > 0 && !isAnalyzing && (

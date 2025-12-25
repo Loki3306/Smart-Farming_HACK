@@ -133,7 +133,7 @@ export async function getUserSettings(farmerId: string): Promise<UserSettings> {
 
     try {
         const { data, error } = await client
-            .from('user_settings')
+            .from('farm_settings')
             .select('*')
             .eq('farmer_id', farmerId)
             .single();
@@ -166,7 +166,7 @@ export async function getUserSettings(farmerId: string): Promise<UserSettings> {
 async function refreshSettingsFromDb(farmerId: string, client: SupabaseClient): Promise<void> {
     try {
         const { data, error } = await client
-            .from('user_settings')
+            .from('farm_settings')
             .select('*')
             .eq('farmer_id', farmerId)
             .single();
@@ -186,7 +186,7 @@ async function refreshSettingsFromDb(farmerId: string, client: SupabaseClient): 
 async function createDefaultSettings(farmerId: string, client: SupabaseClient): Promise<void> {
     try {
         const { error } = await client
-            .from('user_settings')
+            .from('farm_settings')
             .insert({
                 farmer_id: farmerId,
                 ...settingsToDbRow(DEFAULT_SETTINGS),
@@ -229,7 +229,7 @@ export async function updateUserSettings(
 
         // Upsert: update if exists, insert if not
         const { error } = await client
-            .from('user_settings')
+            .from('farm_settings')
             .upsert(
                 {
                     farmer_id: farmerId,

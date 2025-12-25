@@ -21,16 +21,30 @@ import {
   Send,
   Loader2,
 } from 'lucide-react';
-import type { Post as ApiPost, PostType } from '@/services/communityApi';
+import type { Post as ApiPost, PostType, ShareMethod } from '@/services/communityApi';
 import { usePostReactions, usePostComments } from '@/hooks/useCommunity';
 import { POST_TYPE_CONFIG, REACTION_CONFIG } from '@/constants/community';
 import { useAuth } from '@/context/AuthContext';
+import { ShareDialog } from './ShareDialog';
+import { PostMenu } from './PostMenu';
+import { EditPostDialog } from './EditPostDialog';
+import { DeletePostDialog } from './DeletePostDialog';
+import { ReportPostDialog } from './ReportPostDialog';
+import type { ReportReason } from './ReportPostDialog';
 
 interface PostCardProps {
   post: ApiPost;
   onReaction: (postId: string, reactionType: string) => Promise<void>;
   formatTimeAgo: (date: Date) => string;
   index: number;
+  isSaved?: boolean;
+  onToggleSave?: (postId: string) => Promise<void>;
+  onShare?: (postId: string, method: ShareMethod) => Promise<void>;
+  shareCount?: number;
+  onEdit?: (postId: string, updates: Partial<ApiPost>) => Promise<void>;
+  onDelete?: (postId: string) => Promise<void>;
+  onReport?: (postId: string, reason: ReportReason, details: string) => Promise<void>;
+  hasReported?: boolean;
 }
 
 export const PostCard: React.FC<PostCardProps> = ({
@@ -38,10 +52,25 @@ export const PostCard: React.FC<PostCardProps> = ({
   onReaction,
   formatTimeAgo,
   index,
+  isSaved = false,
+  onToggleSave,
+  onShare,
+  shareCount = 0,
+  onEdit,
+  onDelete,
+  onReport,
+  hasReported = false,
 }) => {
   const [showComments, setShowComments] = useState(false);
   const [commentInput, setCommentInput] = useState('');
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [showAllComments, setShowAllComments] = useState(false);
+  const [isTogglingBookmark, setIsTogglingBookmark] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showReportDialog, setShowReportDialog] = useState(false);
+  const [localShareCount, setLocalShareCount] = useState(shareCount);
 
   const auth = useAuth();
   const userId = auth?.user?.id || 'demo-user';
@@ -76,6 +105,47 @@ export const PostCard: React.FC<PostCardProps> = ({
     }
     setIsSubmittingComment(false);
   };
+
+  const handleToggleBookmark = async () => {
+    if (!onToggleSave) return;
+    
+    setIsTogglingBookmark(true);
+    try {
+      await onToggleSave(post.id);
+    } catch (error) {
+      console.error('Failed to toggle bookmark:', error);
+    } finally {
+      setIsTogglingBookmark(false);
+    }
+  };
+
+  const handleShare = async (method: ShareMethod) => {
+    if (!onShare) return;
+    
+    try {
+      await onShare(post.id, method);
+      setLocalShareCount(prev => prev + 1);
+    } catch (error) {
+      console.error('Failed to track share:', error);
+    }
+  };
+
+  const handleEdit = async (postId: string, updates: Partial<ApiPost>) => {
+    if (!onEdit) return;
+    await onEdit(postId, updates);
+  };
+
+  const handleDelete = async () => {
+    if (!onDelete) return;
+    await onDelete(post.id);
+  };
+
+  const handleReport = async (reason: ReportReason, details: string) => {
+    if (!onReport) return;
+    await onReport(post.id, reason, details);
+  };
+
+  const isAuthor = userId === post.author_id;
 
   return (
     <motion.div
@@ -132,9 +202,14 @@ export const PostCard: React.FC<PostCardProps> = ({
                 <span>{formatTimeAgo(new Date(post.created_at))}</span>
               </div>
             </div>
-            <button className="p-2 hover:bg-muted rounded-lg transition-colors">
-              <MoreHorizontal className="w-5 h-5 text-muted-foreground" />
-            </button>
+            <PostMenu
+              isAuthor={isAuthor}
+              hasReported={hasReported}
+              onEdit={onEdit ? () => setShowEditDialog(true) : undefined}
+              onDelete={onDelete ? () => setShowDeleteDialog(true) : undefined}
+              onShare={() => setShowShareDialog(true)}
+              onReport={onReport ? () => setShowReportDialog(true) : undefined}
+            />
           </div>
 
           {/* Content */}
@@ -233,15 +308,34 @@ export const PostCard: React.FC<PostCardProps> = ({
                 <MessageSquare className="w-4 h-4 mr-1.5" />
                 {post.comment_count || 0}
               </Button>
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-muted-foreground hover:text-primary"
+                onClick={() => setShowShareDialog(true)}
+              >
                 <Share2 className="w-4 h-4 mr-1.5" />
-                0
+                {localShareCount}
               </Button>
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
-                <Bookmark className="w-4 h-4" />
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className={`${isSaved ? 'text-primary' : 'text-muted-foreground'} hover:text-primary`}
+                onClick={handleToggleBookmark}
+                disabled={isTogglingBookmark || !onToggleSave}
+              >
+                <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
               </Button>
             </div>
           </div>
+
+          {/* Share Dialog */}
+          <ShareDialog
+            post={post}
+            open={showShareDialog}
+            onOpenChange={setShowShareDialog}
+            onShare={handleShare}
+          />
 
           {/* Comments Section */}
           {showComments && (
@@ -293,36 +387,83 @@ export const PostCard: React.FC<PostCardProps> = ({
                   No comments yet. Be the first to comment!
                 </p>
               ) : (
-                <div className="space-y-3">
-                  {comments.map((comment) => (
-                    <div key={comment.id} className="flex gap-3">
-                      <Avatar className="w-8 h-8 flex-shrink-0">
-                        <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                          {comment.author?.name?.charAt(0) || '?'}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium text-sm">{comment.author?.name}</p>
-                          {comment.is_expert_reply && (
-                            <BadgeCheck className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                          )}
+                <>
+                  <div className="space-y-3 max-h-[240px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                    {comments
+                      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                      .slice(0, showAllComments ? comments.length : 3)
+                      .map((comment) => (
+                      <div key={comment.id} className="flex gap-3">
+                        <Avatar className="w-8 h-8 flex-shrink-0">
+                          <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                            {comment.author?.name?.charAt(0)?.toUpperCase() || '?'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium text-sm">{comment.author?.name}</p>
+                            {comment.is_expert_reply && (
+                              <BadgeCheck className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                            )}
+                          </div>
+                          <p className="text-sm text-foreground mt-1 break-words">
+                            {comment.content}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {comment.created_at ? formatTimeAgo(new Date(comment.created_at)) : 'Just now'}
+                          </p>
                         </div>
-                        <p className="text-sm text-foreground mt-1 break-words">
-                          {comment.content}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {comment.created_at ? formatTimeAgo(new Date(comment.created_at)) : 'Just now'}
-                        </p>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                  {comments.length > 3 && !showAllComments && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowAllComments(true)}
+                      className="w-full mt-2 text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      Show {comments.length - 3} more comments
+                    </Button>
+                  )}
+                </>
               )}
             </motion.div>
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Post Dialog */}
+      <EditPostDialog
+        post={post}
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+        onSave={handleEdit}
+      />
+
+      {/* Delete Post Dialog */}
+      <DeletePostDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={handleDelete}
+        postContent={post.content}
+      />
+
+      {/* Share Dialog */}
+      <ShareDialog
+        post={post}
+        open={showShareDialog}
+        onOpenChange={setShowShareDialog}
+        onShare={handleShare}
+      />
+
+      {/* Report Post Dialog */}
+      <ReportPostDialog
+        open={showReportDialog}
+        onOpenChange={setShowReportDialog}
+        onSubmit={handleReport}
+        postContent={post.content}
+      />
     </motion.div>
   );
 };
