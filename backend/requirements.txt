@@ -10,7 +10,7 @@ fastapi-cors==0.0.6
 # Data Processing and ML
 numpy==1.26.4
 pandas==2.2.3
-scikit-learn==1.5.2
+scikit-learn==1.8.0
 joblib==1.4.2
 
 # Database Drivers

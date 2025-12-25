@@ -283,18 +283,27 @@ class RealCropModel:
                 best_crop = self.model.classes_[np.argmax(probs)]
                 best_prob = np.max(probs)
                 
+                # IMPROVED: Only suggest switching if there's a SIGNIFICANT difference
+                # (Best alternative is >20% better than current crop)
+                is_significantly_better = (best_prob - suitability) > 0.20
+                
                 if suitability > 0.7:
                     message = f"{current_crop} is excellent for current conditions."
                 elif suitability > 0.4:
                     message = f"{current_crop} is suitable, but {best_crop} would be optimal."
                 else:
-                    message = f"Consider switching to {best_crop} for better yields."
+                    # Only suggest switching if best alternative is significantly better
+                    if is_significantly_better:
+                        message = f"Consider switching to {best_crop} for better yields."
+                    else:
+                        message = f"{current_crop} can work but requires more management for these conditions."
                 
                 return {
                     "suitability": round(suitability * 100, 1),
                     "message": message,
-                    "best_alternative": best_crop,
-                    "best_alternative_score": round(best_prob * 100, 1)
+                    "best_alternative": best_crop if is_significantly_better else current_crop,
+                    "best_alternative_score": round(best_prob * 100, 1),
+                    "is_significantly_better": is_significantly_better
                 }
             else:
                 return {"suitability": 50, "message": f"Crop '{current_crop}' not in training data."}

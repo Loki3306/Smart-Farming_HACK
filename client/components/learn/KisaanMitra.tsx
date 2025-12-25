@@ -3,6 +3,7 @@ import { motion, AnimatePresence, useAnimation } from 'framer-motion';
 import { HelpCircle, X, MessageCircle, Lightbulb, ChevronRight, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/context/LanguageContext';
+import { useSettings } from '@/context/SettingsContext';
 
 // ============================================
 // TYPES & INTERFACES
@@ -137,7 +138,8 @@ export const KisaanMitra: React.FC<KisaanMitraProps> = ({
   lessonContext,
 }) => {
   // Use language from context
-  const { language, toggleLanguage } = useLanguage();
+  const { language } = useLanguage();
+  const { setLanguage } = useSettings();
   const currentLanguage = language === 'hi' ? 'hindi' : 'english';
   
   const [currentState, setCurrentState] = useState<MascotState>(state);
@@ -439,8 +441,9 @@ export const KisaanMitra: React.FC<KisaanMitraProps> = ({
             <div className="space-y-1">
               {/* Language Toggle Button */}
               <button
-                onClick={() => {
-                  toggleLanguage();
+                onClick={async () => {
+                  const newLanguage = language === 'hi' ? 'en' : 'hi';
+                  await setLanguage(newLanguage);
                   setShowMenu(false);
                   // Show confirmation message
                   setTimeout(() => {

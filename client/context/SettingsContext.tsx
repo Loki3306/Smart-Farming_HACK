@@ -48,7 +48,7 @@ interface SettingsProviderProps {
 
 export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) => {
     const { user } = useAuth();
-    const { setLanguage: setAppLanguage } = useLanguage();
+    const { setLanguage: setAppLanguage, language: currentLanguage } = useLanguage();
 
     const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
     const [isLoading, setIsLoading] = useState(true);
@@ -75,8 +75,10 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
                 const userSettings = await getUserSettings(user.id);
                 setSettings(userSettings);
 
-                // Sync language with LanguageContext
-                if (userSettings.language === 'hi' || userSettings.language === 'en') {
+                // Sync language with LanguageContext ONLY if they differ
+                // This prevents overriding a language change that just happened
+                if ((userSettings.language === 'hi' || userSettings.language === 'en') && 
+                    userSettings.language !== currentLanguage) {
                     setAppLanguage(userSettings.language);
                 }
             } catch (err) {

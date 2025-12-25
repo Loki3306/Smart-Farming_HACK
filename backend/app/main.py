@@ -342,9 +342,11 @@ class RecommendationEngine:
                 )
                 print(f"   🌱 Crop Suitability for {crop_type}: {crop_suitability.get('suitability', 0):.1f}%")
                 
-                # Add crop suitability recommendation if score is low
+                # Add crop suitability recommendation if score is low AND there's a significantly better alternative
                 suitability_score = crop_suitability.get('suitability', 50)
-                if suitability_score < 40:
+                is_significantly_better = crop_suitability.get('is_significantly_better', False)
+                
+                if suitability_score < 40 and is_significantly_better:
                     recommendations.append(Recommendation(
                         id=f"crop_{rec_id_counter}",
                         type="crop",

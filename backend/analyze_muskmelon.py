@@ -1,0 +1,15 @@
+import pandas as pd
+df = pd.read_csv('../datasets/Crop_recommendation.csv')
+counts = df['label'].value_counts()
+print('CROP DISTRIBUTION IN TRAINING DATA:')
+print('='*50)
+print(counts.head(15))
+print('='*50)
+print(f'\nTotal samples: {len(df)}')
+print(f'Muskmelon samples: {counts.get("muskmelon", 0)} ({counts.get("muskmelon", 0)/len(df)*100:.1f}%)')
+print(f'\nMuskmelon characteristics (from training data):')
+musk_data = df[df['label'] == 'muskmelon']
+print(f'  Nitrogen range: {musk_data["N"].min():.0f} - {musk_data["N"].max():.0f} (avg: {musk_data["N"].mean():.0f})')
+print(f'  Temperature range: {musk_data["temperature"].min():.1f} - {musk_data["temperature"].max():.1f}°C (avg: {musk_data["temperature"].mean():.1f}°C)')
+print(f'  Humidity range: {musk_data["humidity"].min():.1f} - {musk_data["humidity"].max():.1f}% (avg: {musk_data["humidity"].mean():.1f}%)')
+print(f'  Rainfall range: {musk_data["rainfall"].min():.1f} - {musk_data["rainfall"].max():.1f}mm (avg: {musk_data["rainfall"].mean():.1f}mm)')
