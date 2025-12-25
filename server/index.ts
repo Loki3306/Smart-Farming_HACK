@@ -18,6 +18,7 @@ import {
   getHistoricalWeather 
 } from "./routes/weather";
 import learnRouter from "./routes/learn";
+import communityRouter from "./routes/community";
 
 // Python AI Backend Configuration
 const PYTHON_AI_URL = process.env.PYTHON_AI_URL || "http://localhost:8000";
@@ -75,6 +76,13 @@ export function createServer() {
   console.log("📚 Registering Learn routes...");
   app.use("/api/learn", learnRouter);
   console.log("✅ Learn routes registered at /api/learn");
+
+  // ============================================================================
+  // COMMUNITY PLATFORM - Real-time posts, reactions, comments, experts
+  // ============================================================================
+  console.log("👥 Registering Community routes...");
+  app.use("/api/community", communityRouter);
+  console.log("✅ Community routes registered at /api/community");
 
   // ============================================================================
   // AI RECOMMENDATIONS PROXY - Forward requests to Python FastAPI backend
