@@ -102,8 +102,7 @@ class ModelLoader:
     def load_models(self):
         """Attempt to load compiled model modules"""
         modules_to_load = {
-            'fertilizer_recommender': 'ml_models.fertilizer_recommender',
-            'trained_models': 'ml_models.trained_models',  # NEW: Real ML models
+            'trained_models': 'ml_models.trained_models',  # Real ML models
             'agronomist': 'agents.agronomist',
             'auditor': 'agents.auditor',
             'gatekeeper': 'agents.gatekeeper',
@@ -139,27 +138,44 @@ model_loader = ModelLoader()
 class RecommendationEngine:
     """Generate farming recommendations from sensor data"""
     
-    # Supported crops with optimal conditions
+    # Supported crops with optimal conditions - MUST MATCH TRAINED MODEL (22 crops)
     SUPPORTED_CROPS = {
         'rice': {'optimal_moisture': (70, 90), 'optimal_temp': (20, 35), 'optimal_ph': (5.5, 7.0)},
-        'wheat': {'optimal_moisture': (50, 70), 'optimal_temp': (15, 25), 'optimal_ph': (6.0, 7.5)},
-        'cotton': {'optimal_moisture': (60, 80), 'optimal_temp': (21, 30), 'optimal_ph': (6.5, 8.0)},
-        'maize': {'optimal_moisture': (60, 75), 'optimal_temp': (18, 27), 'optimal_ph': (5.8, 7.0)},
-        'sugarcane': {'optimal_moisture': (65, 85), 'optimal_temp': (21, 27), 'optimal_ph': (6.0, 7.5)},
-        'tomato': {'optimal_moisture': (60, 80), 'optimal_temp': (20, 27), 'optimal_ph': (6.0, 6.8)},
-        'potato': {'optimal_moisture': (60, 75), 'optimal_temp': (15, 20), 'optimal_ph': (5.2, 6.0)},
-        'onion': {'optimal_moisture': (65, 75), 'optimal_temp': (13, 24), 'optimal_ph': (6.0, 7.0)},
+        'maize': {'optimal_moisture': (55, 70), 'optimal_temp': (18, 27), 'optimal_ph': (5.8, 7.0)},
+        'chickpea': {'optimal_moisture': (35, 50), 'optimal_temp': (15, 25), 'optimal_ph': (6.0, 7.5)},
+        'kidneybeans': {'optimal_moisture': (40, 55), 'optimal_temp': (18, 24), 'optimal_ph': (5.8, 6.5)},
+        'pigeonpeas': {'optimal_moisture': (35, 50), 'optimal_temp': (20, 30), 'optimal_ph': (6.0, 7.5)},
+        'mothbeans': {'optimal_moisture': (25, 40), 'optimal_temp': (24, 32), 'optimal_ph': (6.5, 8.0)},
+        'mungbean': {'optimal_moisture': (35, 50), 'optimal_temp': (25, 35), 'optimal_ph': (6.2, 7.2)},
+        'blackgram': {'optimal_moisture': (35, 50), 'optimal_temp': (25, 35), 'optimal_ph': (6.0, 7.5)},
+        'lentil': {'optimal_moisture': (35, 50), 'optimal_temp': (18, 25), 'optimal_ph': (6.0, 7.0)},
+        'pomegranate': {'optimal_moisture': (45, 60), 'optimal_temp': (25, 35), 'optimal_ph': (6.5, 7.5)},
+        'banana': {'optimal_moisture': (65, 80), 'optimal_temp': (26, 30), 'optimal_ph': (6.0, 7.5)},
+        'mango': {'optimal_moisture': (45, 60), 'optimal_temp': (24, 30), 'optimal_ph': (5.5, 7.0)},
+        'grapes': {'optimal_moisture': (50, 65), 'optimal_temp': (15, 35), 'optimal_ph': (6.0, 7.5)},
+        'watermelon': {'optimal_moisture': (45, 60), 'optimal_temp': (24, 32), 'optimal_ph': (6.0, 7.0)},
+        'muskmelon': {'optimal_moisture': (45, 60), 'optimal_temp': (24, 32), 'optimal_ph': (6.0, 7.5)},
+        'apple': {'optimal_moisture': (55, 70), 'optimal_temp': (18, 24), 'optimal_ph': (5.5, 6.8)},
+        'orange': {'optimal_moisture': (50, 65), 'optimal_temp': (20, 30), 'optimal_ph': (6.0, 7.5)},
+        'papaya': {'optimal_moisture': (55, 70), 'optimal_temp': (25, 30), 'optimal_ph': (6.0, 7.0)},
+        'coconut': {'optimal_moisture': (60, 75), 'optimal_temp': (27, 32), 'optimal_ph': (5.5, 7.0)},
+        'cotton': {'optimal_moisture': (45, 60), 'optimal_temp': (21, 30), 'optimal_ph': (6.0, 8.0)},
+        'jute': {'optimal_moisture': (75, 90), 'optimal_temp': (24, 37), 'optimal_ph': (6.0, 7.0)},
+        'coffee': {'optimal_moisture': (55, 70), 'optimal_temp': (15, 24), 'optimal_ph': (5.0, 6.5)},
     }
     
     @staticmethod
     def validate_crop_type(crop_type: str) -> tuple[bool, str]:
-        """Validate if crop type is supported"""
+        """Validate if crop type is supported by our trained ML models"""
         if not crop_type or not crop_type.strip() or crop_type.lower() == "unknown":
             return False, "Crop type not specified. Please configure your crop in Farm settings."
         
         crop_lower = crop_type.strip().lower()
+        
+        # STRICT: Only allow crops that our ML model was trained on
         if crop_lower not in RecommendationEngine.SUPPORTED_CROPS:
-            return True, f"Crop '{crop_type}' is valid but not in our optimized list. Using general recommendations."
+            supported_list = ', '.join(sorted(RecommendationEngine.SUPPORTED_CROPS.keys()))
+            return False, f"Crop '{crop_type}' is not supported by our AI models. Please select one of: {supported_list}"
         
         return True, ""
     
@@ -251,11 +267,11 @@ class RecommendationEngine:
         
         print(f"\n🔬 Step 3: Loading ML Models...")
         # Use ML models if available
-        fertilizer_model = model_loader.models.get('fertilizer_recommender')
+
         trained_models = model_loader.models.get('trained_models')  # NEW: Real ML models
         agronomist_agent = model_loader.models.get('agronomist')
         meteorologist_agent = model_loader.models.get('meteorologist')
-        print(f"   Fertilizer Model: {'✅ Loaded' if fertilizer_model else '❌ Not available'}")
+
         print(f"   Trained ML Models: {'✅ Loaded' if trained_models else '❌ Not available'}")
         print(f"   Agronomist Agent: {'✅ Loaded' if agronomist_agent else '❌ Not available'}")
         print(f"   Meteorologist Agent: {'✅ Loaded' if meteorologist_agent else '❌ Not available'}")
@@ -283,20 +299,7 @@ class RecommendationEngine:
             except Exception as e:
                 print(f"⚠️ Trained ML model error: {e}")
         
-        # Fallback to old fertilizer model if trained models fail
-        if not ml_fertilizer_recs and fertilizer_model:
-            try:
-                result = fertilizer_model.predict(
-                    sensor_data.nitrogen,
-                    sensor_data.phosphorus,
-                    sensor_data.potassium,
-                    sensor_data.ph,
-                    soil_type,
-                    crop_type
-                )
-                ml_fertilizer_recs = result.get('recommendations', [])
-            except Exception as e:
-                print(f"⚠️ Fertilizer model error: {e}")
+
         
         agronomist_analysis = None
         if agronomist_agent:

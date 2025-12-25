@@ -41,6 +41,7 @@ class RealFertilizerModel:
             print(f"⚠️ Failed to load Fertilizer model: {e}")
             self.trained = False
     
+
     def predict(self, nitrogen: float, phosphorus: float, potassium: float, 
                 ph: float, soil_type: str, crop_type: str) -> Dict:
         """
@@ -51,27 +52,24 @@ class RealFertilizerModel:
             return self._fallback_predict(nitrogen, phosphorus, potassium)
         
         try:
-            # Encode Categorical Inputs (Handle unknown safely)
-            # Use 'try' to handle unseen labels by assigning a default
+            # Check if crop is supported
+            if crop_type not in self.le_crop.classes_:
+                supported = list(self.le_crop.classes_)
+                return {
+                    "error": f"Unsupported crop: '{crop_type}'. Please select from: {', '.join(supported[:5])}...",
+                    "recommendations": [],
+                    "supported_crops": supported
+                }
             
-            # Helper for safe encoding
-            def safe_encode(encoder, value):
-                if value in encoder.classes_:
-                    return encoder.transform([value])[0]
-                else:
-                    return encoder.transform([encoder.classes_[0]])[0] # Default to first class
+            # Encode Categorical Inputs
+            soil_enc = self.le_soil.transform([soil_type])[0] if soil_type in self.le_soil.classes_ else 0
+            crop_enc = self.le_crop.transform([crop_type])[0]
             
-            soil_enc = safe_encode(self.le_soil, soil_type)
-            crop_enc = safe_encode(self.le_crop, crop_type)
-            
-            # Prepare Input [N, P, K, Temp, Humidity, Moisture, Soil, Crop]
-            # Note: The model expects specific feature order.
-            # We are missing Temp/Humidity/Moisture in this function call signature!
-            # We will use realistic defaults if not provided, or update signature later.
-            # For now, we assume standard conditions: Temp=26, Hum=60, Moisture=50
+            # Prepare Input [Nitrogen_N, Phosphorus_P, Potassium_K, Temperature_C, Humidity_%, Soil_Moisture_%, Soil_Type, Crop_Type]
+            # using standard defaults for missing env data
             
             input_data = pd.DataFrame([[nitrogen, phosphorus, potassium, 26, 60, 50, soil_enc, crop_enc]], 
-                                      columns=['Nitrogen', 'Phosphorous', 'Potassium', 'Temparature', 'Humidity', 'Moisture', 'Soil Type', 'Crop Type'])
+                                      columns=['Nitrogen_N', 'Phosphorus_P', 'Potassium_K', 'Temperature_C', 'Humidity_%', 'Soil_Moisture_%', 'Soil_Type', 'Crop_Type'])
             
             # Predict
             pred_id = self.model.predict(input_data)[0]
@@ -81,10 +79,22 @@ class RealFertilizerModel:
             probs = self.model.predict_proba(input_data)[0]
             confidence = float(np.max(probs) * 100)
             
+            # Determine nutrient type based on Fertilizer Name
+            nutrient_type = "Complex"
+            fert_lower = fert_name.lower()
+            if "urea" in fert_lower or "ammonium" in fert_lower:
+                nutrient_type = "Nitrogen"
+            elif "dap" in fert_lower or "ssp" in fert_lower or "super" in fert_lower:
+                nutrient_type = "Phosphorus"
+            elif "mop" in fert_lower or "potash" in fert_lower:
+                nutrient_type = "Potassium"
+            elif "organic" in fert_lower:
+                nutrient_type = "General"
+
             recommendations = [{
                 "fertilizer": fert_name,
                 "amount_kg_per_hectare": 100, # Default, logic below adjusts
-                "nutrient": "Complex",
+                "nutrient": nutrient_type,
                 "priority": "high",
                 "confidence": round(confidence, 1)
             }]
@@ -102,6 +112,7 @@ class RealFertilizerModel:
 
     def _fallback_predict(self, n, p, k):
         return {"error": "Prediction failed, using fallback", "recommendations": []}
+
 
 
 class RealIrrigationModel:
@@ -124,7 +135,8 @@ class RealIrrigationModel:
         try:
             self.model = pickle.load(open(os.path.join(MODELS_DIR, "irrigation_model.pkl"), "rb"))
             self.le_crop = pickle.load(open(os.path.join(MODELS_DIR, "irrigation_le_crop.pkl"), "rb"))
-            self.le_region = pickle.load(open(os.path.join(MODELS_DIR, "irrigation_le_region.pkl"), "rb"))
+            # Region encoder kept for compatibility if needed, but not used in new model
+            # self.le_region = pickle.load(open(os.path.join(MODELS_DIR, "irrigation_le_region.pkl"), "rb"))
             self.le_target = pickle.load(open(os.path.join(MODELS_DIR, "irrigation_le_target.pkl"), "rb"))
             self.trained = True
             print(f"✓ {self.model_name} loaded successfully")
@@ -144,20 +156,22 @@ class RealIrrigationModel:
             return {"water_amount_mm": amt, "confidence": 50, "recommendation": "Fallback Est."}
         
         try:
-            # Safe Encode
-            def safe_encode(encoder, value):
-                if value in encoder.classes_:
-                    return encoder.transform([value])[0]
-                else:
-                    return encoder.transform([encoder.classes_[0]])[0]
+            # Check if crop is supported
+            if crop_type not in self.le_crop.classes_:
+                supported = list(self.le_crop.classes_)
+                return {
+                    "error": f"Unsupported crop: '{crop_type}'. Supported: {', '.join(supported[:5])}...",
+                    "water_amount_mm": 0,
+                    "confidence": 0,
+                    "supported_crops": supported
+                }
             
-            crop_enc = safe_encode(self.le_crop, crop_type)
-            region_enc = 0 # Default/Unknown region
+            crop_enc = self.le_crop.transform([crop_type])[0]
             
-            # Features: ['soil_moisture_%', 'temperature_C', 'humidity_%', 'rainfall_mm', 'crop_type', 'region']
+            # Features: ['Soil_Moisture_%', 'Temperature_C', 'Humidity_%', 'Rainfall_mm', 'Crop_Type']
             # We assume 0 rainfall for "current need" prediction
-            input_data = pd.DataFrame([[moisture, temperature, humidity, 0, crop_enc, region_enc]],
-                                      columns=['soil_moisture_%', 'temperature_C', 'humidity_%', 'rainfall_mm', 'crop_type', 'region'])
+            input_data = pd.DataFrame([[moisture, temperature, humidity, 0, crop_enc]],
+                                      columns=['Soil_Moisture_%', 'Temperature_C', 'Humidity_%', 'Rainfall_mm', 'Crop_Type'])
             
             # Predict Class (Irrigation Type)
             pred_id = self.model.predict(input_data)[0]
@@ -167,17 +181,14 @@ class RealIrrigationModel:
             confidence = float(np.max(probs) * 100)
             
             # Map Type to Water Amount (Heuristic Mapping)
-            # Drip: Precise, low volume ~ 10-15mm
-            # Sprinkler: Medium volume ~ 20-30mm
-            # Manual/Flood: High volume ~ 40-50mm
-            # None: 0mm
-            
             water_map = {
                 "Drip": 12.0,
                 "Sprinkler": 25.0,
                 "Manual": 40.0,
                 "None": 0.0,
-                "Flood": 50.0
+                "Flood": 50.0,
+                "Furrow": 45.0,
+                "Basin": 45.0
             }
             water_mm = water_map.get(irrigation_type, 15.0)
             
@@ -230,6 +241,7 @@ class RealCropModel:
             print(f"⚠️ Failed to load Crop model: {e}")
             self.trained = False
     
+
     def predict(self, nitrogen: float, phosphorus: float, potassium: float,
                 temperature: float, humidity: float, ph: float, rainfall: float) -> Dict:
         """Predict best crop for given conditions"""
@@ -237,9 +249,9 @@ class RealCropModel:
             return {"recommended_crop": "unknown", "confidence": 50, "alternatives": []}
         
         try:
-            # Features: N, P, K, temperature, humidity, ph, rainfall
+            # Features: ['Nitrogen_N', 'Phosphorus_P', 'Potassium_K', 'Temperature_C', 'Humidity_%', 'pH_Level', 'Rainfall_mm']
             input_data = pd.DataFrame([[nitrogen, phosphorus, potassium, temperature, humidity, ph, rainfall]],
-                                      columns=['N', 'P', 'K', 'temperature', 'humidity', 'ph', 'rainfall'])
+                                      columns=['Nitrogen_N', 'Phosphorus_P', 'Potassium_K', 'Temperature_C', 'Humidity_%', 'pH_Level', 'Rainfall_mm'])
             
             # Get prediction and probabilities
             predicted_crop = self.model.predict(input_data)[0]
@@ -269,7 +281,7 @@ class RealCropModel:
         
         try:
             input_data = pd.DataFrame([[nitrogen, phosphorus, potassium, temperature, humidity, ph, rainfall]],
-                                      columns=['N', 'P', 'K', 'temperature', 'humidity', 'ph', 'rainfall'])
+                                      columns=['Nitrogen_N', 'Phosphorus_P', 'Potassium_K', 'Temperature_C', 'Humidity_%', 'pH_Level', 'Rainfall_mm'])
             
             probs = self.model.predict_proba(input_data)[0]
             
@@ -283,6 +295,7 @@ class RealCropModel:
                 best_crop = self.model.classes_[np.argmax(probs)]
                 best_prob = np.max(probs)
                 
+
                 if suitability > 0.7:
                     message = f"{current_crop} is excellent for current conditions."
                 elif suitability > 0.4:
