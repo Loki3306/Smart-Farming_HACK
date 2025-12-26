@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Users,
   Search,
@@ -90,7 +91,7 @@ interface Post extends Omit<ApiPost, 'reaction_counts' | 'post_type' | 'author_i
   hasExpertReply?: boolean;
 }
 
-interface Expert extends Omit<ApiExpert, 'farmer_id' | 'is_verified' | 'last_active_at'> {
+interface Expert extends Omit<ApiExpert, 'is_verified' | 'last_active_at'> {
   avatar: string;
   isVerified: boolean;
   isActiveThisWeek: boolean;
@@ -443,6 +444,19 @@ export const Community: React.FC = () => {
         variant: "destructive",
       });
     }
+  };
+
+  // Handle ask expert (open chat dialog with URL params)
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  const handleAskExpert = (expertId: string) => {
+    // Add query params to current URL to trigger chat dialog
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.set('openMessages', 'true');
+    searchParams.set('farmer_id', userId);
+    searchParams.set('expert_id', expertId);
+    navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
   };
 
   // Handle bookmark toggle
@@ -949,7 +963,7 @@ export const Community: React.FC = () => {
                               <UserCheck className="w-4 h-4 mr-1.5 flex-shrink-0" />
                               <span className="truncate">{followedExperts.has(expert.id) ? "Following" : "Follow"}</span>
                             </Button>
-                            <Button variant="outline" size="sm" className="w-full">
+                            <Button variant="outline" size="sm" className="w-full" onClick={() => handleAskExpert(expert.farmer_id)}>
                               <MessageSquare className="w-4 h-4 mr-1.5" />
                               Ask
                             </Button>

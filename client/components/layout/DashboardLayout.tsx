@@ -4,6 +4,8 @@ import { Sidebar } from "./Sidebar";
 import { cn } from "../../lib/utils";
 import { TourManager } from "../tour/TourManager";
 import { DashboardGuide } from "../DashboardGuide";
+import { useUserPresence } from "@/hooks/useUserPresence";
+import { useAuth } from "@/context/AuthContext";
 
 interface DashboardLayoutProps {
   children?: React.ReactNode;
@@ -24,6 +26,10 @@ const routeTourMap: Record<string, string> = {
 
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const location = useLocation();
+  const { user } = useAuth();
+
+  // Track user presence (online/away/offline)
+  useUserPresence();
 
   // Determine which tour to show based on current route
   const currentTourId = useMemo(() => {

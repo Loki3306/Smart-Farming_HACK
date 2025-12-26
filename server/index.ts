@@ -19,6 +19,8 @@ import {
 } from "./routes/weather";
 import learnRouter from "./routes/learn";
 import communityRouter from "./routes/community";
+import chatRouter from "./routes/chat";
+import presenceRouter from "./routes/presence";
 
 // Python AI Backend Configuration
 const PYTHON_AI_URL = process.env.PYTHON_AI_URL || "http://localhost:8000";
@@ -83,6 +85,20 @@ export function createServer() {
   console.log("👥 Registering Community routes...");
   app.use("/api/community", communityRouter);
   console.log("✅ Community routes registered at /api/community");
+
+  // ============================================================================
+  // CHAT SYSTEM - Real-time messaging between farmers and experts
+  // ============================================================================
+  console.log("💬 Registering Chat routes...");
+  app.use("/api/chat", chatRouter);
+  console.log("✅ Chat routes registered at /api/chat");
+
+  // ============================================================================
+  // USER PRESENCE - Online/offline status tracking
+  // ============================================================================
+  console.log("👤 Registering Presence routes...");
+  app.use("/api/presence", presenceRouter);
+  console.log("✅ Presence routes registered at /api/presence");
 
   // ============================================================================
   // AI RECOMMENDATIONS PROXY - Forward requests to Python FastAPI backend

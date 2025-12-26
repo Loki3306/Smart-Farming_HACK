@@ -12,6 +12,7 @@ import {
   Award,
   ChevronRight,
   Globe,
+  BookOpen,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -40,6 +41,10 @@ interface LearningRoadmapProps {
   onEnroll: () => void;
   totalXP?: number;
   earnedXP?: number;
+  courseDescription?: string;
+  instructor?: string;
+  duration?: string;
+  level?: string;
 }
 
 // Level themes mapping
@@ -73,12 +78,21 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
   onEnroll,
   totalXP = 100,
   earnedXP = 0,
+  courseDescription,
+  instructor,
+  duration,
+  level,
 }) => {
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
-  const { language } = useLanguage();
-  const { setLanguage } = useSettings();
+  const { language, setLanguage } = useLanguage();
   const isHindi = language === 'hi';
+  
+  // Debug: Log language changes
+  useEffect(() => {
+    console.log('[LearningRoadmap] Language changed to:', language, 'isHindi:', isHindi);
+  }, [language, isHindi]);
+  
   const [mascotContext, setMascotContext] = useState<MascotContext | undefined>(undefined);
   const [mascotMessage, setMascotMessage] = useState<string | undefined>(undefined);
   const [showMascot, setShowMascot] = useState(true);
@@ -87,9 +101,9 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
   const [showConfetti, setShowConfetti] = useState(false);
 
   // Handle language toggle
-  const handleLanguageToggle = async () => {
+  const handleLanguageToggle = () => {
     const newLanguage = isHindi ? 'en' : 'hi';
-    await setLanguage(newLanguage);
+    setLanguage(newLanguage);
   };
 
   // Calculate progress
@@ -310,28 +324,129 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
         </div>
       </div>
 
-      {/* Interactive Farmer Mascot - KisaanMitra (positioned near roadmap on right side) */}
-      <KisaanMitra
-        context={mascotContext}
-        message={mascotMessage}
-        position="roadmap-right"
-        size="lg"
-        showHelpMenu
-        onDismiss={() => {
-          setMascotContext(undefined);
-          setMascotMessage(undefined);
-        }}
-        enableIdleAnimations
-        lessonContext={{
-          lessonTitle: currentLesson?.title,
-          lessonNumber: firstIncompleteIndex >= 0 ? firstIncompleteIndex + 1 : lessons.length,
-          totalLessons: lessons.length,
-          topic: courseTitle,
-        }}
-      />
+      {/* Three Column Layout */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          {/* Left Sidebar - Course Info */}
+          <div className="lg:col-span-3 space-y-4">
+            <div className="lg:sticky lg:top-24 space-y-4">
+              {/* Course Overview Card */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="bg-card/80 backdrop-blur-sm rounded-xl p-4 shadow-md border border-green-100 dark:border-green-800"
+              >
+                <h3 className="font-bold text-green-900 dark:text-green-100 mb-3 flex items-center gap-2">
+                  <BookOpen className="w-4 h-4" />
+                  {isHindi ? 'कोर्स की जानकारी' : 'Course Info'}
+                </h3>
+                
+                {courseDescription && (
+                  <div className="mb-3">
+                    <p className="text-sm text-muted-foreground line-clamp-4">{courseDescription}</p>
+                  </div>
+                )}
 
-      {/* Roadmap Container */}
-      <div ref={containerRef} className="relative z-10 max-w-2xl mx-auto px-4 py-8">
+                <div className="space-y-2 text-sm">
+                  {level && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">{isHindi ? 'स्तर' : 'Level'}:</span>
+                      <span className="font-medium text-green-700 dark:text-green-400 capitalize">{level}</span>
+                    </div>
+                  )}
+                  
+                  {duration && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">{isHindi ? 'अवधि' : 'Duration'}:</span>
+                      <span className="font-medium">{duration}</span>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">{isHindi ? 'पाठ' : 'Lessons'}:</span>
+                    <span className="font-medium">{lessons.length}</span>
+                  </div>
+
+                  {instructor && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">{isHindi ? 'शिक्षक' : 'Instructor'}:</span>
+                      <span className="font-medium">{instructor}</span>
+                    </div>
+                  )}
+                </div>
+
+                {!isEnrolled && (
+                  <Button 
+                    onClick={onEnroll}
+                    className="w-full mt-4 bg-green-600 hover:bg-green-700"
+                  >
+                    {isHindi ? 'कोर्स में शामिल हों' : 'Enroll Now'}
+                  </Button>
+                )}
+              </motion.div>
+
+              {/* Learning Objectives */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-card/80 backdrop-blur-sm rounded-xl p-4 shadow-md border border-blue-100 dark:border-blue-800"
+              >
+                <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
+                  <Star className="w-4 h-4" />
+                  {isHindi ? 'आप क्या सीखेंगे' : 'What You\'ll Learn'}
+                </h3>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 mt-0.5 text-green-600 flex-shrink-0" />
+                    <span>{isHindi ? 'व्यावहारिक खेती के तरीके' : 'Practical farming techniques'}</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 mt-0.5 text-green-600 flex-shrink-0" />
+                    <span>{isHindi ? 'आधुनिक कृषि उपकरण' : 'Modern agricultural tools'}</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 mt-0.5 text-green-600 flex-shrink-0" />
+                    <span>{isHindi ? 'फसल प्रबंधन' : 'Crop management strategies'}</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 mt-0.5 text-green-600 flex-shrink-0" />
+                    <span>{isHindi ? 'मौसम के अनुसार योजना' : 'Weather-based planning'}</span>
+                  </li>
+                </ul>
+              </motion.div>
+
+              {/* Farmer Mascot */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <KisaanMitra
+                  context={mascotContext}
+                  message={mascotMessage}
+                  position="static"
+                  size="md"
+                  showHelpMenu
+                  onDismiss={() => {
+                    setMascotContext(undefined);
+                    setMascotMessage(undefined);
+                  }}
+                  enableIdleAnimations
+                  lessonContext={{
+                    lessonTitle: currentLesson?.title,
+                    lessonNumber: firstIncompleteIndex >= 0 ? firstIncompleteIndex + 1 : lessons.length,
+                    totalLessons: lessons.length,
+                    topic: courseTitle,
+                  }}
+                />
+              </motion.div>
+            </div>
+          </div>
+
+          {/* Center - Roadmap */}
+          <div ref={containerRef} className="lg:col-span-6">
         {/* Start marker */}
         <div className="flex justify-center mb-8">
           <motion.div
@@ -347,6 +462,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
         </div>
 
         {/* Roadmap path with nodes */}
+        {lessons && lessons.length > 0 && (
         <div className="relative" style={{ minHeight: `${lessons.length * 180 + 100}px` }}>
           {/* SVG Path - viewBox 100 wide so 30/70 = 30%/70% */}
           <svg
@@ -372,7 +488,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
             </defs>
             {/* Background path (dashed gray) */}
             <path
-              d={generatePath(lessons.length)}
+              d={generatePath(lessons?.length || 0)}
               fill="none"
               stroke="#D1D5DB"
               strokeWidth="0.8"
@@ -380,8 +496,9 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
               strokeDasharray="2 1.5"
             />
             {/* Progress path (solid green gradient) */}
+            {generateProgressPath(lessons || [], lessonProgress || {}) && (
             <motion.path
-              d={generateProgressPath(lessons, lessonProgress)}
+              d={generateProgressPath(lessons || [], lessonProgress || {})}
               fill="none"
               stroke="url(#pathGradient)"
               strokeWidth="0.8"
@@ -391,6 +508,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
             />
+            )}
           </svg>
 
           {/* Lesson Nodes */}
@@ -422,6 +540,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                     status={status}
                     theme={theme}
                     isActive={activeNodeIndex === index}
+                    isHindi={isHindi}
                     onClick={() => handleLessonClick(lesson, index)}
                     onHover={() => setActiveNodeIndex(index)}
                     onLeave={() => setActiveNodeIndex(null)}
@@ -431,6 +550,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
             })}
           </div>
         </div>
+        )}
 
         {/* Finish marker */}
         {progressPercent === 100 && (
@@ -473,6 +593,132 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
           </motion.div>
         )}
       </div>
+
+          {/* Right Sidebar - Stats & Progress */}
+          <div className="lg:col-span-3 space-y-4">
+            <div className="lg:sticky lg:top-24 space-y-4">
+              {/* Progress Stats Card */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="bg-card/80 backdrop-blur-sm rounded-xl p-4 shadow-md border border-purple-100 dark:border-purple-800"
+              >
+                <h3 className="font-bold text-purple-900 dark:text-purple-100 mb-3 flex items-center gap-2">
+                  <Trophy className="w-4 h-4" />
+                  {isHindi ? 'आपकी प्रगति' : 'Your Progress'}
+                </h3>
+                
+                <div className="space-y-3">
+                  {/* Completion Stats */}
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-muted-foreground">{isHindi ? 'पूर्ण' : 'Completed'}</span>
+                      <span className="text-sm font-bold text-green-700 dark:text-green-400">{progressPercent}%</span>
+                    </div>
+                    <Progress value={progressPercent} className="h-2" />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {completedCount} / {lessons.length} {isHindi ? 'पाठ' : 'lessons'}
+                    </p>
+                  </div>
+
+                  {/* XP Stats */}
+                  <div className="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 rounded-lg p-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-amber-600" />
+                        <span className="text-xs text-muted-foreground">{isHindi ? 'अनुभव अंक' : 'Experience'}</span>
+                      </div>
+                      <span className="text-sm font-bold text-amber-700 dark:text-amber-400">{earnedXP} XP</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {totalXP - earnedXP} XP {isHindi ? 'शेष' : 'remaining'}
+                    </p>
+                  </div>
+
+                  {/* Current Level */}
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Award className="w-4 h-4 text-blue-600" />
+                      <span className="text-xs text-muted-foreground">{isHindi ? 'वर्तमान स्तर' : 'Current Level'}</span>
+                    </div>
+                    <p className="text-sm font-bold text-blue-700 dark:text-blue-400">
+                      {LEVEL_THEMES[Math.min(currentLevelIndex, LEVEL_THEMES.length - 1)].emoji}{' '}
+                      {isHindi 
+                        ? LEVEL_THEMES[Math.min(currentLevelIndex, LEVEL_THEMES.length - 1)].name
+                        : LEVEL_THEMES[Math.min(currentLevelIndex, LEVEL_THEMES.length - 1)].nameEn}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Achievements Card */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-card/80 backdrop-blur-sm rounded-xl p-4 shadow-md border border-amber-100 dark:border-amber-800"
+              >
+                <h3 className="font-bold text-amber-900 dark:text-amber-100 mb-3 flex items-center gap-2">
+                  <Award className="w-4 h-4" />
+                  {isHindi ? 'उपलब्धियां' : 'Achievements'}
+                </h3>
+                
+                <div className="space-y-2">
+                  {earnedBadges.length > 0 ? (
+                    earnedBadges.map((badge) => (
+                      <motion.div
+                        key={badge.id}
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg p-2"
+                      >
+                        <span className="text-2xl">{badge.emoji}</span>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
+                            {isHindi ? badge.name : badge.nameEn}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {isHindi ? 'अर्जित' : 'Earned'}
+                          </p>
+                        </div>
+                      </motion.div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      {isHindi ? 'पाठ पूरे करें और बैज अर्जित करें!' : 'Complete lessons to earn badges!'}
+                    </p>
+                  )}
+                </div>
+              </motion.div>
+
+              {/* Next Milestone */}
+              {currentLesson && (
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-xl p-4 shadow-lg"
+                >
+                  <h3 className="font-bold mb-2 flex items-center gap-2">
+                    <ChevronRight className="w-4 h-4" />
+                    {isHindi ? 'अगला पाठ' : 'Next Up'}
+                  </h3>
+                  <p className="text-sm opacity-90 mb-3">{currentLesson.title}</p>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => onStartLesson(currentLesson.id)}
+                    className="w-full"
+                  >
+                    <Play className="w-3 h-3 mr-1" />
+                    {isHindi ? 'अभी शुरू करें' : 'Start Now'}
+                  </Button>
+                </motion.div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
@@ -484,6 +730,7 @@ interface LessonNodeProps {
   status: 'completed' | 'current' | 'locked';
   theme: typeof LEVEL_THEMES[0];
   isActive: boolean;
+  isHindi: boolean;
   onClick: () => void;
   onHover: () => void;
   onLeave: () => void;
@@ -495,6 +742,7 @@ const LessonNode: React.FC<LessonNodeProps> = ({
   status,
   theme,
   isActive,
+  isHindi,
   onClick,
   onHover,
   onLeave,
@@ -569,7 +817,7 @@ const LessonNode: React.FC<LessonNodeProps> = ({
       {/* Label */}
       <div className={`mt-3 text-center ${isLocked ? 'opacity-50' : ''}`}>
         <p className={`font-semibold text-sm ${isCompleted ? 'text-green-700' : isCurrent ? 'text-green-600' : 'text-muted-foreground'}`}>
-          {theme.nameEn}
+          {isHindi ? theme.name : theme.nameEn}
         </p>
         <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{lesson.title}</p>
         {lesson.duration && (
@@ -592,7 +840,11 @@ const LessonNode: React.FC<LessonNodeProps> = ({
             )}
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">
-                {lesson.content_type === 'video' ? '🎥 Video' : lesson.content_type === 'quiz' ? '📝 Quiz' : '📖 Lesson'}
+                {lesson.content_type === 'video' 
+                  ? (isHindi ? '🎥 वीडियो' : '🎥 Video') 
+                  : lesson.content_type === 'quiz' 
+                  ? (isHindi ? '📝 प्रश्नोत्तरी' : '📝 Quiz') 
+                  : (isHindi ? '📖 पाठ' : '📖 Lesson')}
               </span>
               <ChevronRight className="w-4 h-4 text-green-500" />
             </div>

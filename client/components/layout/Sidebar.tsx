@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink, useNavigate, Link } from "react-router-dom";
+import { NavLink, useNavigate, Link, useSearchParams } from "react-router-dom";
 import {
   LayoutDashboard,
   Tractor,
@@ -17,9 +17,11 @@ import {
   User,
   Menu,
   X,
+  MessageSquare,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { cn } from "../../lib/utils";
+import { ChatDialog } from "../chat/ChatDialog";
 
 interface NavItem {
   label: string;
@@ -46,8 +48,22 @@ const bottomNavItems: NavItem[] = [
 export const Sidebar: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Check if messages should be opened from URL params
+  React.useEffect(() => {
+    const shouldOpenMessages = searchParams.get('openMessages') === 'true' ||
+                                searchParams.get('farmer_id') ||
+                                searchParams.get('expert_id') ||
+                                searchParams.get('conversation');
+    
+    if (shouldOpenMessages) {
+      setIsChatOpen(true);
+    }
+  }, [searchParams]);
 
   const handleLogout = async () => {
     await logout();
@@ -113,6 +129,22 @@ export const Sidebar: React.FC = () => {
 
       {/* Bottom Navigation */}
       <div className="px-3 py-2 border-t border-border space-y-1">
+        {/* Messages Button */}
+        <button
+          onClick={() => {
+            setIsChatOpen(true);
+            setIsMobileOpen(false);
+          }}
+          className={cn(
+            "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
+            "hover:bg-primary/10 hover:text-primary text-muted-foreground",
+            isCollapsed && "justify-center px-2"
+          )}
+        >
+          <MessageSquare className="w-5 h-5 flex-shrink-0" />
+          {!isCollapsed && <span className="font-medium text-sm">Messages</span>}
+        </button>
+        
         {bottomNavItems.map((item) => (
           <NavItemComponent key={item.path} item={item} />
         ))}
@@ -228,6 +260,9 @@ export const Sidebar: React.FC = () => {
       >
         <SidebarContent />
       </aside>
+
+      {/* Chat Dialog */}
+      <ChatDialog open={isChatOpen} onOpenChange={setIsChatOpen} />
     </>
   );
 };

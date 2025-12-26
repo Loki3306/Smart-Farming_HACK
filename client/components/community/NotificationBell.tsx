@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Bell, X, Check, CheckCheck, Trash2, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +21,8 @@ interface NotificationBellProps {
 
 const NotificationBell: React.FC<NotificationBellProps> = ({ userId }) => {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
   const {
     notifications,
     unreadCount,
@@ -43,6 +46,8 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ userId }) => {
         return "🔄";
       case "follow":
         return "👤";
+      case "message":
+        return "✉️";
       default:
         return "🔔";
     }
@@ -68,8 +73,16 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ userId }) => {
       await markAsRead(notification.id);
     }
     
-    // Navigate to the related post/comment if needed
-    // This can be extended based on your routing
+    // Navigate based on notification type
+    if (notification.type === 'message') {
+      // Open messages dialog with URL params
+      const searchParams = new URLSearchParams(location.search);
+      searchParams.set('openMessages', 'true');
+      navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
+    }
+    
+    // Close the popover
+    setOpen(false);
   };
 
   return (

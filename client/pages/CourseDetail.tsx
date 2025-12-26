@@ -16,6 +16,7 @@ import {
   ChevronRight,
   Map,
   List,
+  Globe,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
 import * as LearnService from "@/services/LearnService";
 import { LearningRoadmap } from "@/components/learn/LearningRoadmap";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface Lesson {
   id: string;
@@ -43,6 +45,8 @@ interface CourseWithLessons extends Omit<LearnService.Course, 'lessons'> {
 export const CourseDetail: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
+  const { language, toggleLanguage } = useLanguage();
+  const isHindi = language === 'hi';
   const [course, setCourse] = useState<CourseWithLessons | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -255,6 +259,10 @@ export const CourseDetail: React.FC = () => {
         onEnroll={handleEnroll}
         totalXP={course.lessons.length * 20}
         earnedXP={completedLessons * 20}
+        courseDescription={course.description}
+        instructor={course.instructor_name || 'Krushi Unnati Team'}
+        duration={course.duration || `${course.lessons.length * 15} min`}
+        level={course.level}
       />
     );
   }
@@ -266,32 +274,45 @@ export const CourseDetail: React.FC = () => {
         <div className="flex items-center justify-between mb-6">
           <Button variant="ghost" onClick={() => navigate("/learn")}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Learn
+            {isHindi ? 'सीखने पर वापसें' : 'Back to Learn'}
           </Button>
           
-          {/* View Mode Toggle */}
-          {course.lessons && course.lessons.length > 0 && (
-            <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
-              <Button
-                variant={viewMode === 'roadmap' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('roadmap')}
-                className="gap-2"
-              >
-                <Map className="w-4 h-4" />
-                <span className="hidden sm:inline">Roadmap</span>
-              </Button>
-              <Button
-                variant={viewMode === 'classic' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('classic')}
-                className="gap-2"
-              >
-                <List className="w-4 h-4" />
-                <span className="hidden sm:inline">Classic</span>
-              </Button>
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            {/* Language Toggle */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleLanguage}
+              className="gap-2"
+            >
+              <Globe className="w-4 h-4" />
+              {language === 'en' ? 'हिंदी' : 'English'}
+            </Button>
+
+            {/* View Mode Toggle */}
+            {course.lessons && course.lessons.length > 0 && (
+              <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
+                <Button
+                  variant={viewMode === 'roadmap' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('roadmap')}
+                  className="gap-2"
+                >
+                  <Map className="w-4 h-4" />
+                  <span className="hidden sm:inline">{isHindi ? 'रोडमैप' : 'Roadmap'}</span>
+                </Button>
+                <Button
+                  variant={viewMode === 'classic' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('classic')}
+                  className="gap-2"
+                >
+                  <List className="w-4 h-4" />
+                  <span className="hidden sm:inline">{isHindi ? 'क्लासिक' : 'Classic'}</span>
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">

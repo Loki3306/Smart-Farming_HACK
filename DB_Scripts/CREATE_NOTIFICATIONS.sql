@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS notifications (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL,
   actor_id UUID NOT NULL,
-  type VARCHAR(50) NOT NULL CHECK (type IN ('reaction', 'comment', 'reply', 'mention', 'share', 'follow')),
+  type VARCHAR(50) NOT NULL CHECK (type IN ('reaction', 'comment', 'reply', 'mention', 'share', 'follow', 'message')),
   post_id UUID,
   comment_id UUID,
   message TEXT,

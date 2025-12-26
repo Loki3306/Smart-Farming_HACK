@@ -31,6 +31,7 @@ import QuizPlayer from "./pages/QuizPlayer";
 import { Community } from "./pages/Community";
 import { Notifications } from "./pages/Notifications";
 import { Settings } from "./pages/Settings";
+import Messages from "./pages/Messages";
 
 const queryClient = new QueryClient();
 
@@ -169,6 +170,17 @@ function AnimatedRoutes() {
             <ProtectedRoute requireOnboarding>
               <DashboardLayout>
                 <Community />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/messages"
+          element={
+            <ProtectedRoute requireOnboarding>
+              <DashboardLayout>
+                <Messages />
               </DashboardLayout>
             </ProtectedRoute>
           }
