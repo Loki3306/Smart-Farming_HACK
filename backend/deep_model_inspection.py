@@ -3,7 +3,7 @@ sys.path.insert(0, 'app')
 import pickle
 import os
 import pandas as pd
-from ml_models import trained_models
+import ml_models.trained_models as trained_models
 
 print('=' * 80)
 print('DEEP MODEL INSPECTION - VERIFY REAL DATA')
@@ -12,7 +12,7 @@ print('=' * 80)
 # Step 1: Check pkl file sizes and contents
 print('\n1. PKL FILE INSPECTION')
 print('-' * 80)
-MODELS_DIR = r'C:\Users\lokes\OneDrive\Documents\GitHub\Smart-Farming_HACK\backend\app\ml_models\saved_models'
+MODELS_DIR = os.path.join(os.path.dirname(__file__), 'app', 'ml_models', 'saved_models')
 
 pkl_files = ['fertilizer_model.pkl', 'crop_model.pkl', 'irrigation_model.pkl']
 for pkl_file in pkl_files:
@@ -69,7 +69,7 @@ if feature_idx >= 0:
 print('\n4. VERIFY AGAINST ACTUAL TRAINING DATA')
 print('-' * 80)
 
-df = pd.read_csv(r'C:\Users\lokes\OneDrive\Documents\GitHub\Smart-Farming_HACK\datasets\Fertilizer Prediction.csv')
+df = pd.read_csv(os.path.join(os.path.dirname(__file__), '..', 'datasets', 'Fertilizer Prediction.csv'))
 df.columns = [c.strip() for c in df.columns]
 
 print(f'\nTraining Dataset Statistics:')

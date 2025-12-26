@@ -4,7 +4,7 @@ import Lottie from "lottie-react";
 import { ArrowLeft, X, Volume2, VolumeX, HelpCircle, Play, Languages, BookOpen, MessageCircle, Phone } from "lucide-react";
 import farmerAnimation from "@/assets/farmer-intro.json";
 import { useTour } from "@/context/TourContext";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type GuideMode = "welcome" | "language-select" | "help-menu" | "tour-starting";
 
@@ -33,6 +33,7 @@ export const DashboardGuide = () => {
     const [selectedLanguage, setSelectedLanguage] = useState<"english" | "hindi" | null>(null);
 
     const location = useLocation();
+    const navigate = useNavigate();
     const { startTour, resetTourProgress } = useTour();
     const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
     const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
@@ -144,10 +145,8 @@ export const DashboardGuide = () => {
             title: isHindi ? "फीचर डॉक्यूमेंटेशन" : "Feature Documentation",
             description: isHindi ? "विस्तृत गाइड और ट्यूटोरियल देखें" : "View detailed guides and tutorials",
             action: () => {
-                const msg = isHindi
-                    ? `📚 फीचर डॉक्यूमेंटेशन\n\nविस्तृत गाइड के लिए:\n• नेविगेशन से Learning Center पर जाएं\n• टूर फीचर से इंटरैक्टिव सीखें\n• विशेष सवालों के लिए सपोर्ट से संपर्क करें`
-                    : `📚 Feature Documentation\n\nFor detailed guides and tutorials:\n• Check the Learning Center page from the navigation\n• Use the tour feature to learn interactively\n• Contact support for specific questions`;
-                alert(msg);
+                handleDismiss();
+                navigate("/learn");
             },
         },
         {
@@ -156,8 +155,8 @@ export const DashboardGuide = () => {
             title: isHindi ? "आम सवाल" : "Common Questions",
             description: isHindi ? "अक्सर पूछे जाने वाले सवालों के जवाब" : "Quick answers to frequent queries",
             action: () => {
-                const msg = isHindi ? "FAQ सेक्शन जल्द आ रहा है! फिलहाल हेल्प मेन्यू या सपोर्ट से संपर्क करें।" : "FAQ section coming soon! For now, use the help menu or contact support.";
-                alert(msg);
+                handleDismiss();
+                navigate("/faq");
             },
         },
         {

@@ -72,7 +72,7 @@ export const TourManager: React.FC<TourManagerProps> = ({
     const [steps, setSteps] = useState<Step[]>([]);
     const [isWaiting, setIsWaiting] = useState(false);
 
-    // Load tour configuration
+    // Load tour configuration (reload when tour becomes active to get current language)
     useEffect(() => {
         const config = getTourConfig(tourId);
         if (config) {
@@ -92,7 +92,7 @@ export const TourManager: React.FC<TourManagerProps> = ({
             }));
             setSteps(joyrideSteps);
         }
-    }, [tourId]);
+    }, [tourId, isTourActive]);
 
     // Auto-start tour if conditions are met
     useEffect(() => {

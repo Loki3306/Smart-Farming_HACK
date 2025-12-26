@@ -32,6 +32,7 @@ import { Community } from "./pages/Community";
 import { Notifications } from "./pages/Notifications";
 import { Settings } from "./pages/Settings";
 import Messages from "./pages/Messages";
+import { FAQ } from "./pages/FAQ";
 
 const queryClient = new QueryClient();
 
@@ -225,6 +226,17 @@ function AnimatedRoutes() {
             <ProtectedRoute requireOnboarding>
               <DashboardLayout>
                 <AuditTrail />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/faq"
+          element={
+            <ProtectedRoute requireOnboarding>
+              <DashboardLayout>
+                <FAQ />
               </DashboardLayout>
             </ProtectedRoute>
           }
