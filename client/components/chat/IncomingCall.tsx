@@ -21,51 +21,71 @@ export function IncomingCall({
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+      className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm"
+      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
     >
-      <div className="bg-background rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4">
+      <div 
+        className="bg-background rounded-xl shadow-2xl"
+        style={{ 
+          width: '85%',
+          maxWidth: '300px',
+          padding: '16px',
+          marginLeft: '400px'
+        }}
+      >
         {/* Caller Info */}
-        <div className="text-center mb-8">
-          <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 ring-4 ring-primary/30 animate-pulse">
-            <span className="text-4xl font-bold text-primary">
+        <div className="text-center" style={{ marginBottom: '16px' }}>
+          <div 
+            className="rounded-full bg-primary/20 animate-pulse"
+            style={{
+              width: '60px',
+              height: '60px',
+              margin: '0 auto 12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <span className="text-2xl font-bold text-primary">
               {callerName.charAt(0).toUpperCase()}
             </span>
           </div>
-          <h2 className="text-2xl font-bold mb-2">{callerName}</h2>
-          <p className="text-muted-foreground flex items-center justify-center gap-2">
+          <h2 className="text-base font-bold truncate" style={{ marginBottom: '4px' }}>
+            {callerName}
+          </h2>
+          <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
             {callType === 'video' ? (
               <>
-                <Video className="h-4 w-4" />
-                Video Call
+                <Video className="h-3 w-3" />
+                <span>Video Call</span>
               </>
             ) : (
               <>
-                <Phone className="h-4 w-4" />
-                Voice Call
+                <Phone className="h-3 w-3" />
+                <span>Voice Call</span>
               </>
             )}
           </p>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-4">
+        <div className="flex gap-2">
           <Button
             variant="destructive"
-            size="lg"
-            className="flex-1 rounded-full h-14"
+            className="flex-1 rounded-full"
+            style={{ height: '40px', fontSize: '12px' }}
             onClick={onReject}
           >
-            <PhoneOff className="h-5 w-5 mr-2" />
-            Decline
+            <PhoneOff className="h-4 w-4 mr-1" />
+            <span>Decline</span>
           </Button>
           <Button
-            variant="default"
-            size="lg"
-            className="flex-1 rounded-full h-14 bg-green-500 hover:bg-green-600"
+            className="flex-1 rounded-full bg-green-500 hover:bg-green-600"
+            style={{ height: '40px', fontSize: '12px' }}
             onClick={onAccept}
           >
-            <Phone className="h-5 w-5 mr-2" />
-            Accept
+            <Phone className="h-4 w-4 mr-1" />
+            <span>Accept</span>
           </Button>
         </div>
       </div>

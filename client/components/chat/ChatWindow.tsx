@@ -6,12 +6,14 @@ import { MessageInput } from './MessageInput';
 import { TypingIndicator } from './TypingIndicator';
 import { CallWindow } from './CallWindow';
 import { IncomingCall } from './IncomingCall';
+import { WhatsAppDialog } from './WhatsAppDialog';
 import { useMessages } from '@/hooks/useMessages';
 import { useTypingIndicator } from '@/hooks/useTypingIndicator';
 import { useCallManagement } from '@/hooks/useCallManagement';
 import { useAuth } from '@/context/AuthContext';
 import { Conversation } from '@/services/chatService';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/lib/supabase';
 
 interface ChatWindowProps {
   conversation: Conversation | null;
@@ -24,6 +26,7 @@ export function ChatWindow({ conversation, onBack, onClose }: ChatWindowProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+  const [showWhatsAppDialog, setShowWhatsAppDialog] = useState(false);
 
   const { 
     messages, 
@@ -85,6 +88,52 @@ export function ChatWindow({ conversation, onBack, onClose }: ChatWindowProps) {
     initiateCall(conversation.id, conversation.other_user.id, 'video');
   };
 
+  const handleWhatsApp = () => {
+    setShowWhatsAppDialog(true);
+  };
+
+  const confirmWhatsApp = async () => {
+    if (!conversation?.other_user || !user) return;
+
+    // Fetch other user's phone number
+    const { data: otherUserData, error } = await supabase
+      .from('farmers')
+      .select('phone, name')
+      .eq('id', conversation.other_user.id)
+      .single();
+
+    if (error || !otherUserData?.phone) {
+      alert('Unable to get user\'s WhatsApp number. Please try again later.');
+      return;
+    }
+
+    // Check if they have any messages in the conversation
+    const hasMessages = messages.length > 0;
+
+    let whatsappMessage = '';
+    if (!hasMessages) {
+      // First time - send introduction
+      const firstName = otherUserData.name.split(' ')[0];
+      whatsappMessage = `Namaste ${firstName}, myself ${user.fullName}. Greetings! We got your contact from Krushi Unnati.`;
+    } else {
+      // Already talked - just redirect, add system message in our app
+      await supabase.from('messages').insert({
+        conversation_id: conversation.id,
+        sender_id: user.id,
+        receiver_id: conversation.other_user.id,
+        content: '📱 Conversation shifted to WhatsApp',
+        message_type: 'system'
+      });
+    }
+
+    // Open WhatsApp
+    const phoneNumber = otherUserData.phone.replace(/[^0-9]/g, '');
+    const whatsappUrl = `https://wa.me/${phoneNumber}${whatsappMessage ? `?text=${encodeURIComponent(whatsappMessage)}` : ''}`;
+    window.open(whatsappUrl, '_blank');
+
+    setShowWhatsAppDialog(false);
+  };
+
   if (!conversation) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-8 text-center bg-muted/20">
@@ -130,6 +179,7 @@ export function ChatWindow({ conversation, onBack, onClose }: ChatWindowProps) {
         onClose={onClose}
         onVoiceCall={handleVoiceCall}
         onVideoCall={handleVideoCall}
+        onWhatsApp={handleWhatsApp}
       />
 
       {/* Messages Area */}
@@ -201,6 +251,14 @@ export function ChatWindow({ conversation, onBack, onClose }: ChatWindowProps) {
         onStopTyping={stopTyping}
         disabled={isSending}
         placeholder={`Message ${conversation.other_user?.name || 'user'}...`}
+      />
+
+      {/* WhatsApp Dialog */}
+      <WhatsAppDialog
+        open={showWhatsAppDialog}
+        onOpenChange={setShowWhatsAppDialog}
+        otherUserName={conversation.other_user?.name || 'user'}
+        onConfirm={confirmWhatsApp}
       />
     </div>
   );

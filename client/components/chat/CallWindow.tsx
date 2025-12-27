@@ -27,9 +27,11 @@ export function CallWindow({
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [duration, setDuration] = useState(0);
+  const [hasRemoteStream, setHasRemoteStream] = useState(false);
   
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteAudioRef = useRef<HTMLAudioElement>(null);
   const durationIntervalRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
@@ -43,10 +45,14 @@ export function CallWindow({
   const initializeCall = async () => {
     try {
       // Set call context for signaling
+      console.log('Setting call context:', { callId, userId: user!.id, otherUserId });
       callService.setCallContext(callId, user!.id, otherUserId);
       
       // Get user media
+      console.log('Requesting user media for:', callType);
       const localStream = await callService.getUserMedia(callType);
+      console.log('Got local stream:', localStream);
+      console.log('Local audio tracks:', localStream.getAudioTracks());
       
       // Set local video
       if (localVideoRef.current && callType === 'video') {
@@ -55,9 +61,17 @@ export function CallWindow({
 
       // Create peer connection
       const peerConnection = callService.createPeerConnection((remoteStream) => {
-        if (remoteVideoRef.current) {
+        console.log('Remote stream received:', remoteStream);
+        console.log('Audio tracks:', remoteStream.getAudioTracks());
+        
+        if (callType === 'video' && remoteVideoRef.current) {
           remoteVideoRef.current.srcObject = remoteStream;
+          remoteVideoRef.current.play().catch(e => console.error('Video play error:', e));
+        } else if (callType === 'voice' && remoteAudioRef.current) {
+          remoteAudioRef.current.srcObject = remoteStream;
+          remoteAudioRef.current.play().catch(e => console.error('Audio play error:', e));
         }
+        setHasRemoteStream(true);
       });
 
       // Subscribe to signaling
@@ -77,11 +91,17 @@ export function CallWindow({
       };
     } catch (error) {
       console.error('Failed to initialize call:', error);
+      alert('Failed to initialize call: ' + (error instanceof Error ? error.message : 'Unknown error'));
       setCallStatus('failed');
+      // Notify parent to close the call window
+      setTimeout(() => {
+        onEnd();
+      }, 2000);
     }
   };
 
   const handleSignal = async (signal: any) => {
+    console.log('Received signal:', signal.signal_type, signal);
     try {
       switch (signal.signal_type) {
         case 'offer':
@@ -102,6 +122,7 @@ export function CallWindow({
           break;
 
         case 'end':
+          console.log('End signal received, closing call window');
           handleEndCall();
           break;
       }
@@ -137,8 +158,9 @@ export function CallWindow({
   };
 
   const handleEndCall = async () => {
-    await callService.endCall();
+    console.log('Ending call...');
     cleanup();
+    await callService.endCall();
     onEnd();
   };
 
@@ -155,11 +177,11 @@ export function CallWindow({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black flex flex-col">
+    <div className="fixed inset-0 z-50 bg-black flex flex-col" style={{ marginLeft: '400px' }}>
       {/* Header */}
-      <div className="p-6 text-white">
-        <h2 className="text-2xl font-bold">{otherUserName}</h2>
-        <p className="text-lg text-gray-300">
+      <div className="p-3 sm:p-6 pt-safe text-white flex-shrink-0">
+        <h2 className="text-lg sm:text-2xl font-bold truncate">{otherUserName}</h2>
+        <p className="text-xs sm:text-lg text-gray-300 mt-0.5 sm:mt-1">
           {callStatus === 'ringing' && 'Calling...'}
           {callStatus === 'accepted' && formatDuration(duration)}
           {callStatus === 'failed' && 'Call Failed'}
@@ -167,7 +189,19 @@ export function CallWindow({
       </div>
 
       {/* Video Area */}
-      <div className="flex-1 relative">
+      <div className="flex-1 relative overflow-hidden min-h-0">
+        {/* Hidden Audio Element for Voice Calls */}
+        {callType === 'voice' && (
+          <audio
+            ref={remoteAudioRef}
+            autoPlay
+            playsInline
+            controls={false}
+            style={{ display: 'none' }}
+            volume={1.0}
+          />
+        )}
+
         {/* Remote Video (Full Screen) */}
         {callType === 'video' && (
           <video
@@ -180,7 +214,7 @@ export function CallWindow({
 
         {/* Local Video (Picture-in-Picture) */}
         {callType === 'video' && (
-          <div className="absolute top-4 right-4 w-40 h-30 bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+          <div className="absolute top-2 right-2 w-20 h-28 sm:top-4 sm:right-4 sm:w-36 sm:h-48 md:w-40 md:h-52 bg-gray-800 rounded-md sm:rounded-lg overflow-hidden shadow-lg border border-gray-700">
             <video
               ref={localVideoRef}
               autoPlay
@@ -192,8 +226,8 @@ export function CallWindow({
               )}
             />
             {isVideoOff && (
-              <div className="w-full h-full flex items-center justify-center">
-                <VideoOff className="h-8 w-8 text-gray-400" />
+              <div className="w-full h-full flex items-center justify-center bg-gray-900">
+                <VideoOff className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 text-gray-400" />
               </div>
             )}
           </div>
@@ -201,29 +235,32 @@ export function CallWindow({
 
         {/* Voice Call Avatar */}
         {callType === 'voice' && (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <div className="w-32 h-32 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
-                <span className="text-5xl font-bold text-primary">
+          <div className="flex items-center justify-center h-full w-full">
+            <div className="text-center px-4 w-full max-w-md">
+              <div className="w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-3 sm:mb-4 ring-4 ring-primary/30">
+                <span className="text-5xl sm:text-6xl md:text-7xl font-bold text-primary">
                   {otherUserName.charAt(0).toUpperCase()}
                 </span>
               </div>
-              <h3 className="text-2xl font-semibold text-white">{otherUserName}</h3>
+              <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-white truncate px-4">{otherUserName}</h3>
+              <p className="text-xs sm:text-sm text-gray-400 mt-2">
+                {callStatus === 'accepted' ? 'Connected' : 'Connecting...'}
+              </p>
             </div>
           </div>
         )}
       </div>
 
       {/* Controls */}
-      <div className="p-8 flex items-center justify-center gap-6">
+      <div className="p-3 sm:p-6 md:p-8 pb-safe pb-5 sm:pb-8 flex items-center justify-center gap-3 sm:gap-5 md:gap-6 flex-shrink-0 bg-gradient-to-t from-black/80 to-transparent">
         {/* Mute Button */}
         <Button
           variant={isMuted ? 'destructive' : 'secondary'}
           size="icon"
-          className="h-14 w-14 rounded-full"
+          className="h-14 w-14 sm:h-16 sm:w-16 md:h-14 md:w-14 rounded-full shadow-lg active:scale-95 transition-transform"
           onClick={toggleMute}
         >
-          {isMuted ? <MicOff className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
+          {isMuted ? <MicOff className="h-6 w-6 sm:h-7 sm:w-7" /> : <Mic className="h-6 w-6 sm:h-7 sm:w-7" />}
         </Button>
 
         {/* Video Toggle (only for video calls) */}
@@ -231,10 +268,10 @@ export function CallWindow({
           <Button
             variant={isVideoOff ? 'destructive' : 'secondary'}
             size="icon"
-            className="h-14 w-14 rounded-full"
+            className="h-14 w-14 sm:h-16 sm:w-16 md:h-14 md:w-14 rounded-full shadow-lg active:scale-95 transition-transform"
             onClick={toggleVideo}
           >
-            {isVideoOff ? <VideoOff className="h-6 w-6" /> : <Video className="h-6 w-6" />}
+            {isVideoOff ? <VideoOff className="h-6 w-6 sm:h-7 sm:w-7" /> : <Video className="h-6 w-6 sm:h-7 sm:w-7" />}
           </Button>
         )}
 
@@ -242,10 +279,10 @@ export function CallWindow({
         <Button
           variant="destructive"
           size="icon"
-          className="h-16 w-16 rounded-full bg-red-500 hover:bg-red-600"
+          className="h-16 w-16 sm:h-20 sm:w-20 md:h-16 md:w-16 rounded-full bg-red-500 hover:bg-red-600 shadow-lg active:scale-95 transition-transform"
           onClick={handleEndCall}
         >
-          <PhoneOff className="h-8 w-8" />
+          <PhoneOff className="h-7 w-7 sm:h-9 sm:w-9" />
         </Button>
       </div>
     </div>

@@ -34,6 +34,23 @@ export function MessageBubble({
     });
   };
 
+  // System message (like "Conversation shifted to WhatsApp")
+  if (message.message_type === 'system') {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex justify-center my-4"
+      >
+        <div className="bg-gray-100 dark:bg-gray-800 rounded-full px-4 py-2 max-w-[80%]">
+          <p className="text-xs text-muted-foreground text-center italic">
+            {message.content}
+          </p>
+        </div>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}

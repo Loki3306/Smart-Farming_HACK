@@ -16,9 +16,9 @@ if (!supabaseUrl || !supabaseKey) {
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function runMigration() {
-  console.log('Running farm_settings migration...');
+  console.log('Running message_type column migration...');
   
-  const sql = readFileSync('./DB_Scripts/ADD_USER_SETTINGS_TO_FARM_SETTINGS.sql', 'utf8');
+  const sql = readFileSync('./DB_Scripts/ADD_MESSAGE_TYPE_COLUMN.sql', 'utf8');
   
   // Split by semicolons and execute each statement
   const statements = sql

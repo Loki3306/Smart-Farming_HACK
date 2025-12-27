@@ -1,4 +1,4 @@
-import { ArrowLeft, Phone, Video, MoreVertical } from 'lucide-react';
+import { ArrowLeft, Phone, Video, MoreVertical, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { OnlineStatus } from './OnlineStatus';
 import { useUserPresence } from '@/hooks/useUserPresence';
@@ -20,6 +20,7 @@ interface ChatHeaderProps {
   onBlock?: () => void;
   onVoiceCall?: () => void;
   onVideoCall?: () => void;
+  onWhatsApp?: () => void;
 }
 
 export function ChatHeader({ 
@@ -32,6 +33,7 @@ export function ChatHeader({
   onBlock,
   onVoiceCall,
   onVideoCall,
+  onWhatsApp,
 }: ChatHeaderProps) {
   const { presence, isOnline, lastSeen } = useUserPresence(userId);
   const [, forceUpdate] = useState(0);
@@ -100,6 +102,16 @@ export function ChatHeader({
           title="Video Call"
         >
           <Video className="h-4 w-4" />
+        </Button>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="hidden sm:flex"
+          onClick={onWhatsApp}
+          disabled={!onWhatsApp}
+          title="Continue on WhatsApp"
+        >
+          <MessageCircle className="h-4 w-4 text-green-600" />
         </Button>
         
         <DropdownMenu>

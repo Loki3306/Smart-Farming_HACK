@@ -287,6 +287,24 @@ export class CallService {
 
   // End call and cleanup
   async endCall(): Promise<void> {
+    console.log('endCall() called, sending end signal to:', this.receiverId);
+    
+    // Send end signal to other party
+    if (this.currentCallId && this.receiverId) {
+      try {
+        console.log('Sending end signal for call:', this.currentCallId);
+        await this.sendSignal('end', {}, this.receiverId);
+        console.log('End signal sent successfully');
+      } catch (error) {
+        console.error('Failed to send end signal:', error);
+      }
+    } else {
+      console.log('Cannot send end signal - missing callId or receiverId', {
+        callId: this.currentCallId,
+        receiverId: this.receiverId
+      });
+    }
+
     // Stop all tracks
     if (this.localStream) {
       this.localStream.getTracks().forEach((track) => track.stop());
@@ -306,6 +324,8 @@ export class CallService {
     }
 
     this.remoteStream = null;
+    this.userId = null;
+    this.receiverId = null;
   }
 
   // Get current call

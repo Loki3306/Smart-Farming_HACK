@@ -74,8 +74,19 @@ router.post('/conversations/start', async (req: Request, res: Response) => {
       .single();
 
     if (existingConv) {
+      // Get other user's details
+      const otherUserId = existingConv.farmer_id === farmer_id ? existingConv.expert_id : existingConv.farmer_id;
+      const { data: otherUser } = await supabase
+        .from('farmers')
+        .select('id, name, phone, email')
+        .eq('id', otherUserId)
+        .single();
+
       return res.json({ 
-        conversation: existingConv,
+        conversation: {
+          ...existingConv,
+          other_user: otherUser,
+        },
         is_new: false 
       });
     }
@@ -89,8 +100,19 @@ router.post('/conversations/start', async (req: Request, res: Response) => {
 
     if (createError) throw createError;
 
+    // Get other user's details for the new conversation
+    const otherUserId = newConv.farmer_id === farmer_id ? newConv.expert_id : newConv.farmer_id;
+    const { data: otherUser } = await supabase
+      .from('farmers')
+      .select('id, name, phone, email')
+      .eq('id', otherUserId)
+      .single();
+
     res.status(201).json({ 
-      conversation: newConv,
+      conversation: {
+        ...newConv,
+        other_user: otherUser,
+      },
       is_new: true 
     });
   } catch (error: any) {

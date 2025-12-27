@@ -87,10 +87,17 @@ export function useCallManagement() {
 
   // Accept incoming call
   const acceptCall = useCallback(async () => {
-    if (!incomingCall) return;
+    if (!incomingCall || !user?.id) return;
 
     try {
-      await callService.updateCallStatus('accepted');
+      // Update call status in database
+      const { error } = await supabase.rpc('update_call_status', {
+        p_call_id: incomingCall.id,
+        p_status: 'accepted',
+      });
+
+      if (error) throw error;
+      
       setActiveCall(incomingCall);
       setIncomingCall(null);
       setIsInCall(true);
@@ -102,7 +109,7 @@ export function useCallManagement() {
         variant: 'destructive',
       });
     }
-  }, [incomingCall, toast]);
+  }, [incomingCall, user?.id, toast]);
 
   // Reject incoming call
   const rejectCall = useCallback(async () => {
@@ -124,7 +131,9 @@ export function useCallManagement() {
 
   // End active call
   const endCall = useCallback(async () => {
+    console.log('useCallManagement.endCall() called');
     await callService.endCall();
+    console.log('Setting activeCall to null');
     setActiveCall(null);
     setIsInCall(false);
   }, []);

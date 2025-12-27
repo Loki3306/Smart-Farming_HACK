@@ -28,6 +28,7 @@ export interface Message {
   receiver_id: string;
   content: string;
   image_url?: string;
+  message_type?: 'text' | 'system' | 'image';
   read: boolean;
   read_at?: string;
   created_at: string;
