@@ -22,6 +22,7 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { cn } from "../../lib/utils";
 import { ChatDialog } from "../chat/ChatDialog";
+import { useNotifications } from "../../hooks/useNotifications";
 
 interface NavItem {
   label: string;
@@ -41,7 +42,7 @@ const mainNavItems: NavItem[] = [
 ];
 
 const bottomNavItems: NavItem[] = [
-  { label: "Notifications", icon: Bell, path: "/notifications", badge: 3 },
+  { label: "Notifications", icon: Bell, path: "/notifications" },
   { label: "Settings", icon: Settings, path: "/settings" },
 ];
 
@@ -51,6 +52,7 @@ export const Sidebar: React.FC = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { unreadCount } = useNotifications();
   const [searchParams] = useSearchParams();
 
   // Check if messages should be opened from URL params
@@ -89,9 +91,9 @@ export const Sidebar: React.FC = () => {
       {!isCollapsed && (
         <>
           <span className="font-medium text-sm">{item.label}</span>
-          {item.badge && (
+          {item.label === "Notifications" && unreadCount > 0 && (
             <span className="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-              {item.badge}
+              {unreadCount > 99 ? "99+" : unreadCount}
             </span>
           )}
         </>

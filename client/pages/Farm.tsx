@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "../context/AuthContext";
 import { INDIAN_STATES, SOIL_TYPES_INDIA } from "../lib/india-data";
 import { motion } from "framer-motion";
+import { CropSelector } from "@/components/ui/CropSelector";
 
 interface FarmData {
   farmName: string;
@@ -372,14 +373,10 @@ export const Farm: React.FC = () => {
                 <div>
                   <label htmlFor="crop" className="text-sm text-muted-foreground">Current Crop</label>
                   {isEditing ? (
-                    <input
-                      type="text"
-                      name="crop"
-                      id="crop"
+                    <CropSelector
                       value={farmData.crop}
-                      onChange={handleChange}
-                      placeholder="e.g., Rice, Wheat, Cotton"
-                      className="w-full px-3 py-2 border border-border rounded-lg"
+                      onChange={(value) => setFarmData(prev => ({ ...prev, crop: value }))}
+                      disabled={false}
                     />
                   ) : (
                     <p className="font-medium">{farmData.crop || "Not specified"}</p>

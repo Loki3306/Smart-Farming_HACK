@@ -22,6 +22,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useFarmContext } from "@/context/FarmContext";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { apiNotificationService } from "@/services/apiNotificationService";
 import {
   Dialog,
   DialogContent,
@@ -163,6 +164,33 @@ export const Recommendations: React.FC = () => {
       
       // Signal that analysis is complete for the loader
       setAnalysisComplete(true);
+
+      // Send notification about new AI recommendations
+      if (user?.id && mappedRecommendations.length > 0) {
+        try {
+          const highPriorityCount = mappedRecommendations.filter((r: any) => r.priority === 'high').length;
+          const message = highPriorityCount > 0 
+            ? `🤖 ${mappedRecommendations.length} new recommendations (${highPriorityCount} high priority)`
+            : `🤖 ${mappedRecommendations.length} new farming recommendations available`;
+          
+          const notification = await apiNotificationService.createNotification(
+            user.id,
+            user.id,
+            'recommendation',
+            message,
+            null,
+            null,
+            { recommendations: mappedRecommendations }
+          );
+          
+          console.log('[Recommendations] ✅ Notification created successfully', notification);
+          
+          // Force immediate badge update by triggering a custom event
+          window.dispatchEvent(new CustomEvent('notification-created', { detail: notification }));
+        } catch (error) {
+          console.error('[Recommendations] ❌ Failed to create notification:', error);
+        }
+      }
 
       toast({
         title: "Analysis Complete",

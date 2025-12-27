@@ -21,6 +21,7 @@ import learnRouter from "./routes/learn";
 import communityRouter from "./routes/community";
 import chatRouter from "./routes/chat";
 import presenceRouter from "./routes/presence";
+import notificationsRouter from "./routes/notifications";
 
 // Python AI Backend Configuration
 const PYTHON_AI_URL = process.env.PYTHON_AI_URL || "http://localhost:8000";
@@ -99,6 +100,13 @@ export function createServer() {
   console.log("👤 Registering Presence routes...");
   app.use("/api/presence", presenceRouter);
   console.log("✅ Presence routes registered at /api/presence");
+
+  // ============================================================================
+  // NOTIFICATIONS - User notifications for interactions
+  // ============================================================================
+  console.log("🔔 Registering Notifications routes...");
+  app.use("/api/notifications", notificationsRouter);
+  console.log("✅ Notifications routes registered at /api/notifications");
 
   // ============================================================================
   // AI RECOMMENDATIONS PROXY - Forward requests to Python FastAPI backend
