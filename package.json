@@ -21,6 +21,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@rive-app/react-canvas": "^4.25.1",
     "@supabase/supabase-js": "^2.89.0",
     "@types/twilio": "^3.19.2",

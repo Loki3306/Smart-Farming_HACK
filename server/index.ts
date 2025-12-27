@@ -22,6 +22,7 @@ import communityRouter from "./routes/community";
 import chatRouter from "./routes/chat";
 import presenceRouter from "./routes/presence";
 import notificationsRouter from "./routes/notifications";
+import chatbotRouter from "./routes/chatbot";
 
 // Python AI Backend Configuration
 const PYTHON_AI_URL = process.env.PYTHON_AI_URL || "http://localhost:8000";
@@ -107,6 +108,13 @@ export function createServer() {
   console.log("🔔 Registering Notifications routes...");
   app.use("/api/notifications", notificationsRouter);
   console.log("✅ Notifications routes registered at /api/notifications");
+
+  // ============================================================================
+  // CHATBOT - AI Support for Farmers (using Ollama)
+  // ============================================================================
+  console.log("🤖 Registering Chatbot routes...");
+  app.use("/api/chatbot", chatbotRouter);
+  console.log("✅ Chatbot routes registered at /api/chatbot");
 
   // ============================================================================
   // AI RECOMMENDATIONS PROXY - Forward requests to Python FastAPI backend

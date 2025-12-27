@@ -4,6 +4,7 @@ import { Sidebar } from "./Sidebar";
 import { cn } from "../../lib/utils";
 import { TourManager } from "../tour/TourManager";
 import { DashboardGuide } from "../DashboardGuide";
+import { Chatbot } from "../chat/Chatbot";
 import { useUserPresence } from "@/hooks/useUserPresence";
 import { useAuth } from "@/context/AuthContext";
 
@@ -52,6 +53,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
         <TourManager key={currentTourId} tourId={currentTourId} autoStart />
       )}
       <DashboardGuide />
+
+      {/* AI Chatbot - Floating widget */}
+      <Chatbot floating={true} compact={true} />
     </div>
   );
 };

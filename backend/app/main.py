@@ -12,6 +12,8 @@ import importlib
 import sys
 import os
 
+from backend.app.api import chatbot  # Import chatbot API router
+
 # Add backend/app to Python path for model imports
 app_root = os.path.dirname(os.path.abspath(__file__))
 if app_root not in sys.path:
@@ -34,6 +36,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include the chatbot API router
+app.include_router(chatbot.router, prefix="/api/chatbot")
 
 # ============================================================================
 # Pydantic Models (Request/Response schemas)
