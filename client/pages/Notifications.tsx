@@ -30,6 +30,28 @@ import { ApiNotification } from "@/services/apiNotificationService";
 import { playNotificationSound, vibrateDevice } from "@/services/NotificationService";
 import { useSettings } from "@/context/SettingsContext";
 
+// Sample notifications for when no sensor alerts exist
+const sampleNotifications: Notification[] = [
+  {
+    id: "sample_1",
+    type: "irrigation",
+    title: "Irrigation System Ready",
+    message: "Your irrigation system is connected and monitoring soil moisture levels.",
+    timestamp: new Date(Date.now() - 3600000),
+    read: true,
+    priority: "low",
+  },
+  {
+    id: "sample_2",
+    type: "system",
+    title: "Sensors Connected",
+    message: "All farm sensors are online and transmitting data.",
+    timestamp: new Date(Date.now() - 7200000),
+    read: true,
+    priority: "low",
+  },
+];
+
 export const Notifications: React.FC = () => {
   const navigate = useNavigate();
   const { settings } = useSettings();
@@ -142,7 +164,7 @@ export const Notifications: React.FC = () => {
 
   const getNotificationMessage = (notification: ApiNotification): string => {
     if (notification.message) return notification.message;
-    
+
     switch (notification.type) {
       case 'reaction':
         return 'reacted to your post';
@@ -254,9 +276,8 @@ export const Notifications: React.FC = () => {
                   transition={{ duration: 0.2, delay: index * 0.05 }}
                 >
                   <Card
-                    className={`p-4 transition-all hover:shadow-md cursor-pointer ${
-                      !notification.read ? "bg-primary/5 border-primary/20" : ""
-                    }`}
+                    className={`p-4 transition-all hover:shadow-md cursor-pointer ${!notification.read ? "bg-primary/5 border-primary/20" : ""
+                      }`}
                     onClick={() => !notification.read && markAsRead(notification.id)}
                   >
                     <div className="flex items-start gap-4">
@@ -272,9 +293,8 @@ export const Notifications: React.FC = () => {
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1">
                             <h3
-                              className={`font-semibold ${
-                                !notification.read ? "text-foreground" : "text-muted-foreground"
-                              }`}
+                              className={`font-semibold ${!notification.read ? "text-foreground" : "text-muted-foreground"
+                                }`}
                             >
                               {notification.actor_name}
                             </h3>
@@ -286,47 +306,47 @@ export const Notifications: React.FC = () => {
                             </p>
 
                             {/* Render Recommendation Cards Inline */}
-                            {notification.type === 'recommendation' && 
-                             notification.data?.recommendations && 
-                             Array.isArray(notification.data.recommendations) && (
-                              <div className="mt-4 space-y-3">
-                                {notification.data.recommendations.map((rec: any, idx: number) => {
-                                  const TypeIcon = getRecommendationTypeIcon(rec.type);
-                                  const typeColor = getRecommendationTypeColor(rec.type);
-                                  
-                                  return (
-                                    <Card key={rec.id || idx} className="p-4 bg-background/50 border-l-4 border-l-primary">
-                                      <div className="flex items-start gap-3">
-                                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${typeColor}`}>
-                                          <TypeIcon className="w-5 h-5" />
-                                        </div>
-                                        
-                                        <div className="flex-1 min-w-0">
-                                          <div className="flex items-center gap-2 flex-wrap mb-1">
-                                            <h4 className="font-semibold text-foreground text-sm">{rec.title}</h4>
-                                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getRecommendationPriorityBadge(rec.priority)}`}>
-                                              {rec.priority?.toUpperCase()}
-                                            </span>
+                            {notification.type === 'recommendation' &&
+                              notification.data?.recommendations &&
+                              Array.isArray(notification.data.recommendations) && (
+                                <div className="mt-4 space-y-3">
+                                  {notification.data.recommendations.map((rec: any, idx: number) => {
+                                    const TypeIcon = getRecommendationTypeIcon(rec.type);
+                                    const typeColor = getRecommendationTypeColor(rec.type);
+
+                                    return (
+                                      <Card key={rec.id || idx} className="p-4 bg-background/50 border-l-4 border-l-primary">
+                                        <div className="flex items-start gap-3">
+                                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${typeColor}`}>
+                                            <TypeIcon className="w-5 h-5" />
                                           </div>
-                                          
-                                          <p className="text-xs text-muted-foreground mb-2">{rec.description}</p>
-                                          
-                                          <div className="flex items-center gap-4 text-xs">
-                                            <div className="flex items-center gap-1 text-muted-foreground">
-                                              <Sparkles className="w-3 h-3 text-primary" />
-                                              <span>Confidence: {rec.confidence?.toFixed(1)}%</span>
+
+                                          <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 flex-wrap mb-1">
+                                              <h4 className="font-semibold text-foreground text-sm">{rec.title}</h4>
+                                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getRecommendationPriorityBadge(rec.priority)}`}>
+                                                {rec.priority?.toUpperCase()}
+                                              </span>
                                             </div>
-                                            <div className="text-primary font-medium">
-                                              {rec.type?.replace('_', ' ')}
+
+                                            <p className="text-xs text-muted-foreground mb-2">{rec.description}</p>
+
+                                            <div className="flex items-center gap-4 text-xs">
+                                              <div className="flex items-center gap-1 text-muted-foreground">
+                                                <Sparkles className="w-3 h-3 text-primary" />
+                                                <span>Confidence: {rec.confidence?.toFixed(1)}%</span>
+                                              </div>
+                                              <div className="text-primary font-medium">
+                                                {rec.type?.replace('_', ' ')}
+                                              </div>
                                             </div>
                                           </div>
                                         </div>
-                                      </div>
-                                    </Card>
-                                  );
-                                })}
-                              </div>
-                            )}
+                                      </Card>
+                                    );
+                                  })}
+                                </div>
+                              )}
                           </div>
 
                           {/* Actions */}

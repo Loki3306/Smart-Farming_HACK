@@ -1,0 +1,25 @@
+{
+  "09a624a0-adeb-463e-ae55-6bea8682ac98": {
+    "timestamp": "2025-12-29T01:22:34.831896",
+    "values": {
+      "soil_moisture": 54.348224538778126,
+      "temperature": 22.102230384971335,
+      "humidity": 66.68583142714996,
+      "nitrogen": 88.84886402238938,
+      "phosphorus": 34.28452560951118,
+      "potassium": 74.08477438976247,
+      "ph": 7.5,
+      "ec": 1.325369959159968
+    },
+    "trends": {
+      "soil_moisture": 0.0,
+      "temperature": 0.0,
+      "humidity": 0.0,
+      "nitrogen": 0.0,
+      "phosphorus": 0.0,
+      "potassium": 0.0,
+      "ph": 0.07177490851304527,
+      "ec": 0.0
+    }
+  }
+}

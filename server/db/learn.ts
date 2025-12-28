@@ -1056,7 +1056,17 @@ export async function getUserStats(userId: string) {
 
   if (error?.code === 'PGRST116') {
     // Create default stats if not found
-    return createUserStats({ user_id: userId });
+    return createUserStats({
+      user_id: userId,
+      total_courses_enrolled: 0,
+      total_courses_completed: 0,
+      total_learning_hours: 0,
+      total_badges_earned: 0,
+      current_streak_days: 0,
+      longest_streak_days: 0,
+      total_points: 0,
+      last_activity_date: new Date(),
+    });
   }
   if (error) throw error;
   return data as UserLearningStats;

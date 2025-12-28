@@ -4,18 +4,21 @@ import cors from "cors";
 import { handleDemo } from "./routes/demo";
 import { sendOtp, verifyOtp } from "./routes/otp";
 import { getFarms, getFarmById, createFarm, updateFarm } from "./routes/farms";
-import { 
-  getLatestSensorData, 
-  saveSensorData, 
+import {
+  getLatestSensorData,
+  saveSensorData,
   getSensorHistory,
+  getActionLogs,
   getSystemStatus,
   triggerWaterPump,
-  triggerFertilizer
+  triggerFertilizer,
+  setAutonomous,
+  getAutonomous
 } from "./routes/sensors";
-import { 
-  getCurrentWeather, 
-  getForecast, 
-  getHistoricalWeather 
+import {
+  getCurrentWeather,
+  getForecast,
+  getHistoricalWeather
 } from "./routes/weather";
 import learnRouter from "./routes/learn";
 import communityRouter from "./routes/community";
@@ -23,6 +26,7 @@ import chatRouter from "./routes/chat";
 import presenceRouter from "./routes/presence";
 import notificationsRouter from "./routes/notifications";
 import chatbotRouter from "./routes/chatbot";
+import { autonomousEngine } from "./autonomous/autonomousEngine";
 
 // Python AI Backend Configuration
 const PYTHON_AI_URL = process.env.PYTHON_AI_URL || "http://localhost:8000";
@@ -60,12 +64,19 @@ export function createServer() {
   // ============================================================================
   app.get("/api/sensors/latest", getLatestSensorData);
   app.get("/api/sensors/history", getSensorHistory);
+  app.get("/api/sensors/action-logs", getActionLogs);
   app.post("/api/sensors", saveSensorData);
   app.get("/api/sensors/system-status", getSystemStatus);
-  
+
   // Sensor Actions
   app.post("/api/sensors/actions/water-pump", triggerWaterPump);
   app.post("/api/sensors/actions/fertilizer", triggerFertilizer);
+
+  // ============================================================================
+  // SYSTEM CONTROL - Autonomous mode toggle
+  // ============================================================================
+  app.post("/api/system/autonomous", setAutonomous);
+  app.get("/api/system/autonomous", getAutonomous);
 
   // ============================================================================
   // WEATHER DATA - Real-time weather based on farm GPS location
@@ -73,6 +84,18 @@ export function createServer() {
   app.get("/api/weather/current", getCurrentWeather);
   app.get("/api/weather/forecast", getForecast);
   app.get("/api/weather/historical", getHistoricalWeather);
+
+  // =========================================================================
+  // AUTONOMOUS ENGINE - background decisions (irrigation/fertilizer)
+  // =========================================================================
+  const isTestRun =
+    process.env.NODE_ENV === "test" ||
+    process.env.VITEST === "true" ||
+    typeof process.env.VITEST === "string";
+
+  if (!isTestRun) {
+    autonomousEngine.start();
+  }
 
   // ============================================================================
   // LEARN PLATFORM - Courses, articles, videos, progress tracking
@@ -119,11 +142,11 @@ export function createServer() {
   // ============================================================================
   // AI RECOMMENDATIONS PROXY - Forward requests to Python FastAPI backend
   // ============================================================================
-  
+
   app.post("/api/recommendations/predict", async (req, res) => {
     try {
       console.log("📤 Forwarding recommendation request to Python AI backend...");
-      
+
       // Forward request to Python FastAPI
       const response = await fetch(`${PYTHON_AI_URL}/api/recommendations/predict`, {
         method: "POST",
@@ -144,7 +167,7 @@ export function createServer() {
 
       const data = await response.json();
       console.log(`✅ Received ${data.recommendations?.length || 0} recommendations from AI`);
-      
+
       res.json(data);
     } catch (error) {
       console.error("❌ Failed to connect to Python AI backend:", error);

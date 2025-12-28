@@ -78,6 +78,7 @@ export async function completeLessonAndUpdateProgress(
         lesson_id: lessonId,
         status: 'completed',
         completion_date: new Date(),
+        time_spent_seconds: 0,
       });
     } else {
       progress = await db.updateLessonProgress(progress.id, {
@@ -416,6 +417,9 @@ export async function submitQuizAnswers(
       quiz_id: quizId,
       passed: false,
       attempt_number: 1,
+      score: 0,
+      time_spent_seconds: 0,
+      percentage: 0,
     });
 
     // Grade answers
@@ -600,6 +604,8 @@ export async function enrollUserInCourse(
       course_id: courseId,
       status: 'enrolled',
       enrollment_type: enrollmentType,
+      progress_percent: 0,
+      lessons_completed: 0,
     });
 
     // Update course enrolled count

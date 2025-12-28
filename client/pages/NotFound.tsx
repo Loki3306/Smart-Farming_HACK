@@ -21,7 +21,7 @@ const NotFound = () => {
           Oops! This page doesn't exist
         </p>
         <Link to="/">
-          <Button variant="primary" size="lg">
+          <Button variant="default" size="lg">
             Return to Dashboard
           </Button>
         </Link>

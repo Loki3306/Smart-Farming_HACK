@@ -80,16 +80,17 @@ type PostType = ApiPostType;
 type ReactionType = ApiReactionType;
 type TabType = "posts" | "experts" | "saved" | "reports";
 
-interface Post extends Omit<ApiPost, 'reaction_counts' | 'post_type' | 'author_id' | 'image_url' | 'is_trending' | 'has_expert_reply' | 'comment_count'> {
-  postType: PostType;
+type Post = ApiPost & {
+  // Optional UI-friendly aliases (kept for existing usage)
+  postType?: PostType;
   image?: string;
-  reactions: { type: ReactionType; count: number; hasReacted: boolean }[];
-  comments: number;
-  shares: number;
-  timestamp: Date;
+  reactions?: { type: ReactionType; count: number; hasReacted: boolean }[];
+  comments?: number;
+  shares?: number;
+  timestamp?: Date;
   isTrending?: boolean;
   hasExpertReply?: boolean;
-}
+};
 
 interface Expert extends Omit<ApiExpert, 'is_verified' | 'last_active_at'> {
   avatar: string;

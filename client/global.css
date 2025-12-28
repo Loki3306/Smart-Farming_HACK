@@ -1,116 +1,146 @@
 /** @import must precede all other statements */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+
   /**
-   * Tailwind CSS theme
-   * tailwind.config.ts expects the following color variables to be expressed as HSL values.
-   * A different format will require also updating the theme in tailwind.config.ts.
+   * Warm "Havens" Theme - Earthy Farm Aesthetic
+   * Inspired by illustrated farm landscapes with warm, inviting tones
   */
   :root {
-    --background: 120 25% 97%;
-    --foreground: 120 10% 20%;
+    /* Warm Cream Background */
+    --background: 45 40% 96%;
+    --foreground: 25 30% 18%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 120 10% 20%;
+    /* Warm Card Surfaces */
+    --card: 42 35% 98%;
+    --card-foreground: 25 30% 18%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 120 10% 20%;
+    /* Popover */
+    --popover: 42 35% 99%;
+    --popover-foreground: 25 30% 18%;
 
-    --primary: 142 71.8% 29.2%;
-    --primary-foreground: 120 25% 97%;
+    /* Forest Green Primary */
+    --primary: 152 50% 32%;
+    --primary-foreground: 45 40% 96%;
 
-    --secondary: 108 18% 65%;
-    --secondary-foreground: 120 10% 20%;
+    /* Golden Accent */
+    --secondary: 42 85% 55%;
+    --secondary-foreground: 25 30% 18%;
 
-    --muted: 120 10% 85%;
-    --muted-foreground: 120 8% 45%;
+    /* Muted - Warm Gray */
+    --muted: 40 20% 90%;
+    --muted-foreground: 30 15% 45%;
 
-    --accent: 142 71.8% 29.2%;
-    --accent-foreground: 120 25% 97%;
+    /* Golden Accent for highlights */
+    --accent: 42 85% 55%;
+    --accent-foreground: 25 30% 18%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Terracotta Destructive */
+    --destructive: 15 75% 50%;
+    --destructive-foreground: 45 40% 96%;
 
-    --border: 120 15% 90%;
-    --input: 120 15% 95%;
-    --ring: 142 71.8% 29.2%;
+    /* Warm Borders */
+    --border: 40 25% 88%;
+    --input: 42 30% 94%;
+    --ring: 152 50% 32%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 120 20% 96%;
-    --sidebar-foreground: 120 10% 25%;
-    --sidebar-primary: 142 71.8% 29.2%;
-    --sidebar-primary-foreground: 120 25% 97%;
-    --sidebar-accent: 120 15% 85%;
-    --sidebar-accent-foreground: 120 10% 25%;
-    --sidebar-border: 120 15% 88%;
-    --sidebar-ring: 142 71.8% 29.2%;
+    /* Sidebar - Slightly warmer */
+    --sidebar-background: 42 30% 95%;
+    --sidebar-foreground: 25 30% 20%;
+    --sidebar-primary: 152 50% 32%;
+    --sidebar-primary-foreground: 45 40% 96%;
+    --sidebar-accent: 42 40% 90%;
+    --sidebar-accent-foreground: 25 30% 20%;
+    --sidebar-border: 40 25% 88%;
+    --sidebar-ring: 152 50% 32%;
 
-    --emerald-600: 142 71.8% 29.2%;
-    --emerald-50: 120 25% 97%;
-    --sage: 108 18% 65%;
-    --sage-dark: 108 18% 45%;
+    /* Extended Havens Palette */
+    --havens-cream: 45 40% 96%;
+    --havens-forest: 152 50% 32%;
+    --havens-golden: 42 85% 55%;
+    --havens-sky: 200 70% 65%;
+    --havens-terracotta: 15 65% 55%;
+    --havens-soil: 25 40% 35%;
+    --havens-leaf: 95 50% 45%;
+
+    /* Legacy tokens mapped to new palette */
+    --emerald-600: 152 50% 32%;
+    --emerald-50: 152 40% 95%;
+    --sage: 120 25% 60%;
+    --sage-dark: 120 20% 40%;
   }
 
   .dark {
-    /* Premium Dark Theme with Emerald Accents */
-    /* Background: Deep charcoal with subtle green undertone */
-    --background: 160 10% 8%;
-    --foreground: 120 10% 92%;
+    /* Warm Dark Theme - Cozy Evening Farm */
+    /* Background: Warm charcoal with earthy undertones */
+    --background: 30 15% 10%;
+    --foreground: 40 20% 90%;
 
-    /* Cards: Slightly elevated dark surface */
-    --card: 160 8% 12%;
-    --card-foreground: 120 10% 92%;
+    /* Cards: Warm dark surface */
+    --card: 30 12% 14%;
+    --card-foreground: 40 20% 90%;
 
     /* Popovers & Dropdowns */
-    --popover: 160 8% 10%;
-    --popover-foreground: 120 10% 92%;
+    --popover: 30 12% 12%;
+    --popover-foreground: 40 20% 90%;
 
-    /* Primary: Vibrant emerald green that pops */
-    --primary: 142 70% 45%;
-    --primary-foreground: 160 10% 8%;
+    /* Primary: Warm forest green */
+    --primary: 150 55% 42%;
+    --primary-foreground: 30 15% 10%;
 
-    /* Secondary: Muted sage for subtle elements */
-    --secondary: 150 15% 20%;
-    --secondary-foreground: 120 15% 85%;
+    /* Secondary: Muted gold */
+    --secondary: 40 50% 25%;
+    --secondary-foreground: 40 30% 85%;
 
-    /* Muted: For disabled states and subtle backgrounds */
-    --muted: 160 8% 18%;
-    --muted-foreground: 120 8% 60%;
+    /* Muted: Warm gray for disabled states */
+    --muted: 30 10% 20%;
+    --muted-foreground: 35 15% 55%;
 
-    /* Accent: Slightly brighter for hover states */
-    --accent: 150 20% 22%;
-    --accent-foreground: 120 10% 92%;
+    /* Accent: Warm golden for hover states */
+    --accent: 40 45% 22%;
+    --accent-foreground: 40 30% 90%;
 
-    /* Destructive: Warm red that works on dark */
-    --destructive: 0 72% 51%;
+    /* Destructive: Warm terracotta */
+    --destructive: 12 65% 48%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Borders & Inputs */
-    --border: 160 10% 20%;
-    --input: 160 8% 15%;
-    --ring: 142 70% 45%;
+    /* Borders & Inputs - Warm tones */
+    --border: 30 12% 22%;
+    --input: 30 10% 18%;
+    --ring: 150 55% 42%;
 
-    /* Sidebar: Darker for depth contrast */
-    --sidebar-background: 160 10% 6%;
-    --sidebar-foreground: 120 10% 85%;
-    --sidebar-primary: 142 70% 45%;
-    --sidebar-primary-foreground: 160 10% 8%;
-    --sidebar-accent: 150 15% 15%;
-    --sidebar-accent-foreground: 120 10% 85%;
-    --sidebar-border: 160 10% 15%;
-    --sidebar-ring: 142 70% 45%;
+    /* Sidebar: Darker with warmth */
+    --sidebar-background: 30 15% 8%;
+    --sidebar-foreground: 40 20% 85%;
+    --sidebar-primary: 150 55% 42%;
+    --sidebar-primary-foreground: 30 15% 10%;
+    --sidebar-accent: 35 15% 18%;
+    --sidebar-accent-foreground: 40 20% 85%;
+    --sidebar-border: 30 12% 18%;
+    --sidebar-ring: 150 55% 42%;
 
-    /* Custom tokens */
-    --emerald-600: 142 70% 45%;
-    --emerald-50: 150 15% 15%;
-    --sage: 150 15% 40%;
-    --sage-dark: 150 15% 30%;
+    /* Extended Havens Palette - Dark Mode */
+    --havens-cream: 35 20% 15%;
+    --havens-forest: 150 55% 42%;
+    --havens-golden: 42 70% 50%;
+    --havens-sky: 200 50% 45%;
+    --havens-terracotta: 15 55% 48%;
+    --havens-soil: 25 30% 25%;
+    --havens-leaf: 95 40% 40%;
+
+    /* Legacy tokens for dark mode */
+    --emerald-600: 150 55% 42%;
+    --emerald-50: 150 20% 18%;
+    --sage: 120 20% 35%;
+    --sage-dark: 120 15% 25%;
   }
 }
 
@@ -146,24 +176,20 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: linear-gradient(
-      180deg,
-      hsl(142 71.8% 29.2%) 0%,
-      hsl(142 71.8% 35%) 50%,
-      hsl(142 71.8% 29.2%) 100%
-    );
+    background: linear-gradient(180deg,
+        hsl(142 71.8% 29.2%) 0%,
+        hsl(142 71.8% 35%) 50%,
+        hsl(142 71.8% 29.2%) 100%);
     border-radius: 5px;
     border: 2px solid hsl(var(--muted));
     transition: all 0.3s ease;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(
-      180deg,
-      hsl(142 71.8% 35%) 0%,
-      hsl(142 71.8% 42%) 50%,
-      hsl(142 71.8% 35%) 100%
-    );
+    background: linear-gradient(180deg,
+        hsl(142 71.8% 35%) 0%,
+        hsl(142 71.8% 42%) 50%,
+        hsl(142 71.8% 35%) 100%);
   }
 
   ::-webkit-scrollbar-corner {
