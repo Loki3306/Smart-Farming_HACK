@@ -7,10 +7,29 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Node
+node_modules/
+pnpm-lock.yaml # if you expect to ignore lockfiles (optional)
+
+# Python virtualenvs
+venv/
+.venv/
+venv*/
+backend/venv*/
+backend/venv39/
+**/venv/
+**/.venv/
+
+# Build / distribution
+dist/
+build/
+coverage/
+__pycache__/
+*.pyc
+
+# env / secrets / logs
+.env
+*.env
 
 # Editor directories and files
 .vscode/*
