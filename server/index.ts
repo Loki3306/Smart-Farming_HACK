@@ -110,7 +110,7 @@ export function createServer() {
   console.log("✅ Notifications routes registered at /api/notifications");
 
   // ============================================================================
-  // CHATBOT - AI Support for Farmers (using Ollama)
+  // CHATBOT - AI Support for Farmers (using configured provider - default: Groq)
   // ============================================================================
   console.log("🤖 Registering Chatbot routes...");
   app.use("/api/chatbot", chatbotRouter);

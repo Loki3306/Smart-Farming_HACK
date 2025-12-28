@@ -24,10 +24,30 @@ export interface ChatbotServiceOptions {
   crop?: string;
   context?: string;
   conversationHistory?: Array<{ role: 'user' | 'assistant'; content: string }>;
+  model?: string;
 }
 
 class ChatbotService {
   private baseUrl = '/api/chatbot';
+
+  // Persist a session id per browser (used to track conversation history server-side)
+  private getSessionId(): string {
+    try {
+      const key = 'chat_session_id';
+      let sid = localStorage.getItem(key);
+      if (!sid) {
+        // Use crypto.randomUUID when available
+        sid = (window.crypto && (window.crypto as any).randomUUID)
+          ? (window.crypto as any).randomUUID()
+          : `sess_${Date.now()}`;
+        localStorage.setItem(key, sid);
+      }
+      return sid;
+    } catch (e) {
+      // Fallback
+      return `sess_${Date.now()}`;
+    }
+  }
 
   /**
    * Send message to chatbot
@@ -40,6 +60,10 @@ class ChatbotService {
         body: JSON.stringify({
           message,
           model: options?.model || 'llama3',
+          session_id: options?.userId || this.getSessionId(),
+          crop: options?.crop,
+          context: options?.context,
+          conversationHistory: options?.conversationHistory || [],
         }),
       });
 
@@ -81,6 +105,7 @@ class ChatbotService {
           crop: options?.crop,
           context: options?.context,
           conversationHistory: options?.conversationHistory || [],
+          session_id: options?.userId || this.getSessionId(),
         }),
       });
 
@@ -139,7 +164,8 @@ class ChatbotService {
    */
   async checkHealth(): Promise<{
     status: string;
-    ollama_url: string;
+    provider?: string;
+    ollama_url?: string;
     default_model: string;
     available_models: string[];
     suggestion: string;
