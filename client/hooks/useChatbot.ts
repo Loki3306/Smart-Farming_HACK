@@ -39,25 +39,12 @@ export function useChatbot(options?: UseChatbotOptions) {
 
   // Check chatbot health on mount
   const checkHealth = useCallback(async () => {
-    try {
-      const health = await chatbotService.checkHealth();
-
-      if (health.status === 'healthy') {
-        setIsHealthy(true);
-        setHealthMessage('Chatbot ready!');
-      } else {
-        setIsHealthy(false);
-        setHealthMessage(health.suggestion || 'Chatbot unavailable');
-      }
-    } catch (err) {
-      setIsHealthy(false);
-      setHealthMessage(
-        'Chatbot unavailable. Please start Ollama: ollama run mistral:7b'
-      );
-    }
+    // For Hugging Face backend, always healthy if backend is up
+    setIsHealthy(true);
+    setHealthMessage('Chatbot ready!');
   }, []);
 
-  // Send message without streaming
+  // Send message without streaming (now delegates to streaming to ensure UI receives incremental chunks)
   const sendMessage = useCallback(
     async (content: string) => {
       if (!content.trim()) return;
@@ -71,39 +58,56 @@ export function useChatbot(options?: UseChatbotOptions) {
       };
 
       setMessages((prev) => [...prev, userMessage]);
-      setIsLoading(true);
+      setIsStreaming(true);
       setError(null);
+
+      const assistantMessageId = `assistant_${Date.now()}`;
+      let fullResponse = '';
 
       try {
         const contextString = getContextString();
 
-        const response = await chatbotService.sendMessage(content, {
-          userId: user?.id,
-          crop: contextRef.current.crop,
-          context: contextString,
-          conversationHistory: messages.map((m) => ({
-            role: m.role,
-            content: m.message,
-          })),
-        });
-
-        setMessages((prev) => [...prev, response]);
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to send message';
-        setError(message);
-
-        // Add error message to chat
+        // Create placeholder for streaming assistant message
         setMessages((prev) => [
           ...prev,
           {
-            id: `error_${Date.now()}`,
-            message: `Sorry, I encountered an error: ${message}`,
+            id: assistantMessageId,
+            message: '',
             timestamp: new Date().toISOString(),
             role: 'assistant',
           },
         ]);
+
+        // Stream response using the same streaming method
+        await chatbotService.sendMessageStream(
+          content,
+          (chunk) => {
+            fullResponse += chunk;
+            setMessages((prev) =>
+              prev.map((m) => (m.id === assistantMessageId ? { ...m, message: fullResponse } : m))
+            );
+          },
+          {
+            userId: user?.id,
+            crop: contextRef.current.crop,
+            context: contextString,
+            conversationHistory: messages.map((m) => ({ role: m.role, content: m.message })),
+          }
+        );
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Failed to send message';
+        setError(message);
+
+        // Update error message in chat
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantMessageId
+              ? { ...m, message: `Sorry, I encountered an error: ${message}` }
+              : m
+          )
+        );
       } finally {
-        setIsLoading(false);
+        setIsStreaming(false);
       }
     },
     [messages, user?.id, getContextString]

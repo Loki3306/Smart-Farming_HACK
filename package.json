@@ -33,6 +33,9 @@
     "lottie-react": "^2.4.1",
     "ogl": "^1.0.11",
     "react-joyride": "^2.9.3",
+    "react-markdown": "^10.1.0",
+    "rehype-sanitize": "^6.0.0",
+    "remark-gfm": "^4.0.1",
     "twilio": "^5.11.1",
     "zod": "^3.25.76"
   },

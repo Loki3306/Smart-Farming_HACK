@@ -11,6 +11,11 @@ import {
   RotateCcw,
   Zap,
 } from 'lucide-react';
+
+// Markdown rendering for AI messages
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeSanitize from 'rehype-sanitize';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -179,23 +184,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({
           </div>
 
           {/* Health Status */}
-          {!isHealthy && (
-            <div className="bg-amber-50 border-b border-amber-200 p-3 flex items-start gap-2">
-              <AlertCircle size={18} className="text-amber-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-amber-800">
-                <p className="font-semibold">Chatbot Offline</p>
-                <p className="text-xs mt-1">{healthMessage}</p>
-                <a
-                  href="https://ollama.ai"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-amber-700 underline mt-2 inline-block hover:text-amber-900"
-                >
-                  Learn how to start Ollama →
-                </a>
-              </div>
-            </div>
-          )}
+          {/* No offline state for Hugging Face backend */}
 
           {isMinimized && floating ? (
             <div className="flex-1" />
@@ -241,7 +230,14 @@ export const Chatbot: React.FC<ChatbotProps> = ({
                               : 'bg-white text-gray-800 border border-gray-200 rounded-bl-none'
                           )}
                         >
-                          {message.message}
+                          <div className="prose max-w-none whitespace-pre-wrap text-sm">
+                            <ReactMarkdown
+                              remarkPlugins={[remarkGfm]}
+                              rehypePlugins={[rehypeSanitize]}
+                            >
+                              {message.message}
+                            </ReactMarkdown>
+                          </div>
                         </div>
                       </motion.div>
                     ))}
@@ -320,7 +316,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({
 
                 {/* Help Text */}
                 <p className="text-xs text-gray-500 text-center">
-                  {isHealthy ? 'Powered by local AI' : 'Start Ollama to use chatbot'}
+                  Powered by Hugging Face AI
                 </p>
               </form>
             </>

@@ -2,29 +2,38 @@ import { Router, Request, Response } from 'express';
 
 const router = Router();
 
+// Provider selection: 'groq' or 'ollama' (default to 'groq' to disable Ollama by default)
+const CHATBOT_PROVIDER = process.env.CHATBOT_PROVIDER || 'groq'; // 'groq' or 'ollama'
+
 // Ollama endpoint (local or remote)
 const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
 
-// Default model - lightweight and fast
-const DEFAULT_MODEL = process.env.OLLAMA_MODEL || 'mistral:7b';
+// Default models for providers
+const DEFAULT_OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'mistral:7b';
+const DEFAULT_GROQ_MODEL = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
 
 // ============================================================================
 // AGRICULTURE CONTEXT & SYSTEM PROMPTS
 // ============================================================================
 
-const AGRICULTURE_SYSTEM_PROMPT = `You are an AI Assistant for Indian farmers. You provide helpful, practical advice on:
-- Crop selection and rotation
-- Irrigation and water management
-- Fertilizer recommendations (organic and inorganic)
-- Pest and disease management
-- Soil health and treatment
-- Weather adaptation
-- Cost optimization
-- Traditional and modern farming techniques
+const AGRICULTURE_SYSTEM_PROMPT = `You are an AI Assistant for Indian farmers. You provide practical, clear, and affordable farming advice.
 
-Always provide answers in a simple, easy-to-understand manner. Consider the Indian farming context.
-Be encouraging and supportive. If unsure, suggest consulting with local agricultural experts.
-Keep responses concise and practical.`;
+Guidelines:
+- Keep answers concise and easy to understand.
+- Use Markdown formatting.
+- Use numbered lists for steps or recommendations.
+- Limit lists to a maximum of 4–5 points.
+- Use **bold** for key terms only.
+- Always complete the final point.
+- End every response with a short concluding sentence.
+- If space is limited, summarize instead of starting a new section.
+- Never leave headings, bullet points, or sentences unfinished.
+
+Context:
+- Assume Indian farming conditions.
+- Prefer low-cost and locally available solutions.
+- Encourage consulting local experts when needed.
+`;
 
 // ============================================================================
 // TYPES
@@ -100,12 +109,23 @@ function buildConversationPrompt(history: ChatMessage[], newMessage: string): st
   return prompt;
 }
 
+// Maximum number of history messages we send to the model to bound prompt size
+const MAX_HISTORY_MESSAGES = 6;
+
+/**
+ * Truncate conversation history to the last N messages
+ */
+function limitConversationHistory(history: ChatMessage[] = []): ChatMessage[] {
+  if (!Array.isArray(history)) return [];
+  return history.slice(-MAX_HISTORY_MESSAGES);
+}
+
 /**
  * Call Ollama API with streaming support
  */
 async function callOllama(
   prompt: string,
-  model: string = DEFAULT_MODEL,
+  model: string = DEFAULT_OLLAMA_MODEL,
   systemPrompt?: string
 ): Promise<string> {
   try {
@@ -163,23 +183,90 @@ async function checkOllamaAvailability(): Promise<boolean> {
 }
 
 /**
- * Get available models from Ollama
+ * Call Groq cloud (OpenAI-compatible) for chat completions
  */
-async function getAvailableModels(): Promise<string[]> {
+async function callGroq(messages: any[], model: string = DEFAULT_GROQ_MODEL): Promise<string> {
   try {
-    const response = await fetch(`${OLLAMA_URL}/api/tags`);
+    console.log(`📤 Calling Groq model: ${model}`);
+
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages,
+        stream: false,
+        temperature: 0.5,
+        top_p: 0.9,
+        max_tokens: 300,
+      }),
+    });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch models');
+      const text = await response.text();
+      throw new Error(`Groq API error: ${response.status} ${response.statusText} - ${text}`);
     }
 
     const data = await response.json();
-    return data.models?.map((m: any) => m.name) || [DEFAULT_MODEL];
+    const content = data.choices?.[0]?.message?.content;
+    return (content || '').trim();
   } catch (error) {
-    console.error('Error fetching models:', error);
-    return [DEFAULT_MODEL];
+    console.error('❌ Groq API error:', error);
+    throw error;
   }
 }
+
+/**
+ * Check if Groq is available (simple models list check)
+ */
+async function checkGroqAvailability(): Promise<boolean> {
+  try {
+    const response = await fetch('https://api.groq.com/openai/v1/models', {
+      headers: { Authorization: `Bearer ${process.env.GROQ_API_KEY}` },
+    });
+
+    return response.ok;
+  } catch (error) {
+    console.error('❌ Groq not available:', error);
+    return false;
+  }
+}
+
+/**
+ * Get available models from the selected provider
+ */
+async function getAvailableModels(): Promise<string[]> {
+  try {
+    if (CHATBOT_PROVIDER === 'groq') {
+      const response = await fetch('https://api.groq.com/openai/v1/models', {
+        headers: { Authorization: `Bearer ${process.env.GROQ_API_KEY}` },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch Groq models');
+      }
+
+      const data = await response.json();
+      return (data.data || []).map((m: any) => m.id || m.name).filter(Boolean);
+    }
+
+    // Fallback: Ollama
+    const response = await fetch(`${OLLAMA_URL}/api/tags`);
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch Ollama models');
+    }
+
+    const data = await response.json();
+    return data.models?.map((m: any) => m.name) || [CHATBOT_PROVIDER === 'groq' ? DEFAULT_GROQ_MODEL : DEFAULT_OLLAMA_MODEL];
+  } catch (error) {
+    console.error('Error fetching models:', error);
+    return [CHATBOT_PROVIDER === 'groq' ? DEFAULT_GROQ_MODEL : DEFAULT_OLLAMA_MODEL];
+  }
+} 
 
 // ============================================================================
 // ROUTES
@@ -203,39 +290,77 @@ router.post('/chat', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    // Check Ollama availability
-    const isAvailable = await checkOllamaAvailability();
+    // Check selected provider availability
+    const isAvailable = CHATBOT_PROVIDER === 'groq' ? await checkGroqAvailability() : await checkOllamaAvailability();
     if (!isAvailable) {
+      if (CHATBOT_PROVIDER === 'groq') {
+        return res.status(503).json({
+          error: 'AI chatbot service unavailable',
+          message: 'Groq service unavailable or invalid API key; check GROQ_API_KEY',
+          suggestion: 'Set GROQ_API_KEY and verify access in the Groq console',
+        });
+      }
+
       return res.status(503).json({
         error: 'AI chatbot service unavailable',
         message: 'Please ensure Ollama is running on ' + OLLAMA_URL,
-        suggestion: 'Run: ollama run mistral:7b',
+        suggestion: `Run: ollama run ${DEFAULT_OLLAMA_MODEL}`,
       });
     }
 
     // Build prompts
     const systemPrompt = buildSystemPrompt(crop, context);
-    let prompt = message;
-
-    // If conversation history provided, build conversation context
-    if (conversationHistory.length > 0) {
-      prompt = buildConversationPrompt(conversationHistory, message);
-    }
 
     console.log(`🤖 Processing message from user ${userId || 'anonymous'}`);
 
-    // Call Ollama
-    const response = await callOllama(prompt, DEFAULT_MODEL, systemPrompt);
+    let responseText = '';
+    let modelToUse = CHATBOT_PROVIDER === 'groq' ? DEFAULT_GROQ_MODEL : DEFAULT_OLLAMA_MODEL;
+
+    // Prepare messages for Groq (or fallback to prompt string for Ollama)
+    if (CHATBOT_PROVIDER === 'groq') {
+      const messages: any[] = [];
+      if (systemPrompt) messages.push({ role: 'system', content: systemPrompt });
+      const trimmedHistory = limitConversationHistory(conversationHistory);
+
+      for (const msg of trimmedHistory) {
+        messages.push({ role: msg.role, content: msg.content });
+      }
+      messages.push({ role: 'user', content: message });
+
+      responseText = await callGroq(messages, modelToUse);
+
+      // Safety net: if response ends abruptly or seems incomplete, append a brief summary
+      if (
+        responseText &&
+        (responseText.trim().endsWith("**") || responseText.trim().endsWith(":") || responseText.trim().endsWith("-"))
+      ) {
+        responseText += "\n\n**Summary:** Focus on practical steps, efficient resource use, and local conditions for best results.";
+      }
+    } else {
+      let prompt = message;
+      if (conversationHistory.length > 0) {
+        prompt = buildConversationPrompt(conversationHistory, message);
+      }
+
+      responseText = await callOllama(prompt, modelToUse, systemPrompt);
+
+      if (
+        responseText &&
+        (responseText.trim().endsWith("**") || responseText.trim().endsWith(":") || responseText.trim().endsWith("-"))
+      ) {
+        responseText += "\n\n**Summary:** Focus on practical steps, efficient resource use, and local conditions for best results.";
+      }
+    }
 
     // Generate response ID
     const responseId = `chatbot_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     const chatbotResponse: ChatbotResponse = {
       id: responseId,
-      message: response,
+      message: responseText,
       timestamp: new Date().toISOString(),
-      model: DEFAULT_MODEL,
-      sources: ['Local AI Model (Ollama)'],
+      model: modelToUse,
+      sources: [CHATBOT_PROVIDER === 'groq' ? 'Groq Cloud' : 'Local AI Model (Ollama)'],
     };
 
     res.json(chatbotResponse);
@@ -263,15 +388,15 @@ router.post('/chat', async (req: Request, res: Response) => {
  */
 router.get('/health', async (req: Request, res: Response) => {
   try {
-    const isAvailable = await checkOllamaAvailability();
+    const isAvailable = CHATBOT_PROVIDER === 'groq' ? await checkGroqAvailability() : await checkOllamaAvailability();
     const models = await getAvailableModels();
 
     res.json({
       status: isAvailable ? 'healthy' : 'unavailable',
-      ollama_url: OLLAMA_URL,
-      default_model: DEFAULT_MODEL,
+      provider: CHATBOT_PROVIDER,
+      default_model: CHATBOT_PROVIDER === 'groq' ? DEFAULT_GROQ_MODEL : DEFAULT_OLLAMA_MODEL,
       available_models: models,
-      suggestion: isAvailable ? 'All good!' : `Start Ollama: ollama run ${DEFAULT_MODEL}`,
+      suggestion: isAvailable ? 'All good!' : (CHATBOT_PROVIDER === 'groq' ? 'Verify GROQ_API_KEY and network access' : `Start Ollama: ollama run ${DEFAULT_OLLAMA_MODEL}`),
     });
   } catch (error: any) {
     res.status(500).json({
@@ -306,12 +431,10 @@ router.post('/chat-stream', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    // Check Ollama availability
-    const isAvailable = await checkOllamaAvailability();
+    // Check selected provider availability
+    const isAvailable = CHATBOT_PROVIDER === 'groq' ? await checkGroqAvailability() : await checkOllamaAvailability();
     if (!isAvailable) {
-      return res.status(503).json({
-        error: 'Ollama service unavailable',
-      });
+      return res.status(503).json({ error: `${CHATBOT_PROVIDER} service unavailable` });
     }
 
     // Set headers for streaming
@@ -320,67 +443,162 @@ router.post('/chat-stream', async (req: Request, res: Response) => {
     res.setHeader('Connection', 'keep-alive');
 
     const systemPrompt = buildSystemPrompt(crop, context);
-    let prompt = message;
-
-    if (conversationHistory.length > 0) {
-      prompt = buildConversationPrompt(conversationHistory, message);
-    }
 
     try {
-      const response = await fetch(`${OLLAMA_URL}/api/generate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: DEFAULT_MODEL,
-          prompt,
-          system: systemPrompt,
-          stream: true, // Enable streaming
-          temperature: 0.7,
-        }),
-      });
+      if (CHATBOT_PROVIDER === 'groq') {
+        const messages: any[] = [];
+        if (systemPrompt) messages.push({ role: 'system', content: systemPrompt });
+        const trimmedHistory = limitConversationHistory(conversationHistory);
 
-      if (!response.ok) {
-        res.write(`data: ${JSON.stringify({ error: 'Ollama error' })}\n\n`);
-        res.end();
-        return;
-      }
+        for (const msg of trimmedHistory) {
+          messages.push({ role: msg.role, content: msg.content });
+        }
+        messages.push({ role: 'user', content: message });
 
-      const reader = response.body?.getReader();
-      if (!reader) {
-        res.write(`data: ${JSON.stringify({ error: 'No response stream' })}\n\n`);
-        res.end();
-        return;
-      }
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+          },
+          body: JSON.stringify({
+            model: DEFAULT_GROQ_MODEL,
+            messages,
+            stream: true,
+            temperature: 0.5,
+            max_tokens: 300,
+          }),
+        });
 
-      const decoder = new TextDecoder();
-      let buffer = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-
-        if (done) {
-          res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+        if (!response.ok) {
+          res.write(`data: ${JSON.stringify({ error: 'Groq error' })}\n\n`);
           res.end();
-          break;
+          return;
         }
 
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
+        const reader = response.body?.getReader();
+        if (!reader) {
+          res.write(`data: ${JSON.stringify({ error: 'No response stream' })}\n\n`);
+          res.end();
+          return;
+        }
 
-        // Process complete lines
-        for (let i = 0; i < lines.length - 1; i++) {
-          try {
-            const data = JSON.parse(lines[i]);
-            if (data.response) {
-              res.write(`data: ${JSON.stringify({ chunk: data.response })}\n\n`);
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let streamCollected = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+
+          if (done) {
+            // Before finishing, check if the accumulated stream looks incomplete and append a summary if needed
+            const lastTrim = streamCollected.trim();
+            if (lastTrim.endsWith('**') || lastTrim.endsWith(':') || lastTrim.endsWith('-')) {
+              res.write(`data: ${JSON.stringify({ chunk: "\n\n**Summary:** Focus on practical steps, efficient resource use, and local conditions for best results." })}\n\n`);
             }
-          } catch (e) {
-            // Skip invalid JSON lines
+
+            res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+            res.end();
+            break;
           }
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+
+          for (let i = 0; i < lines.length - 1; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+
+            // Groq sends SSE-like data lines starting with 'data:'
+            const raw = line.startsWith('data:') ? line.replace(/^data:\s*/, '') : line;
+
+            if (raw === '[DONE]') {
+              // Provider signaled done; handled by 'done' above eventually
+              continue;
+            }
+
+            try {
+              const data = JSON.parse(raw);
+
+              // Try to extract streamed delta content (OpenAI-like format)
+              const delta = data.choices?.[0]?.delta;
+              if (delta && delta.content) {
+                const chunk = delta.content;
+                streamCollected += chunk;
+                res.write(`data: ${JSON.stringify({ chunk })}\n\n`);
+                continue;
+              }
+
+              // Fallback: full message pieces
+              const resp = data.choices?.[0]?.message?.content || data.response || data.text;
+              if (resp) {
+                streamCollected += resp;
+                res.write(`data: ${JSON.stringify({ chunk: resp })}\n\n`);
+              }
+            } catch (e) {
+              // Skip non-JSON lines
+            }
+          }
+
+          buffer = lines[lines.length - 1];
+        }
+      } else {
+        // Ollama streaming (existing implementation)
+        const response = await fetch(`${OLLAMA_URL}/api/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: DEFAULT_OLLAMA_MODEL,
+            prompt: buildConversationPrompt(conversationHistory, message),
+            system: systemPrompt,
+            stream: true, // Enable streaming
+            temperature: 0.7,
+          }),
+        });
+
+        if (!response.ok) {
+          res.write(`data: ${JSON.stringify({ error: 'Ollama error' })}\n\n`);
+          res.end();
+          return;
         }
 
-        // Keep incomplete line in buffer
-        buffer = lines[lines.length - 1];
+        const reader = response.body?.getReader();
+        if (!reader) {
+          res.write(`data: ${JSON.stringify({ error: 'No response stream' })}\n\n`);
+          res.end();
+          return;
+        }
+
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+
+          if (done) {
+            res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+            res.end();
+            break;
+          }
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+
+          // Process complete lines
+          for (let i = 0; i < lines.length - 1; i++) {
+            try {
+              const data = JSON.parse(lines[i]);
+              if (data.response) {
+                res.write(`data: ${JSON.stringify({ chunk: data.response })}\n\n`);
+              }
+            } catch (e) {
+              // Skip invalid JSON lines
+            }
+          }
+
+          // Keep incomplete line in buffer
+          buffer = lines[lines.length - 1];
+        }
       }
     } catch (streamError) {
       console.error('Stream error:', streamError);
