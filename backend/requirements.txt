@@ -10,7 +10,7 @@ fastapi-cors==0.0.6
 # Data Processing and ML
 numpy==1.26.4
 pandas==2.2.3
-scikit-learn==1.8.0
+scikit-learn==1.5.2
 joblib==1.4.2
 
 # Database Drivers
@@ -42,7 +42,9 @@ asyncio==3.4.3
 
 # Deep Learning & NLP
 torch==2.2.2
+torchvision==0.17.2
 transformers==4.41.2
+pillow==11.3.0
 
 # Logging and Monitoring
 python-json-logger==3.2.1

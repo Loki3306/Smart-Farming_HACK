@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 // List of crops the model is trained on
-const TRAINED_CROPS = [
+export const TRAINED_CROPS = [
   "Apple",
   "Banana",
   "Blackgram",
@@ -26,7 +26,7 @@ const TRAINED_CROPS = [
   "Coconut",
   "Coffee",
   "Cotton",
-  "Grapes",
+  "Grape",
   "Jute",
   "Kidneybeans",
   "Lentil",
@@ -47,17 +47,21 @@ interface CropSelectorProps {
   value: string;
   onChange: (value: string) => void;
   disabled?: boolean;
+  // optional list of crop options to show; defaults to TRAINED_CROPS
+  options?: string[];
 }
 
-export function CropSelector({ value, onChange, disabled }: CropSelectorProps) {
+export function CropSelector({ value, onChange, disabled, options }: CropSelectorProps) {
+  const cropsList = options ?? TRAINED_CROPS;
+
   const [open, setOpen] = useState(false);
   const [isOther, setIsOther] = useState(false);
   const [customCrop, setCustomCrop] = useState('');
 
-  // Check if current value is in trained crops
+  // Check if current value is in cropsList
   useEffect(() => {
     const normalizedValue = value.toLowerCase().trim();
-    const isTrainedCrop = TRAINED_CROPS.some(
+    const isTrainedCrop = cropsList.some(
       crop => crop.toLowerCase() === normalizedValue
     );
     
@@ -68,7 +72,7 @@ export function CropSelector({ value, onChange, disabled }: CropSelectorProps) {
       setIsOther(false);
       setCustomCrop('');
     }
-  }, [value]);
+  }, [value, cropsList]);
 
   const handleSelectCrop = (selectedCrop: string) => {
     if (selectedCrop === 'other') {
@@ -124,8 +128,8 @@ export function CropSelector({ value, onChange, disabled }: CropSelectorProps) {
             <CommandInput placeholder="Search crop..." />
             <CommandList>
               <CommandEmpty>No crop found.</CommandEmpty>
-              <CommandGroup heading="Model-Trained Crops">
-                {TRAINED_CROPS.map((crop) => (
+              <CommandGroup heading="Crops">
+                {cropsList.map((crop) => (
                   <CommandItem
                     key={crop}
                     value={crop}

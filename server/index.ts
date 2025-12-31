@@ -23,6 +23,7 @@ import chatRouter from "./routes/chat";
 import presenceRouter from "./routes/presence";
 import notificationsRouter from "./routes/notifications";
 import chatbotRouter from "./routes/chatbot";
+import diseaseRouter from "./routes/disease";
 
 // Python AI Backend Configuration
 const PYTHON_AI_URL = process.env.PYTHON_AI_URL || "http://localhost:8000";
@@ -115,6 +116,11 @@ export function createServer() {
   console.log("🤖 Registering Chatbot routes...");
   app.use("/api/chatbot", chatbotRouter);
   console.log("✅ Chatbot routes registered at /api/chatbot");
+
+//disease detection route
+  console.log("🌿 Registering Disease Detection routes...");
+app.use("/api/disease", diseaseRouter);
+console.log("✅ Disease routes registered at /api/disease");
 
   // ============================================================================
   // AI RECOMMENDATIONS PROXY - Forward requests to Python FastAPI backend

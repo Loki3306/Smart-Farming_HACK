@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { Landing } from "./pages/Landing";
+import Disease from "./pages/Disease";
 import { Home } from "./pages/Home";
 import { AuditTrail } from "./pages/AuditTrail";
 import { Profile } from "./pages/Profile";
@@ -98,6 +99,17 @@ function AnimatedRoutes() {
             <ProtectedRoute requireOnboarding>
               <DashboardLayout>
                 <Recommendations />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/disease"
+          element={
+            <ProtectedRoute requireOnboarding>
+              <DashboardLayout>
+                <Disease />
               </DashboardLayout>
             </ProtectedRoute>
           }

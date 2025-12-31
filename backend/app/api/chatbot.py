@@ -4,6 +4,9 @@ from pydantic import BaseModel
 from typing import List, Optional, Dict
 
 import os
+# Set environment variable to disable TensorFlow in transformers
+os.environ["TRANSFORMERS_NO_TF"] = "1"
+os.environ["USE_TORCH"] = "1"
 import json
 import asyncio
 from datetime import datetime
@@ -24,6 +27,14 @@ import os
 HF_MODEL = os.getenv("HF_MODEL", "microsoft/DialoGPT-small")
 # Load tokenizer and model explicitly so we can set pad tokens / attention mask reliably
 from transformers import AutoTokenizer, AutoModelForCausalLM
+import torch
+from types import SimpleNamespace
+
+def _make_result(text: str):
+    r = SimpleNamespace()
+    r.generated_responses = [text]
+    return r
+
 try:
     tokenizer = AutoTokenizer.from_pretrained(HF_MODEL)
     model = AutoModelForCausalLM.from_pretrained(HF_MODEL)
@@ -34,11 +45,46 @@ try:
     # Ensure model config has pad_token_id set
     if getattr(model.config, "pad_token_id", None) is None:
         model.config.pad_token_id = model.config.eos_token_id
-    chatbot = pipeline("conversational", model=model, tokenizer=tokenizer)
+
+    # Define a small wrapper that behaves like the conversational pipeline (returns .generated_responses)
+    def _hf_chat(conversation, max_new_tokens=150, do_sample=True, top_k=50, top_p=0.95):
+        prompt = conversation.text if hasattr(conversation, "text") else str(conversation)
+        inputs = tokenizer(prompt, return_tensors="pt")
+        if torch.cuda.is_available():
+            model.to("cuda")
+            inputs = {k: v.to("cuda") for k, v in inputs.items()}
+        outputs = model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=do_sample, top_k=top_k, top_p=top_p)
+        text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        return _make_result(text)
+
+    # Prefer the official conversational pipeline if available, otherwise use our wrapper
+    try:
+        chatbot = pipeline("conversational", model=model, tokenizer=tokenizer)
+    except Exception:
+        chatbot = _hf_chat
+
 except Exception as e:
-    # Fall back to simple pipeline if loading fails
+    # Fall back to a text-generation pipeline wrapper if explicit model/tokenizer fails
     print(f"[HF] Warning: failed to load HF model/tokenizer explicitly: {e}. Falling back to default pipeline behavior.")
-    chatbot = pipeline("conversational", model=HF_MODEL)
+    try:
+        _txt_pipe = pipeline("text-generation", model=HF_MODEL)
+
+        def _pipe_wrapper(conversation):
+            prompt = conversation.text if hasattr(conversation, "text") else str(conversation)
+            out = _txt_pipe(prompt, max_new_tokens=150)
+            # pipeline returns list of dicts with 'generated_text'
+            text = out[0].get("generated_text") if isinstance(out, list) and out else str(out)
+            return _make_result(text)
+
+        chatbot = _pipe_wrapper
+    except Exception as e2:
+        print(f"[HF] Error: failed to initialize any HF pipeline: {e2}. Falling back to a simple echo responder.")
+
+        def _echo(conversation):
+            prompt = conversation.text if hasattr(conversation, "text") else str(conversation)
+            return _make_result("Sorry, the chatbot service is currently unavailable.")
+
+        chatbot = _echo
 
 
 # In-memory conversation history (for demo; use persistent store for production)

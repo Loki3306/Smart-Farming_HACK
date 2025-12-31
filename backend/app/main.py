@@ -12,7 +12,7 @@ import importlib
 import sys
 import os
 
-from backend.app.api import chatbot  # Import chatbot API router
+from app.api import chatbot  # Import chatbot API router
 
 # Add backend/app to Python path for model imports
 app_root = os.path.dirname(os.path.abspath(__file__))
