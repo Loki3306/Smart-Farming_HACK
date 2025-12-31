@@ -22,6 +22,7 @@ import { Avatar, AvatarFallback } from "../components/ui/avatar";
 
 // Time-based farm images
 import morningImage from "../assets/farm-time-images/morning.png";
+import afternoonImage from "../assets/farm-time-images/afternoon.png";
 import eveningImage from "../assets/farm-time-images/evening.png";
 import nightImage from "../assets/farm-time-images/night.png";
 import farmerImage from "../assets/farm-time-images/farmer.png";
@@ -68,11 +69,14 @@ export const Home: React.FC = () => {
     if (hour >= 5 && hour < 12) {
       // Morning: 5 AM to 12 PM
       return { image: morningImage, period: 'Morning ☀️' };
-    } else if (hour >= 12 && hour < 18) {
-      // Evening/Afternoon: 12 PM to 6 PM
-      return { image: eveningImage, period: 'Afternoon 🌤️' };
+    } else if (hour >= 12 && hour < 17) {
+      // Afternoon: 12 PM to 5 PM
+      return { image: afternoonImage, period: 'Afternoon 🌤️' };
+    } else if (hour >= 17 && hour < 20) {
+      // Evening: 5 PM to 8 PM
+      return { image: eveningImage, period: 'Evening 🌆' };
     } else {
-      // Night: 6 PM to 5 AM
+      // Night: 8 PM to 5 AM
       return { image: nightImage, period: 'Night 🌙' };
     }
   };
@@ -305,14 +309,16 @@ export const Home: React.FC = () => {
               <div className="flex-1">
                 <div className="mb-2">
                   <span className="text-2xl mr-2">
-                    {timeOfDay.includes('Morning') ? '🌅' : timeOfDay.includes('Afternoon') ? '☀️' : '🌙'}
+                    {timeOfDay.includes('Morning') ? '🌅' : timeOfDay.includes('Afternoon') ? '☀️' : timeOfDay.includes('Evening') ? '🌆' : '🌙'}
                   </span>
                   <span className="text-xl font-bold text-foreground">
                     {timeOfDay.includes('Morning')
                       ? 'Good Morning'
                       : timeOfDay.includes('Afternoon')
                         ? 'Good Afternoon'
-                        : 'Good Night'}, {user?.fullName?.split(' ')[0] || 'Farmer'}!
+                        : timeOfDay.includes('Evening')
+                          ? 'Good Evening'
+                          : 'Good Night'}, {user?.fullName?.split(' ')[0] || 'Farmer'}!
                   </span>
                 </div>
 
@@ -321,7 +327,9 @@ export const Home: React.FC = () => {
                     ? "The sun is rising over your fields. A perfect day to check on your crops!"
                     : timeOfDay.includes('Afternoon')
                       ? "Your crops are soaking up the sunshine. Everything looks great!"
-                      : "Time to rest. I'll keep watching over your farm while you sleep."}
+                      : timeOfDay.includes('Evening')
+                        ? "The sun is setting beautifully. Time to review today's farm activities!"
+                        : "Time to rest. I'll keep watching over your farm while you sleep."}
                 </p>
 
                 <div className="flex items-center gap-2 text-sm">
