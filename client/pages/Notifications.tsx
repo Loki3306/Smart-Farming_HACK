@@ -31,7 +31,7 @@ import { playNotificationSound, vibrateDevice } from "@/services/NotificationSer
 import { useSettings } from "@/context/SettingsContext";
 
 // Sample notifications for when no sensor alerts exist
-const sampleNotifications: Notification[] = [
+const sampleNotifications = [
   {
     id: "sample_1",
     type: "irrigation",

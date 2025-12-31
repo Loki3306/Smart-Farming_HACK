@@ -57,7 +57,51 @@ UPDATE_INTERVAL = int(os.environ.get("UPDATE_INTERVAL", "5"))
 # DEMO MODE - Accelerates depletion for hackathon presentations
 # Use: python farm_sensor_simulator.py --demo
 DEMO_MODE = "--demo" in sys.argv
-DEMO_SPEED_MULTIPLIER = 50000  # ~1% moisture drop every 2 seconds
+DEMO_SPEED_MULTIPLIER = 30000  # Blazing fast! (~6% moisture drop every 2 seconds)
+
+# JUDGE/DEMO-SAFE MODE
+# Use: python farm_sensor_simulator.py --judge
+# This mode avoids confusing demos by:
+# - starting fresh (no resume)
+# - skipping offline catch-up (retroactive boosts)
+# - ignoring old queued commands
+# - clamping values to realistic crop-optimal max bounds
+JUDGE_MODE = ("--judge" in sys.argv) or ("--demo-safe" in sys.argv) or ("--judges" in sys.argv)
+
+# State behavior flags
+# - By default the simulator resumes from local persisted state in simulator_state.json.
+# - Use --reset-state (or --fresh) to start from defaults for the selected farm.
+# - Use --no-state to disable local persistence entirely.
+RESET_STATE = ("--reset-state" in sys.argv) or ("--fresh" in sys.argv) or JUDGE_MODE
+NO_STATE = "--no-state" in sys.argv
+
+# Disable offline catch-up simulation (retroactive decisions). Useful for clean demos.
+NO_CATCH_UP = ("--no-catch-up" in sys.argv) or JUDGE_MODE
+
+# Ignore any existing queued commands in sensor_commands.json at startup.
+# New commands issued during the demo will still be processed.
+IGNORE_OLD_COMMANDS = ("--ignore-old-commands" in sys.argv) or JUDGE_MODE
+
+# Run a finite number of iterations (useful for CI/debugging)
+# Use:
+#   python farm_sensor_simulator.py --once
+#   python farm_sensor_simulator.py --iterations=5
+RUN_ONCE = "--once" in sys.argv
+
+def _parse_iterations(argv: List[str]) -> Optional[int]:
+    for arg in argv:
+        if isinstance(arg, str) and arg.startswith("--iterations="):
+            value = arg.split("=", 1)[1].strip()
+            if not value:
+                return None
+            try:
+                parsed = int(value)
+                return parsed if parsed > 0 else None
+            except ValueError:
+                return None
+    return None
+
+MAX_ITERATIONS = _parse_iterations(sys.argv)
 
 # API Base URL for checking autonomous mode from dashboard
 API_BASE_URL = os.environ.get("API_BASE_URL", "http://localhost:5000/api")
@@ -269,6 +313,39 @@ class StateManager:
             json.dump(data, f, ensure_ascii=False, indent=2)
         os.replace(tmp_path, self.file_path)
 
+    def load_meta(self, key: str, default: Any = None) -> Any:
+        data = self._read_all()
+        return data.get(key, default)
+
+    def save_meta(self, key: str, value: Any) -> None:
+        data = self._read_all()
+        data[key] = value
+
+        tmp_path = f"{self.file_path}.tmp"
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        os.replace(tmp_path, self.file_path)
+
+    def delete_farm_state(self, farm_id: str) -> None:
+        data = self._read_all()
+        if farm_id in data:
+            del data[farm_id]
+
+        tmp_path = f"{self.file_path}.tmp"
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        os.replace(tmp_path, self.file_path)
+
+    def delete_meta(self, key: str) -> None:
+        data = self._read_all()
+        if key in data:
+            del data[key]
+
+        tmp_path = f"{self.file_path}.tmp"
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        os.replace(tmp_path, self.file_path)
+
 # ============================================================================
 # SOIL TYPE PROFILES
 # ============================================================================
@@ -467,9 +544,36 @@ class WeatherService:
 class CommandHandler:
     """Handles commands from the dashboard (water pump, fertilizer, etc.)"""
     
-    def __init__(self, command_file: str):
+    def __init__(self, command_file: str, state_manager: Optional[StateManager] = None, farm_id: Optional[str] = None):
         self.command_file = command_file
-        self.last_processed_id = 0
+        self.state_manager = state_manager
+        # Track per-farm to avoid one farm's commands advancing another's pointer.
+        # Backward compatible with the previous global key.
+        self._meta_key_last_processed_id = (
+            f"_command_last_processed_id:{farm_id}" if farm_id else "_command_last_processed_id"
+        )
+        self._legacy_meta_key_last_processed_id = "_command_last_processed_id"
+        self.last_processed_id = self._load_last_processed_id()
+
+    def _load_last_processed_id(self) -> int:
+        if not self.state_manager:
+            return 0
+        try:
+            # Prefer per-farm key; fall back to legacy global key if needed.
+            value = self.state_manager.load_meta(self._meta_key_last_processed_id, None)
+            if value is None:
+                value = self.state_manager.load_meta(self._legacy_meta_key_last_processed_id, 0)
+            return int(value) if isinstance(value, (int, float, str)) else 0
+        except Exception:
+            return 0
+
+    def _save_last_processed_id(self, value: int) -> None:
+        if not self.state_manager:
+            return
+        try:
+            self.state_manager.save_meta(self._meta_key_last_processed_id, int(value))
+        except Exception:
+            return
     
     def read_commands(self) -> List[Dict]:
         """Read pending commands from the command file"""
@@ -491,6 +595,7 @@ class CommandHandler:
             # Update last processed ID
             if new_commands:
                 self.last_processed_id = max(cmd.get('id', 0) for cmd in new_commands)
+                self._save_last_processed_id(self.last_processed_id)
             
             return new_commands
             
@@ -504,6 +609,38 @@ class CommandHandler:
                 json.dump({'commands': []}, f)
         except IOError:
             pass
+
+    def mark_existing_commands_processed(self, farm_id: Optional[str] = None) -> None:
+        """Advance the processed pointer to the latest command currently on disk.
+
+        This is useful for demos (judge mode) so old commands from previous runs
+        don't suddenly spike moisture/NPK on startup.
+        """
+        try:
+            if not os.path.exists(self.command_file):
+                return
+            with open(self.command_file, "r", encoding="utf-8-sig") as f:
+                data = json.load(f)
+
+            commands = data.get("commands", [])
+            if not isinstance(commands, list) or not commands:
+                return
+
+            if farm_id:
+                commands = [c for c in commands if (c or {}).get("farmId") in ("", None, farm_id)]
+
+            max_id = 0
+            for cmd in commands:
+                try:
+                    max_id = max(max_id, int((cmd or {}).get("id", 0)))
+                except Exception:
+                    continue
+
+            if max_id > self.last_processed_id:
+                self.last_processed_id = max_id
+                self._save_last_processed_id(self.last_processed_id)
+        except Exception:
+            return
 
 # ============================================================================
 # FARM-AWARE SENSOR SIMULATOR
@@ -555,11 +692,49 @@ class FarmAwareSensorSimulator:
         self.pending_moisture_boost = 0
         self.pending_npk_boost = {"nitrogen": 0, "phosphorus": 0, "potassium": 0}
         
-        # Command handler
-        self.command_handler = CommandHandler(COMMAND_FILE)
+        # Command handler (persists last processed command id across restarts)
+        self.command_handler = CommandHandler(
+            COMMAND_FILE,
+            state_manager=self.state_manager,
+            farm_id=self.farm.id,
+        )
+
+        if IGNORE_OLD_COMMANDS:
+            # Don't replay old commands when demoing.
+            self.command_handler.mark_existing_commands_processed(farm_id=self.farm.id)
 
         # Restore persisted state (if any) and apply offline catch-up once.
         self._restore_state_and_catch_up()
+
+        # In judge mode, keep startup values within realistic bounds.
+        if JUDGE_MODE:
+            self._clamp_values_to_crop_bounds(strict=True)
+
+    def _clamp_values_to_crop_bounds(self, strict: bool) -> None:
+        """Clamp moisture/NPK to realistic bounds.
+
+        strict=True clamps to crop-optimal MAX values.
+        strict=False allows up to 1.5x optimal max (legacy behavior for more dramatic swings).
+        """
+        try:
+            n_range, p_range, k_range = self.crop.npk_optimal
+            if strict:
+                moisture_max = float(self.crop.moisture_optimal[1])
+                n_max = float(n_range[1])
+                p_max = float(p_range[1])
+                k_max = float(k_range[1])
+            else:
+                moisture_max = 100.0
+                n_max = float(n_range[1]) * 1.5
+                p_max = float(p_range[1]) * 1.5
+                k_max = float(k_range[1]) * 1.5
+
+            self.current_values["soil_moisture"] = max(0.0, min(moisture_max, float(self.current_values["soil_moisture"])))
+            self.current_values["nitrogen"] = max(0.0, min(n_max, float(self.current_values["nitrogen"])))
+            self.current_values["phosphorus"] = max(0.0, min(p_max, float(self.current_values["phosphorus"])))
+            self.current_values["potassium"] = max(0.0, min(k_max, float(self.current_values["potassium"])))
+        except Exception:
+            return
 
     def _restore_state_and_catch_up(self) -> None:
         if not self.state_manager:
@@ -601,10 +776,14 @@ class FarmAwareSensorSimulator:
                     last = datetime.fromisoformat(saved_ts)
                     now = datetime.now(last.tzinfo) if getattr(last, "tzinfo", None) else datetime.now()
                     delta_seconds = max(0.0, (now - last).total_seconds())
-                    self._apply_offline_catch_up(delta_seconds)
+                    if not NO_CATCH_UP:
+                        self._apply_offline_catch_up(delta_seconds)
                 except ValueError:
                     # Bad timestamp format; ignore catch-up
                     pass
+
+            # Always keep restored values sane (particularly helpful for demos)
+            self._clamp_values_to_crop_bounds(strict=JUDGE_MODE)
 
         except Exception:
             # Never fail startup due to state load
@@ -975,13 +1154,6 @@ class FarmAwareSensorSimulator:
         No artificial floor - values can drop to critical levels.
         System will make autonomous decisions to irrigate when needed.
         """
-        # Apply pending moisture boost from water pump IMMEDIATELY
-        if self.pending_moisture_boost > 0:
-            boost_to_apply = self.pending_moisture_boost
-            self.current_values["soil_moisture"] += boost_to_apply
-            self.pending_moisture_boost = 0
-            print(f"   → Moisture boosted to {self.current_values['soil_moisture']:.1f}%")
-        
         # Calculate ET-based depletion (per hour)
         et_rate_per_hour = self.calculate_evapotranspiration(weather)
         
@@ -989,12 +1161,36 @@ class FarmAwareSensorSimulator:
         hours_per_cycle = UPDATE_INTERVAL / 3600.0
         et_per_cycle = et_rate_per_hour * hours_per_cycle
         
-        # Apply depletion - NO FLOOR, values can go very low
+        # Apply depletion FIRST - NO FLOOR, values can go very low
         # This will trigger autonomous irrigation decisions
         self.current_values["soil_moisture"] = max(
             0,  # Absolute minimum is 0%
             min(100, self.current_values["soil_moisture"] - et_per_cycle)
         )
+        
+        # Apply pending moisture boost from water pump AFTER depletion
+        # This ensures the boost doesn't get immediately wiped out
+        if self.pending_moisture_boost > 0:
+            # SAFETY CHECK: Only apply if moisture is actually low (below optimal threshold)
+            # This prevents boosts from applying when moisture is already adequate
+            current_moisture = self.current_values["soil_moisture"]
+            threshold = self.crop.moisture_optimal[0]
+            
+            if current_moisture < threshold:
+                boost_to_apply = self.pending_moisture_boost
+                # Cap at reasonable max to prevent overflow
+                boost_to_apply = min(40, boost_to_apply)  # Cap at 40% max boost
+                self.current_values["soil_moisture"] = min(100, self.current_values["soil_moisture"] + boost_to_apply)
+                self.pending_moisture_boost = 0
+                print(f"   → Moisture boosted to {self.current_values['soil_moisture']:.1f}%")
+            else:
+                # Moisture is already adequate - discard the pending boost
+                print(f"   ⏭️  Skipping moisture boost ({current_moisture:.1f}% already above threshold {threshold:.1f}%)")
+                self.pending_moisture_boost = 0
+
+        # Prevent surprise spikes during judge demos.
+        if JUDGE_MODE:
+            self._clamp_values_to_crop_bounds(strict=True)
         
         return round(self.current_values["soil_moisture"], 1)
     
@@ -1066,6 +1262,10 @@ class FarmAwareSensorSimulator:
             )
             
             result[key] = round(self.current_values[key], 1)
+
+        # Prevent surprise spikes during judge demos.
+        if JUDGE_MODE:
+            self._clamp_values_to_crop_bounds(strict=True)
         
         return result
     
@@ -1278,6 +1478,7 @@ class FarmAwareSensorSimulator:
         n_val = self.current_values["nitrogen"]
         moisture_threshold = self.crop.moisture_optimal[0]
         n_threshold = self.crop.npk_optimal[0][0]
+        
         
         # Check irrigation
         irrigation_decision = self.should_irrigate(weather_service)
@@ -1665,7 +1866,27 @@ def main():
     farmer_info, farm_info, crop_name = pick_farm(supabase)
     
     # Initialize simulator
-    state_manager = StateManager(STATE_FILE)
+    state_manager = None if NO_STATE else StateManager(STATE_FILE)
+
+    if state_manager and RESET_STATE:
+        # Reset only this farm's persisted state so restarts begin from defaults.
+        try:
+            state_manager.delete_farm_state(farm_info.id)
+        except Exception:
+            pass
+        # Reset command processing pointer for this farm.
+        try:
+            state_manager.delete_meta(f"_command_last_processed_id:{farm_info.id}")
+        except Exception:
+            pass
+        # Also clear legacy global pointer (safe; optional)
+        try:
+            state_manager.delete_meta("_command_last_processed_id")
+        except Exception:
+            pass
+
+        print("\n🧹 RESET STATE: Starting fresh for this farm (no resume from simulator_state.json)")
+
     simulator = FarmAwareSensorSimulator(farm_info, crop_name, state_manager=state_manager)
     crop = simulator.crop
     
@@ -1682,6 +1903,18 @@ def main():
         print("=" * 60)
         # Skip warmup in demo mode for instant action
         simulator.warmup_readings = 0
+
+    if JUDGE_MODE:
+        print()
+        print("=" * 60)
+        print("🏁 JUDGE MODE ACTIVE")
+        print("   - Starts fresh (no resume)")
+        print("   - Skips offline catch-up (no retroactive spikes)")
+        print("   - Ignores old queued commands")
+        print("   - Clamps values to crop-optimal max")
+        print("=" * 60)
+        # Keep it snappy for judges
+        simulator.warmup_readings = 0
     
     print()
     time.sleep(2)
@@ -1689,6 +1922,7 @@ def main():
     db_status = "🔄 Initializing..."
     
     try:
+        iteration = 0
         while True:
             # Get real weather if GPS available
             weather = None
@@ -1730,6 +1964,19 @@ def main():
             simulator.persist_state()
             
             # Wait for next reading
+            iteration += 1
+            if RUN_ONCE or (MAX_ITERATIONS is not None and iteration >= MAX_ITERATIONS):
+                try:
+                    simulator.persist_state()
+                except Exception:
+                    pass
+                print("\n")
+                print("=" * 60)
+                print("✅ Sensor simulation completed")
+                print(f"📊 Total readings generated: {simulator.readings_count}")
+                print("=" * 60)
+                sys.exit(0)
+
             time.sleep(UPDATE_INTERVAL)
             
     except KeyboardInterrupt:

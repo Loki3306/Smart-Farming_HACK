@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Gauge } from "../ui/Gauge";
 import { useFarmContext } from "../../context/FarmContext";
 import cropProfilesData from "../../../shared/crop_profiles.json";
-import RealisticFarmView from "./RealisticFarmView";
+import LottieFarmScene from "./LottieFarmScene";
 import { SystemStatusChart } from "./SystemStatusChart";
 
 // Type for crop profile thresholds
@@ -221,9 +221,9 @@ export const SoilMoisture: React.FC = () => {
         </div>
       </div>
 
-      {/* Virtual Farm Visualization */}
+      {/* Lottie Animated Farm Scene (replaces RealisticFarmView) */}
       <div className="mt-6 pt-4 border-t border-amber-200/30 dark:border-amber-700/30">
-        <RealisticFarmView
+        <LottieFarmScene
           cropName={cropName}
           sensorData={{
             soilMoisture: sensorData?.soilMoisture ?? 50,

@@ -76,16 +76,16 @@ export const Farm: React.FC = () => {
       setLoading(true);
       try {
         const farmId = localStorage.getItem('current_farm_id');
-        
+
         if (farmId) {
           // Fetch farm details
           const farmResponse = await fetch(`/api/farms/${farmId}`);
           if (farmResponse.ok) {
             const farmResult = await farmResponse.json();
             const farm = farmResult.farm;
-            
+
             console.log('[Farm] Loaded farm data:', farm);
-            
+
             setFarmData({
               farmName: farm.farm_name || 'My Farm',
               state: farm.state || 'Maharashtra',
@@ -108,7 +108,7 @@ export const Farm: React.FC = () => {
           if (sensorResponse.ok) {
             const sensorResult = await sensorResponse.json();
             const sensor = sensorResult.sensorData;
-            
+
             if (sensor && sensor.soil_moisture !== null && sensor.soil_moisture !== undefined) {
               console.log('[Farm] ✅ Loaded real sensor data:', sensor);
               setSoilStats({
