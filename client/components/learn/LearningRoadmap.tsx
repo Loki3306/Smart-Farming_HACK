@@ -426,7 +426,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                 <KisaanMitra
                   context={mascotContext}
                   message={mascotMessage}
-                  position="static"
+                  position="inline"
                   size="md"
                   showHelpMenu
                   onDismiss={() => {

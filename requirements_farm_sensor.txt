@@ -1,0 +1,5 @@
+# Farm-Aware Sensor Simulator Requirements
+# Install with: pip install -r requirements_farm_sensor.txt
+
+requests>=2.28.0
+python-dotenv>=1.0.0

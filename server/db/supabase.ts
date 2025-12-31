@@ -108,11 +108,11 @@ export const db = {
   },
 
   // Action Logs
-  async getActionLogs(farmId: string, limit = 50) {
+  async getActionLogs(farmerId: string, limit = 50) {
     const { data, error } = await supabase
       .from('action_logs')
       .select('*')
-      .eq('farm_id', farmId)
+      .eq('farmer_id', farmerId)
       .order('timestamp', { ascending: false })
       .limit(limit);
     
@@ -120,10 +120,31 @@ export const db = {
     return data;
   },
 
-  async createActionLog(log: any) {
+  async getActionLogsSince(farmerId: string, sinceIso: string) {
     const { data, error } = await supabase
       .from('action_logs')
-      .insert([log])
+      .select('*')
+      .eq('farmer_id', farmerId)
+      .gt('timestamp', sinceIso)
+      .order('timestamp', { ascending: true });
+
+    if (error) throw error;
+    return data;
+  },
+
+  async createActionLog(log: any) {
+    // DB schema (DB_Scripts/DB_SCHEMA.sql): farmer_id, action, details, timestamp
+    // Keep backward compatibility with older call sites that used action_type/description.
+    const normalized = {
+      farmer_id: log?.farmer_id,
+      action: log?.action ?? log?.action_type,
+      details: log?.details ?? log?.description,
+      timestamp: log?.timestamp,
+    };
+
+    const { data, error } = await supabase
+      .from('action_logs')
+      .insert([normalized])
       .select()
       .single();
     

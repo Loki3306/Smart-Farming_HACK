@@ -104,6 +104,12 @@ export function useUserPresence(targetUserId?: string) {
 
       // Set offline on unmount or page unload
       const handleBeforeUnload = () => {
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+        if (!supabaseUrl || !supabaseAnonKey) {
+          return;
+        }
+
         // Use navigator.sendBeacon for reliable cleanup
         const blob = new Blob(
           [JSON.stringify({
@@ -116,11 +122,11 @@ export function useUserPresence(targetUserId?: string) {
         );
         
         // Synchronous update using fetch with keepalive
-        fetch(`${supabase.supabaseUrl}/rest/v1/user_presence?user_id=eq.${user.id}`, {
+        fetch(`${supabaseUrl}/rest/v1/user_presence?user_id=eq.${user.id}`, {
           method: 'PATCH',
           headers: {
-            'apikey': supabase.supabaseKey,
-            'Authorization': `Bearer ${supabase.supabaseKey}`,
+            'apikey': supabaseAnonKey,
+            'Authorization': `Bearer ${supabaseAnonKey}`,
             'Content-Type': 'application/json',
             'Prefer': 'return=minimal'
           },

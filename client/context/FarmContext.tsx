@@ -17,6 +17,12 @@ import {
   BlockchainService,
 } from "../services/BlockchainService";
 import { useAuth } from "./AuthContext";
+import { sendNotification } from "../services/NotificationService";
+import {
+  getStoredAlerts,
+  storeAlerts,
+  type SensorAlert,
+} from "../hooks/useSensorAlerts";
 
 export interface ActionLogEntry {
   id: string;
@@ -78,31 +84,39 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
   const [blockchainRecords, setBlockchainRecords] = useState<
     BlockchainRecord[]
   >([]);
-  const [actionLog, setActionLog] = useState<ActionLogEntry[]>([
-    {
-      id: "log_001",
-      timestamp: new Date(Date.now() - 7200000),
-      action: "Irrigation Cycle",
-      description: "Irrigation triggered – 15L dispensed to sector A",
-      type: "irrigation",
-    },
-    {
-      id: "log_002",
-      timestamp: new Date(Date.now() - 10800000),
-      action: "Fertilization Skipped",
-      description: "Fertilization skipped – rain expected within 24h",
-      type: "info",
-    },
-    {
-      id: "log_003",
-      timestamp: new Date(Date.now() - 14400000),
-      action: "Fertilization Applied",
-      description: "NPK boost applied – 2.5kg phosphorus blend",
-      type: "fertilization",
-    },
-  ]);
+  const [actionLog, setActionLog] = useState<ActionLogEntry[]>(
+    CONFIG.USE_MOCK_DATA
+      ? [
+          {
+            id: "log_001",
+            timestamp: new Date(Date.now() - 7200000),
+            action: "Irrigation Cycle",
+            description: "Irrigation triggered – 15L dispensed to sector A",
+            type: "irrigation",
+          },
+          {
+            id: "log_002",
+            timestamp: new Date(Date.now() - 10800000),
+            action: "Fertilization Skipped",
+            description: "Fertilization skipped – rain expected within 24h",
+            type: "info",
+          },
+          {
+            id: "log_003",
+            timestamp: new Date(Date.now() - 14400000),
+            action: "Fertilization Applied",
+            description: "NPK boost applied – 2.5kg phosphorus blend",
+            type: "fertilization",
+          },
+        ]
+      : [],
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const actionLogsInitializedRef = React.useRef(false);
+  const lastSeenActionLogTsRef = React.useRef<number>(0);
+  const lastActionLogFetchAtRef = React.useRef<number>(0);
 
   const isUuid = useCallback(
     (value: string) =>
@@ -188,6 +202,109 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
       ]);
       setSensorData(sensor);
       setSystemStatus(status);
+
+      // Fetch action logs less frequently than sensor readings to reduce load.
+      const now = Date.now();
+      if (now - lastActionLogFetchAtRef.current >= 15000) {
+        lastActionLogFetchAtRef.current = now;
+        const logs = await SensorService.getActionLogs(50);
+
+        const mapped: ActionLogEntry[] = logs
+          .map((log) => {
+            const type: ActionLogEntry["type"] =
+              log.action_type === "irrigation" ||
+              log.action_type === "fertilization" ||
+              log.action_type === "info"
+                ? log.action_type
+                : "info";
+
+            const baseAction =
+              type === "irrigation"
+                ? "Irrigation"
+                : type === "fertilization"
+                  ? "Fertilization"
+                  : "System";
+
+            const desc = String(log.description || "");
+            const isAutonomous = /\bautonomous\b/i.test(desc);
+            const isManual = /\bmanual(ly)?\b/i.test(desc);
+            const originLabel = isAutonomous ? "Autonomous" : isManual ? "Manual" : "";
+
+            const action = originLabel ? `${originLabel} ${baseAction}` : baseAction;
+
+            return {
+              id: log.id,
+              timestamp: new Date(log.timestamp),
+              action,
+              description: log.description,
+              type,
+            };
+          })
+          .filter((e) => !Number.isNaN(e.timestamp.getTime()));
+
+        // On first successful load, don't spam notifications for historical rows.
+        if (!actionLogsInitializedRef.current) {
+          actionLogsInitializedRef.current = true;
+          setActionLog(mapped);
+          lastSeenActionLogTsRef.current = mapped?.[0]
+            ? mapped[0].timestamp.getTime()
+            : 0;
+        } else {
+          // Notify for newly observed actions
+          const lastSeen = lastSeenActionLogTsRef.current;
+          const newEntries = mapped
+            .filter((e) => e.timestamp.getTime() > lastSeen)
+            .slice(0, 3);
+
+          if (newEntries.length > 0) {
+            // Update last seen to the newest entry
+            lastSeenActionLogTsRef.current = mapped[0].timestamp.getTime();
+
+            try {
+              const existing = getStoredAlerts();
+              const appended: SensorAlert[] = [...existing];
+
+              for (const entry of newEntries.reverse()) {
+                const alertType: SensorAlert["type"] =
+                  entry.type === "irrigation" ? "irrigation" : entry.type === "fertilization" ? "crop" : "alert";
+
+                const title =
+                  entry.type === "irrigation"
+                    ? "Irrigation action"
+                    : entry.type === "fertilization"
+                      ? "Fertilization action"
+                      : "System update";
+
+                const alert: SensorAlert = {
+                  id: `action_${entry.id}`,
+                  type: alertType,
+                  title,
+                  message: entry.description,
+                  timestamp: new Date(entry.timestamp),
+                  priority:
+                    entry.type === "irrigation" ? "medium" : entry.type === "fertilization" ? "low" : "low",
+                  read: false,
+                };
+
+                appended.push(alert);
+                storeAlerts(appended);
+
+                // Fire a browser notification as well
+                void sendNotification(title, entry.description, {
+                  type: alertType,
+                  enablePush: true,
+                  enableSound: true,
+                  enableVibration: entry.type === "irrigation",
+                });
+              }
+            } catch (e) {
+              console.warn("[FarmContext] Failed to generate action notifications", e);
+            }
+          }
+
+          setActionLog(mapped);
+        }
+      }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to load sensor data",

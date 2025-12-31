@@ -21,6 +21,14 @@ export interface SystemStatus {
   lastUpdate: Date;
 }
 
+export interface ServerActionLog {
+  id: string;
+  farm_id: string;
+  action_type: "irrigation" | "fertilization" | "info" | string;
+  description: string;
+  timestamp: string;
+}
+
 const mockSensorData: SensorData = {
   soilMoisture: 62,
   temperature: 24.5,
@@ -72,7 +80,7 @@ class SensorServiceClass {
       };
       return this.sensorData;
     }
-    
+
     // Real database call
     try {
       const farmId = localStorage.getItem("current_farm_id");
@@ -82,20 +90,20 @@ class SensorServiceClass {
       }
 
       const response = await fetch(`${CONFIG.API_BASE_URL}/sensors/latest?farmId=${farmId}`);
-      
+
       if (!response.ok) {
         console.warn('Failed to fetch sensor data, using mock data');
         return { ...mockSensorData, timestamp: new Date() };
       }
-      
+
       const data = await response.json();
-      
+
       // If no sensor data in database, use mock data
       if (!data.sensorData) {
         console.warn('No sensor data in database, using mock data');
         return { ...mockSensorData, timestamp: new Date() };
       }
-      
+
       return {
         soilMoisture: data.sensorData.soil_moisture,
         temperature: data.sensorData.temperature,
@@ -121,7 +129,7 @@ class SensorServiceClass {
       await this.simulateDelay();
       return mockSystemStatus;
     }
-    
+
     const farmId = localStorage.getItem("current_farm_id");
     if (!farmId || !isUuid(farmId)) {
       return mockSystemStatus;
@@ -138,10 +146,11 @@ class SensorServiceClass {
       mockSystemStatus.isAutonomous = enabled;
       return;
     }
+    const farmId = localStorage.getItem("current_farm_id");
     const response = await fetch(`${CONFIG.API_BASE_URL}/system/autonomous`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ enabled }),
+      body: JSON.stringify({ enabled, farmId }),
     });
     if (!response.ok) throw new Error("Failed to set autonomous mode");
   }
@@ -151,7 +160,7 @@ class SensorServiceClass {
       await this.simulateDelay();
       return true;
     }
-    
+
     const farmId = localStorage.getItem("current_farm_id");
     if (!farmId || !isUuid(farmId)) {
       throw new Error("No farm selected");
@@ -171,7 +180,7 @@ class SensorServiceClass {
       await this.simulateDelay();
       return true;
     }
-    
+
     const farmId = localStorage.getItem("current_farm_id");
     if (!farmId || !isUuid(farmId)) {
       throw new Error("No farm selected");
@@ -184,6 +193,31 @@ class SensorServiceClass {
     if (!response.ok) throw new Error("Failed to trigger fertilizer");
     const data = await response.json();
     return data.success;
+  }
+
+  async getActionLogs(limit = 50): Promise<ServerActionLog[]> {
+    if (CONFIG.USE_MOCK_DATA) {
+      await this.simulateDelay();
+      return [];
+    }
+
+    const farmId = localStorage.getItem("current_farm_id");
+    if (!farmId || !isUuid(farmId)) {
+      return [];
+    }
+
+    const response = await fetch(
+      `${CONFIG.API_BASE_URL}/sensors/action-logs?farmId=${encodeURIComponent(farmId)}&limit=${encodeURIComponent(String(limit))}`,
+    );
+
+    if (!response.ok) {
+      console.warn("Failed to fetch action logs");
+      return [];
+    }
+
+    const data = await response.json();
+    const logs = Array.isArray(data?.actionLogs) ? data.actionLogs : [];
+    return logs;
   }
 
   private simulateDelay(): Promise<void> {

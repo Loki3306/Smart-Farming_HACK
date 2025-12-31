@@ -1,6 +1,5 @@
 import React from "react";
-import { Droplet, Leaf, Info } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { Droplet, Leaf, Info, Clock } from "lucide-react";
 import { useFarmContext } from "../../context/FarmContext";
 
 export const ActionLog: React.FC = () => {
@@ -9,70 +8,119 @@ export const ActionLog: React.FC = () => {
   const getIcon = (type: string) => {
     switch (type) {
       case "irrigation":
-        return <Droplet className="w-4 h-4 text-blue-500" />;
+        return <Droplet className="w-4 h-4 text-blue-500 dark:text-blue-400" />;
       case "fertilization":
-        return <Leaf className="w-4 h-4 text-emerald-600" />;
+        return <Leaf className="w-4 h-4 text-green-500 dark:text-green-400" />;
       default:
         return <Info className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
-  const getTypeBadgeColor = (type: string) => {
+  const getTypeStyles = (type: string) => {
     switch (type) {
       case "irrigation":
-        return "bg-blue-100 text-blue-700";
+        return {
+          bg: "bg-blue-100/50 dark:bg-blue-800/30",
+          border: "border-blue-200/50 dark:border-blue-700/40",
+          badge: "bg-blue-200/60 dark:bg-blue-700/50 text-blue-700 dark:text-blue-300",
+        };
       case "fertilization":
-        return "bg-emerald-100 text-emerald-700";
+        return {
+          bg: "bg-green-100/50 dark:bg-green-800/30",
+          border: "border-green-200/50 dark:border-green-700/40",
+          badge: "bg-green-200/60 dark:bg-green-700/50 text-green-700 dark:text-green-300",
+        };
       default:
-        return "bg-muted text-foreground";
+        return {
+          bg: "bg-amber-100/30 dark:bg-amber-800/20",
+          border: "border-amber-200/30 dark:border-amber-700/30",
+          badge: "bg-amber-200/50 dark:bg-amber-700/40 text-amber-700 dark:text-amber-300",
+        };
     }
   };
 
   return (
-    <Card className="p-6">
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-foreground">Action Log</h3>
+    <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-amber-50/80 via-orange-50/60 to-yellow-50/80 dark:from-amber-900/20 dark:via-orange-900/15 dark:to-yellow-900/20 backdrop-blur-md border border-amber-200/50 dark:border-amber-700/30 shadow-lg hover:shadow-xl transition-all duration-300 p-6">
+      {/* Simple Header */}
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <h3 className="text-lg font-semibold text-foreground">Action Log</h3>
+          <p className="text-sm text-muted-foreground">Recent activities</p>
+        </div>
+        <div className="w-10 h-10 rounded-full bg-amber-200/50 dark:bg-amber-700/30 flex items-center justify-center">
+          <span className="text-lg">📋</span>
+        </div>
+      </div>
 
-        {actionLog.length === 0 ? (
-          <div className="py-8 text-center text-muted-foreground">
-            No recent actions
+      {actionLog.length === 0 ? (
+        <div className="py-12 text-center">
+          <div className="w-16 h-16 rounded-full bg-amber-100/50 dark:bg-amber-800/30 flex items-center justify-center mx-auto mb-4">
+            <Clock className="w-8 h-8 text-amber-500 dark:text-amber-400" />
           </div>
-        ) : (
-          <div className="space-y-3 max-h-96 overflow-y-auto">
-            {actionLog.slice(0, 8).map((entry) => (
+          <p className="text-muted-foreground font-medium">No recent actions</p>
+          <p className="text-sm text-muted-foreground/70 mt-1">
+            Actions will appear here as they happen
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
+          {actionLog.slice(0, 8).map((entry, index) => {
+            const styles = getTypeStyles(entry.type);
+            return (
               <div
                 key={entry.id}
-                className="flex items-start gap-3 p-3 bg-card/20 dark:bg-card/20 rounded-lg backdrop-blur-sm border border-border/50 hover:bg-card/30 dark:bg-card/30 transition-colors"
+                className={`relative flex items-start gap-3 p-4 rounded-xl ${styles.bg} border ${styles.border} backdrop-blur-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5`}
+                style={{
+                  animation: index === 0 ? 'fadeInSlide 0.3s ease-out' : undefined
+                }}
               >
-                <div className="flex-shrink-0 mt-1">{getIcon(entry.type)}</div>
+                {/* Icon */}
+                <div className="flex-shrink-0 w-9 h-9 rounded-full bg-white/80 dark:bg-white/10 shadow-sm flex items-center justify-center">
+                  {getIcon(entry.type)}
+                </div>
+
+                {/* Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1">
-                      <div className="font-medium text-foreground text-sm">
+                      <div className="font-semibold text-foreground text-sm">
                         {entry.action}
                       </div>
-                      <div className="text-xs text-muted-foreground mt-0.5">
+                      <div className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
                         {entry.description}
                       </div>
                     </div>
                     <span
-                      className={`text-xs font-semibold px-2 py-1 rounded-full flex-shrink-0 ${getTypeBadgeColor(
-                        entry.type,
-                      )}`}
+                      className={`text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0 ${styles.badge}`}
                     >
                       {entry.type.charAt(0).toUpperCase() +
                         entry.type.slice(1).replace("_", " ")}
                     </span>
                   </div>
-                  <div className="text-xs text-muted-foreground mt-2">
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground mt-2">
+                    <Clock className="w-3 h-3" />
                     {entry.timestamp.toLocaleTimeString()}
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </Card>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Custom animation styles */}
+      <style>{`
+        @keyframes fadeInSlide {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+    </div>
   );
 };

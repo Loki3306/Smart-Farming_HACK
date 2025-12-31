@@ -69,14 +69,14 @@ export const Weather: React.FC = () => {
         // Fetch current weather
         const current = await WeatherService.getCurrentWeather();
         console.log('[Weather Page] Current weather:', current);
-        
+
         // Calculate sunrise/sunset from timestamp (mock for now, OpenWeather free tier doesn't include this)
         const now = new Date();
         const sunriseTime = new Date(now);
         sunriseTime.setHours(6, 15, 0);
         const sunsetTime = new Date(now);
         sunsetTime.setHours(18, 45, 0);
-        
+
         setCurrentWeather({
           temperature: current.temperature,
           feelsLike: current.feelsLike,
@@ -94,15 +94,15 @@ export const Weather: React.FC = () => {
         // Fetch forecast
         const forecastData = await WeatherService.getForecast();
         console.log('[Weather Page] Forecast:', forecastData);
-        
+
         // Extract daily forecast
         const dailyForecast = forecastData.forecast || forecastData;
-        
+
         const formattedForecast: WeatherDay[] = dailyForecast.map((day: any, index: number) => {
           const date = new Date(day.date);
           const dayName = index === 0 ? 'Today' : date.toLocaleDateString('en-US', { weekday: 'short' });
           const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-          
+
           return {
             day: dayName,
             date: dateStr,
@@ -113,7 +113,7 @@ export const Weather: React.FC = () => {
             precipitation: day.rainChance,
           };
         });
-        
+
         setForecast(formattedForecast);
       } catch (error) {
         console.error('[Weather Page] Error fetching weather:', error);
@@ -123,7 +123,7 @@ export const Weather: React.FC = () => {
     };
 
     fetchWeather();
-    
+
     // Refresh weather every 5 minutes
     const interval = setInterval(fetchWeather, 5 * 60 * 1000);
     return () => clearInterval(interval);
