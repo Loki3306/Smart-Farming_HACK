@@ -20,12 +20,12 @@ import {
 } from "../components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "../components/ui/avatar";
 
-// Time-based farm images
-import morningImage from "../assets/farm-time-images/morning.png";
-import afternoonImage from "../assets/farm-time-images/afternoon.png";
-import eveningImage from "../assets/farm-time-images/evening.png";
-import nightImage from "../assets/farm-time-images/night.png";
-import farmerImage from "../assets/farm-time-images/farmer.png";
+// Time-based farm images (WebP optimized - 94% smaller!)
+import morningImage from "../assets/farm-time-images/morning.webp";
+import afternoonImage from "../assets/farm-time-images/afternoon.webp";
+import eveningImage from "../assets/farm-time-images/evening.webp";
+import nightImage from "../assets/farm-time-images/night.webp";
+import farmerImage from "../assets/farm-time-images/farmer.webp";
 
 export const Home: React.FC = () => {
   const { refreshSensorData, refreshWeather, refreshBlockchain, systemStatus } =
@@ -178,15 +178,15 @@ export const Home: React.FC = () => {
     refreshBlockchain();
   }, [refreshSensorData, refreshWeather, refreshBlockchain]);
 
-  // Auto-refresh sensor data every 5 seconds
+  // Auto-refresh sensor data every 30 seconds (optimized from 5s)
   useInterval(() => {
     refreshSensorData();
-  }, 5000);
+  }, 30000);
 
-  // Auto-refresh weather every 30 seconds
+  // Auto-refresh weather every 5 minutes (optimized from 30s)
   useInterval(() => {
     refreshWeather();
-  }, 30000);
+  }, 300000);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50/50 to-yellow-50 dark:from-stone-900 dark:via-stone-900 dark:to-stone-800">

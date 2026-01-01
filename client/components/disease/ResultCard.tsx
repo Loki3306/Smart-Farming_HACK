@@ -54,8 +54,9 @@ export default function ResultCard({ result, onReset, diseaseInfo, diseaseInfoLo
 
   const diseaseName = rawDisease ? formatDisease(rawDisease) : null;
 
-  const state = confidence >= 0.85 ? "confident" : (confidence >= 0.5 ? "uncertain" : "none");
-  const percent = Math.round((confidence * 100) * 10) / 10;
+  // Confidence comes as percentage (0-100) from API, not decimal (0-1)
+  const state = confidence >= 85 ? "confident" : (confidence >= 50 ? "uncertain" : "none");
+  const percent = Math.round(confidence * 10) / 10; // Round to 1 decimal place
   const color = state === 'confident' ? '#16A34A' : state === 'uncertain' ? '#D97706' : '#DC2626';
 
   const radius = 36;

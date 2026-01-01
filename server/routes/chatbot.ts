@@ -224,13 +224,35 @@ async function callGroq(messages: any[], model: string = DEFAULT_GROQ_MODEL): Pr
  */
 async function checkGroqAvailability(): Promise<boolean> {
   try {
+    // Check if API key exists first
+    if (!process.env.GROQ_API_KEY) {
+      console.error('❌ GROQ_API_KEY not found in environment');
+      return false;
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+    
     const response = await fetch('https://api.groq.com/openai/v1/models', {
       headers: { Authorization: `Bearer ${process.env.GROQ_API_KEY}` },
+      signal: controller.signal,
     });
 
-    return response.ok;
-  } catch (error) {
-    console.error('❌ Groq not available:', error);
+    clearTimeout(timeoutId);
+    
+    if (response.ok) {
+      console.log('✅ Groq API is available');
+      return true;
+    }
+    
+    console.error('❌ Groq API returned:', response.status, response.statusText);
+    return false;
+  } catch (error: any) {
+    if (error.name === 'AbortError') {
+      console.error('❌ Groq availability check timed out');
+    } else {
+      console.error('❌ Groq not available:', error.message);
+    }
     return false;
   }
 }
@@ -434,7 +456,24 @@ router.post('/chat-stream', async (req: Request, res: Response) => {
     // Check selected provider availability
     const isAvailable = CHATBOT_PROVIDER === 'groq' ? await checkGroqAvailability() : await checkOllamaAvailability();
     if (!isAvailable) {
-      return res.status(503).json({ error: `${CHATBOT_PROVIDER} service unavailable` });
+      // Instead of returning 503, send a helpful fallback message via stream
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+      
+      const fallbackMsg = `I apologize, but the AI service is currently unavailable. This could be due to:\n\n` +
+        `- Network connectivity issues\n` +
+        `- API rate limits\n` +
+        `- Service maintenance\n\n` +
+        `Please try again in a few moments. For urgent farming advice, you can:\n` +
+        `1. Check the Weather and Recommendations sections\n` +
+        `2. Browse the Learning resources\n` +
+        `3. Ask questions in the Community forum`;
+      
+      res.write(`data: ${JSON.stringify({ chunk: fallbackMsg })}\n\n`);
+      res.write(`data: ${JSON.stringify({ done: true, error: 'service_unavailable' })}\n\n`);
+      res.end();
+      return;
     }
 
     // Set headers for streaming

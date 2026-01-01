@@ -50,7 +50,7 @@ router.post("/predict", upload.single("image"), async (req: Request, res: Respon
 // Simple in-memory cache for disease info (ttl in ms)
 const DISEASE_INFO_CACHE: Map<string, { value: any; expiresAt: number }> = new Map();
 const CACHE_TTL = 1000 * 60 * 60 * 24; // 24 hours
-const SERVER_BASE_URL = process.env.SERVER_BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
+const SERVER_BASE_URL = process.env.SERVER_BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
 
 /**
  * POST /api/disease/info

@@ -8,5 +8,12 @@
   "6cf745c4-278e-473b-90a1-181ad92b6aa5": {
     "isAutonomous": true,
     "lastRunAt": "2025-12-31T07:31:58.700Z"
+  },
+  "8ced305a-438b-4d30-866f-8454c0bb8912": {
+    "isAutonomous": false
+  },
+  "f6c5dd64-9044-4700-9071-29aeeafffa30": {
+    "isAutonomous": true,
+    "lastRunAt": "2025-12-31T18:24:48.419Z"
   }
 }
