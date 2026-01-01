@@ -258,38 +258,41 @@ export function useBulkPresence(userIds: string[]) {
     fetchBulkPresence();
   }, [userIds.join(',')]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Subscribe to updates for all users
+  // Subscribe to updates for all users - OPTIMIZED: Single channel instead of one per user
   useEffect(() => {
     if (userIds.length === 0) return;
 
-    const channels = userIds.map((userId) => {
-      const channel = supabase
-        .channel(`bulk-presence:${userId}`)
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'user_presence',
-            filter: `user_id=eq.${userId}`,
-          },
-          (payload) => {
+    // Create a single channel for all presence updates instead of one per user
+    const channelId = `bulk-presence:${userIds.slice(0, 5).join('-')}-${userIds.length}`;
+    const channel = supabase
+      .channel(channelId)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_presence',
+          // Filter for any of the userIds we care about
+          filter: userIds.length <= 10 
+            ? `user_id=in.(${userIds.join(',')})` 
+            : undefined, // For large lists, filter client-side
+        },
+        (payload) => {
+          const newPresence = payload.new as UserPresence;
+          // Only update if this user is in our list
+          if (userIds.includes(newPresence.user_id)) {
             setPresenceMap((prev) => {
               const newMap = new Map(prev);
-              newMap.set(userId, payload.new as UserPresence);
+              newMap.set(newPresence.user_id, newPresence);
               return newMap;
             });
           }
-        )
-        .subscribe();
-
-      return channel;
-    });
+        }
+      )
+      .subscribe();
 
     return () => {
-      channels.forEach((channel) => {
-        supabase.removeChannel(channel);
-      });
+      supabase.removeChannel(channel);
     };
   }, [userIds.join(',')]); // eslint-disable-line react-hooks/exhaustive-deps
 

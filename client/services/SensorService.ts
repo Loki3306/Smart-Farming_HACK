@@ -29,6 +29,64 @@ export interface ServerActionLog {
   timestamp: string;
 }
 
+// ===== REQUEST CACHE LAYER - Prevents duplicate API calls =====
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+  promise?: Promise<T>;
+}
+
+class RequestCache {
+  private cache = new Map<string, CacheEntry<unknown>>();
+  private pendingRequests = new Map<string, Promise<unknown>>();
+  private defaultTTL = 5000; // 5 seconds default cache
+
+  async get<T>(
+    key: string, 
+    fetcher: () => Promise<T>, 
+    ttl: number = this.defaultTTL
+  ): Promise<T> {
+    const now = Date.now();
+    const cached = this.cache.get(key);
+    
+    // Return cached data if still valid
+    if (cached && (now - cached.timestamp) < ttl) {
+      return cached.data as T;
+    }
+
+    // If there's already a pending request for this key, wait for it
+    const pending = this.pendingRequests.get(key);
+    if (pending) {
+      return pending as Promise<T>;
+    }
+
+    // Make the request and cache it
+    const promise = fetcher().then(data => {
+      this.cache.set(key, { data, timestamp: Date.now() });
+      this.pendingRequests.delete(key);
+      return data;
+    }).catch(err => {
+      this.pendingRequests.delete(key);
+      throw err;
+    });
+
+    this.pendingRequests.set(key, promise);
+    return promise;
+  }
+
+  invalidate(key: string) {
+    this.cache.delete(key);
+  }
+
+  invalidateAll() {
+    this.cache.clear();
+    this.pendingRequests.clear();
+  }
+}
+
+const requestCache = new RequestCache();
+// ===== END CACHE LAYER =====
+
 const mockSensorData: SensorData = {
   soilMoisture: 62,
   temperature: 24.5,
@@ -81,47 +139,48 @@ class SensorServiceClass {
       return this.sensorData;
     }
 
-    // Real database call
-    try {
-      const farmId = localStorage.getItem("current_farm_id");
-      if (!farmId || !isUuid(farmId)) {
-        // Farm not selected yet; avoid hammering backend with invalid UUIDs
-        return { ...mockSensorData, timestamp: new Date() };
-      }
-
-      const response = await fetch(`${CONFIG.API_BASE_URL}/sensors/latest?farmId=${farmId}`);
-
-      if (!response.ok) {
-        console.warn('Failed to fetch sensor data, using mock data');
-        return { ...mockSensorData, timestamp: new Date() };
-      }
-
-      const data = await response.json();
-
-      // If no sensor data in database, use mock data
-      if (!data.sensorData) {
-        console.warn('No sensor data in database, using mock data');
-        return { ...mockSensorData, timestamp: new Date() };
-      }
-
-      return {
-        soilMoisture: data.sensorData.soil_moisture,
-        temperature: data.sensorData.temperature,
-        humidity: data.sensorData.humidity ?? mockSensorData.humidity,
-        npk: {
-          nitrogen: data.sensorData.nitrogen,
-          phosphorus: data.sensorData.phosphorus,
-          potassium: data.sensorData.potassium,
-        },
-        pH: data.sensorData.ph,
-        ec: data.sensorData.ec ?? mockSensorData.ec,
-        timestamp: new Date(data.sensorData.timestamp),
-      };
-    } catch (error) {
-      console.error('Failed to fetch sensor data from database:', error);
-      // Fallback to mock data on error
+    // Real database call with CACHING to prevent duplicate requests
+    const farmId = localStorage.getItem("current_farm_id");
+    if (!farmId || !isUuid(farmId)) {
       return { ...mockSensorData, timestamp: new Date() };
     }
+
+    const cacheKey = `sensor-data-${farmId}`;
+    
+    return requestCache.get(cacheKey, async () => {
+      try {
+        const response = await fetch(`${CONFIG.API_BASE_URL}/sensors/latest?farmId=${farmId}`);
+
+        if (!response.ok) {
+          console.warn('Failed to fetch sensor data, using mock data');
+          return { ...mockSensorData, timestamp: new Date() };
+        }
+
+        const data = await response.json();
+
+        if (!data.sensorData) {
+          console.warn('No sensor data in database, using mock data');
+          return { ...mockSensorData, timestamp: new Date() };
+        }
+
+        return {
+          soilMoisture: data.sensorData.soil_moisture,
+          temperature: data.sensorData.temperature,
+          humidity: data.sensorData.humidity ?? mockSensorData.humidity,
+          npk: {
+            nitrogen: data.sensorData.nitrogen,
+            phosphorus: data.sensorData.phosphorus,
+            potassium: data.sensorData.potassium,
+          },
+          pH: data.sensorData.ph,
+          ec: data.sensorData.ec ?? mockSensorData.ec,
+          timestamp: new Date(data.sensorData.timestamp),
+        };
+      } catch (error) {
+        console.error('Failed to fetch sensor data from database:', error);
+        return { ...mockSensorData, timestamp: new Date() };
+      }
+    }, 10000); // Cache for 10 seconds
   }
 
   async getSystemStatus(): Promise<SystemStatus> {
@@ -134,10 +193,15 @@ class SensorServiceClass {
     if (!farmId || !isUuid(farmId)) {
       return mockSystemStatus;
     }
-    const response = await fetch(`${CONFIG.API_BASE_URL}/sensors/system-status?farmId=${farmId}`);
-    if (!response.ok) throw new Error("Failed to fetch system status");
-    const data = await response.json();
-    return data.systemStatus;
+
+    const cacheKey = `system-status-${farmId}`;
+    
+    return requestCache.get(cacheKey, async () => {
+      const response = await fetch(`${CONFIG.API_BASE_URL}/sensors/system-status?farmId=${farmId}`);
+      if (!response.ok) throw new Error("Failed to fetch system status");
+      const data = await response.json();
+      return data.systemStatus;
+    }, 15000); // Cache for 15 seconds
   }
 
   async setAutonomous(enabled: boolean): Promise<void> {

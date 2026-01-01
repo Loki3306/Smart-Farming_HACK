@@ -98,6 +98,14 @@ const mockHourlyForecast = [
 class WeatherServiceClass {
   private cachedLocation: { latitude: number; longitude: number; timestamp: number } | null = null;
   private readonly LOCATION_CACHE_DURATION = 5 * 60 * 1000; // Cache for 5 minutes
+  
+  // Request caching to prevent duplicate API calls
+  private weatherCache: { data: WeatherData; timestamp: number } | null = null;
+  private forecastCache: { data: any; timestamp: number } | null = null;
+  private pendingWeatherRequest: Promise<WeatherData> | null = null;
+  private pendingForecastRequest: Promise<any> | null = null;
+  private readonly WEATHER_CACHE_DURATION = 60000; // 1 minute cache
+  private readonly FORECAST_CACHE_DURATION = 300000; // 5 minute cache
 
   // Get user's current GPS location from browser
   private async getUserLocation(): Promise<{ latitude: number; longitude: number } | null> {
@@ -172,6 +180,16 @@ class WeatherServiceClass {
       };
     }
     
+    // Check cache first
+    if (this.weatherCache && (Date.now() - this.weatherCache.timestamp) < this.WEATHER_CACHE_DURATION) {
+      return this.weatherCache.data;
+    }
+    
+    // Return pending request if exists (deduplication)
+    if (this.pendingWeatherRequest) {
+      return this.pendingWeatherRequest;
+    }
+    
     // Try to get user's current GPS location first
     const gpsLocation = await this.getUserLocation();
     
@@ -189,15 +207,38 @@ class WeatherServiceClass {
       console.log('[Weather] Using farm location (GPS not available)');
     }
     
-    const response = await fetch(url);
-    if (!response.ok) throw new Error("Failed to fetch weather data");
-    return response.json();
+    this.pendingWeatherRequest = fetch(url)
+      .then(response => {
+        if (!response.ok) throw new Error("Failed to fetch weather data");
+        return response.json();
+      })
+      .then(data => {
+        this.weatherCache = { data, timestamp: Date.now() };
+        this.pendingWeatherRequest = null;
+        return data;
+      })
+      .catch(err => {
+        this.pendingWeatherRequest = null;
+        throw err;
+      });
+    
+    return this.pendingWeatherRequest;
   }
 
   async getForecast(): Promise<any> {
     if (CONFIG.USE_MOCK_DATA) {
       await this.simulateDelay();
       return { forecast: mockForecast, hourly: mockHourlyForecast };
+    }
+    
+    // Check cache first
+    if (this.forecastCache && (Date.now() - this.forecastCache.timestamp) < this.FORECAST_CACHE_DURATION) {
+      return this.forecastCache.data;
+    }
+    
+    // Return pending request if exists (deduplication)
+    if (this.pendingForecastRequest) {
+      return this.pendingForecastRequest;
     }
     
     // Try to get user's current GPS location first
@@ -215,10 +256,23 @@ class WeatherServiceClass {
         : `${CONFIG.API_BASE_URL}/weather/forecast`;
     }
     
-    const response = await fetch(url);
-    if (!response.ok) throw new Error("Failed to fetch forecast");
-    const data = await response.json();
-    return data.forecast || data; // Handle both response formats
+    this.pendingForecastRequest = fetch(url)
+      .then(response => {
+        if (!response.ok) throw new Error("Failed to fetch forecast");
+        return response.json();
+      })
+      .then(data => {
+        const result = data.forecast || data;
+        this.forecastCache = { data: result, timestamp: Date.now() };
+        this.pendingForecastRequest = null;
+        return result;
+      })
+      .catch(err => {
+        this.pendingForecastRequest = null;
+        throw err;
+      });
+    
+    return this.pendingForecastRequest;
   }
 
   async getHistoricalData(days: number = 30): Promise<WeatherData[]> {

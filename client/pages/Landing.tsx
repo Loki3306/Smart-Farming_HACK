@@ -1060,11 +1060,11 @@ export const Landing = () => {
               {/* Video container with enhanced borders */}
               <div className="relative bg-gradient-to-br from-primary/5 to-emerald-500/5 p-1 rounded-3xl">
                 <div className="relative bg-card rounded-3xl overflow-hidden shadow-2xl border-2 border-primary/20 aspect-video">
-                  {/* Actual Video */}
+                  {/* Actual Video - preload="none" to avoid loading 37MB video on page load */}
                   <video
                     className="w-full h-full object-cover"
                     controls
-                    preload="metadata"
+                    preload="none"
                     poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 450'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%230f766e'/%3E%3Cstop offset='100%25' stop-color='%2310b981'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='800' height='450' fill='url(%23g)'/%3E%3Cg opacity='0.8'%3E%3Ctext x='400' y='200' text-anchor='middle' fill='white' font-size='60' font-weight='bold' font-family='system-ui'%3EKrushi Mitra%3C/text%3E%3Ctext x='400' y='260' text-anchor='middle' fill='white' font-size='24' font-family='system-ui'%3ESmart Farming Demo%3C/text%3E%3Ccircle cx='400' cy='300' r='30' fill='white' opacity='0.9'/%3E%3Cpolygon points='390,285 390,315 415,300' fill='%230f766e'/%3E%3C/g%3E%3C/svg%3E"
                   >
                     <source src="/assets/The_Self-Running_Farm.mp4" type="video/mp4" />

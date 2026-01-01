@@ -269,50 +269,77 @@ export function usePostReactions(
 }
 
 // ============================================================================
-// usePostComments - Real-time comments for a post
+// usePostComments - Real-time comments for a post with pagination
 // ============================================================================
 
 interface UseCommentsReturn {
   comments: Comment[];
   loading: boolean;
   error: string | null;
+  hasMore: boolean;
+  total: number;
   addComment: (content: string) => Promise<Comment | null>;
+  loadMore: () => Promise<void>;
   refresh: () => Promise<void>;
 }
 
-export function usePostComments(postId: string, authorId: string): UseCommentsReturn {
+export function usePostComments(postId: string, authorId: string, initialLimit = 20): UseCommentsReturn {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+  const [total, setTotal] = useState(0);
+  const [offset, setOffset] = useState(0);
   
   const channelRef = useRef<RealtimeChannel | null>(null);
 
-  // Fetch comments
-  const fetchComments = useCallback(async () => {
+  // Fetch comments with pagination
+  const fetchComments = useCallback(async (reset = true) => {
     try {
       setLoading(true);
       setError(null);
-      const result = await commentsApi.getComments(postId);
-      setComments(result.comments);
+      const currentOffset = reset ? 0 : offset;
+      const result = await commentsApi.getComments(postId, { 
+        limit: initialLimit, 
+        offset: currentOffset 
+      });
+      
+      if (reset) {
+        setComments(result.comments);
+        setOffset(initialLimit);
+      } else {
+        setComments(prev => [...prev, ...result.comments]);
+        setOffset(prev => prev + initialLimit);
+      }
+      setHasMore(result.hasMore);
+      setTotal(result.total);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch comments');
     } finally {
       setLoading(false);
     }
-  }, [postId]);
+  }, [postId, initialLimit, offset]);
+
+  // Load more comments
+  const loadMore = useCallback(async () => {
+    if (!loading && hasMore) {
+      await fetchComments(false);
+    }
+  }, [loading, hasMore, fetchComments]);
 
   // Initial fetch and real-time subscription
   useEffect(() => {
-    fetchComments();
+    fetchComments(true);
 
     channelRef.current = realtime.subscribeToComments(postId, (newComment) => {
       setComments((prev) => [...prev, newComment]);
+      setTotal(prev => prev + 1);
     });
 
     return () => {
       if (channelRef.current) realtime.unsubscribe(channelRef.current);
     };
-  }, [postId, fetchComments]);
+  }, [postId]);
 
   // Add comment
   const addComment = useCallback(async (content: string): Promise<Comment | null> => {
@@ -326,7 +353,7 @@ export function usePostComments(postId: string, authorId: string): UseCommentsRe
     }
   }, [postId, authorId]);
 
-  return { comments, loading, error, addComment, refresh: fetchComments };
+  return { comments, loading, error, hasMore, total, addComment, loadMore, refresh: () => fetchComments(true) };
 }
 
 // ============================================================================

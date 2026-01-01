@@ -347,11 +347,20 @@ router.get('/posts/:id/reactions', async (req: Request, res: Response) => {
 
 /**
  * GET /api/community/posts/:id/comments
- * Get all comments for a post
+ * Get comments for a post with pagination
+ * Query params: limit (default 20), offset (default 0)
  */
 router.get('/posts/:id/comments', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const limit = Math.min(parseInt(req.query.limit as string) || 20, 100); // Max 100
+    const offset = parseInt(req.query.offset as string) || 0;
+
+    // Get total count
+    const { count } = await supabase
+      .from('post_comments')
+      .select('id', { count: 'exact', head: true })
+      .eq('post_id', id);
 
     const { data, error } = await supabase
       .from('post_comments')
@@ -360,11 +369,16 @@ router.get('/posts/:id/comments', async (req: Request, res: Response) => {
         author:farmers!author_id(id, name:name)
       `)
       .eq('post_id', id)
-      .order('created_at', { ascending: true });
+      .order('created_at', { ascending: true })
+      .range(offset, offset + limit - 1);
 
     if (error) throw error;
 
-    res.json({ comments: data });
+    res.json({ 
+      comments: data, 
+      total: count || 0,
+      hasMore: (offset + limit) < (count || 0)
+    });
   } catch (error: any) {
     console.error('Error fetching comments:', error);
     res.status(500).json({ error: error.message });

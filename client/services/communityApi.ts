@@ -11,6 +11,56 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ============================================================================
+// REQUEST CACHE - Prevents duplicate API calls
+// ============================================================================
+
+class CommunityCache {
+  private cache = new Map<string, { data: unknown; timestamp: number }>();
+  private pending = new Map<string, Promise<unknown>>();
+
+  async get<T>(key: string, fetcher: () => Promise<T>, ttl = 30000): Promise<T> {
+    const now = Date.now();
+    const cached = this.cache.get(key);
+
+    // Return cached if still valid
+    if (cached && now - cached.timestamp < ttl) {
+      return cached.data as T;
+    }
+
+    // Return pending request if exists (deduplication)
+    const pendingReq = this.pending.get(key);
+    if (pendingReq) return pendingReq as Promise<T>;
+
+    // Make new request
+    const promise = fetcher()
+      .then((data) => {
+        this.cache.set(key, { data, timestamp: Date.now() });
+        this.pending.delete(key);
+        return data;
+      })
+      .catch((err) => {
+        this.pending.delete(key);
+        throw err;
+      });
+
+    this.pending.set(key, promise);
+    return promise;
+  }
+
+  invalidate(key: string) {
+    this.cache.delete(key);
+  }
+
+  invalidatePrefix(prefix: string) {
+    for (const key of this.cache.keys()) {
+      if (key.startsWith(prefix)) this.cache.delete(key);
+    }
+  }
+}
+
+const cache = new CommunityCache();
+
+// ============================================================================
 // TYPES
 // ============================================================================
 
@@ -214,15 +264,23 @@ export const reactionsApi = {
 };
 
 // ============================================================================
-// COMMENTS API
+// COMMENTS API (with pagination)
 // ============================================================================
 
 export const commentsApi = {
   /**
-   * Get comments for a post
+   * Get comments for a post with pagination
    */
-  async getComments(postId: string): Promise<{ comments: Comment[] }> {
-    const response = await fetch(`${API_BASE}/posts/${postId}/comments`);
+  async getComments(
+    postId: string, 
+    options?: { limit?: number; offset?: number }
+  ): Promise<{ comments: Comment[]; total: number; hasMore: boolean }> {
+    const params = new URLSearchParams();
+    if (options?.limit) params.append('limit', String(options.limit));
+    if (options?.offset) params.append('offset', String(options.offset));
+    
+    const url = `${API_BASE}/posts/${postId}/comments${params.toString() ? `?${params}` : ''}`;
+    const response = await fetch(url);
     if (!response.ok) throw new Error('Failed to fetch comments');
     return response.json();
   },
@@ -246,17 +304,19 @@ export const commentsApi = {
 };
 
 // ============================================================================
-// EXPERTS API
+// EXPERTS API (with caching)
 // ============================================================================
 
 export const expertsApi = {
   /**
-   * Get all experts
+   * Get all experts - CACHED for 60 seconds
    */
   async getExperts(): Promise<{ experts: Expert[] }> {
-    const response = await fetch(`${API_BASE}/experts`);
-    if (!response.ok) throw new Error('Failed to fetch experts');
-    return response.json();
+    return cache.get('experts-list', async () => {
+      const response = await fetch(`${API_BASE}/experts`);
+      if (!response.ok) throw new Error('Failed to fetch experts');
+      return response.json();
+    }, 60000); // 60 second cache
   },
 
   /**
@@ -272,31 +332,36 @@ export const expertsApi = {
       body: JSON.stringify({ follower_id: followerId }),
     });
     if (!response.ok) throw new Error('Failed to toggle follow');
+    cache.invalidate('experts-list'); // Invalidate cache on follow change
     return response.json();
   },
 };
 
 // ============================================================================
-// STATS & TRENDING API
+// STATS & TRENDING API (with caching)
 // ============================================================================
 
 export const statsApi = {
   /**
-   * Get community statistics
+   * Get community statistics - CACHED for 30 seconds
    */
   async getStats(): Promise<CommunityStats> {
-    const response = await fetch(`${API_BASE}/stats`);
-    if (!response.ok) throw new Error('Failed to fetch stats');
-    return response.json();
+    return cache.get('community-stats', async () => {
+      const response = await fetch(`${API_BASE}/stats`);
+      if (!response.ok) throw new Error('Failed to fetch stats');
+      return response.json();
+    }, 30000); // 30 second cache
   },
 
   /**
-   * Get trending topics
+   * Get trending topics - CACHED for 60 seconds
    */
   async getTrending(): Promise<{ trending: TrendingTopic[] }> {
-    const response = await fetch(`${API_BASE}/trending`);
-    if (!response.ok) throw new Error('Failed to fetch trending');
-    return response.json();
+    return cache.get('trending-topics', async () => {
+      const response = await fetch(`${API_BASE}/trending`);
+      if (!response.ok) throw new Error('Failed to fetch trending');
+      return response.json();
+    }, 60000); // 60 second cache
   },
 };
 
