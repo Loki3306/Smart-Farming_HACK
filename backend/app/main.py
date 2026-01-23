@@ -14,6 +14,8 @@ import os
 
 from app.api import chatbot  # Import chatbot API router
 from app.api import regime_routes  # Import regime system API router
+from app.db.regime_db import RegimeDatabase  # Regime database layer
+from app.services.supabase_client import get_supabase_client  # Supabase client
 
 # Add backend/app to Python path for model imports
 app_root = os.path.dirname(os.path.abspath(__file__))
@@ -803,11 +805,24 @@ class RecommendationEngine:
 
 @app.on_event("startup")
 async def startup_event():
-    """Load models when API starts"""
+    """Load models and initialize database when API starts"""
     print("🚀 Starting Smart Farming AI Backend...")
     print("📦 Loading ML models...")
     status = model_loader.load_models()
-    print(f"✅ API ready! Models loaded: {sum(status.values())}/{len(status)}")
+    print(f"✅ Models loaded: {sum(status.values())}/{len(status)}")
+    
+    # Initialize Regime System database
+    print("📊 Initializing Regime System database...")
+    try:
+        supabase_client = get_supabase_client()
+        regime_db = RegimeDatabase(supabase_client)
+        regime_routes.set_regime_db(regime_db)
+        print("✅ Regime database initialized")
+    except Exception as e:
+        print(f"⚠️ Warning: Could not initialize regime database: {e}")
+        print("   Regime endpoints will be unavailable until database is configured")
+    
+    print("✅ API ready!")
 
 
 @app.get("/", tags=["Root"])
