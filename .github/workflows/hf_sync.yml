@@ -22,7 +22,14 @@ jobs:
         run: |
           git config --global user.email "bot@github.com"
           git config --global user.name "GitHub Actions Bot"
+          
           # Install git-lfs
           git lfs install
-          # Push only the backend directory to the Space root
-          git subtree push --prefix backend https://Deep08092006:$HF_TOKEN@huggingface.co/spaces/$HF_SPACE_NAME main
+          
+          # 1. Create a specialized branch containing ONLY the backend folder
+          # This extracts the history of 'backend/' into a new root
+          git subtree split --prefix backend -b hf-sync-branch
+          
+          # 2. Force push this new branch to the HF Space's 'main' branch
+          # --force overwrites any conflicts (like the initial README on HF)
+          git push https://Deep08092006:$HF_TOKEN@huggingface.co/spaces/$HF_SPACE_NAME hf-sync-branch:main --force
