@@ -60,10 +60,10 @@ export const Sidebar: React.FC = () => {
   // Check if messages should be opened from URL params
   React.useEffect(() => {
     const shouldOpenMessages = searchParams.get('openMessages') === 'true' ||
-                                searchParams.get('farmer_id') ||
-                                searchParams.get('expert_id') ||
-                                searchParams.get('conversation');
-    
+      searchParams.get('farmer_id') ||
+      searchParams.get('expert_id') ||
+      searchParams.get('conversation');
+
     if (shouldOpenMessages) {
       setIsChatOpen(true);
     }
@@ -148,7 +148,7 @@ export const Sidebar: React.FC = () => {
           <MessageSquare className="w-5 h-5 flex-shrink-0" />
           {!isCollapsed && <span className="font-medium text-sm">Messages</span>}
         </button>
-        
+
         {bottomNavItems.map((item) => (
           <NavItemComponent key={item.path} item={item} />
         ))}
@@ -223,13 +223,18 @@ export const Sidebar: React.FC = () => {
 
   return (
     <>
-      {/* Mobile Menu Button */}
-      <button
-        onClick={() => setIsMobileOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-card shadow-md border border-border"
-      >
-        <Menu className="w-5 h-5" />
-      </button>
+      {/* Mobile Header Bar */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-card/80 backdrop-blur-md border-b border-border z-40 flex items-center px-4 justify-between">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsMobileOpen(true)}
+            className="p-2 -ml-2 rounded-lg hover:bg-muted"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+          <span className="font-bold text-lg text-foreground">Krushi Unnati</span>
+        </div>
+      </div>
 
       {/* Mobile Overlay */}
       {isMobileOpen && (
@@ -242,7 +247,7 @@ export const Sidebar: React.FC = () => {
       {/* Mobile Sidebar */}
       <aside
         className={cn(
-          "lg:hidden fixed inset-y-0 left-0 z-50 w-72 bg-sidebar-background border-r border-sidebar-border transform transition-transform duration-300",
+          "lg:hidden fixed inset-y-0 left-0 z-50 w-72 bg-sidebar border-r border-sidebar-border transform transition-transform duration-300",
           isMobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -258,7 +263,7 @@ export const Sidebar: React.FC = () => {
       {/* Desktop Sidebar */}
       <aside
         className={cn(
-          "hidden lg:block fixed inset-y-0 left-0 z-30 bg-sidebar-background border-r border-sidebar-border transition-all duration-300",
+          "hidden lg:block fixed inset-y-0 left-0 z-30 bg-sidebar border-r border-sidebar-border transition-all duration-300",
           isCollapsed ? "w-20" : "w-64"
         )}
       >

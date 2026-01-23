@@ -4,6 +4,7 @@ import Lottie from "lottie-react";
 import { ArrowLeft, X, Volume2, VolumeX, HelpCircle, Play, Languages, BookOpen, MessageCircle, Phone } from "lucide-react";
 import farmerAnimation from "@/assets/farmer-intro.json";
 import { useTour } from "@/context/TourContext";
+import { useAuth } from "@/context/AuthContext";
 import { useLocation, useNavigate } from "react-router-dom";
 
 type GuideMode = "welcome" | "language-select" | "help-menu" | "tour-starting";
@@ -35,6 +36,7 @@ export const DashboardGuide = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { startTour, resetTourProgress } = useTour();
+    const { user } = useAuth();
     const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
     const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
 
@@ -199,10 +201,13 @@ export const DashboardGuide = () => {
     // Show guide on first visit
     useEffect(() => {
         const dismissed = sessionStorage.getItem('dashboard_guide_dismissed');
-        if (!dismissed) {
+        const isNewUser = user?.isFirstLogin;
+
+        // ONLY show automatically if it's a new user AND they haven't dismissed it
+        if (isNewUser && !dismissed) {
             setTimeout(() => setIsVisible(true), 1000);
         }
-    }, []);
+    }, [user]);
 
     const handleDismiss = () => {
         stopTyping();

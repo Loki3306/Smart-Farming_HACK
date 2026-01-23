@@ -108,7 +108,7 @@ export const Gauge: React.FC<GaugeProps> = ({
               x1="100"
               y1="100"
               x2="100"
-              y2="30"
+              y2="50"
               stroke="hsl(var(--primary))"
               strokeWidth="2.5"
               strokeLinecap="round"
@@ -121,7 +121,7 @@ export const Gauge: React.FC<GaugeProps> = ({
         </svg>
 
         {/* Center content */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <div className="absolute inset-0 flex flex-col items-center justify-center mt-8">
           <div className={`${sizeStyles[size].text} font-bold text-primary`}>
             {displayValue.toFixed(1)}
           </div>

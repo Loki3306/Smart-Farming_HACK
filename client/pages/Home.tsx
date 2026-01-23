@@ -191,7 +191,6 @@ export const Home: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50/50 to-yellow-50 dark:from-stone-900 dark:via-stone-900 dark:to-stone-800">
       {/* Demo Farmer Switcher */}
-      <FarmerSwitcher />
 
       {/* Header Bar */}
       <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4">
@@ -209,6 +208,9 @@ export const Home: React.FC = () => {
 
           {/* Status & Profile */}
           <div className="flex items-center gap-3">
+            {/* Demo Farmer Switcher */}
+            <FarmerSwitcher />
+
             {/* Status Badge */}
             <div className="hidden sm:flex px-4 py-2.5 bg-card rounded-xl shadow-sm border border-border/50 items-center gap-2">
               <div className={`w-2.5 h-2.5 rounded-full ${systemStatus?.isOnline ? 'bg-primary animate-pulse' : 'bg-destructive'}`}></div>
@@ -283,35 +285,30 @@ export const Home: React.FC = () => {
       {/* Time-Based Farm Banner with Personal Greeting */}
       <div className="w-full px-4 sm:px-6 lg:px-8 py-4">
         <div className="max-w-7xl mx-auto">
-          <div className="flex rounded-xl overflow-hidden shadow-lg border border-border/30 h-[220px]">
-            {/* Left: Farm Image - fits fully */}
-            <div className="relative flex-shrink-0 bg-gradient-to-r from-slate-800 to-slate-900">
+          <div className="relative rounded-2xl overflow-hidden shadow-xl border border-border/20 min-h-[360px] group">
+
+            {/* 1. Background Scene - Full Cover */}
+            <div className="absolute inset-0">
               <img
                 key={timeOfDay}
                 src={currentFarmImage}
                 alt={`Farm - ${timeOfDay}`}
-                className="h-full w-auto object-contain"
+                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
               />
+              {/* Gradient Overlay for Text Readability */}
+              <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent md:via-black/20" />
             </div>
 
-            {/* Right: Personal Farmer Greeting */}
-            <div className="flex-1 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-amber-900/20 dark:via-orange-900/10 dark:to-yellow-900/10 p-5 flex items-center gap-4">
-              {/* Farmer Image */}
-              <div className="flex-shrink-0">
-                <img
-                  src={farmerImage}
-                  alt="Farmer"
-                  className="h-[180px] w-auto object-contain drop-shadow-lg"
-                />
-              </div>
+            {/* 2. Content Overlay */}
+            <div className="relative z-10 w-full h-full p-6 md:p-10 flex flex-col justify-start pt-8 md:justify-center md:pt-0 h-full min-h-[360px]">
+              <div className="max-w-[65%] md:max-w-xl">
+                <div className="mb-4">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/10 text-white text-sm font-medium mb-3">
+                    <span>{timeOfDay.includes('Morning') ? '🌅' : timeOfDay.includes('Afternoon') ? '☀️' : timeOfDay.includes('Evening') ? '🌆' : '🌙'}</span>
+                    <span>{timeOfDay}</span>
+                  </div>
 
-              {/* Personal Message */}
-              <div className="flex-1">
-                <div className="mb-2">
-                  <span className="text-2xl mr-2">
-                    {timeOfDay.includes('Morning') ? '🌅' : timeOfDay.includes('Afternoon') ? '☀️' : timeOfDay.includes('Evening') ? '🌆' : '🌙'}
-                  </span>
-                  <span className="text-xl font-bold text-foreground">
+                  <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 leading-tight drop-shadow-md">
                     {timeOfDay.includes('Morning')
                       ? 'Good Morning'
                       : timeOfDay.includes('Afternoon')
@@ -319,10 +316,10 @@ export const Home: React.FC = () => {
                         : timeOfDay.includes('Evening')
                           ? 'Good Evening'
                           : 'Good Night'}, {user?.fullName?.split(' ')[0] || 'Farmer'}!
-                  </span>
+                  </h2>
                 </div>
 
-                <p className="text-sm text-muted-foreground mb-3">
+                <p className="text-white/90 text-lg mb-6 leading-relaxed max-w-lg drop-shadow-sm">
                   {timeOfDay.includes('Morning')
                     ? "The sun is rising over your fields. A perfect day to check on your crops!"
                     : timeOfDay.includes('Afternoon')
@@ -332,12 +329,22 @@ export const Home: React.FC = () => {
                         : "Time to rest. I'll keep watching over your farm while you sleep."}
                 </p>
 
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="px-3 py-1 bg-primary/10 text-primary rounded-full font-medium">
-                    🌾 Your crops are thriving
-                  </span>
+                <div className="flex items-center gap-3">
+                  <div className="px-4 py-2 bg-green-500/20 backdrop-blur-md border border-green-500/30 text-green-100 rounded-lg font-medium flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                    Your crops are thriving
+                  </div>
                 </div>
               </div>
+            </div>
+
+            {/* 3. Farmer Character - Standing in Scene */}
+            <div className="absolute bottom-0 right-[-10px] md:right-10 w-[150px] md:w-[280px] pointer-events-none">
+              <img
+                src={farmerImage}
+                alt="Farmer"
+                className="w-full h-auto object-contain drop-shadow-2xl"
+              />
             </div>
           </div>
         </div>

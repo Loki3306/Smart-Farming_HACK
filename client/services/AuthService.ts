@@ -38,6 +38,7 @@ export interface User {
   hasCompletedOnboarding: boolean;
   createdAt: Date;
   isDemoUser?: boolean;
+  isFirstLogin?: boolean; // True for new registrations, false for returning users
 }
 
 export interface AuthResponse {
@@ -75,6 +76,7 @@ mockUsers.set("test@example.com", {
   createdAt: new Date("2024-01-01"),
   password: "password123", // plain text for mock (bcrypt would be used in real backend)
   isDemoUser: false,
+  isFirstLogin: false,
 });
 
 class AuthServiceClass {
@@ -134,6 +136,7 @@ class AuthServiceClass {
         hasCompletedOnboarding: false,
         createdAt: new Date(newUser.created_at),
         isDemoUser: false,
+        isFirstLogin: true, // New user just registered
       };
 
       // Store auth token and user ID in localStorage (for session persistence)
@@ -236,6 +239,7 @@ class AuthServiceClass {
         hasCompletedOnboarding,
         createdAt: new Date(userData.created_at),
         isDemoUser: false,
+        isFirstLogin: false, // Returning user
       };
 
       // Store session - CRITICAL: Must use localStorage directly, not setMockCookie

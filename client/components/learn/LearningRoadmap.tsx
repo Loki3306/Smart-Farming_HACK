@@ -87,12 +87,27 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const { language, setLanguage } = useLanguage();
   const isHindi = language === 'hi';
-  
+
+  // Handle window resize for mobile detection
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Dynamic coordinates based on screen size
+  const LEFT_X = isMobile ? 40 : 30;
+  const RIGHT_X = isMobile ? 60 : 70;
+  const NODE_CENTER_OFFSET = 40;
+
   // Debug: Log language changes
   useEffect(() => {
     console.log('[LearningRoadmap] Language changed to:', language, 'isHindi:', isHindi);
   }, [language, isHindi]);
-  
+
   const [mascotContext, setMascotContext] = useState<MascotContext | undefined>(undefined);
   const [mascotMessage, setMascotMessage] = useState<string | undefined>(undefined);
   const [showMascot, setShowMascot] = useState(true);
@@ -251,8 +266,52 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
 
       {/* Header with progress */}
       <div className="sticky top-0 z-20 bg-card/80 dark:bg-card/80 backdrop-blur-md border-b border-green-100 shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between mb-3">
+        <div className="max-w-4xl mx-auto px-4 py-2 md:py-4">
+
+          {/* Mobile Header Layout (Stacked) */}
+          <div className="lg:hidden flex flex-col gap-2">
+            {/* Top Row: Back, Title (Truncated), Controls */}
+            <div className="flex items-center justify-between gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/learn')}
+                className="h-8 w-8 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 shrink-0"
+              >
+                <ChevronRight className="w-5 h-5 rotate-180" />
+              </Button>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={handleLanguageToggle}
+                  className="flex items-center justify-center w-8 h-8 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full transition-colors border border-blue-200 dark:border-blue-700"
+                >
+                  <Globe className="w-4 h-4" />
+                </button>
+                <div className="flex items-center gap-1.5 bg-amber-100 dark:bg-amber-900/40 rounded-full px-2 py-1">
+                  <Zap className="w-3.5 h-3.5 text-amber-600" />
+                  <span className="font-bold text-xs text-amber-700 dark:text-amber-300">{earnedXP} XP</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Row: Title & Progress Stats */}
+            <div className="flex flex-col gap-1 px-1">
+              <div className="flex items-center justify-between gap-2">
+                <h1 className="text-lg font-bold text-green-900 dark:text-green-100 leading-tight line-clamp-1">{courseTitle}</h1>
+                <span className="text-xs font-medium text-green-600 dark:text-green-400 whitespace-nowrap shrink-0">
+                  {Math.round(progressPercent)}%
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>{completedCount}/{lessons.length} {isHindi ? 'चरण' : 'steps'}</span>
+                {level && <span className="capitalize">{level}</span>}
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop Header Layout (Original) */}
+          <div className="hidden lg:flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
@@ -327,7 +386,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
       {/* Three Column Layout */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          
+
           {/* Left Sidebar - Course Info */}
           <div className="lg:col-span-3 space-y-4">
             <div className="lg:sticky lg:top-24 space-y-4">
@@ -341,7 +400,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                   <BookOpen className="w-4 h-4" />
                   {isHindi ? 'कोर्स की जानकारी' : 'Course Info'}
                 </h3>
-                
+
                 {courseDescription && (
                   <div className="mb-3">
                     <p className="text-sm text-muted-foreground line-clamp-4">{courseDescription}</p>
@@ -355,7 +414,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                       <span className="font-medium text-green-700 dark:text-green-400 capitalize">{level}</span>
                     </div>
                   )}
-                  
+
                   {duration && (
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">{isHindi ? 'अवधि' : 'Duration'}:</span>
@@ -377,7 +436,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                 </div>
 
                 {!isEnrolled && (
-                  <Button 
+                  <Button
                     onClick={onEnroll}
                     className="w-full mt-4 bg-green-600 hover:bg-green-700"
                   >
@@ -447,152 +506,149 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
 
           {/* Center - Roadmap */}
           <div ref={containerRef} className="lg:col-span-6">
-        {/* Start marker */}
-        <div className="flex justify-center mb-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-green-600 text-white rounded-full px-6 py-2 shadow-lg"
-          >
-            <span className="flex items-center gap-2">
-              <Flame className="w-5 h-5" />
-              {isHindi ? 'आपकी स्मार्ट खेती यात्रा शुरू करें!' : 'Start Your Smart Farming Journey!'}
-            </span>
-          </motion.div>
-        </div>
+            {/* Start marker */}
+            <div className="flex justify-center mb-8">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-green-600 text-white rounded-full px-6 py-2 shadow-lg"
+              >
+                <span className="flex items-center gap-2">
+                  <Flame className="w-5 h-5" />
+                  {isHindi ? 'आपकी स्मार्ट खेती यात्रा शुरू करें!' : 'Start Your Smart Farming Journey!'}
+                </span>
+              </motion.div>
+            </div>
 
-        {/* Roadmap path with nodes */}
-        {lessons && lessons.length > 0 && (
-        <div className="relative" style={{ minHeight: `${lessons.length * 180 + 100}px` }}>
-          {/* SVG Path - viewBox 100 wide so 30/70 = 30%/70% */}
-          <svg
-            className="absolute top-0 left-0 w-full h-full pointer-events-none"
-            viewBox={`0 0 100 ${lessons.length * 180 + 100}`}
-            preserveAspectRatio="none"
-            style={{ height: `${lessons.length * 180 + 100}px` }}
-          >
-            <defs>
-              <linearGradient id="pathGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#4CAF50" />
-                <stop offset="50%" stopColor="#8BC34A" />
-                <stop offset="100%" stopColor="#CDDC39" />
-              </linearGradient>
-              {/* Glow filter */}
-              <filter id="glow">
-                <feGaussianBlur stdDeviation="0.3" result="coloredBlur" />
-                <feMerge>
-                  <feMergeNode in="coloredBlur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
-            {/* Background path (dashed gray) */}
-            <path
-              d={generatePath(lessons?.length || 0)}
-              fill="none"
-              stroke="#D1D5DB"
-              strokeWidth="0.8"
-              strokeLinecap="round"
-              strokeDasharray="2 1.5"
-            />
-            {/* Progress path (solid green gradient) */}
-            {generateProgressPath(lessons || [], lessonProgress || {}) && (
-            <motion.path
-              d={generateProgressPath(lessons || [], lessonProgress || {})}
-              fill="none"
-              stroke="url(#pathGradient)"
-              strokeWidth="0.8"
-              strokeLinecap="round"
-              filter="url(#glow)"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-            />
-            )}
-          </svg>
+            {/* Roadmap path with nodes */}
+            {lessons && lessons.length > 0 && (
+              <div className="relative" style={{ minHeight: `${lessons.length * 180 + 100}px` }}>
 
-          {/* Lesson Nodes */}
-          <div className="relative">
-            {lessons.map((lesson, index) => {
-              const status = getLessonStatus(lesson, index);
-              const isEven = index % 2 === 0;
-              const theme = LEVEL_THEMES[index % LEVEL_THEMES.length];
-              const yPosition = index * 180 + 50;
-              // Node center positions: 30% for even, 70% for odd
-              const xPercent = isEven ? 30 : 70;
-
-              return (
-                <motion.div
-                  key={lesson.id}
-                  initial={{ opacity: 0, scale: 0.8, y: 20 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  transition={{ delay: index * 0.1, duration: 0.4 }}
-                  className="absolute w-40 sm:w-44"
-                  style={{
-                    top: `${yPosition}px`,
-                    left: `${xPercent}%`,
-                    transform: 'translateX(-50%)',
-                  }}
+                {/* SVG Path */}
+                <svg
+                  className="absolute top-0 left-0 w-full h-full pointer-events-none"
+                  viewBox={`0 0 100 ${lessons.length * 180 + 100}`}
+                  preserveAspectRatio="none"
+                  style={{ height: `${lessons.length * 180 + 100}px` }}
                 >
-                  <LessonNode
-                    lesson={lesson}
-                    index={index}
-                    status={status}
-                    theme={theme}
-                    isActive={activeNodeIndex === index}
-                    isHindi={isHindi}
-                    onClick={() => handleLessonClick(lesson, index)}
-                    onHover={() => setActiveNodeIndex(index)}
-                    onLeave={() => setActiveNodeIndex(null)}
+                  <defs>
+                    <linearGradient id="pathGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stopColor="#4CAF50" />
+                      <stop offset="50%" stopColor="#8BC34A" />
+                      <stop offset="100%" stopColor="#CDDC39" />
+                    </linearGradient>
+                    <filter id="glow">
+                      <feGaussianBlur stdDeviation="0.3" result="coloredBlur" />
+                      <feMerge>
+                        <feMergeNode in="coloredBlur" />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
+                    </filter>
+                  </defs>
+                  <path
+                    d={generatePath(lessons?.length || 0, LEFT_X, RIGHT_X)}
+                    fill="none"
+                    stroke="#D1D5DB"
+                    strokeWidth="0.8"
+                    strokeLinecap="round"
+                    strokeDasharray="2 1.5"
                   />
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-        )}
+                  {generateProgressPath(lessons || [], lessonProgress || {}, LEFT_X, RIGHT_X) && (
+                    <motion.path
+                      d={generateProgressPath(lessons || [], lessonProgress || {}, LEFT_X, RIGHT_X)}
+                      fill="none"
+                      stroke="url(#pathGradient)"
+                      strokeWidth="0.8"
+                      strokeLinecap="round"
+                      filter="url(#glow)"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5 }}
+                    />
+                  )}
+                </svg>
 
-        {/* Finish marker */}
-        {progressPercent === 100 && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex justify-center mt-8"
-          >
-            <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl px-8 py-4 shadow-xl">
-              <div className="flex items-center gap-3">
-                <Trophy className="w-8 h-8" />
-                <div>
-                  <p className="font-bold text-lg">{isHindi ? 'बधाई हो!' : 'Congratulations!'} 🎉</p>
-                  <p className="text-sm opacity-90">{isHindi ? 'आपने कोर्स पूरा किया!' : 'You completed the course!'}</p>
+                {/* Lesson Nodes */}
+                <div className="relative">
+                  {lessons.map((lesson, index) => {
+                    const status = getLessonStatus(lesson, index);
+                    const isEven = index % 2 === 0;
+                    const theme = LEVEL_THEMES[index % LEVEL_THEMES.length];
+                    const yPosition = index * 180 + 50;
+                    const xPercent = isEven ? LEFT_X : RIGHT_X;
+
+                    return (
+                      <motion.div
+                        key={lesson.id}
+                        initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        transition={{ delay: index * 0.1, duration: 0.4 }}
+                        className="absolute w-40 sm:w-44"
+                        style={{
+                          top: `${yPosition}px`,
+                          left: `${xPercent}%`,
+                          transform: 'translateX(-50%)',
+                        }}
+                      >
+                        <LessonNode
+                          lesson={lesson}
+                          index={index}
+                          status={status}
+                          theme={theme}
+                          isActive={activeNodeIndex === index}
+                          isHindi={isHindi}
+                          onClick={() => handleLessonClick(lesson, index)}
+                          onHover={() => setActiveNodeIndex(index)}
+                          onLeave={() => setActiveNodeIndex(null)}
+                        />
+                      </motion.div>
+                    );
+                  })}
                 </div>
               </div>
-            </div>
-          </motion.div>
-        )}
+            )}
 
-        {/* Enroll CTA if not enrolled */}
-        {!isEnrolled && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="fixed bottom-24 left-4 right-4 z-20"
-          >
-            <div className="max-w-md mx-auto bg-card rounded-2xl shadow-xl p-4 border-2 border-green-500">
-              <p className="text-center text-green-800 dark:text-green-300 font-medium mb-3">
-                {isHindi ? 'इस यात्रा को शुरू करने के लिए enroll करें!' : 'Enroll to start this learning journey!'}
-              </p>
-              <Button
-                onClick={onEnroll}
-                className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-lg py-6"
+            {/* Finish marker */}
+            {progressPercent === 100 && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex justify-center mt-8"
               >
-                <Play className="w-5 h-5 mr-2" />
-                {isHindi ? 'अभी शुरू करें - मुफ्त!' : 'Start Now - Free!'}
-              </Button>
-            </div>
-          </motion.div>
-        )}
-      </div>
+                <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl px-8 py-4 shadow-xl">
+                  <div className="flex items-center gap-3">
+                    <Trophy className="w-8 h-8" />
+                    <div>
+                      <p className="font-bold text-lg">{isHindi ? 'बधाई हो!' : 'Congratulations!'} 🎉</p>
+                      <p className="text-sm opacity-90">{isHindi ? 'आपने कोर्स पूरा किया!' : 'You completed the course!'}</p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Enroll CTA if not enrolled */}
+            {!isEnrolled && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="fixed bottom-8 left-4 right-4 z-20"
+              >
+                <div className="max-w-md mx-auto bg-card rounded-2xl shadow-xl p-4 border-2 border-green-500">
+                  <p className="text-center text-green-800 dark:text-green-300 font-medium mb-3">
+                    {isHindi ? 'इस यात्रा को शुरू करने के लिए enroll करें!' : 'Enroll to start this learning journey!'}
+                  </p>
+                  <Button
+                    onClick={onEnroll}
+                    className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-lg py-6"
+                  >
+                    <Play className="w-5 h-5 mr-2" />
+                    {isHindi ? 'अभी शुरू करें - मुफ्त!' : 'Start Now - Free!'}
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+          </div>
 
           {/* Right Sidebar - Stats & Progress */}
           <div className="lg:col-span-3 space-y-4">
@@ -607,7 +663,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                   <Trophy className="w-4 h-4" />
                   {isHindi ? 'आपकी प्रगति' : 'Your Progress'}
                 </h3>
-                
+
                 <div className="space-y-3">
                   {/* Completion Stats */}
                   <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-3">
@@ -643,7 +699,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                     </div>
                     <p className="text-sm font-bold text-blue-700 dark:text-blue-400">
                       {LEVEL_THEMES[Math.min(currentLevelIndex, LEVEL_THEMES.length - 1)].emoji}{' '}
-                      {isHindi 
+                      {isHindi
                         ? LEVEL_THEMES[Math.min(currentLevelIndex, LEVEL_THEMES.length - 1)].name
                         : LEVEL_THEMES[Math.min(currentLevelIndex, LEVEL_THEMES.length - 1)].nameEn}
                     </p>
@@ -662,7 +718,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                   <Award className="w-4 h-4" />
                   {isHindi ? 'उपलब्धियां' : 'Achievements'}
                 </h3>
-                
+
                 <div className="space-y-2">
                   {earnedBadges.length > 0 ? (
                     earnedBadges.map((badge) => (
@@ -840,11 +896,11 @@ const LessonNode: React.FC<LessonNodeProps> = ({
             )}
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">
-                {lesson.content_type === 'video' 
-                  ? (isHindi ? '🎥 वीडियो' : '🎥 Video') 
-                  : lesson.content_type === 'quiz' 
-                  ? (isHindi ? '📝 प्रश्नोत्तरी' : '📝 Quiz') 
-                  : (isHindi ? '📖 पाठ' : '📖 Lesson')}
+                {lesson.content_type === 'video'
+                  ? (isHindi ? '🎥 वीडियो' : '🎥 Video')
+                  : lesson.content_type === 'quiz'
+                    ? (isHindi ? '📝 प्रश्नोत्तरी' : '📝 Quiz')
+                    : (isHindi ? '📖 पाठ' : '📖 Lesson')}
               </span>
               <ChevronRight className="w-4 h-4 text-green-500" />
             </div>
@@ -861,14 +917,14 @@ const RIGHT_X = 70;
 const NODE_CENTER_OFFSET = 40; // Half the node height to hit center
 
 // Generate SVG path for roadmap - connects through center of each node
-const generatePath = (nodeCount: number): string => {
+const generatePath = (nodeCount: number, leftX: number, rightX: number): string => {
   if (nodeCount === 0) return '';
 
   let d = '';
 
   for (let i = 0; i < nodeCount; i++) {
     const isEven = i % 2 === 0;
-    const currentX = isEven ? LEFT_X : RIGHT_X;
+    const currentX = isEven ? leftX : rightX;
     const currentY = i * 180 + 50 + NODE_CENTER_OFFSET;
 
     if (i === 0) {
@@ -877,7 +933,7 @@ const generatePath = (nodeCount: number): string => {
 
     if (i < nodeCount - 1) {
       const nextIsEven = (i + 1) % 2 === 0;
-      const nextX = nextIsEven ? LEFT_X : RIGHT_X;
+      const nextX = nextIsEven ? leftX : rightX;
       const nextY = (i + 1) * 180 + 50 + NODE_CENTER_OFFSET;
       const midY = (currentY + nextY) / 2;
 
@@ -890,7 +946,7 @@ const generatePath = (nodeCount: number): string => {
 };
 
 // Generate progress path - only draws up to last completed node
-const generateProgressPath = (lessons: Lesson[], lessonProgress: Record<string, string>): string => {
+const generateProgressPath = (lessons: Lesson[], lessonProgress: Record<string, string>, leftX: number, rightX: number): string => {
   if (lessons.length === 0) return '';
 
   // Find the last completed lesson index
@@ -909,7 +965,7 @@ const generateProgressPath = (lessons: Lesson[], lessonProgress: Record<string, 
 
   for (let i = 0; i <= lastCompletedIndex; i++) {
     const isEven = i % 2 === 0;
-    const currentX = isEven ? LEFT_X : RIGHT_X;
+    const currentX = isEven ? leftX : rightX;
     const currentY = i * 180 + 50 + NODE_CENTER_OFFSET;
 
     if (i === 0) {
@@ -918,7 +974,7 @@ const generateProgressPath = (lessons: Lesson[], lessonProgress: Record<string, 
 
     if (i < lastCompletedIndex) {
       const nextIsEven = (i + 1) % 2 === 0;
-      const nextX = nextIsEven ? LEFT_X : RIGHT_X;
+      const nextX = nextIsEven ? leftX : rightX;
       const nextY = (i + 1) * 180 + 50 + NODE_CENTER_OFFSET;
       const midY = (currentY + nextY) / 2;
 

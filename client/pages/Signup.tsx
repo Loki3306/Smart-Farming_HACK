@@ -169,7 +169,7 @@ export const Signup: React.FC = () => {
               </div>
 
               {/* Password */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
                     Password *
@@ -204,7 +204,7 @@ export const Signup: React.FC = () => {
               </div>
 
               {/* Location */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
                     Country *
@@ -228,7 +228,7 @@ export const Signup: React.FC = () => {
               </div>
 
               {/* State and Experience */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
                     State/Province *

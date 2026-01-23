@@ -1123,7 +1123,7 @@ export const Landing = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {problems.map((problem, index) => (
               <AnimatedCard
                 key={problem.title}
@@ -1176,7 +1176,7 @@ export const Landing = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {solutionSteps.map((step, index) => (
               <AnimatedCard key={step.title} delay={index * 0.15}>
                 <div className="relative bg-card border border-border rounded-3xl p-6 h-full text-center hover:shadow-xl transition-all duration-300">
@@ -1226,7 +1226,7 @@ export const Landing = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {systemFlow.map((item, index) => (
               <AnimatedCard key={item.title} delay={index * 0.1}>
                 <div className="flex gap-6 p-6 bg-card border border-border rounded-3xl hover:shadow-lg transition-all duration-300">
@@ -1263,7 +1263,7 @@ export const Landing = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, index) => (
               <AnimatedCard key={feature.title} delay={index * 0.1}>
                 <div className="bg-card border border-border rounded-3xl p-6 h-full hover:shadow-lg hover:border-primary/20 transition-all duration-300">

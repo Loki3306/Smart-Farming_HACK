@@ -42,7 +42,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
       <Sidebar />
 
       {/* Main Content */}
-      <main className="lg:pl-64 transition-all duration-300">
+      <main className="lg:pl-64 transition-all duration-300 pt-16 lg:pt-0">
         <div className="min-h-screen">
           {children || <Outlet />}
         </div>
