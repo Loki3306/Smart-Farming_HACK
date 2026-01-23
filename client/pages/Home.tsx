@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { MapPin, Activity, User, LogOut, RotateCcw } from "lucide-react";
+import { MapPin, Activity, User, LogOut, RotateCcw, Sprout, Link, Bot, Sunrise, Sun, Sunset, Moon, CloudSun } from "lucide-react";
 import { SoilMoisture } from "../components/dashboard/SoilMoisture";
 import { ControlCenter } from "../components/dashboard/ControlCenter";
 import { ActionLog } from "../components/dashboard/ActionLog";
@@ -68,16 +68,16 @@ export const Home: React.FC = () => {
 
     if (hour >= 5 && hour < 12) {
       // Morning: 5 AM to 12 PM
-      return { image: morningImage, period: 'Morning ☀️' };
+      return { image: morningImage, period: 'Morning' };
     } else if (hour >= 12 && hour < 17) {
       // Afternoon: 12 PM to 5 PM
-      return { image: afternoonImage, period: 'Afternoon 🌤️' };
+      return { image: afternoonImage, period: 'Afternoon' };
     } else if (hour >= 17 && hour < 20) {
       // Evening: 5 PM to 8 PM
-      return { image: eveningImage, period: 'Evening 🌆' };
+      return { image: eveningImage, period: 'Evening' };
     } else {
       // Night: 8 PM to 5 AM
-      return { image: nightImage, period: 'Night 🌙' };
+      return { image: nightImage, period: 'Night' };
     }
   };
 
@@ -304,7 +304,10 @@ export const Home: React.FC = () => {
               <div className="max-w-[65%] md:max-w-xl">
                 <div className="mb-4">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/10 text-white text-sm font-medium mb-3">
-                    <span>{timeOfDay.includes('Morning') ? '🌅' : timeOfDay.includes('Afternoon') ? '☀️' : timeOfDay.includes('Evening') ? '🌆' : '🌙'}</span>
+                    {timeOfDay === 'Morning' && <Sunrise className="w-4 h-4 text-amber-300" />}
+                    {timeOfDay === 'Afternoon' && <Sun className="w-4 h-4 text-yellow-300" />}
+                    {timeOfDay === 'Evening' && <Sunset className="w-4 h-4 text-orange-300" />}
+                    {timeOfDay === 'Night' && <Moon className="w-4 h-4 text-blue-200" />}
                     <span>{timeOfDay}</span>
                   </div>
 
@@ -385,8 +388,12 @@ export const Home: React.FC = () => {
 
         {/* Footer */}
         <div className="mt-8 pt-6 border-t border-border/30 text-center">
-          <p className="text-sm text-muted-foreground">
-            🌱 Real-time sensor data • 🔗 Blockchain-verified actions • 🤖 AI-powered optimization
+          <p className="text-sm text-muted-foreground flex items-center justify-center gap-4">
+            <span className="flex items-center gap-1.5"><Sprout className="w-4 h-4 text-green-500" /> Real-time sensor data</span>
+            <span className="hidden sm:inline text-border">•</span>
+            <span className="flex items-center gap-1.5"><Link className="w-4 h-4 text-blue-500" /> Blockchain-verified actions</span>
+            <span className="hidden sm:inline text-border">•</span>
+            <span className="flex items-center gap-1.5"><Bot className="w-4 h-4 text-purple-500" /> AI-powered optimization</span>
           </p>
         </div>
       </div>

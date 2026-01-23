@@ -1,5 +1,5 @@
 import React from "react";
-import { Droplet, Leaf, Info, Clock } from "lucide-react";
+import { Droplet, Leaf, Info, Clock, ClipboardList } from "lucide-react";
 import { useFarmContext } from "../../context/FarmContext";
 
 export const ActionLog: React.FC = () => {
@@ -48,7 +48,7 @@ export const ActionLog: React.FC = () => {
           <p className="text-sm text-muted-foreground">Recent activities</p>
         </div>
         <div className="w-10 h-10 rounded-full bg-amber-200/50 dark:bg-amber-700/30 flex items-center justify-center">
-          <span className="text-lg">📋</span>
+          <ClipboardList className="w-6 h-6 text-amber-600 dark:text-amber-400" />
         </div>
       </div>
 

@@ -229,6 +229,7 @@ export const Sidebar: React.FC = () => {
           <button
             onClick={() => setIsMobileOpen(true)}
             className="p-2 -ml-2 rounded-lg hover:bg-muted"
+            aria-label="Open sidebar menu"
           >
             <Menu className="w-6 h-6" />
           </button>
@@ -252,8 +253,10 @@ export const Sidebar: React.FC = () => {
         )}
       >
         <button
+          type="button"
           onClick={() => setIsMobileOpen(false)}
-          className="absolute top-4 right-4 p-1 rounded-lg hover:bg-muted"
+          className="absolute top-4 right-4 p-1 rounded-lg hover:bg-muted z-50"
+          aria-label="Close sidebar menu"
         >
           <X className="w-5 h-5" />
         </button>

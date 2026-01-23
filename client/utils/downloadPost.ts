@@ -52,7 +52,7 @@ export async function downloadPostAsImage(post: Post): Promise<void> {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       const filename = `farming-post-${post.crop || 'tip'}-${Date.now()}.png`;
-      
+
       link.href = url;
       link.download = filename;
       link.click();
@@ -78,7 +78,7 @@ export async function downloadPostAsImageFallback(post: Post): Promise<void> {
   canvas.width = 600;
   canvas.height = 800;
   const ctx = canvas.getContext('2d');
-  
+
   if (!ctx) {
     throw new Error('Canvas context not available');
   }
@@ -109,7 +109,7 @@ export async function downloadPostAsImageFallback(post: Post): Promise<void> {
   if (config) {
     ctx.font = '32px system-ui';
     ctx.fillText(config.emoji, 30, 60);
-    
+
     ctx.fillStyle = '#10b981';
     ctx.font = 'bold 18px system-ui';
     ctx.fillText(config.label, 30, 130);
@@ -121,11 +121,11 @@ export async function downloadPostAsImageFallback(post: Post): Promise<void> {
   const words = post.content.split(' ');
   let line = '';
   let y = 180;
-  
+
   for (let i = 0; i < words.length && y < 600; i++) {
     const testLine = line + words[i] + ' ';
     const metrics = ctx.measureText(testLine);
-    
+
     if (metrics.width > 540 && line.length > 0) {
       ctx.fillText(line, 30, y);
       line = words[i] + ' ';
@@ -141,19 +141,19 @@ export async function downloadPostAsImageFallback(post: Post): Promise<void> {
   ctx.font = '16px system-ui';
   if (post.crop) {
     ctx.fillStyle = '#10b981';
-    ctx.fillText(`🌾 ${post.crop}`, 30, y);
+    ctx.fillText(`${post.crop}`, 30, y);
     y += 30;
   }
   if (post.method) {
     ctx.fillStyle = '#3b82f6';
-    ctx.fillText(`⚙️ ${post.method}`, 30, y);
+    ctx.fillText(`${post.method}`, 30, y);
   }
 
   // Footer
   ctx.fillStyle = '#10b981';
   ctx.font = 'bold 20px system-ui';
-  ctx.fillText('🌱 Krushi Unnati', 30, 740);
-  
+  ctx.fillText('Krushi Unnati', 30, 740);
+
   ctx.fillStyle = '#6b7280';
   ctx.font = '14px system-ui';
   ctx.fillText('AI-Powered Farming Platform', 30, 765);
@@ -167,7 +167,7 @@ export async function downloadPostAsImageFallback(post: Post): Promise<void> {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     const filename = `farming-post-${post.crop || 'tip'}-${Date.now()}.png`;
-    
+
     link.href = url;
     link.download = filename;
     link.click();

@@ -454,11 +454,11 @@ export async function markLessonProgress(
 ): Promise<ApiResponse<any>> {
   return apiRequest('/learn/progress/lesson', {
     method: 'POST',
-    body: JSON.stringify({ 
-      lesson_id: lessonId, 
-      course_id: courseId, 
-      status, 
-      time_spent_seconds: timeSpentSeconds 
+    body: JSON.stringify({
+      lesson_id: lessonId,
+      course_id: courseId,
+      status,
+      time_spent_seconds: timeSpentSeconds
     }),
   });
 }
@@ -516,8 +516,8 @@ export async function startQuizAttempt(quizId: string): Promise<ApiResponse<{
 }
 
 export async function submitQuizAnswers(
-  quizId: string, 
-  attemptId: string, 
+  quizId: string,
+  attemptId: string,
   answers: QuizAnswer[],
   timeSpentSeconds: number
 ): Promise<ApiResponse<QuizSubmitResponse>> {
@@ -635,7 +635,7 @@ export async function searchContent(
 
 export async function getLearningStats(): Promise<ApiResponse<LearningStats>> {
   const response = await apiRequest<any>('/learn/stats');
-  
+
   // Transform snake_case from backend to camelCase for frontend
   if (response.success && response.data) {
     const d = response.data;
@@ -651,7 +651,7 @@ export async function getLearningStats(): Promise<ApiResponse<LearningStats>> {
       },
     };
   }
-  
+
   return response as ApiResponse<LearningStats>;
 }
 
@@ -752,7 +752,7 @@ export async function getLearningDashboard(): Promise<ApiResponse<{
         recentActivity: [],
         recentBadges: badges.data.map((b) => ({
           name: b.name,
-          icon: b.icon_emoji || '🏆',
+          icon: b.icon_emoji || '',
           earnedAt: b.earned_at || '',
         })),
         roadmaps: [],
@@ -821,10 +821,10 @@ export async function loadMoreItems<T>(
 
 export function formatDuration(seconds: number): string {
   if (!seconds) return '0 min';
-  
+
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
-  
+
   if (hours > 0) {
     return `${hours}h ${minutes}m`;
   }
@@ -838,15 +838,15 @@ export function formatReadTime(minutes: number): string {
 
 export function getCategoryIcon(category: string): string {
   const icons: Record<string, string> = {
-    'crop-management': '🌾',
-    'irrigation': '💧',
-    'pest-control': '🐛',
-    'soil-health': '🪴',
-    'equipment': '🚜',
-    'weather': '⛅',
-    'general': '📚',
+    'crop-management': '',
+    'irrigation': '',
+    'pest-control': '',
+    'soil-health': '',
+    'equipment': '',
+    'weather': '',
+    'general': '',
   };
-  return icons[category] || '📖';
+  return icons[category] || '';
 }
 
 export function getLevelBadgeColor(level: string): string {
@@ -860,7 +860,7 @@ export function getLevelBadgeColor(level: string): string {
 
 export function formatPrice(price: number, currency: string = 'INR'): string {
   if (price === 0) return 'Free';
-  
+
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: currency,

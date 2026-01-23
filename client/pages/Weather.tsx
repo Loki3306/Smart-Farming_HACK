@@ -14,6 +14,7 @@ import {
   CloudLightning,
   Snowflake,
   CloudFog,
+  Sprout,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { motion } from "framer-motion";
@@ -289,7 +290,10 @@ export const Weather: React.FC = () => {
 
       {/* Farming Insights */}
       <Card className="p-6 border-l-4 border-l-primary" data-tour-id="weather-insights">
-        <h3 className="font-semibold text-foreground mb-2">🌾 Farming Insights</h3>
+        <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+          <Sprout className="w-5 h-5 text-primary" />
+          Farming Insights
+        </h3>
         <ul className="space-y-2 text-sm text-muted-foreground">
           {forecast.length > 0 && forecast.some(day => day.precipitation > 50) && (
             <li>• <strong>Rain expected on {forecast.find(day => day.precipitation > 50)?.day}:</strong> Consider delaying fertilizer application</li>
