@@ -18,6 +18,7 @@ const routeTourMap: Record<string, string> = {
   '/farm': 'farm-tour',
   '/weather': 'weather-tour',
   '/recommendations': 'recommendations-tour',
+  '/regimes': 'regimes-tour',
   '/marketplace': 'marketplace-tour',
   '/learn': 'learn-tour',
   '/community': 'community-tour',

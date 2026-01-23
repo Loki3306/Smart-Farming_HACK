@@ -37,6 +37,7 @@ const mainNavItems: NavItem[] = [
   { label: "My Farm", icon: Tractor, path: "/farm" },
   { label: "Weather", icon: CloudSun, path: "/weather" },
   { label: "AI Recommendations", icon: Lightbulb, path: "/recommendations" },
+  { label: "Farming Regimes", icon: Leaf, path: "/regimes" },
   { label: "Disease Detection", icon: Bug, path: "/disease" },
   { label: "Marketplace", icon: ShoppingCart, path: "/marketplace" },
   { label: "Learn", icon: GraduationCap, path: "/learn" },
