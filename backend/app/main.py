@@ -13,6 +13,7 @@ import sys
 import os
 
 from app.api import chatbot  # Import chatbot API router
+from app.api import regime_routes  # Import regime system API router
 
 # Add backend/app to Python path for model imports
 app_root = os.path.dirname(os.path.abspath(__file__))
@@ -39,6 +40,9 @@ app.add_middleware(
 
 # Include the chatbot API router
 app.include_router(chatbot.router, prefix="/api/chatbot")
+
+# Include the regime system API router
+app.include_router(regime_routes.router, prefix="")
 
 # ============================================================================
 # Pydantic Models (Request/Response schemas)
