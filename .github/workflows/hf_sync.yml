@@ -15,22 +15,37 @@ jobs:
         with:
           fetch-depth: 0
           lfs: true
+      
       - name: Push to hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          # Replace with your HF username and Space name
           HF_SPACE_NAME: Deep08092006/KrushiUnnatiBackend 
         run: |
           git config --global user.email "bot@github.com"
           git config --global user.name "GitHub Actions Bot"
           
-          # Install git-lfs
+          # Initialize LFS
           git lfs install
           
-          # 1. Create a specialized branch containing ONLY the backend folder
-          # This extracts the history of 'backend/' into a new root
-          git subtree split --prefix backend -b hf-sync-branch
+          # Create a new orphan branch (clean slate, no history)
+          git checkout --orphan hf-sync
+          git reset --hard
           
-          # 2. Force push this new branch to the HF Space's 'main' branch
-          # --force overwrites any conflicts (like the initial README on HF)
-          git push https://Deep08092006:$HF_TOKEN@huggingface.co/spaces/$HF_SPACE_NAME hf-sync-branch:main --force
+          # Copy backend files from the main branch to the root of this new branch
+          git checkout main -- backend/
+          
+          # Move files to root (handling hidden files too)
+          cp -r backend/. . 2>/dev/null || true
+          cp -r backend/* . 2>/dev/null || true
+          rm -rf backend
+          
+          # Force LFS tracking for models
+          git lfs track "*.pkl"
+          git add .gitattributes
+          
+          # Add and Commit
+          git add .
+          git commit -m "Deploy to Hugging Face Spaces (Clean Commit)"
+          
+          # Force push to HF
+          git push https://Deep08092006:$HF_TOKEN@huggingface.co/spaces/$HF_SPACE_NAME hf-sync:main --force
