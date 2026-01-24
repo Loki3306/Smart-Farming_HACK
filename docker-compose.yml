@@ -1,23 +1,69 @@
 version: '3.8'
 
 services:
+  # PostgreSQL Database (for local development - production uses Supabase)
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: regime_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-regime_pass}
+      POSTGRES_DB: regime_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U regime_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://regime_user:${DB_PASSWORD:-regime_pass}@postgres:5432/regime_db
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_KEY: ${SUPABASE_KEY}
+      REDIS_URL: redis://redis:6379
+      ENVIRONMENT: development
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Frontend (optional - usually served by npm dev server)
   frontend:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: client/Dockerfile
     ports:
-      - "5000:5000"
+      - "5173:5173"
+    volumes:
+      - ./client:/app
     environment:
-      - NODE_ENV=production
-      - PYTHON_AI_URL=http://backend:8000
-    depends_on:
-      - backend
+      REACT_APP_API_URL: http://localhost:8000
+      REACT_APP_SUPABASE_URL: ${SUPABASE_URL}
+      REACT_APP_SUPABASE_KEY: ${SUPABASE_KEY}
 
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
-    environment:
-      - PYTHON_ENV=production
+volumes:
+  postgres_data:

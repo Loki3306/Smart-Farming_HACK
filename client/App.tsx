@@ -39,6 +39,8 @@ const Notifications = lazy(() => import("./pages/Notifications").then(m => ({ de
 const Settings = lazy(() => import("./pages/Settings").then(m => ({ default: m.Settings })));
 const Messages = lazy(() => import("./pages/Messages"));
 const FAQ = lazy(() => import("./pages/FAQ").then(m => ({ default: m.FAQ })));
+const Regimes = lazy(() => import("./pages/Regimes").then(m => ({ default: m.default })));
+const FarmMapping = lazy(() => import("./pages/FarmMappingPage").then(m => ({ default: m.default })));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -96,6 +98,17 @@ function AnimatedRoutes() {
         />
 
         <Route
+          path="/farm-mapping"
+          element={
+            <ProtectedRoute requireOnboarding>
+              <DashboardLayout>
+                <FarmMapping />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/weather"
           element={
             <ProtectedRoute requireOnboarding>
@@ -112,6 +125,28 @@ function AnimatedRoutes() {
             <ProtectedRoute requireOnboarding>
               <DashboardLayout>
                 <Recommendations />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/regimes"
+          element={
+            <ProtectedRoute requireOnboarding>
+              <DashboardLayout>
+                <Regimes />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/regime/:regimeId"
+          element={
+            <ProtectedRoute requireOnboarding>
+              <DashboardLayout>
+                <Regimes />
               </DashboardLayout>
             </ProtectedRoute>
           }

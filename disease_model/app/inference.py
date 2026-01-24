@@ -81,10 +81,19 @@ def predict(image_path: str, crop: str) -> dict:
     threshold = CONFIDENCE_THRESHOLDS.get(crop, 30.0)
 
     status = "confident" if confidence >= threshold else "uncertain"
+    
+    # Human-friendly confidence label
+    if confidence >= 80:
+        confidence_label = "sure"
+    elif confidence >= 50:
+        confidence_label = "maybe"
+    else:
+        confidence_label = "confused"
 
     return {
         "crop": crop,
         "disease": disease,
         "confidence": round(confidence, 2),
+        "confidence_label": confidence_label,
         "status": status
     }

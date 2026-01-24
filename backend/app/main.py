@@ -11,8 +11,17 @@ from datetime import datetime
 import importlib
 import sys
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 from app.api import chatbot  # Import chatbot API router
+from app.api import regime_routes  # Import regime system API router
+from app.routes import farm_geometry  # Import farm geometry/mapping API router
+from app.db.regime_db import RegimeDatabase  # Regime database layer
+from app.services.supabase_client import get_supabase_client  # Supabase client
+from app.db.base import startup_db, shutdown_db  # Database lifecycle
 from app.locales import LocalizationManager  # I18n helper
 
 # Add backend/app to Python path for model imports
@@ -29,17 +38,39 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# Configure CORS for frontend communication
+# Configure CORS for frontend communication - Allow all origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:5000", "*"],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,  # Must be False when allow_origins is ["*"]
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # Include the chatbot API router
 app.include_router(chatbot.router, prefix="/api/chatbot")
+
+# Include the regime system API router
+app.include_router(regime_routes.router, prefix="")
+
+# Include the farm geometry/mapping API router
+app.include_router(farm_geometry.router, prefix="")
+
+# ============================================================================
+# Application Lifecycle Events
+# ============================================================================
+
+@app.on_event("startup")
+async def on_startup():
+    """Initialize database connections on startup"""
+    await startup_db()
+
+
+@app.on_event("shutdown")
+async def on_shutdown():
+    """Close database connections on shutdown"""
+    await shutdown_db()
 
 # ============================================================================
 # Pydantic Models (Request/Response schemas)
@@ -806,11 +837,24 @@ class RecommendationEngine:
 
 @app.on_event("startup")
 async def startup_event():
-    """Load models when API starts"""
+    """Load models and initialize database when API starts"""
     print("🚀 Starting Smart Farming AI Backend...")
     print("📦 Loading ML models...")
     status = model_loader.load_models()
-    print(f"✅ API ready! Models loaded: {sum(status.values())}/{len(status)}")
+    print(f"✅ Models loaded: {sum(status.values())}/{len(status)}")
+    
+    # Initialize Regime System database
+    print("📊 Initializing Regime System database...")
+    try:
+        supabase_client = get_supabase_client()
+        regime_db = RegimeDatabase(supabase_client)
+        regime_routes.set_regime_db(regime_db)
+        print("✅ Regime database initialized")
+    except Exception as e:
+        print(f"⚠️ Warning: Could not initialize regime database: {e}")
+        print("   Regime endpoints will be unavailable until database is configured")
+    
+    print("✅ API ready!")
 
 
 @app.get("/", tags=["Root"])

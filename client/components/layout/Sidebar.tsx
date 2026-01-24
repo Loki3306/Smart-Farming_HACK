@@ -20,6 +20,7 @@ import {
   Menu,
   X,
   MessageSquare,
+  Map,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { cn } from "../../lib/utils";
@@ -32,6 +33,24 @@ interface NavItem {
   path: string;
   badge?: number;
 }
+
+const mainNavItems: NavItem[] = [
+  { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
+  { label: "My Farm", icon: Tractor, path: "/farm" },
+  { label: "Farm Mapping", icon: Map, path: "/farm-mapping" },
+  { label: "Weather", icon: CloudSun, path: "/weather" },
+  { label: "AI Recommendations", icon: Lightbulb, path: "/recommendations" },
+  { label: "Farming Regimes", icon: Leaf, path: "/regimes" },
+  { label: "Disease Detection", icon: Bug, path: "/disease" },
+  { label: "Marketplace", icon: ShoppingCart, path: "/marketplace" },
+  { label: "Learn", icon: GraduationCap, path: "/learn" },
+  { label: "Community", icon: Users, path: "/community" },
+];
+
+const bottomNavItems: NavItem[] = [
+  { label: "Notifications", icon: Bell, path: "/notifications" },
+  { label: "Settings", icon: Settings, path: "/settings" },
+];
 
 export const Sidebar: React.FC = () => {
   const { t } = useTranslation();
