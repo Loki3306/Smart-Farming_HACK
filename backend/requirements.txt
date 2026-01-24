@@ -50,3 +50,4 @@ pillow==11.3.0
 
 # Logging and Monitoring
 python-json-logger==3.2.1
+# Trigger build

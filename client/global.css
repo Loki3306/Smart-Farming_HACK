@@ -79,68 +79,68 @@
   }
 
   .dark {
-    /* Warm Dark Theme - Cozy Evening Farm */
-    /* Background: Warm charcoal with earthy undertones */
-    --background: 30 15% 10%;
-    --foreground: 40 20% 90%;
+    /* Deep Forest Theme - Premium Organic Night */
+    /* Background: Deepest jungle green, almost black */
+    --background: 150 30% 5%;
+    --foreground: 150 10% 90%;
 
-    /* Cards: Warm dark surface */
-    --card: 30 12% 14%;
-    --card-foreground: 40 20% 90%;
+    /* Cards: Rich dark moss */
+    --card: 150 25% 8%;
+    --card-foreground: 150 10% 90%;
 
-    /* Popovers & Dropdowns */
-    --popover: 30 12% 12%;
-    --popover-foreground: 40 20% 90%;
+    /* Popovers */
+    --popover: 150 25% 8%;
+    --popover-foreground: 150 10% 90%;
 
-    /* Primary: Warm forest green */
-    --primary: 150 55% 42%;
-    --primary-foreground: 30 15% 10%;
+    /* Primary: Vibrant emerald glow */
+    --primary: 145 65% 45%;
+    --primary-foreground: 150 30% 5%;
 
-    /* Secondary: Muted gold */
-    --secondary: 40 50% 25%;
-    --secondary-foreground: 40 30% 85%;
+    /* Secondary: Deep sage */
+    --secondary: 150 20% 18%;
+    --secondary-foreground: 150 10% 90%;
 
-    /* Muted: Warm gray for disabled states */
-    --muted: 30 10% 20%;
-    --muted-foreground: 35 15% 55%;
+    /* Muted: Soft forest floor */
+    --muted: 150 20% 12%;
+    --muted-foreground: 150 15% 60%;
 
-    /* Accent: Warm golden for hover states */
-    --accent: 40 45% 22%;
-    --accent-foreground: 40 30% 90%;
+    /* Accent: Bioluminescent touch */
+    --accent: 145 65% 45%;
+    --accent-foreground: 150 30% 5%;
 
-    /* Destructive: Warm terracotta */
-    --destructive: 12 65% 48%;
+    /* Destructive: Burnt red */
+    --destructive: 0 65% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Borders & Inputs - Warm tones */
-    --border: 30 12% 22%;
-    --input: 30 10% 18%;
-    --ring: 150 55% 42%;
+    /* Borders: Subtle canopy shadows */
+    --border: 150 20% 12%;
+    --input: 150 20% 12%;
+    --ring: 145 65% 45%;
 
-    /* Sidebar: Darker with warmth */
-    --sidebar-background: 30 15% 8%;
-    --sidebar-foreground: 40 20% 85%;
-    --sidebar-primary: 150 55% 42%;
-    --sidebar-primary-foreground: 30 15% 10%;
-    --sidebar-accent: 35 15% 18%;
-    --sidebar-accent-foreground: 40 20% 85%;
-    --sidebar-border: 30 12% 18%;
-    --sidebar-ring: 150 55% 42%;
+    /* Sidebar: Deepest forest depth */
+    --sidebar-background: 150 30% 4%;
+    --sidebar-foreground: 150 10% 85%;
+    --sidebar-primary: 145 65% 45%;
+    --sidebar-primary-foreground: 150 30% 5%;
+    --sidebar-accent: 150 20% 12%;
+    --sidebar-accent-foreground: 150 10% 90%;
+    --sidebar-border: 150 20% 12%;
+    --sidebar-ring: 145 65% 45%;
 
-    /* Extended Havens Palette - Dark Mode */
-    --havens-cream: 35 20% 15%;
-    --havens-forest: 150 55% 42%;
+    /* Extended Havens Palette - Deep Forest Mode */
+    --havens-cream: 150 25% 8%;
+    --havens-forest: 145 65% 45%;
     --havens-golden: 42 70% 50%;
-    --havens-sky: 200 50% 45%;
+    --havens-sky: 190 60% 40%;
     --havens-terracotta: 15 55% 48%;
     --havens-soil: 25 30% 25%;
-    --havens-leaf: 95 40% 40%;
+    --havens-leaf: 120 40% 40%;
 
-    /* Legacy tokens for dark mode */
-    --emerald-600: 150 55% 42%;
-    --emerald-50: 150 20% 18%;
-    --sage: 120 20% 35%;
-    --sage-dark: 120 15% 25%;
+    /* Legacy tokens */
+    --emerald-600: 145 65% 45%;
+    --emerald-50: 150 25% 8%;
+    --sage: 140 20% 30%;
+    --sage-dark: 140 20% 20%;
   }
 }
 
@@ -200,5 +200,139 @@
   * {
     scrollbar-width: thin;
     scrollbar-color: hsl(142 71.8% 29.2%) hsl(var(--muted));
+  }
+}
+
+@layer utilities {
+
+  /* Organic Texture - Settings Page */
+  .bg-texture-organic {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  .bg-texture-organic::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image: url('./assets/bg-organic.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.25;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+    transition: all 0.3s ease;
+  }
+
+  /* Tech Texture - Recommendations Page */
+  .bg-texture-tech {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .bg-texture-tech::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image: url('./assets/bg-tech.png');
+    background-repeat: repeat;
+    background-size: 500px;
+    background-position: center;
+    opacity: 0.20;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+    transition: all 0.3s ease;
+  }
+
+  /* Dashboard Texture - New User Image */
+  .bg-texture-dashboard {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .bg-texture-dashboard::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image: url('./assets/bg-dashboard.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    opacity: 1;
+    /* mix-blend-mode: multiply; Removed for full opacity as requested */
+    pointer-events: none;
+    transition: all 0.3s ease;
+  }
+
+  /* Farm Texture - User Uploaded with Green Tint */
+  .bg-texture-farm {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .bg-texture-farm::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image: url('./assets/bg-farm.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.15;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+    transition: all 0.3s ease;
+  }
+
+  /* Add a soft green tint layer */
+  .bg-texture-farm::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: hsl(142 50% 95%);
+    /* Light green tint */
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  /* Dark Mode Adjustments */
+  .dark .bg-texture-organic::before {
+    mix-blend-mode: screen;
+    filter: invert(1) hue-rotate(180deg) saturate(0.8);
+    opacity: 0.12;
+  }
+
+  .dark .bg-texture-tech::before {
+    mix-blend-mode: screen;
+    filter: invert(1) hue-rotate(180deg) saturate(0.8);
+    opacity: 0.10;
+  }
+
+  .dark .bg-texture-dashboard::before {
+    mix-blend-mode: normal;
+    /* Changed from screen to normal for opacity */
+    filter: none;
+    /* Remove filters that alter colors too much */
+    opacity: 0.8;
+    /* High opacity for dark mode too */
+  }
+
+  .dark .bg-texture-farm::before {
+    mix-blend-mode: screen;
+    filter: invert(1) hue-rotate(180deg) saturate(0.8);
+    opacity: 0.08;
+  }
+
+  .dark .bg-texture-farm::after {
+    background-color: hsl(142 50% 10%);
+    /* Dark green tint for dark mode */
+    opacity: 0.2;
   }
 }

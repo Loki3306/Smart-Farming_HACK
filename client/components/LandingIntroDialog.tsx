@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Lottie from "lottie-react";
-import { X, ArrowRight, LogIn, UserPlus, Globe } from "lucide-react";
+import { X, ArrowRight, LogIn, UserPlus, Globe, Wheat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import farmerAnimation from "@/assets/farmer-intro.json";
 
@@ -13,7 +13,7 @@ interface LandingIntroDialogProps {
 // Content in both languages
 const content = {
     en: {
-        title: "Welcome to Krushi Mitra! 🌾",
+        title: "Welcome to Krushi Unnati!",
         description: "Your AI-powered smart farming companion. Get real-time insights, weather forecasts, and expert recommendations for better yields.",
         dashboard: "Go to Dashboard",
         signup: "Get Started Free",
@@ -22,7 +22,7 @@ const content = {
         langSwitch: "हिंदी",
     },
     hi: {
-        title: "कृषि मित्र में आपका स्वागत है! 🌾",
+        title: "कृषि उन्नति में आपका स्वागत है!",
         description: "आपका AI-संचालित स्मार्ट खेती साथी। रियल-टाइम जानकारी, मौसम के पूर्वानुमान और बेहतर उपज के लिए विशेषज्ञ सुझाव पाएं।",
         dashboard: "डैशबोर्ड पर जाएं",
         signup: "मुफ्त में शुरू करें",
@@ -143,7 +143,7 @@ export const LandingIntroDialog = ({ isAuthenticated }: LandingIntroDialogProps)
                                 className="text-center mb-4"
                             >
                                 <h3 className="text-lg font-bold text-foreground mb-1.5">
-                                    {t.title}
+                                    {t.title} <Wheat className="inline-block w-5 h-5 text-yellow-500 mb-1" />
                                 </h3>
                                 <p className="text-sm text-muted-foreground leading-relaxed">
                                     {t.description}

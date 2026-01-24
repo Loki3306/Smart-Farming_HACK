@@ -1,18 +1,6 @@
 {
   "commands": [
     {
-      "id": 1766998901571,
-      "type": "water_pump",
-      "farmId": "09a624a0-adeb-463e-ae55-6bea8682ac98",
-      "timestamp": "2025-12-29T09:16:23.021Z"
-    },
-    {
-      "id": 1766998901572,
-      "type": "water_pump",
-      "farmId": "09a624a0-adeb-463e-ae55-6bea8682ac98",
-      "timestamp": "2025-12-29T09:16:45.540Z"
-    },
-    {
       "id": 1767162080638,
       "type": "fertilizer",
       "farmId": "09a624a0-adeb-463e-ae55-6bea8682ac98",
@@ -59,6 +47,18 @@
       "type": "fertilizer",
       "farmId": "8ced305a-438b-4d30-866f-8454c0bb8912",
       "timestamp": "2025-12-31T17:42:51.440Z"
+    },
+    {
+      "id": 1769145640828,
+      "type": "water_pump",
+      "farmId": "e153ea77-b9f0-4950-876e-9632d4294316",
+      "timestamp": "2026-01-23T06:12:52.905Z"
+    },
+    {
+      "id": 1769145640829,
+      "type": "fertilizer",
+      "farmId": "e153ea77-b9f0-4950-876e-9632d4294316",
+      "timestamp": "2026-01-23T06:12:55.748Z"
     }
   ]
 }

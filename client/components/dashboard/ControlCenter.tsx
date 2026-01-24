@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Droplet, Leaf, Zap } from "lucide-react";
+import { Droplet, Leaf, Zap, Settings, Bot, Hand } from "lucide-react";
 import { useFarmContext } from "../../context/FarmContext";
 
 export const ControlCenter: React.FC = () => {
@@ -44,7 +44,7 @@ export const ControlCenter: React.FC = () => {
           <p className="text-sm text-muted-foreground">Manage farm systems</p>
         </div>
         <div className="w-10 h-10 rounded-full bg-amber-200/50 dark:bg-amber-700/30 flex items-center justify-center">
-          <span className="text-lg">⚙️</span>
+          <Settings className="w-6 h-6 text-amber-600 dark:text-amber-400" />
         </div>
       </div>
 
@@ -65,7 +65,10 @@ export const ControlCenter: React.FC = () => {
               System Mode
             </div>
             <div className="text-xs text-muted-foreground">
-              {systemStatus?.isAutonomous ? "🤖 Autonomous" : "👆 Manual"} Control
+              {systemStatus?.isAutonomous
+                ? <span className="flex items-center gap-1"><Bot className="w-3 h-3" /> Autonomous</span>
+                : <span className="flex items-center gap-1"><Hand className="w-3 h-3" /> Manual</span>
+              } Control
             </div>
           </div>
         </div>
@@ -105,7 +108,7 @@ export const ControlCenter: React.FC = () => {
           </div>
           <div className="flex-1 text-left">
             <div className="font-semibold text-foreground">
-              {pumpLoading ? "💧 Dispensing Water..." : "Water Pump"}
+              {pumpLoading ? "Dispensing Water..." : "Water Pump"}
             </div>
             <div className="text-xs text-muted-foreground">
               Manual irrigation trigger
@@ -132,7 +135,7 @@ export const ControlCenter: React.FC = () => {
           </div>
           <div className="flex-1 text-left">
             <div className="font-semibold text-foreground">
-              {fertilizerLoading ? "🌿 Dispensing Nutrients..." : "Fertilizer"}
+              {fertilizerLoading ? "Dispensing Nutrients..." : "Fertilizer"}
             </div>
             <div className="text-xs text-muted-foreground">
               Manual nutrient application

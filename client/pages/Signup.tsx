@@ -210,6 +210,7 @@ export const Signup: React.FC = () => {
                     Country *
                   </label>
                   <select
+                    title="country"
                     name="country"
                     value={formData.country}
                     onChange={handleChange}
@@ -234,6 +235,7 @@ export const Signup: React.FC = () => {
                     State/Province *
                   </label>
                   <select
+                    title="state"
                     name="state"
                     value={formData.state}
                     onChange={handleChange}
@@ -254,6 +256,7 @@ export const Signup: React.FC = () => {
                     Experience Level *
                   </label>
                   <select
+                    title="experienceLevel"
                     name="experienceLevel"
                     value={formData.experienceLevel}
                     onChange={handleChange}

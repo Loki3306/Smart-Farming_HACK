@@ -4,6 +4,7 @@ import { useFarmContext } from "../../context/FarmContext";
 import cropProfilesData from "../../../shared/crop_profiles.json";
 import LottieFarmScene from "./LottieFarmScene";
 import { SystemStatusChart } from "./SystemStatusChart";
+import { Sprout, AlertTriangle, AlertOctagon, CheckCircle2, Droplets, Info } from "lucide-react";
 
 // Type for crop profile thresholds
 interface CropThresholds {
@@ -84,12 +85,12 @@ export const SoilMoisture: React.FC = () => {
   // Realistic agricultural moisture thresholds (dynamic based on crop)
   const getMoistureStatus = (moisture: number) => {
     const [min, max] = thresholds.moisture;
-    if (moisture >= max + 10) return { label: "Too Wet ⚠️", color: "text-blue-600", warning: "Risk of root rot" };
-    if (moisture >= max) return { label: "Very Moist", color: "text-cyan-600", warning: "Monitor closely" };
-    if (moisture >= min) return { label: "Healthy ✓", color: "text-green-600", warning: null };
-    if (moisture >= min - 15) return { label: "Moderate", color: "text-amber-600", warning: "Consider watering" };
-    if (moisture >= min - 30) return { label: "Dry", color: "text-orange-600", warning: "Needs water soon" };
-    return { label: "Critical! 🚨", color: "text-red-600", warning: "Urgent irrigation needed" };
+    if (moisture >= max + 10) return { label: "Too Wet", color: "text-blue-600", warning: "Risk of root rot", icon: Droplets };
+    if (moisture >= max) return { label: "Very Moist", color: "text-cyan-600", warning: "Monitor closely", icon: Info };
+    if (moisture >= min) return { label: "Healthy", color: "text-green-600", warning: null, icon: CheckCircle2 };
+    if (moisture >= min - 15) return { label: "Moderate", color: "text-amber-600", warning: "Consider watering", icon: AlertTriangle };
+    if (moisture >= min - 30) return { label: "Dry", color: "text-orange-600", warning: "Needs water soon", icon: AlertTriangle };
+    return { label: "Critical", color: "text-red-600", warning: "Urgent irrigation needed", icon: AlertOctagon };
   };
 
   // NPK status thresholds - now dynamic based on crop profile
@@ -110,11 +111,11 @@ export const SoilMoisture: React.FC = () => {
   // Soil pH status - dynamic based on crop
   const getPhStatus = (ph: number) => {
     const [min, max] = thresholds.ph;
-    if (ph >= max + 1) return { label: "Alkaline ⚠️", color: "text-purple-600" };
-    if (ph >= max) return { label: "Slightly Alkaline", color: "text-blue-600" };
-    if (ph >= min) return { label: "Optimal ✓", color: "text-green-600" };
-    if (ph >= min - 0.5) return { label: "Slightly Acidic", color: "text-amber-600" };
-    return { label: "Acidic ⚠️", color: "text-red-600" };
+    if (ph >= max + 1) return { label: "Alkaline", color: "text-purple-600", icon: AlertTriangle };
+    if (ph >= max) return { label: "Slightly Alkaline", color: "text-blue-600", icon: Info };
+    if (ph >= min) return { label: "Optimal", color: "text-green-600", icon: CheckCircle2 };
+    if (ph >= min - 0.5) return { label: "Slightly Acidic", color: "text-amber-600", icon: Info };
+    return { label: "Acidic", color: "text-red-600", icon: AlertOctagon };
   };
 
   // Compute all statuses from current sensor data
@@ -138,7 +139,7 @@ export const SoilMoisture: React.FC = () => {
           <p className="text-sm text-muted-foreground">Real-time sensor readings</p>
         </div>
         <div className="w-10 h-10 rounded-full bg-amber-200/50 dark:bg-amber-700/30 flex items-center justify-center">
-          <span className="text-lg">🌱</span>
+          <Sprout className="w-6 h-6 text-amber-600 dark:text-amber-400" />
         </div>
       </div>
 
@@ -153,7 +154,8 @@ export const SoilMoisture: React.FC = () => {
           size="md"
           color="emerald"
         />
-        <div className={`mt-3 px-4 py-1.5 rounded-full bg-amber-100/50 dark:bg-amber-900/30 border border-amber-200/50 dark:border-amber-700/50 ${status.color} font-semibold text-sm backdrop-blur-sm transition-all duration-300 hover:scale-105`}>
+        <div className={`mt-3 px-4 py-1.5 rounded-full bg-amber-100/50 dark:bg-amber-900/30 border border-amber-200/50 dark:border-amber-700/50 ${status.color} font-semibold text-sm backdrop-blur-sm transition-all duration-300 hover:scale-105 flex items-center gap-2`}>
+          <status.icon className="w-4 h-4" />
           {status.label}
         </div>
       </div>
@@ -205,7 +207,10 @@ export const SoilMoisture: React.FC = () => {
             <div className="text-xl font-bold text-foreground">
               {sensorData?.pH.toFixed(1) ?? 0}
             </div>
-            <div className={`text-xs font-semibold ${phStatus.color}`}>{phStatus.label}</div>
+            <div className={`text-xs font-semibold ${phStatus.color} flex items-center gap-1`}>
+              <phStatus.icon className="w-3 h-3" />
+              {phStatus.label}
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-3 p-3 bg-amber-100/40 dark:bg-amber-800/20 backdrop-blur-sm rounded-xl border border-amber-200/30 dark:border-amber-700/30 hover:bg-amber-100/60 dark:hover:bg-amber-800/30 transition-all duration-300">

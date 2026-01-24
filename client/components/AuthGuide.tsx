@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Lottie from "lottie-react";
-import { X, Volume2, VolumeX, Sparkles, Globe } from "lucide-react";
+import { X, Volume2, VolumeX, Sparkles, Globe, Hand, User, Smartphone, Lock, MapPin, Sprout, PartyPopper, Unlock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import farmerAnimation from "@/assets/farmer-intro.json";
 
@@ -16,12 +16,14 @@ interface AuthGuideMessage {
         onValid?: string;
         onInvalid?: string;
     };
+    icon?: React.ElementType;
 }
 
 const signupMessagesEn: AuthGuideMessage[] = [
     {
-        greeting: "Namaste! 🙏",
+        greeting: "Namaste!",
         mainMessage: "I'm Ravi, your farming companion. I've been farming for 20 years and now I help new friends like you get started. Let me guide you through this - it's easier than planting your first crop!",
+        icon: Hand,
     },
     {
         greeting: "What should I call you?",
@@ -33,8 +35,9 @@ const signupMessagesEn: AuthGuideMessage[] = [
         fieldToWatch: "fullName",
         reactions: {
             onFocus: "Ah, you're ready! Go ahead...",
-            onValid: "Nice to meet you! That's a good name! 😊",
+            onValid: "Nice to meet you! That's a good name!",
         },
+        icon: User,
     },
     {
         greeting: "Let's connect",
@@ -47,9 +50,10 @@ const signupMessagesEn: AuthGuideMessage[] = [
         fieldToWatch: "phone",
         reactions: {
             onFocus: "Good! Type carefully...",
-            onValid: "Perfect! I can reach you anytime now 📱",
+            onValid: "Perfect! I can reach you anytime now",
             onInvalid: "Hmm... that doesn't look right. Check the digits?",
         },
+        icon: Smartphone,
     },
     {
         greeting: "Security matters",
@@ -63,8 +67,9 @@ const signupMessagesEn: AuthGuideMessage[] = [
         fieldToWatch: "password",
         reactions: {
             onFocus: "Take your time, security first...",
-            onValid: "Strong choice! Your data is safe 🔒",
+            onValid: "Strong choice! Your data is safe",
         },
+        icon: Lock,
     },
     {
         greeting: "Where are you farming?",
@@ -76,8 +81,9 @@ const signupMessagesEn: AuthGuideMessage[] = [
         fieldToWatch: "state",
         reactions: {
             onFocus: "Choose your state...",
-            onValid: "Ah, great region! I know the soil well there 🌍",
+            onValid: "Ah, great region! I know the soil well there",
         },
+        icon: MapPin,
     },
     {
         greeting: "Experience level?",
@@ -90,20 +96,23 @@ const signupMessagesEn: AuthGuideMessage[] = [
         fieldToWatch: "experienceLevel",
         reactions: {
             onFocus: "Be honest, no judgment here!",
-            onValid: "Got it! I'll match your pace 🌱",
+            onValid: "Got it! I'll match your pace",
         },
+        icon: Sprout,
     },
     {
-        greeting: "You're all set! 🎉",
+        greeting: "You're all set!",
         mainMessage: "Look at that - you did great! Now click 'Create Account' and let's start this farming journey together. I'll be with you every step of the way!",
-        encouragement: "Welcome to the Krushi Mitra family! 🌾",
+        encouragement: "Welcome to the Krushi Unnati family!",
+        icon: PartyPopper,
     },
 ];
 
 const signupMessagesHi: AuthGuideMessage[] = [
     {
-        greeting: "नमस्ते! 🙏",
+        greeting: "नमस्ते!",
         mainMessage: "मैं रवि हूं, आपका खेती साथी। मैं 20 साल से खेती कर रहा हूं और अब आप जैसे नए दोस्तों की मदद करता हूं। चलिए शुरू करते हैं - ये पहली फसल उगाने से भी आसान है!",
+        icon: Hand,
     },
     {
         greeting: "मैं आपको क्या बुलाऊं?",
@@ -115,8 +124,9 @@ const signupMessagesHi: AuthGuideMessage[] = [
         fieldToWatch: "fullName",
         reactions: {
             onFocus: "अच्छा, आप तैयार हैं! लिखिए...",
-            onValid: "आपसे मिलकर खुशी हुई! 😊",
+            onValid: "आपसे मिलकर खुशी हुई!",
         },
+        icon: User,
     },
     {
         greeting: "जुड़ें हमसे",
@@ -129,9 +139,10 @@ const signupMessagesHi: AuthGuideMessage[] = [
         fieldToWatch: "phone",
         reactions: {
             onFocus: "अच्छा! ध्यान से लिखें...",
-            onValid: "बढ़िया! अब मैं आपसे संपर्क कर सकता हूं 📱",
+            onValid: "बढ़िया! अब मैं आपसे संपर्क कर सकता हूं",
             onInvalid: "हम्म... ये सही नहीं लग रहा। नंबर चेक करें?",
         },
+        icon: Smartphone,
     },
     {
         greeting: "सुरक्षा ज़रूरी है",
@@ -145,8 +156,9 @@ const signupMessagesHi: AuthGuideMessage[] = [
         fieldToWatch: "password",
         reactions: {
             onFocus: "आराम से, सुरक्षा पहले...",
-            onValid: "बढ़िया! आपका डेटा सुरक्षित है 🔒",
+            onValid: "बढ़िया! आपका डेटा सुरक्षित है",
         },
+        icon: Lock,
     },
     {
         greeting: "खेती कहां करते हैं?",
@@ -158,8 +170,9 @@ const signupMessagesHi: AuthGuideMessage[] = [
         fieldToWatch: "state",
         reactions: {
             onFocus: "अपना राज्य चुनें...",
-            onValid: "बढ़िया! मुझे वहां की मिट्टी अच्छे से पता है 🌍",
+            onValid: "बढ़िया! मुझे वहां की मिट्टी अच्छे से पता है",
         },
+        icon: MapPin,
     },
     {
         greeting: "अनुभव कितना है?",
@@ -172,20 +185,23 @@ const signupMessagesHi: AuthGuideMessage[] = [
         fieldToWatch: "experienceLevel",
         reactions: {
             onFocus: "सच बताइए, कोई फैसला नहीं!",
-            onValid: "समझ गए! आपकी रफ्तार से चलेंगे 🌱",
+            onValid: "समझ गए! आपकी रफ्तार से चलेंगे",
         },
+        icon: Sprout,
     },
     {
-        greeting: "आप तैयार हैं! 🎉",
+        greeting: "आप तैयार हैं!",
         mainMessage: "देखा - आपने बढ़िया किया! अब 'Create Account' पर क्लिक करें और खेती का सफर शुरू करें। मैं हर कदम पर साथ हूं!",
-        encouragement: "कृषि मित्र परिवार में आपका स्वागत है! 🌾",
+        encouragement: "कृषि उन्नति परिवार में आपका स्वागत है!",
+        icon: PartyPopper,
     },
 ];
 
 const loginMessagesEn: AuthGuideMessage[] = [
     {
-        greeting: "Welcome back, friend! 👋",
+        greeting: "Welcome back, friend!",
         mainMessage: "Ravi here! Good to see you again. Let's get you back to your farm dashboard. Your crops are waiting!",
+        icon: Hand,
     },
     {
         greeting: "Your number?",
@@ -197,9 +213,10 @@ const loginMessagesEn: AuthGuideMessage[] = [
         fieldToWatch: "phone",
         reactions: {
             onFocus: "Type it carefully...",
-            onValid: "Ah yes, I remember you! 📱",
+            onValid: "Ah yes, I remember you!",
             onInvalid: "Hmm, check those digits again?",
         },
+        icon: Smartphone,
     },
     {
         greeting: "And the password?",
@@ -207,20 +224,23 @@ const loginMessagesEn: AuthGuideMessage[] = [
         fieldToWatch: "password",
         reactions: {
             onFocus: "Take your time...",
-            onValid: "Got it! Let's go 🔓",
+            onValid: "Got it! Let's go",
         },
+        icon: Lock,
     },
     {
-        greeting: "Ready to continue! 🚜",
+        greeting: "Ready to continue!",
         mainMessage: "Click 'Sign In' and you'll be back at your dashboard with all your farm data, insights, and real-time monitoring. Let's get back to work!",
         encouragement: "Your farm awaits!",
+        icon: Unlock,
     },
 ];
 
 const loginMessagesHi: AuthGuideMessage[] = [
     {
-        greeting: "फिर से स्वागत है, दोस्त! 👋",
+        greeting: "फिर से स्वागत है, दोस्त!",
         mainMessage: "रवि यहां है! फिर से मिलकर अच्छा लगा। चलिए आपको वापस खेत के डैशबोर्ड पर ले चलते हैं। आपकी फसलें इंतज़ार कर रही हैं!",
+        icon: Hand,
     },
     {
         greeting: "आपका नंबर?",
@@ -232,9 +252,10 @@ const loginMessagesHi: AuthGuideMessage[] = [
         fieldToWatch: "phone",
         reactions: {
             onFocus: "ध्यान से लिखें...",
-            onValid: "अरे हां, मुझे याद है आप! 📱",
+            onValid: "अरे हां, मुझे याद है आप!",
             onInvalid: "हम्म, नंबर फिर चेक करें?",
         },
+        icon: Smartphone,
     },
     {
         greeting: "और पासवर्ड?",
@@ -242,13 +263,15 @@ const loginMessagesHi: AuthGuideMessage[] = [
         fieldToWatch: "password",
         reactions: {
             onFocus: "आराम से लिखें...",
-            onValid: "मिल गया! चलते हैं 🔓",
+            onValid: "मिल गया! चलते हैं",
         },
+        icon: Lock,
     },
     {
-        greeting: "तैयार हैं! 🚜",
+        greeting: "तैयार हैं!",
         mainMessage: "'Sign In' पर क्लिक करें और वापस डैशबोर्ड पर पहुंचें - सारा डेटा, जानकारी, और लाइव मॉनिटरिंग। काम पर लौटते हैं!",
         encouragement: "आपका खेत इंतज़ार कर रहा है!",
+        icon: Unlock,
     },
 ];
 
@@ -491,9 +514,9 @@ export const AuthGuide = ({ mode, currentField, fieldValues = {} }: AuthGuidePro
                                             <motion.div
                                                 animate={{ rotate: [0, 10, -10, 0] }}
                                                 transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 1 }}
-                                                className="inline-block mr-1"
+                                                className="inline-block mr-2 align-middle"
                                             >
-                                                ✨
+                                                <Sparkles className="w-5 h-5 text-yellow-300 fill-yellow-300" />
                                             </motion.div>
                                             <span className="text-sm font-medium">{reactionText}</span>
                                             {/* Arrow pointing down */}
@@ -613,8 +636,11 @@ export const AuthGuide = ({ mode, currentField, fieldValues = {} }: AuthGuidePro
                                         </div>
                                         {/* Message bubble */}
                                         <div className="flex-1 bg-card/80 dark:bg-card/80 rounded-2xl px-4 py-3 shadow-sm">
-                                            <h4 className="text-base font-bold text-emerald-700 mb-1">
+                                            <h4 className="text-base font-bold text-emerald-700 mb-1 flex items-center gap-2">
                                                 {currentMessage.greeting}
+                                                {currentMessage.icon && (
+                                                    <currentMessage.icon className="w-5 h-5 text-emerald-500" />
+                                                )}
                                             </h4>
                                             <p className="text-sm text-foreground leading-relaxed">
                                                 {displayedText}

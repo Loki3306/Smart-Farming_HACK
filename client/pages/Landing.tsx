@@ -489,7 +489,7 @@ const Navbar = ({
               </div>
               <span className={`font-bold text-foreground hidden sm:block transition-all duration-300 ${isScrolled ? "text-base" : "text-xl"
                 }`}>
-                Krushi Mitra
+                Krushi Unnati
               </span>
             </motion.div>
 
@@ -917,7 +917,7 @@ export const Landing = () => {
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8"
               >
                 <Leaf className="w-4 h-4" />
-                <span>Krushi Mitra System for Indian Farmers</span>
+                <span>Krushi Unnati System for Indian Farmers</span>
               </motion.div>
 
               {/* Main Heading */}
@@ -1065,7 +1065,7 @@ export const Landing = () => {
                     className="w-full h-full object-cover"
                     controls
                     preload="none"
-                    poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 450'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%230f766e'/%3E%3Cstop offset='100%25' stop-color='%2310b981'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='800' height='450' fill='url(%23g)'/%3E%3Cg opacity='0.8'%3E%3Ctext x='400' y='200' text-anchor='middle' fill='white' font-size='60' font-weight='bold' font-family='system-ui'%3EKrushi Mitra%3C/text%3E%3Ctext x='400' y='260' text-anchor='middle' fill='white' font-size='24' font-family='system-ui'%3ESmart Farming Demo%3C/text%3E%3Ccircle cx='400' cy='300' r='30' fill='white' opacity='0.9'/%3E%3Cpolygon points='390,285 390,315 415,300' fill='%230f766e'/%3E%3C/g%3E%3C/svg%3E"
+                    poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 450'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%230f766e'/%3E%3Cstop offset='100%25' stop-color='%2310b981'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='800' height='450' fill='url(%23g)'/%3E%3Cg opacity='0.8'%3E%3Ctext x='400' y='200' text-anchor='middle' fill='white' font-size='60' font-weight='bold' font-family='system-ui'%3EKrushi Unnati%3C/text%3E%3Ctext x='400' y='260' text-anchor='middle' fill='white' font-size='24' font-family='system-ui'%3ESmart Farming Demo%3C/text%3E%3Ccircle cx='400' cy='300' r='30' fill='white' opacity='0.9'/%3E%3Cpolygon points='390,285 390,315 415,300' fill='%230f766e'/%3E%3C/g%3E%3C/svg%3E"
                   >
                     <source src="/assets/The_Self-Running_Farm.mp4" type="video/mp4" />
                     Your browser does not support the video tag.
@@ -1520,7 +1520,7 @@ export const Landing = () => {
                   <Leaf className="w-6 h-6 text-primary-foreground" />
                 </div>
                 <span className="text-xl font-bold text-foreground">
-                  Krushi Mitra
+                  Krushi Unnati
                 </span>
               </div>
               <p className="text-muted-foreground text-sm mb-6">

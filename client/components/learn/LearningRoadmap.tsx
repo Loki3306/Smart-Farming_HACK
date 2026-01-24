@@ -283,8 +283,11 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
 
               <div className="flex items-center gap-2 shrink-0">
                 <button
+                  type="button"
                   onClick={handleLanguageToggle}
                   className="flex items-center justify-center w-8 h-8 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full transition-colors border border-blue-200 dark:border-blue-700"
+                  title={isHindi ? 'Switch to English' : 'हिंदी में बदलें'}
+                  aria-label={isHindi ? 'Switch to English' : 'Switch to Hindi'}
                 >
                   <Globe className="w-4 h-4" />
                 </button>
