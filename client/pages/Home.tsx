@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { SoilMoisture } from "../components/dashboard/SoilMoisture";
 import { ControlCenter } from "../components/dashboard/ControlCenter";
 import { ActionLog } from "../components/dashboard/ActionLog";
+import { LiveSensorGrid } from "../components/dashboard/LiveSensorGrid";
+import { PrecisionAgriculture } from "../components/dashboard/PrecisionAgriculture";
 import { FarmerSwitcher } from "../components/demo/FarmerSwitcher";
 import { useFarmContext } from "../context/FarmContext";
 import { useAuth } from "../context/AuthContext";
@@ -64,6 +66,23 @@ export const Home: React.FC = () => {
     };
     fetchFarmName();
   }, [user]);
+
+  // Listen for IoT Notifications (Agronomy Alerts)
+  useEffect(() => {
+    const handleNotification = (event: CustomEvent) => {
+      const data = event.detail;
+
+      toast({
+        title: data.level === 'error' ? '🚨 Critical Alert' : data.level === 'warning' ? '⚠️ Warning' : 'ℹ️ Notification',
+        description: data.message,
+        variant: data.level === 'error' || data.level === 'warning' ? 'destructive' : 'default',
+        duration: 5000,
+      });
+    };
+
+    window.addEventListener('iot-notification', handleNotification as EventListener);
+    return () => window.removeEventListener('iot-notification', handleNotification as EventListener);
+  }, [toast]);
 
   // Determine which farm image to show based on current time
   const getTimeBasedImage = () => {
@@ -368,6 +387,16 @@ export const Home: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Live IoT Sensor Monitor */}
+            <div className="bg-card rounded-2xl p-6 shadow-lg border border-border/50">
+              <LiveSensorGrid />
+            </div>
+
+            {/* Precision Agriculture Dashboard (Advanced Agronomy) */}
+            <div className="bg-card rounded-2xl shadow-lg border border-border/50 overflow-hidden">
+              <PrecisionAgriculture />
+            </div>
+
             {/* Soil Moisture Hero */}
             <div data-tour-id="soil-moisture">
               <SoilMoisture />
