@@ -66,8 +66,10 @@ export const Sidebar: React.FC = () => {
   const mainNavItems: NavItem[] = [
     { label: t("navigation.dashboard"), icon: LayoutDashboard, path: "/dashboard" },
     { label: t("navigation.myFarm"), icon: Tractor, path: "/farm" },
+    { label: t("navigation.farmMapping"), icon: Map, path: "/farm-mapping" },
     { label: t("navigation.weather"), icon: CloudSun, path: "/weather" },
     { label: t("navigation.aiRecommendations"), icon: Lightbulb, path: "/recommendations" },
+    { label: t("navigation.regimes"), icon: Leaf, path: "/regimes" },
     { label: t("navigation.diseaseDetection"), icon: Bug, path: "/disease" },
     { label: t("navigation.marketplace"), icon: ShoppingCart, path: "/marketplace" },
     { label: t("navigation.learn"), icon: GraduationCap, path: "/learn" },

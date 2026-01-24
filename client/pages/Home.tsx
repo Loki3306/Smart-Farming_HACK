@@ -24,6 +24,7 @@ import {
 import { Avatar, AvatarFallback } from "../components/ui/avatar";
 import { IoTAnalyticsCard } from "../components/dashboard/IoTAnalyticsCard";
 import { DeviceHealthCard } from "../components/dashboard/DeviceHealthCard";
+import { WeatherCard } from "../components/dashboard/WeatherCard";
 
 // Time-based farm images (WebP optimized - 94% smaller!)
 import morningImage from "../assets/farm-time-images/morning.webp";
@@ -380,6 +381,13 @@ export const Home: React.FC = () => {
           </div>
           <div className="shadow-sm rounded-2xl">
             <DeviceHealthCard />
+          </div>
+        </div>
+
+        {/* Weather Card Section */}
+        <div className="animate-in slide-in-from-bottom-5 duration-700 fade-in fill-mode-backwards delay-100">
+          <div className="shadow-sm rounded-2xl">
+            <WeatherCard />
           </div>
         </div>
 
