@@ -7,7 +7,7 @@ import asyncio
 import logging
 import os
 from datetime import datetime
-from typing import Dict, Set
+from typing import Dict, Set, Union
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.responses import JSONResponse
 
@@ -25,6 +25,9 @@ FARM_ID_MAPPING = {
     "farm_001": "80ac1084-67f8-4d05-ba21-68e3201213a8",
     "farm_002": "farm_002",  # Add more mappings as needed
 }
+
+# Default Demo Farmer ID for hackathon broadcasts
+DEMO_FARMER_ID = "80ac1084-67f8-4d05-ba21-68e3201213a8"
 
 def map_farm_id(mqtt_farm_id: str) -> str:
     """Map MQTT farm_id to frontend UUID"""
@@ -54,9 +57,9 @@ class ConnectionManager:
                 if farm_id not in self.active_connections:
                     self.active_connections[farm_id] = set()
                 self.active_connections[farm_id].add(websocket)
-            logger.info(f"✅ WebSocket connected for farm: {farm_id}. Total: {len(self.active_connections[farm_id])}")
+            logger.info(f"[WS] WebSocket connected for farm: {farm_id}. Total: {len(self.active_connections[farm_id])}")
         except Exception as e:
-            logger.error(f"❌ Error accepting WebSocket connection: {e}")
+            logger.error(f"[ERROR] Error accepting WebSocket connection: {e}")
             raise
 
     async def disconnect(self, websocket: WebSocket, farm_id: str):
@@ -66,7 +69,7 @@ class ConnectionManager:
                 self.active_connections[farm_id].discard(websocket)
                 if not self.active_connections[farm_id]:
                     del self.active_connections[farm_id]
-        logger.info(f"❌ WebSocket disconnected for farm: {farm_id}")
+        logger.info(f"[WS] WebSocket disconnected for farm: {farm_id}")
 
     async def broadcast(self, farm_id: str, message: dict):
         """
@@ -127,38 +130,63 @@ WS_BROADCAST_INTERVAL_SECONDS = 3  # Broadcast to WebSocket every 3 seconds
 last_ws_broadcast: Dict[str, datetime] = {}
 
 
-async def handle_sensor_data(sensor_data: SensorData):
+async def handle_sensor_data(sensor_data_or_dict: Union[SensorData, dict]):
     """
-    Process incoming sensor data from MQTT
-    - Store in memory
-    - Throttle database writes (every 30s)
-    - Broadcast to WebSocket clients (every 3s)
-    - Evaluate irrigation logic
+    Process incoming sensor data or status updates from MQTT
     """
+    # Handle STATUS packets
+    if isinstance(sensor_data_or_dict, dict) and sensor_data_or_dict.get("type") == "STATUS":
+        device = sensor_data_or_dict.get("device")
+        state = sensor_data_or_dict.get("state")
+        
+        logger.info(f"⚡ STATUS UPDATE: {device} = {state}")
+        
+        # Broadcast immediately to all active connections
+        # We don't map farm IDs for status yet, assuming broadcast to all or default
+        # For hackathon, we broadcast to the demo farmer
+        frontend_farm_id = DEMO_FARMER_ID
+        
+        await manager.broadcast({
+            "type": "STATUS",
+            "device": device,
+            "state": state,
+            "timestamp": datetime.utcnow().isoformat()
+        }, frontend_farm_id)
+        return
+
+    # Handle Standard Sensor Data
+    sensor_data = sensor_data_or_dict
+    if isinstance(sensor_data, dict):
+        try:
+            sensor_data = SensorData(**sensor_data)
+        except ValidationError:
+            logger.warning("[WARNING] Invalid sensor data received")
+            return
+
     mqtt_farm_id = sensor_data.farm_id or "default"
     frontend_farm_id = map_farm_id(mqtt_farm_id)  # Map to frontend UUID
     now = datetime.utcnow()
     
     # ========== TESTING: PRINT RECEIVED VALUES ==========
     print("\n" + "="*70)
-    print(f"🔔 MQTT MESSAGE RECEIVED - {now.strftime('%H:%M:%S')}")
+    print(f"[MQTT] MQTT MESSAGE RECEIVED - {now.strftime('%H:%M:%S')}")
     print("="*70)
-    print(f"📍 MQTT Farm ID:   {mqtt_farm_id}")
-    print(f"📍 Frontend ID:    {frontend_farm_id}")
-    print(f"💧 Moisture:       {sensor_data.moisture}%")
-    print(f"🌡️  Temperature:    {sensor_data.temp}°C")
-    print(f"💨 Humidity:       {sensor_data.humidity}%")
-    print(f"🟢 NPK Raw:        {sensor_data.npk}")
+    print(f"[MQTT] MQTT Farm ID:   {mqtt_farm_id}")
+    print(f"[MQTT] Frontend ID:    {frontend_farm_id}")
+    print(f"[DATA] Moisture:       {sensor_data.moisture}%")
+    print(f"[DATA] Temperature:    {sensor_data.temp}°C")
+    print(f"[DATA] Humidity:       {sensor_data.humidity}%")
+    print(f"[DATA] NPK Raw:        {sensor_data.npk}")
     
     # Advanced Sensors (if present)
     if sensor_data.ec_salinity:
-        print(f"🧂 Salinity (EC):   {sensor_data.ec_salinity} dS/m")
+        print(f"[DATA] Salinity (EC):   {sensor_data.ec_salinity} dS/m")
     if sensor_data.wind_speed:
-        print(f"🌬️  Wind Speed:     {sensor_data.wind_speed} km/h")
+        print(f"[DATA] Wind Speed:     {sensor_data.wind_speed} km/h")
     if sensor_data.soil_ph:
-        print(f"🧪 Soil pH:        {sensor_data.soil_ph}")
+        print(f"[DATA] Soil pH:        {sensor_data.soil_ph}")
         
-    print(f"⏰ Timestamp:      {sensor_data.timestamp}")
+    print(f"[TIME] Timestamp:      {sensor_data.timestamp}")
     print("="*70 + "\n")
     # ====================================================
 
@@ -188,10 +216,10 @@ async def handle_sensor_data(sensor_data: SensorData):
         }
         
         # Debug connections
-        logger.info(f"🔍 Active connections keys: {list(manager.active_connections.keys())}")
+        logger.info(f"[DEBUG] Active connections keys: {list(manager.active_connections.keys())}")
         
         # Broadcast to frontend UUID (primary)
-        logger.info(f"📤 Broadcasting to {frontend_farm_id}...")
+        logger.info(f"[BROADCAST] Broadcasting to {frontend_farm_id}...")
         await manager.broadcast(frontend_farm_id, broadcast_message)
         
         # Also broadcast to MQTT ID (for backward compatibility)
@@ -223,7 +251,7 @@ async def store_sensor_data_to_db(sensor_data: SensorData):
     try:
         # TODO: Implement Supabase storage
         # For now, just log
-        logger.info(f"💾 [DB Write] Farm: {sensor_data.farm_id}, Moisture: {sensor_data.moisture}%, Temp: {sensor_data.temp}°C")
+        logger.info(f"[DB Write] Farm: {sensor_data.farm_id}, Moisture: {sensor_data.moisture}%, Temp: {sensor_data.temp}°C")
         
         # Example Supabase integration:
         # from supabase import create_client
@@ -238,7 +266,7 @@ async def store_sensor_data_to_db(sensor_data: SensorData):
         # }).execute()
 
     except Exception as e:
-        logger.error(f"❌ Failed to store sensor data to DB: {e}")
+        logger.error(f"[ERROR] Failed to store sensor data to DB: {e}")
 
 
 async def evaluate_irrigation_logic(sensor_data: SensorData):
@@ -248,13 +276,13 @@ async def evaluate_irrigation_logic(sensor_data: SensorData):
     """
     try:
         if sensor_data.moisture < 35:
-            logger.warning(f"🚨 LOW MOISTURE ALERT: {sensor_data.moisture}% for farm {sensor_data.farm_id}")
+            logger.warning(f"[ALERT] LOW MOISTURE ALERT: {sensor_data.moisture}% for farm {sensor_data.farm_id}")
             
             # Publish WATER_ON command
             if mqtt_client and mqtt_client.is_connected:
                 success = mqtt_client.publish_command("WATER_ON", sensor_data.farm_id)
                 if success:
-                    logger.info(f"💧 Irrigation triggered for farm {sensor_data.farm_id}")
+                    logger.info(f"[ACTION] Irrigation triggered for farm {sensor_data.farm_id}")
                     
                     # Broadcast irrigation event to WebSocket clients
                     await manager.broadcast(sensor_data.farm_id, {
@@ -271,10 +299,10 @@ async def evaluate_irrigation_logic(sensor_data: SensorData):
                         "timestamp": datetime.utcnow().isoformat()
                     })
             else:
-                logger.warning("⚠️ MQTT not connected. Cannot trigger irrigation.")
+                logger.warning("[WARNING] MQTT not connected. Cannot trigger irrigation.")
 
     except Exception as e:
-        logger.error(f"❌ Error in irrigation logic: {e}")
+        logger.error(f"[ERROR] Error in irrigation logic: {e}")
 
 
 async def evaluate_agronomy_logic(sensor_data: SensorData):
@@ -304,7 +332,7 @@ async def evaluate_agronomy_logic(sensor_data: SensorData):
             
             if should_leach:
                 logger.warning(
-                    f"🚨 SALINITY STRESS DETECTED! EC: {sensor_data.ec_salinity} dS/m. "
+                    f"[ALERT] SALINITY STRESS DETECTED! EC: {sensor_data.ec_salinity} dS/m. "
                     f"Triggering leaching cycle..."
                 )
                 
@@ -316,7 +344,7 @@ async def evaluate_agronomy_logic(sensor_data: SensorData):
                     )
                     
                     if success:
-                        logger.info(f"💧 Leaching cycle triggered for farm {sensor_data.farm_id}")
+                        logger.info(f"[ACTION] Leaching cycle triggered for farm {sensor_data.farm_id}")
                         
                         # Broadcast leaching event
                         await manager.broadcast(sensor_data.farm_id, {
@@ -342,7 +370,7 @@ async def evaluate_agronomy_logic(sensor_data: SensorData):
             
             if not wind_safety["is_safe_for_spraying"]:
                 logger.warning(
-                    f"⚠️ WIND SAFETY ALERT: {sensor_data.wind_speed} km/h. "
+                    f"[WARNING] WIND SAFETY ALERT: {sensor_data.wind_speed} km/h. "
                     f"Chemical application blocked. Risk: {wind_safety['risk_level']}"
                 )
                 
@@ -391,7 +419,7 @@ async def evaluate_agronomy_logic(sensor_data: SensorData):
                         if not ws.get("is_safe_for_spraying"):
                             recommendations.append(f"Do not spray. Wind risk: {ws.get('risk_level')}")
                 except Exception as e:
-                    logger.warning(f"⚠️ Error flattening recommendations: {e}")
+                    logger.warning(f"[WARNING] Error flattening recommendations: {e}")
 
                 # Backward Compatibility: Send full analysis
                 await manager.broadcast(sensor_data.farm_id, {
@@ -413,11 +441,11 @@ async def evaluate_agronomy_logic(sensor_data: SensorData):
                             "timestamp": datetime.utcnow().isoformat()
                         }
                         await manager.broadcast(sensor_data.farm_id, payload)
-                        logger.info(f"🤖 AI Decision Broadcast: {decision['subsystem']}")
+                        logger.info(f"[AI] AI Decision Broadcast: {decision['subsystem']}")
 
-                logger.info(f"🌱 Agronomy analysis completed for farm {sensor_data.farm_id}")
+                logger.info(f"[AGRONOMY] Agronomy analysis completed for farm {sensor_data.farm_id}")
             except Exception as e:
-                logger.error(f"❌ Error in comprehensive analysis: {e}")
+                logger.error(f"[ERROR] Error in comprehensive analysis: {e}")
                 import traceback
                 traceback.print_exc()
                 
@@ -430,7 +458,7 @@ async def evaluate_agronomy_logic(sensor_data: SensorData):
         
         # Auto-Irrigation: If moisture < 35%
         if sensor_data.moisture < 35:
-            logger.warning(f"⚠️ AUTO-TRIGGER: Low moisture ({sensor_data.moisture}%) detected")
+            logger.warning(f"[WARNING] AUTO-TRIGGER: Low moisture ({sensor_data.moisture}%) detected")
             # Note: Actual auto-trigger would check mode from state management
             # This is logged for visibility
         
@@ -445,13 +473,13 @@ async def evaluate_agronomy_logic(sensor_data: SensorData):
                     k_low = npk_status.get("potassium_available_ppm", 999) < 50
                     
                     if n_low or p_low or k_low:
-                        logger.warning(f"⚠️ AUTO-TRIGGER: Low NPK detected (N:{n_low}, P:{p_low}, K:{k_low})")
+                        logger.warning(f"[WARNING] AUTO-TRIGGER: Low NPK detected (N:{n_low}, P:{p_low}, K:{k_low})")
                         # Note: Actual auto-trigger would check mode and wind safety
             except Exception as e:
                 logger.debug(f"NPK auto-check skipped: {e}")
     
     except Exception as e:
-        logger.error(f"❌ Error in agronomy logic: {e}")
+        logger.error(f"[ERROR] Error in agronomy logic: {e}")
         import traceback
         traceback.print_exc()
 
@@ -481,7 +509,7 @@ async def control_actuation(command: ActuationCommand):
     # Map frontend UUID to MQTT farm_id
     mqtt_farm_id = reverse_map_farm_id(command.farm_id)
     
-    logger.info(f"🎛️  Control command received: {command.action}={command.value} (mode:{command.mode}) for {mqtt_farm_id}")
+    logger.info(f"[CONTROL] Control command received: {command.action}={command.value} (mode:{command.mode}) for {mqtt_farm_id}")
     
     # ============================================================================
     # SAFETY CHECK: Wind Speed for Fertilization
@@ -491,7 +519,7 @@ async def control_actuation(command: ActuationCommand):
         if mqtt_farm_id in latest_sensor_data:
             sensor_data = latest_sensor_data[mqtt_farm_id]
             if sensor_data.wind_speed and sensor_data.wind_speed > 20:
-                logger.warning(f"🚫 SAFETY BLOCK: Fertilization rejected due to high wind ({sensor_data.wind_speed} km/h)")
+                logger.warning(f"[SAFETY BLOCK] Fertilization rejected due to high wind ({sensor_data.wind_speed} km/h)")
                 raise HTTPException(
                     status_code=403,
                     detail=f"Fertilization blocked: Wind speed ({sensor_data.wind_speed} km/h) exceeds safety threshold (20 km/h)"
@@ -500,8 +528,13 @@ async def control_actuation(command: ActuationCommand):
     # ============================================================================
     # MQTT Command Publishing
     # ============================================================================
-    if not mqtt_client or not mqtt_client.is_connected:
-        logger.error("❌ MQTT client not connected")
+    if not mqtt_client:
+        logger.error("[ERROR] MQTT client not initialized")
+        raise HTTPException(status_code=503, detail="MQTT client not initialized")
+
+    # Ensure connection before publishing
+    if not mqtt_client.ensure_connected():
+        logger.error("[ERROR] MQTT client not connected after retries")
         raise HTTPException(status_code=503, detail="MQTT broker not available")
     
     # Publish actuation command to ESP32
@@ -532,9 +565,9 @@ async def control_actuation(command: ActuationCommand):
             }
             
             result = supabase.table("commands_history").insert(audit_entry).execute()
-            logger.info(f"✅ Command logged to Supabase: {command.action}")
+            logger.info(f"[SUCCESS] Command logged to Supabase: {command.action}")
     except Exception as e:
-        logger.warning(f"⚠️ Failed to log command to Supabase: {e}")
+        logger.warning(f"[WARNING] Failed to log command to Supabase: {e}")
         # Don't fail the request if logging fails
     
     # ============================================================================
@@ -641,7 +674,7 @@ async def websocket_telemetry(websocket: WebSocket, farm_id: str):
                 "data": latest_sensor_data[farm_id].model_dump(),
                 "timestamp": datetime.utcnow().isoformat()
             })
-            logger.info(f"📤 Sent initial data to {farm_id}")
+            logger.info(f"[WS] Sent initial data to {farm_id}")
 
         # Keep connection alive and handle incoming messages
         while True:
@@ -682,13 +715,25 @@ async def initialize_mqtt():
         event_loop = asyncio.get_event_loop()
         logger.warning(f"⚠️ No running loop, using default: {event_loop}")
 
-    # Get MQTT configuration from environment
-    broker_host = os.getenv("MQTT_BROKER_HOST", "127.0.0.1")
-    broker_port = int(os.getenv("MQTT_BROKER_PORT", "1883"))
-    username = os.getenv("MQTT_USERNAME")
-    password = os.getenv("MQTT_PASSWORD")
+    # Load .env file explicitly to ensure credentials are found
+    from pathlib import Path
+    from dotenv import load_dotenv
+    
+    # Path to .env (backend/../.env)
+    env_path = Path(__file__).resolve().parents[2] / '.env'
+    if env_path.exists():
+        load_dotenv(dotenv_path=env_path)
+        logger.info(f"[INIT] Loaded .env from {env_path}")
+    else:
+        logger.warning(f"[WARNING] .env not found at {env_path}")
 
-    logger.info(f"🔧 Initializing MQTT client for broker: {broker_host}:{broker_port}")
+    # Get MQTT configuration from environment (with HiveMQ fallback)
+    broker_host = os.getenv("MQTT_BROKER_HOST", "e17116d0063a4e08bab15c1ff2a00fcc.s1.eu.hivemq.cloud")
+    broker_port = int(os.getenv("MQTT_BROKER_PORT", "8883"))
+    username = os.getenv("MQTT_USERNAME", "farm_user")
+    password = os.getenv("MQTT_PASSWORD", "Yug@2809")
+
+    logger.info(f"[INIT] Initializing MQTT client for broker: {broker_host}:{broker_port}")
 
     try:
         mqtt_client = MQTTIoTClient(
@@ -704,11 +749,11 @@ async def initialize_mqtt():
         # Start MQTT client
         mqtt_client.start()
 
-        logger.info("✅ MQTT client initialized successfully")
+        logger.info("[SUCCESS] MQTT client initialized successfully")
 
     except Exception as e:
-        logger.error(f"❌ Failed to initialize MQTT client: {e}")
-        logger.warning("⚠️ Application will continue without MQTT. Web UI will still work.")
+        logger.error(f"[ERROR] Failed to initialize MQTT client: {e}")
+        logger.warning("[WARNING] Application will continue without MQTT. Web UI will still work.")
 
 
 async def shutdown_mqtt():

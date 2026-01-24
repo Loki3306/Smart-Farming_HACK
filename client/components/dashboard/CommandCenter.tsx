@@ -35,17 +35,21 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ farmId }) => {
             const data = event.detail;
 
             // Handle STATUS acknowledgements from ESP32
+            // Handle STATUS acknowledgements from ESP32
             if (data.type === 'STATUS') {
-                if (data.irrigation) {
+                // Production-ready STATUS consumption
+                // Format: { type: "STATUS", device: "irrigation"|"fertilization", state: 1|0 }
+                const isStateOn = data.state === 1 || data.state === 'ON' || data.state === true;
+
+                if (data.device === 'irrigation') {
                     setActuationState(prev => ({
                         ...prev,
-                        irrigation: data.irrigation === 'ON'
+                        irrigation: isStateOn
                     }));
-                }
-                if (data.fertilization) {
+                } else if (data.device === 'fertilization') {
                     setActuationState(prev => ({
                         ...prev,
-                        fertilization: data.fertilization === 'ON'
+                        fertilization: isStateOn
                     }));
                 }
             }

@@ -51,10 +51,13 @@ class IoTServiceClass {
         const wsHost = window.location.hostname;
         const wsPort = window.location.port || (wsProtocol === "wss:" ? "443" : "80");
 
-        // For development, use localhost:8000 (FastAPI backend)
-        const isDev = import.meta.env.DEV;
-        const wsUrl = isDev
-            ? `ws://localhost:8000/iot/ws/telemetry/${farmId}`
+        // Production-ready WebSocket URL construction
+        // Uses relative path by default to work behind Nginx/Reverse Proxy, or VITE_API_URL if set
+        const apiBase = import.meta.env.VITE_API_URL || "";
+        console.log(`[IoTService] Configured API Base: ${apiBase || "None (Using current host)"}`);
+
+        const wsUrl = apiBase
+            ? `${apiBase.replace(/^http/, 'ws')}/iot/ws/telemetry/${farmId}`
             : `${wsProtocol}//${wsHost}:${wsPort}/iot/ws/telemetry/${farmId}`;
 
         console.log(`[IoTService] Connecting to WebSocket: ${wsUrl}`);

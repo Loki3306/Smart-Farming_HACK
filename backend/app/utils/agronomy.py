@@ -38,7 +38,7 @@ class AgronomyEngine:
         self,
         temp: float,
         humidity: float,
-        wind_speed_kmh: float
+        wind_speed_kmh: float = 7.2  # Default to 2.0 m/s (7.2 km/h) if missing
     ) -> float:
         """
         FAO-56 Penman-Monteith Reference Evapotranspiration

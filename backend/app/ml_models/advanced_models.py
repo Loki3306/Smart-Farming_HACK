@@ -39,13 +39,16 @@ class AdvancedMLManager:
         self.BUFFER_SIZE = 100
         self.packets_processed = 0
         
+        # Production Flag: Prevent expensive training on startup
+        self.RETRAIN_ON_STARTUP = False
+        
         self._initialize_models()
         
     def _initialize_models(self):
         """Load models or bootstrap if missing"""
         try:
-            # Check if models exist
-            if self._check_models_exist():
+            # Check if models exist (and skip if RETRAIN_ON_STARTUP is False)
+            if not self.RETRAIN_ON_STARTUP and self._check_models_exist():
                 self._load_models()
                 self.is_bootstrapped = False
             else:
