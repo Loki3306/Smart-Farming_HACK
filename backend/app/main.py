@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
+from contextlib import asynccontextmanager
 import importlib
 import sys
 import os
@@ -19,26 +20,100 @@ app_root = os.path.dirname(os.path.abspath(__file__))
 if app_root not in sys.path:
     sys.path.insert(0, app_root)
 
-# Initialize FastAPI app
+# Add backend directory to path for iot_irrigation module
+backend_root = os.path.dirname(app_root)
+if backend_root not in sys.path:
+    sys.path.insert(0, backend_root)
+
+# Lifespan context manager for startup/shutdown events
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Lifespan context manager for FastAPI application
+    Handles startup and shutdown events
+    """
+    # Startup
+    print("🚀 Starting Smart Farming AI Backend...")
+    
+    # Initialize MQTT client for IoT
+    initialize_mqtt_func = None
+    shutdown_mqtt_func = None
+    
+    try:
+        from iot_irrigation.router import initialize_mqtt as init_func, shutdown_mqtt as shutdown_func
+        initialize_mqtt_func = init_func
+        shutdown_mqtt_func = shutdown_func
+        
+        if initialize_mqtt_func:
+            print("🔌 Initializing MQTT client for IoT...")
+            await initialize_mqtt_func()
+            print("✅ MQTT client initialized successfully")
+    except ImportError as e:
+        print(f"⚠️ IoT module not available: {e}")
+    except Exception as e:
+        print(f"❌ Failed to initialize MQTT: {e}")
+        import traceback
+        traceback.print_exc()
+    
+    yield  # Application runs here
+    
+    # Shutdown
+    print("🛑 Shutting down Smart Farming AI Backend...")
+    try:
+        if shutdown_mqtt_func:
+            print("🔌 Shutting down MQTT client...")
+            await shutdown_mqtt_func()
+            print("✅ MQTT client shutdown successfully")
+    except Exception as e:
+        print(f"⚠️ Error during MQTT shutdown: {e}")
+
+# Initialize FastAPI app with lifespan
 app = FastAPI(
     title="Smart Farming AI Backend",
     description="ML-powered agricultural recommendations API",
+    lifespan=lifespan,
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
 )
 
-# Configure CORS for frontend communication
+# Configure CORS for frontend communication (including WebSocket)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:5000", "*"],
+    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:5000", "http://localhost:5001", "http://localhost:5002", "*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # Include the chatbot API router
 app.include_router(chatbot.router, prefix="/api/chatbot")
+
+# Include the IoT irrigation router
+print("🔧 Attempting to load IoT Irrigation module...")
+
+
+try:
+    from iot_irrigation.router import router as iot_router, initialize_mqtt, shutdown_mqtt
+    # Don't add prefix here - router already has prefix="/iot"
+    app.include_router(iot_router, tags=["IoT Irrigation"])
+    print("✅ IoT Irrigation module loaded successfully")
+    print(f"   Router: {iot_router}")
+    print(f"   Initialize MQTT: {initialize_mqtt}")
+except ImportError as e:
+    print(f"❌ IoT Irrigation module import error: {e}")
+    print(f"   Python path: {sys.path}")
+    # Set to None so lifespan doesn't try to call them
+    initialize_mqtt = None
+    shutdown_mqtt = None
+except Exception as e:
+    print(f"⚠️ IoT Irrigation module error: {type(e).__name__}: {e}")
+    import traceback
+    traceback.print_exc()
+    # Set to None so lifespan doesn't try to call them
+    initialize_mqtt = None
+    shutdown_mqtt = None
 
 # ============================================================================
 # Pydantic Models (Request/Response schemas)
@@ -804,6 +879,22 @@ async def startup_event():
     print("📦 Loading ML models...")
     status = model_loader.load_models()
     print(f"✅ API ready! Models loaded: {sum(status.values())}/{len(status)}")
+    
+    # Initialize MQTT client for IoT irrigation
+    if initialize_mqtt:
+        print("🔌 Initializing MQTT client for IoT...")
+        initialize_mqtt()
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Cleanup on shutdown"""
+    print("🛑 Shutting down Smart Farming AI Backend...")
+    
+    # Shutdown MQTT client
+    if shutdown_mqtt:
+        print("🔌 Shutting down MQTT client...")
+        shutdown_mqtt()
 
 
 @app.get("/", tags=["Root"])
