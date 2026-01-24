@@ -162,8 +162,8 @@ export const LiveSensorGrid: React.FC = () => {
                     label="Soil Moisture"
                     value={sensorData?.moisture ?? 0}
                     unit="%"
-                    color="text-blue-400"
-                    gradient="from-blue-500/90 to-blue-600/90"
+                    color={(sensorData?.moisture ?? 100) < 35 ? "text-red-400" : "text-blue-400"}
+                    gradient={(sensorData?.moisture ?? 100) < 35 ? "from-red-500/90 to-orange-600/90" : "from-blue-500/90 to-blue-600/90"}
                     isLive={systemStatus.isOnline}
                 />
 

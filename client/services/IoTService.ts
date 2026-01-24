@@ -12,6 +12,13 @@ export interface LiveSensorData {
     npk: number;
     timestamp: string;
     farm_id: string;
+    wind_speed?: number;
+}
+
+export interface WindSafetyAlert {
+    wind_speed: number;
+    risk_level: string;
+    blocked_operations: string[];
 }
 
 export interface SystemStatus {
@@ -96,6 +103,7 @@ class IoTServiceClass {
                         console.log("💧 Moisture:      ", sensorData.moisture + "%");
                         console.log("🌡️  Temperature:   ", sensorData.temp + "°C");
                         console.log("💨 Humidity:      ", sensorData.humidity + "%");
+                        console.log("🌬️ Wind Speed:    ", sensorData.wind_speed ? sensorData.wind_speed + " km/h" : "N/A");
                         console.log("🟢 NPK:           ", sensorData.npk);
                         console.log("⏰ Timestamp:     ", sensorData.timestamp);
                         console.log("=".repeat(70) + "\n");

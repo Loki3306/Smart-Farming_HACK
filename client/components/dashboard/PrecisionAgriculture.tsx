@@ -125,6 +125,15 @@ export const PrecisionAgriculture: React.FC = () => {
                     });
                 }
             }
+            // Handle specific Wind Safety Alert
+            else if (data.type === 'wind_safety_alert') {
+                setAtmospheric({
+                    windSpeed: data.wind_speed,
+                    et0: 0,
+                    isSafeForSpraying: false,
+                    riskLevel: data.risk_level || 'high'
+                });
+            }
             // Industrial AI Decision Handling
             else if (data.type === 'AI_DECISION' && data.subsystem && data.payload) {
                 const payload = data.payload;
@@ -508,7 +517,7 @@ export const PrecisionAgriculture: React.FC = () => {
                                 <span className="text-2xl">{atmospheric.isSafeForSpraying ? '✅' : '🚫'}</span>
                                 <span className={`font-bold ${atmospheric.isSafeForSpraying ? 'text-green-800' : 'text-red-800'
                                     }`}>
-                                    {atmospheric.isSafeForSpraying ? 'Spray Safe' : 'NO SPRAY'}
+                                    {atmospheric.isSafeForSpraying ? 'Spray Safe' : 'HIGH WIND ALERT - SPRAYING BLOCKED'}
                                 </span>
                             </div>
 
