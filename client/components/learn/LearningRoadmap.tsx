@@ -19,6 +19,7 @@ import { Progress } from '@/components/ui/progress';
 import { KisaanMitra, MascotContext } from './KisaanMitra';
 import { useLanguage } from '@/context/LanguageContext';
 import { useSettings } from '@/context/SettingsContext';
+import { useTranslation } from 'react-i18next';
 
 interface Lesson {
   id: string;
@@ -47,25 +48,25 @@ interface LearningRoadmapProps {
   level?: string;
 }
 
-// Level themes mapping
-const LEVEL_THEMES = [
-  { emoji: '🌱', name: 'बीज बोना', nameEn: 'Seed Sowing', color: 'from-green-400 to-green-600', bgColor: 'bg-green-50' },
-  { emoji: '💧', name: 'सिंचाई', nameEn: 'Irrigation', color: 'from-blue-400 to-blue-600', bgColor: 'bg-blue-50' },
-  { emoji: '🌦️', name: 'मौसम', nameEn: 'Weather', color: 'from-sky-400 to-indigo-500', bgColor: 'bg-sky-50' },
-  { emoji: '🌾', name: 'फसल विकास', nameEn: 'Crop Growth', color: 'from-yellow-400 to-amber-500', bgColor: 'bg-amber-50' },
-  { emoji: '🧪', name: 'खाद', nameEn: 'Fertilization', color: 'from-purple-400 to-purple-600', bgColor: 'bg-purple-50' },
-  { emoji: '🤖', name: 'स्मार्ट खेती', nameEn: 'Smart Farming', color: 'from-emerald-400 to-teal-600', bgColor: 'bg-teal-50' },
-  { emoji: '🏆', name: 'मास्टर', nameEn: 'Master', color: 'from-orange-400 to-red-500', bgColor: 'bg-orange-50' },
+// Level themes mapping - using translation keys
+const getLevelThemes = (t: any) => [
+  { emoji: '🌱', key: 'seedSowing', color: 'from-green-400 to-green-600', bgColor: 'bg-green-50' },
+  { emoji: '💧', key: 'irrigation', color: 'from-blue-400 to-blue-600', bgColor: 'bg-blue-50' },
+  { emoji: '🌦️', key: 'weather', color: 'from-sky-400 to-indigo-500', bgColor: 'bg-sky-50' },
+  { emoji: '🌾', key: 'cropGrowth', color: 'from-yellow-400 to-amber-500', bgColor: 'bg-amber-50' },
+  { emoji: '🧪', key: 'fertilization', color: 'from-purple-400 to-purple-600', bgColor: 'bg-purple-50' },
+  { emoji: '🤖', key: 'smartFarming', color: 'from-emerald-400 to-teal-600', bgColor: 'bg-teal-50' },
+  { emoji: '🏆', key: 'master', color: 'from-orange-400 to-red-500', bgColor: 'bg-orange-50' },
 ];
 
-// Badges that can be earned
-const BADGES = [
-  { id: 'first_step', name: 'पहला कदम', nameEn: 'First Step', emoji: '👣', requirement: 1 },
-  { id: 'water_wise', name: 'जल विशेषज्ञ', nameEn: 'Water Wise', emoji: '💧', requirement: 2 },
-  { id: 'soil_expert', name: 'मिट्टी विशेषज्ञ', nameEn: 'Soil Expert', emoji: '🌍', requirement: 3 },
-  { id: 'weather_watcher', name: 'मौसम पारखी', nameEn: 'Weather Watcher', emoji: '🌦️', requirement: 4 },
-  { id: 'smart_farmer', name: 'स्मार्ट किसान', nameEn: 'Smart Farmer', emoji: '🌟', requirement: 5 },
-  { id: 'master_farmer', name: 'मास्टर किसान', nameEn: 'Master Farmer', emoji: '🏆', requirement: 'all' },
+// Badges that can be earned - using translation keys
+const getBadges = (t: any) => [
+  { id: 'first_step', key: 'firstStep', emoji: '👣', requirement: 1 },
+  { id: 'water_wise', key: 'waterWise', emoji: '💧', requirement: 2 },
+  { id: 'soil_expert', key: 'soilExpert', emoji: '🌍', requirement: 3 },
+  { id: 'weather_watcher', key: 'weatherWatcher', emoji: '🌦️', requirement: 4 },
+  { id: 'smart_farmer', key: 'smartFarmer', emoji: '🌟', requirement: 5 },
+  { id: 'master_farmer', key: 'masterFarmer', emoji: '🏆', requirement: 'all' },
 ];
 
 export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
@@ -86,6 +87,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const { language, setLanguage } = useLanguage();
+  const { t } = useTranslation("learn");
   const isHindi = language === 'hi';
 
   // Handle window resize for mobile detection
@@ -195,6 +197,8 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
   };
 
   // Get earned badges
+  const LEVEL_THEMES = getLevelThemes(t);
+  const BADGES = getBadges(t);
   const earnedBadges = BADGES.filter(badge => {
     if (badge.requirement === 'all') return completedCount === lessons.length && lessons.length > 0;
     return completedCount >= (badge.requirement as number);
@@ -307,7 +311,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                 </span>
               </div>
               <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>{completedCount}/{lessons.length} {isHindi ? 'चरण' : 'steps'}</span>
+                <span>{completedCount}/{lessons.length} {t("roadmap.steps")}</span>
                 {level && <span className="capitalize">{level}</span>}
               </div>
             </div>
@@ -322,12 +326,12 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                 onClick={() => navigate('/learn')}
                 className="text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30"
               >
-                {isHindi ? '← वापस' : '← Back'}
+                {t("roadmap.back")}
               </Button>
               <div>
                 <h1 className="text-lg font-bold text-green-900 dark:text-green-100">{courseTitle}</h1>
                 <p className="text-sm text-green-600 dark:text-green-400">
-                  {completedCount}/{lessons.length} {isHindi ? 'चरण पूरे' : 'steps complete'}
+                  {completedCount}/{lessons.length} {t("roadmap.stepsComplete")}
                 </p>
               </div>
             </div>
@@ -337,7 +341,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
               <button
                 onClick={handleLanguageToggle}
                 className="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full px-3 py-2 transition-colors border border-blue-200 dark:border-blue-700"
-                title={isHindi ? 'Switch to English' : 'हिंदी में बदलें'}
+                title={isHindi ? t("roadmap.switchToEnglish") : t("roadmap.switchToHindi")}
               >
                 <Globe className="w-4 h-4" />
                 <span className="text-sm font-medium">{isHindi ? 'EN' : 'हिं'}</span>
@@ -367,7 +371,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
           {/* Badges row */}
           {earnedBadges.length > 0 && (
             <div className="flex items-center gap-2 mt-3 overflow-x-auto pb-1">
-              <span className="text-xs text-green-600 dark:text-green-400 whitespace-nowrap">{isHindi ? 'बैज:' : 'Badges:'}</span>
+              <span className="text-xs text-green-600 dark:text-green-400 whitespace-nowrap">{t("roadmap.badges")}</span>
               {earnedBadges.map((badge) => (
                 <motion.div
                   key={badge.id}
@@ -377,7 +381,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                 >
                   <span className="text-lg">{badge.emoji}</span>
                   <span className="text-xs font-medium text-amber-700 dark:text-amber-300 whitespace-nowrap">
-                    {isHindi ? badge.name : badge.nameEn}
+                    {t(`roadmap.badgeNames.${badge.key}`)}
                   </span>
                 </motion.div>
               ))}
@@ -401,7 +405,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
               >
                 <h3 className="font-bold text-green-900 dark:text-green-100 mb-3 flex items-center gap-2">
                   <BookOpen className="w-4 h-4" />
-                  {isHindi ? 'कोर्स की जानकारी' : 'Course Info'}
+                  {t("roadmap.courseInfo")}
                 </h3>
 
                 {courseDescription && (
@@ -413,26 +417,26 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                 <div className="space-y-2 text-sm">
                   {level && (
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">{isHindi ? 'स्तर' : 'Level'}:</span>
+                      <span className="text-muted-foreground">{t("course.level")}:</span>
                       <span className="font-medium text-green-700 dark:text-green-400 capitalize">{level}</span>
                     </div>
                   )}
 
                   {duration && (
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">{isHindi ? 'अवधि' : 'Duration'}:</span>
+                      <span className="text-muted-foreground">{t("course.duration")}:</span>
                       <span className="font-medium">{duration}</span>
                     </div>
                   )}
 
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">{isHindi ? 'पाठ' : 'Lessons'}:</span>
+                    <span className="text-muted-foreground">{t("roadmap.lessons")}:</span>
                     <span className="font-medium">{lessons.length}</span>
                   </div>
 
                   {instructor && (
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">{isHindi ? 'शिक्षक' : 'Instructor'}:</span>
+                      <span className="text-muted-foreground">{t("course.instructor")}:</span>
                       <span className="font-medium">{instructor}</span>
                     </div>
                   )}
@@ -443,7 +447,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                     onClick={onEnroll}
                     className="w-full mt-4 bg-green-600 hover:bg-green-700"
                   >
-                    {isHindi ? 'कोर्स में शामिल हों' : 'Enroll Now'}
+                    {t("roadmap.enrollNow")}
                   </Button>
                 )}
               </motion.div>
@@ -457,24 +461,24 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
               >
                 <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
                   <Star className="w-4 h-4" />
-                  {isHindi ? 'आप क्या सीखेंगे' : 'What You\'ll Learn'}
+                  {t("roadmap.whatYouLearn")}
                 </h3>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <CheckCircle className="w-4 h-4 mt-0.5 text-green-600 flex-shrink-0" />
-                    <span>{isHindi ? 'व्यावहारिक खेती के तरीके' : 'Practical farming techniques'}</span>
+                    <span>{t("roadmap.practicalTechniques")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="w-4 h-4 mt-0.5 text-green-600 flex-shrink-0" />
-                    <span>{isHindi ? 'आधुनिक कृषि उपकरण' : 'Modern agricultural tools'}</span>
+                    <span>{t("roadmap.modernTools")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="w-4 h-4 mt-0.5 text-green-600 flex-shrink-0" />
-                    <span>{isHindi ? 'फसल प्रबंधन' : 'Crop management strategies'}</span>
+                    <span>{t("roadmap.cropManagement")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="w-4 h-4 mt-0.5 text-green-600 flex-shrink-0" />
-                    <span>{isHindi ? 'मौसम के अनुसार योजना' : 'Weather-based planning'}</span>
+                    <span>{t("roadmap.weatherPlanning")}</span>
                   </li>
                 </ul>
               </motion.div>
@@ -518,7 +522,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
               >
                 <span className="flex items-center gap-2">
                   <Flame className="w-5 h-5" />
-                  {isHindi ? 'आपकी स्मार्ट खेती यात्रा शुरू करें!' : 'Start Your Smart Farming Journey!'}
+                  {t("roadmap.startJourney")}
                 </span>
               </motion.div>
             </div>
@@ -622,8 +626,8 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                   <div className="flex items-center gap-3">
                     <Trophy className="w-8 h-8" />
                     <div>
-                      <p className="font-bold text-lg">{isHindi ? 'बधाई हो!' : 'Congratulations!'} 🎉</p>
-                      <p className="text-sm opacity-90">{isHindi ? 'आपने कोर्स पूरा किया!' : 'You completed the course!'}</p>
+                      <p className="font-bold text-lg">{t("roadmap.congratulations")} 🎉</p>
+                      <p className="text-sm opacity-90">{t("roadmap.courseComplete")}</p>
                     </div>
                   </div>
                 </div>
@@ -639,14 +643,14 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
               >
                 <div className="max-w-md mx-auto bg-card rounded-2xl shadow-xl p-4 border-2 border-green-500">
                   <p className="text-center text-green-800 dark:text-green-300 font-medium mb-3">
-                    {isHindi ? 'इस यात्रा को शुरू करने के लिए enroll करें!' : 'Enroll to start this learning journey!'}
+                    {t("roadmap.enrollToStart")}
                   </p>
                   <Button
                     onClick={onEnroll}
                     className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-lg py-6"
                   >
                     <Play className="w-5 h-5 mr-2" />
-                    {isHindi ? 'अभी शुरू करें - मुफ्त!' : 'Start Now - Free!'}
+                    {t("roadmap.startNowFree")}
                   </Button>
                 </div>
               </motion.div>
@@ -664,19 +668,19 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
               >
                 <h3 className="font-bold text-purple-900 dark:text-purple-100 mb-3 flex items-center gap-2">
                   <Trophy className="w-4 h-4" />
-                  {isHindi ? 'आपकी प्रगति' : 'Your Progress'}
+                  {t("roadmap.yourProgress")}
                 </h3>
 
                 <div className="space-y-3">
                   {/* Completion Stats */}
                   <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-3">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-muted-foreground">{isHindi ? 'पूर्ण' : 'Completed'}</span>
+                      <span className="text-xs text-muted-foreground">{t("roadmap.completed")}</span>
                       <span className="text-sm font-bold text-green-700 dark:text-green-400">{progressPercent}%</span>
                     </div>
                     <Progress value={progressPercent} className="h-2" />
                     <p className="text-xs text-muted-foreground mt-1">
-                      {completedCount} / {lessons.length} {isHindi ? 'पाठ' : 'lessons'}
+                      {completedCount} / {lessons.length} {t("roadmap.lessons")}
                     </p>
                   </div>
 
@@ -685,12 +689,12 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Zap className="w-4 h-4 text-amber-600" />
-                        <span className="text-xs text-muted-foreground">{isHindi ? 'अनुभव अंक' : 'Experience'}</span>
+                        <span className="text-xs text-muted-foreground">{t("roadmap.experience")}</span>
                       </div>
                       <span className="text-sm font-bold text-amber-700 dark:text-amber-400">{earnedXP} XP</span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {totalXP - earnedXP} XP {isHindi ? 'शेष' : 'remaining'}
+                      {totalXP - earnedXP} XP {t("roadmap.remaining")}
                     </p>
                   </div>
 
@@ -698,13 +702,11 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                   <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-3">
                     <div className="flex items-center gap-2 mb-1">
                       <Award className="w-4 h-4 text-blue-600" />
-                      <span className="text-xs text-muted-foreground">{isHindi ? 'वर्तमान स्तर' : 'Current Level'}</span>
+                      <span className="text-xs text-muted-foreground">{t("roadmap.currentLevel")}</span>
                     </div>
                     <p className="text-sm font-bold text-blue-700 dark:text-blue-400">
                       {LEVEL_THEMES[Math.min(currentLevelIndex, LEVEL_THEMES.length - 1)].emoji}{' '}
-                      {isHindi
-                        ? LEVEL_THEMES[Math.min(currentLevelIndex, LEVEL_THEMES.length - 1)].name
-                        : LEVEL_THEMES[Math.min(currentLevelIndex, LEVEL_THEMES.length - 1)].nameEn}
+                      {t(`roadmap.levelThemes.${LEVEL_THEMES[Math.min(currentLevelIndex, LEVEL_THEMES.length - 1)].key}`)}
                     </p>
                   </div>
                 </div>
@@ -719,7 +721,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
               >
                 <h3 className="font-bold text-amber-900 dark:text-amber-100 mb-3 flex items-center gap-2">
                   <Award className="w-4 h-4" />
-                  {isHindi ? 'उपलब्धियां' : 'Achievements'}
+                  {t("roadmap.achievements")}
                 </h3>
 
                 <div className="space-y-2">
@@ -734,17 +736,17 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                         <span className="text-2xl">{badge.emoji}</span>
                         <div className="flex-1">
                           <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
-                            {isHindi ? badge.name : badge.nameEn}
+                            {t(`roadmap.badgeNames.${badge.key}`)}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {isHindi ? 'अर्जित' : 'Earned'}
+                            {t("roadmap.earned")}
                           </p>
                         </div>
                       </motion.div>
                     ))
                   ) : (
                     <p className="text-sm text-muted-foreground text-center py-4">
-                      {isHindi ? 'पाठ पूरे करें और बैज अर्जित करें!' : 'Complete lessons to earn badges!'}
+                      {t("roadmap.completeLessons")}
                     </p>
                   )}
                 </div>
@@ -760,7 +762,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                 >
                   <h3 className="font-bold mb-2 flex items-center gap-2">
                     <ChevronRight className="w-4 h-4" />
-                    {isHindi ? 'अगला पाठ' : 'Next Up'}
+                    {t("roadmap.nextUp")}
                   </h3>
                   <p className="text-sm opacity-90 mb-3">{currentLesson.title}</p>
                   <Button
@@ -770,7 +772,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                     className="w-full"
                   >
                     <Play className="w-3 h-3 mr-1" />
-                    {isHindi ? 'अभी शुरू करें' : 'Start Now'}
+                    {t("roadmap.startNow")}
                   </Button>
                 </motion.div>
               )}

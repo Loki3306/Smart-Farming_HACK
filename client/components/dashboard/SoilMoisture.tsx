@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Gauge } from "../ui/Gauge";
+import { EnhancedGauge } from "../ui/EnhancedGauge";
 import { useFarmContext } from "../../context/FarmContext";
 import cropProfilesData from "../../../shared/crop_profiles.json";
 import LottieFarmScene from "./LottieFarmScene";
 import { SystemStatusChart } from "./SystemStatusChart";
 import { Sprout, AlertTriangle, AlertOctagon, CheckCircle2, Droplets, Info } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 // Type for crop profile thresholds
 interface CropThresholds {
@@ -44,6 +45,7 @@ function getCropThresholds(cropName: string): CropThresholds {
 }
 
 export const SoilMoisture: React.FC = () => {
+  const { t } = useTranslation("dashboard");
   const { sensorData } = useFarmContext();
   const [thresholds, setThresholds] = useState<CropThresholds>(DEFAULT_THRESHOLDS);
   const [cropName, setCropName] = useState<string>("General");
@@ -85,12 +87,12 @@ export const SoilMoisture: React.FC = () => {
   // Realistic agricultural moisture thresholds (dynamic based on crop)
   const getMoistureStatus = (moisture: number) => {
     const [min, max] = thresholds.moisture;
-    if (moisture >= max + 10) return { label: "Too Wet", color: "text-blue-600", warning: "Risk of root rot", icon: Droplets };
-    if (moisture >= max) return { label: "Very Moist", color: "text-cyan-600", warning: "Monitor closely", icon: Info };
-    if (moisture >= min) return { label: "Healthy", color: "text-green-600", warning: null, icon: CheckCircle2 };
-    if (moisture >= min - 15) return { label: "Moderate", color: "text-amber-600", warning: "Consider watering", icon: AlertTriangle };
-    if (moisture >= min - 30) return { label: "Dry", color: "text-orange-600", warning: "Needs water soon", icon: AlertTriangle };
-    return { label: "Critical", color: "text-red-600", warning: "Urgent irrigation needed", icon: AlertOctagon };
+    if (moisture >= max + 10) return { label: t("soil.status.tooWet"), color: "text-blue-600", warning: "Risk of root rot", icon: Droplets };
+    if (moisture >= max) return { label: t("soil.status.veryMoist"), color: "text-cyan-600", warning: "Monitor closely", icon: Info };
+    if (moisture >= min) return { label: t("soil.status.healthy"), color: "text-green-600", warning: null, icon: CheckCircle2 };
+    if (moisture >= min - 15) return { label: t("soil.status.moderate"), color: "text-amber-600", warning: "Consider watering", icon: AlertTriangle };
+    if (moisture >= min - 30) return { label: t("soil.status.dry"), color: "text-orange-600", warning: "Needs water soon", icon: AlertTriangle };
+    return { label: t("soil.status.critical"), color: "text-red-600", warning: "Urgent irrigation needed", icon: AlertOctagon };
   };
 
   // NPK status thresholds - now dynamic based on crop profile
@@ -102,20 +104,20 @@ export const SoilMoisture: React.FC = () => {
     };
     const [min, max] = ranges[type];
 
-    if (value >= max * 1.2) return { status: "High", color: "text-amber-600" };
-    if (value >= min) return { status: "Optimal", color: "text-green-600" };
-    if (value >= min * 0.7) return { status: "Low", color: "text-amber-600" };
-    return { status: "Deficient", color: "text-red-600" };
+    if (value >= max * 1.2) return { status: t("soil.status.high"), color: "text-amber-600" };
+    if (value >= min) return { status: t("soil.status.optimal"), color: "text-green-600" };
+    if (value >= min * 0.7) return { status: t("soil.status.low"), color: "text-amber-600" };
+    return { status: t("soil.status.deficient"), color: "text-red-600" };
   };
 
   // Soil pH status - dynamic based on crop
   const getPhStatus = (ph: number) => {
     const [min, max] = thresholds.ph;
-    if (ph >= max + 1) return { label: "Alkaline", color: "text-purple-600", icon: AlertTriangle };
-    if (ph >= max) return { label: "Slightly Alkaline", color: "text-blue-600", icon: Info };
-    if (ph >= min) return { label: "Optimal", color: "text-green-600", icon: CheckCircle2 };
-    if (ph >= min - 0.5) return { label: "Slightly Acidic", color: "text-amber-600", icon: Info };
-    return { label: "Acidic", color: "text-red-600", icon: AlertOctagon };
+    if (ph >= max + 1) return { label: t("soil.status.alkaline"), color: "text-purple-600", icon: AlertTriangle };
+    if (ph >= max) return { label: t("soil.status.slightlyAlkaline"), color: "text-blue-600", icon: Info };
+    if (ph >= min) return { label: t("soil.status.optimal"), color: "text-green-600", icon: CheckCircle2 };
+    if (ph >= min - 0.5) return { label: t("soil.status.slightlyAcidic"), color: "text-amber-600", icon: Info };
+    return { label: t("soil.status.acidic"), color: "text-red-600", icon: AlertOctagon };
   };
 
   // Compute all statuses from current sensor data
@@ -135,64 +137,74 @@ export const SoilMoisture: React.FC = () => {
       {/* Simple Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-foreground">Soil Condition</h3>
-          <p className="text-sm text-muted-foreground">Real-time sensor readings</p>
+          <h3 className="text-lg font-semibold text-foreground">{t("soil.title")}</h3>
+          <p className="text-sm text-muted-foreground">{t("soil.subtitle")}</p>
         </div>
         <div className="w-10 h-10 rounded-full bg-amber-200/50 dark:bg-amber-700/30 flex items-center justify-center">
           <Sprout className="w-6 h-6 text-amber-600 dark:text-amber-400" />
         </div>
       </div>
 
-      {/* Gauge with Status */}
-      <div className="flex flex-col items-center mb-6">
-        <Gauge
-          value={sensorData?.soilMoisture ?? 0}
-          max={100}
-          min={0}
-          label="Soil Moisture"
-          unit="%"
-          size="md"
-          color="emerald"
-        />
-        <div className={`mt-3 px-4 py-1.5 rounded-full bg-amber-100/50 dark:bg-amber-900/30 border border-amber-200/50 dark:border-amber-700/50 ${status.color} font-semibold text-sm backdrop-blur-sm transition-all duration-300 hover:scale-105 flex items-center gap-2`}>
-          <status.icon className="w-4 h-4" />
-          {status.label}
-        </div>
-      </div>
-
-      {/* NPK Indicators */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-gradient-to-br from-amber-100/60 to-yellow-100/60 dark:from-amber-800/30 dark:to-yellow-800/30 backdrop-blur-sm rounded-xl p-4 text-center border border-amber-200/40 dark:border-amber-700/40 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
-          <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-green-500/15 dark:bg-green-500/25 mb-2">
-            <span className="text-green-600 dark:text-green-400 font-bold">N</span>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+        {/* Left Column: Enhanced Gauge */}
+        <div className="flex flex-col items-center justify-center">
+          <EnhancedGauge
+            value={sensorData?.soilMoisture ?? 0}
+            max={100}
+            min={0}
+            label={t("soil.moisture")}
+            unit="%"
+            size="lg" // Increased size for better balance
+            color="emerald"
+          />
+          <div className={`mt-4 px-6 py-2 rounded-full bg-amber-100/50 dark:bg-amber-900/30 border border-amber-200/50 dark:border-amber-700/50 ${status.color} font-semibold text-base backdrop-blur-sm transition-all duration-300 hover:scale-105 flex items-center gap-2`}>
+            <status.icon className="w-5 h-5" />
+            {status.label}
           </div>
-          <div className="text-2xl font-bold text-foreground">
-            {nitrogenDisplay}
-          </div>
-          <div className="text-xs text-muted-foreground mt-1">Nitrogen</div>
-          <div className={`text-xs font-semibold ${nStatus.color}`}>{nStatus.status}</div>
         </div>
 
-        <div className="bg-gradient-to-br from-amber-100/60 to-orange-100/60 dark:from-amber-800/30 dark:to-orange-800/30 backdrop-blur-sm rounded-xl p-4 text-center border border-amber-200/40 dark:border-amber-700/40 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
-          <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-amber-500/20 dark:bg-amber-500/30 mb-2">
-            <span className="text-amber-600 dark:text-amber-400 font-bold">P</span>
-          </div>
-          <div className="text-2xl font-bold text-foreground">
-            {phosphorusDisplay}
-          </div>
-          <div className="text-xs text-muted-foreground mt-1">Phosphorus</div>
-          <div className={`text-xs font-semibold ${pStatus.color}`}>{pStatus.status}</div>
-        </div>
+        {/* Right Column: NPK Indicators */}
+        <div className="flex flex-col justify-center">
+          <div className="grid grid-cols-1 gap-4">
+            <div className="bg-gradient-to-br from-amber-100/60 to-yellow-100/60 dark:from-amber-800/30 dark:to-yellow-800/30 backdrop-blur-sm rounded-xl p-4 flex items-center justify-between border border-amber-200/40 dark:border-amber-700/40 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+              <div className="flex items-center gap-4">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-500/15 dark:bg-green-500/25">
+                  <span className="text-green-600 dark:text-green-400 font-bold text-lg">N</span>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-foreground">{nitrogenDisplay}</div>
+                  <div className="text-xs text-muted-foreground">{t("soil.nitrogen")}</div>
+                </div>
+              </div>
+              <div className={`text-sm font-semibold px-3 py-1 rounded-full bg-background/50 border border-border/50 ${nStatus.color}`}>{nStatus.status}</div>
+            </div>
 
-        <div className="bg-gradient-to-br from-orange-100/60 to-red-100/40 dark:from-orange-800/30 dark:to-red-800/20 backdrop-blur-sm rounded-xl p-4 text-center border border-orange-200/40 dark:border-orange-700/40 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
-          <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-orange-500/20 dark:bg-orange-500/30 mb-2">
-            <span className="text-orange-600 dark:text-orange-400 font-bold">K</span>
+            <div className="bg-gradient-to-br from-amber-100/60 to-orange-100/60 dark:from-amber-800/30 dark:to-orange-800/30 backdrop-blur-sm rounded-xl p-4 flex items-center justify-between border border-amber-200/40 dark:border-amber-700/40 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+              <div className="flex items-center gap-4">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-amber-500/20 dark:bg-amber-500/30">
+                  <span className="text-amber-600 dark:text-amber-400 font-bold text-lg">P</span>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-foreground">{phosphorusDisplay}</div>
+                  <div className="text-xs text-muted-foreground">{t("soil.phosphorus")}</div>
+                </div>
+              </div>
+              <div className={`text-sm font-semibold px-3 py-1 rounded-full bg-background/50 border border-border/50 ${pStatus.color}`}>{pStatus.status}</div>
+            </div>
+
+            <div className="bg-gradient-to-br from-orange-100/60 to-red-100/40 dark:from-orange-800/30 dark:to-red-800/20 backdrop-blur-sm rounded-xl p-4 flex items-center justify-between border border-orange-200/40 dark:border-orange-700/40 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+              <div className="flex items-center gap-4">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-orange-500/20 dark:bg-orange-500/30">
+                  <span className="text-orange-600 dark:text-orange-400 font-bold text-lg">K</span>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-foreground">{potassiumDisplay}</div>
+                  <div className="text-xs text-muted-foreground">{t("soil.potassium")}</div>
+                </div>
+              </div>
+              <div className={`text-sm font-semibold px-3 py-1 rounded-full bg-background/50 border border-border/50 ${kStatus.color}`}>{kStatus.status}</div>
+            </div>
           </div>
-          <div className="text-2xl font-bold text-foreground">
-            {potassiumDisplay}
-          </div>
-          <div className="text-xs text-muted-foreground mt-1">Potassium</div>
-          <div className={`text-xs font-semibold ${kStatus.color}`}>{kStatus.status}</div>
         </div>
       </div>
 
@@ -203,7 +215,7 @@ export const SoilMoisture: React.FC = () => {
             <span className="text-blue-600 dark:text-blue-400 font-bold text-sm">pH</span>
           </div>
           <div>
-            <div className="text-xs text-muted-foreground">pH Level</div>
+            <div className="text-xs text-muted-foreground">{t("soil.phLevel")}</div>
             <div className="text-xl font-bold text-foreground">
               {sensorData?.pH.toFixed(1) ?? 0}
             </div>
@@ -218,7 +230,7 @@ export const SoilMoisture: React.FC = () => {
             <span className="text-purple-600 dark:text-purple-400 font-bold text-sm">EC</span>
           </div>
           <div>
-            <div className="text-xs text-muted-foreground">Conductivity</div>
+            <div className="text-xs text-muted-foreground">{t("soil.conductivity")}</div>
             <div className="text-xl font-bold text-foreground">
               {sensorData?.ec.toFixed(2) ?? 0}
             </div>

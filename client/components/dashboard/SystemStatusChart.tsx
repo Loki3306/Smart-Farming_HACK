@@ -3,93 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Brain, Droplets, Leaf, FlaskConical, Beaker, Activity } from 'lucide-react';
 import { useFarmContext } from '../../context/FarmContext';
 import { useCropThresholds, CropThresholds } from '../../hooks/useCropThresholds';
+import { EnhancedThresholdBar } from '../ui/EnhancedThresholdBar';
 
 interface SystemStatusChartProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-// Progress bar component for visualizing value vs threshold
-const ThresholdBar: React.FC<{
-    label: string;
-    icon: React.ReactNode;
-    value: number;
-    range: [number, number];
-    unit?: string;
-    maxDisplay?: number;
-}> = ({ label, icon, value, range, unit = '', maxDisplay = 150 }) => {
-    const [min, max] = range;
-    const percentage = Math.min((value / maxDisplay) * 100, 100);
-    const minPercentage = (min / maxDisplay) * 100;
-    const maxPercentage = (max / maxDisplay) * 100;
-
-    // Determine status
-    let status: 'optimal' | 'warning' | 'critical';
-    let statusColor: string;
-    let barColor: string;
-
-    if (value >= min && value <= max * 1.2) {
-        status = 'optimal';
-        statusColor = 'text-green-600 dark:text-green-400';
-        barColor = 'bg-green-500';
-    } else if (value >= min * 0.7 || value <= max * 1.5) {
-        status = 'warning';
-        statusColor = 'text-amber-600 dark:text-amber-400';
-        barColor = 'bg-amber-500';
-    } else {
-        status = 'critical';
-        statusColor = 'text-red-600 dark:text-red-400';
-        barColor = 'bg-red-500';
-    }
-
-    return (
-        <div className="space-y-2">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                        {icon}
-                    </div>
-                    <span className="font-medium text-foreground">{label}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                    <span className="font-bold text-foreground">{typeof value === 'number' ? value.toFixed(1) : value}{unit}</span>
-                    <span className="text-xs text-muted-foreground">[{min}-{max}]</span>
-                    <span className={`text-xs font-semibold ${statusColor}`}>
-                        {status === 'optimal' ? '✓' : status === 'warning' ? '⚠' : '🚨'}
-                    </span>
-                </div>
-            </div>
-
-            {/* Bar visualization */}
-            <div className="relative h-3 bg-muted rounded-full overflow-hidden">
-                {/* Optimal range indicator */}
-                <div
-                    className="absolute h-full bg-green-200 dark:bg-green-900/50"
-                    style={{
-                        left: `${minPercentage}%`,
-                        width: `${maxPercentage - minPercentage}%`
-                    }}
-                />
-                {/* Current value bar */}
-                <motion.div
-                    className={`absolute h-full ${barColor} rounded-full`}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${percentage}%` }}
-                    transition={{ duration: 0.5, ease: 'easeOut' }}
-                />
-                {/* Min/Max markers */}
-                <div
-                    className="absolute h-full w-0.5 bg-green-600 dark:bg-green-400"
-                    style={{ left: `${minPercentage}%` }}
-                />
-                <div
-                    className="absolute h-full w-0.5 bg-green-600 dark:bg-green-400"
-                    style={{ left: `${maxPercentage}%` }}
-                />
-            </div>
-        </div>
-    );
-};
 
 export const SystemStatusChart: React.FC<SystemStatusChartProps> = ({ isOpen, onClose }) => {
     const { sensorData, systemStatus } = useFarmContext();
@@ -202,9 +122,9 @@ export const SystemStatusChart: React.FC<SystemStatusChartProps> = ({ isOpen, on
                                     </div>
                                 ) : (
                                     <>
-                                        {/* Threshold Bars */}
-                                        <div className="space-y-4">
-                                            <ThresholdBar
+                                        {/* Enhanced Threshold Bars */}
+                                        <div className="space-y-6">
+                                            <EnhancedThresholdBar
                                                 label="Soil Moisture"
                                                 icon={<Droplets className="w-4 h-4 text-blue-500" />}
                                                 value={sensorData?.soilMoisture ?? 0}
@@ -213,7 +133,7 @@ export const SystemStatusChart: React.FC<SystemStatusChartProps> = ({ isOpen, on
                                                 maxDisplay={100}
                                             />
 
-                                            <ThresholdBar
+                                            <EnhancedThresholdBar
                                                 label="Nitrogen (N)"
                                                 icon={<Leaf className="w-4 h-4 text-green-500" />}
                                                 value={sensorData?.npk.nitrogen ?? 0}
@@ -222,7 +142,7 @@ export const SystemStatusChart: React.FC<SystemStatusChartProps> = ({ isOpen, on
                                                 maxDisplay={200}
                                             />
 
-                                            <ThresholdBar
+                                            <EnhancedThresholdBar
                                                 label="Phosphorus (P)"
                                                 icon={<FlaskConical className="w-4 h-4 text-amber-500" />}
                                                 value={sensorData?.npk.phosphorus ?? 0}
@@ -231,7 +151,7 @@ export const SystemStatusChart: React.FC<SystemStatusChartProps> = ({ isOpen, on
                                                 maxDisplay={100}
                                             />
 
-                                            <ThresholdBar
+                                            <EnhancedThresholdBar
                                                 label="Potassium (K)"
                                                 icon={<Beaker className="w-4 h-4 text-orange-500" />}
                                                 value={sensorData?.npk.potassium ?? 0}
@@ -240,7 +160,7 @@ export const SystemStatusChart: React.FC<SystemStatusChartProps> = ({ isOpen, on
                                                 maxDisplay={150}
                                             />
 
-                                            <ThresholdBar
+                                            <EnhancedThresholdBar
                                                 label="pH Level"
                                                 icon={<Activity className="w-4 h-4 text-purple-500" />}
                                                 value={sensorData?.pH ?? 7}

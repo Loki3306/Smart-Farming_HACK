@@ -5,7 +5,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-export type Language = 'en' | 'hi';
+export type Language = 'en' | 'hi' | 'mr';
 
 interface LanguageContextType {
     language: Language;
@@ -18,23 +18,39 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 const LANGUAGE_STORAGE_KEY = 'smartfarm_preferred_language';
 
+import i18n from '../lib/i18n';
+import { useTranslation } from 'react-i18next';
+
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    // Initialize from localStorage or fallback to i18n's detected language
     const [language, setLanguageState] = useState<Language>(() => {
-        try {
-            const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY);
-            return (stored === 'hi' ? 'hi' : 'en') as Language;
-        } catch {
-            return 'en';
-        }
+        const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY) as Language;
+        return stored || (i18n.language as Language) || 'en';
     });
 
-    const setLanguage = (lang: Language) => {
-        setLanguageState(lang);
-        try {
-            localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
-        } catch (error) {
-            console.error('[Language] Failed to save preference:', error);
+    // Ensure i18n is synced with state on mount
+    useEffect(() => {
+        if (language && i18n.language !== language) {
+            i18n.changeLanguage(language);
         }
+    }, []);
+
+    // Sync state when i18n language changes (e.g. from other components)
+    useEffect(() => {
+        const handleLanguageChanged = (lang: string) => {
+            const newLang = lang as Language;
+            setLanguageState(newLang);
+            localStorage.setItem(LANGUAGE_STORAGE_KEY, newLang);
+        };
+
+        i18n.on('languageChanged', handleLanguageChanged);
+        return () => {
+            i18n.off('languageChanged', handleLanguageChanged);
+        };
+    }, []);
+
+    const setLanguage = (lang: Language) => {
+        i18n.changeLanguage(lang);
     };
 
     const toggleLanguage = () => {
@@ -42,8 +58,9 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
         setLanguage(newLang);
     };
 
-    // Simple translation helper
+    // Simple translation helper (Legacy support)
     const t = (enText: string, hiText: string): string => {
+        if (language === 'mr') return hiText; // Fallback for Marathi to Hindi for legacy strings
         return language === 'hi' ? hiText : enText;
     };
 

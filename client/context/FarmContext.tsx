@@ -23,6 +23,8 @@ import {
   storeAlerts,
   type SensorAlert,
 } from "../hooks/useSensorAlerts";
+import { useTranslation } from "react-i18next";
+import { getLocalizedDescription, getLocalizedAction } from "../lib/logTranslator";
 
 export interface ActionLogEntry {
   id: string;
@@ -67,6 +69,7 @@ interface FarmContextProviderProps {
 export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
   children,
 }) => {
+  const { t } = useTranslation("dashboard");
   // Get auth context to scope data to authenticated user
   // Wrapped in try-catch to handle HMR edge cases
   let user = null;
@@ -87,28 +90,28 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
   const [actionLog, setActionLog] = useState<ActionLogEntry[]>(
     CONFIG.USE_MOCK_DATA
       ? [
-          {
-            id: "log_001",
-            timestamp: new Date(Date.now() - 7200000),
-            action: "Irrigation Cycle",
-            description: "Irrigation triggered – 15L dispensed to sector A",
-            type: "irrigation",
-          },
-          {
-            id: "log_002",
-            timestamp: new Date(Date.now() - 10800000),
-            action: "Fertilization Skipped",
-            description: "Fertilization skipped – rain expected within 24h",
-            type: "info",
-          },
-          {
-            id: "log_003",
-            timestamp: new Date(Date.now() - 14400000),
-            action: "Fertilization Applied",
-            description: "NPK boost applied – 2.5kg phosphorus blend",
-            type: "fertilization",
-          },
-        ]
+        {
+          id: "log_001",
+          timestamp: new Date(Date.now() - 7200000),
+          action: "Irrigation Cycle",
+          description: "Irrigation triggered – 15L dispensed to sector A",
+          type: "irrigation",
+        },
+        {
+          id: "log_002",
+          timestamp: new Date(Date.now() - 10800000),
+          action: "Fertilization Skipped",
+          description: "Fertilization skipped – rain expected within 24h",
+          type: "info",
+        },
+        {
+          id: "log_003",
+          timestamp: new Date(Date.now() - 14400000),
+          action: "Fertilization Applied",
+          description: "NPK boost applied – 2.5kg phosphorus blend",
+          type: "fertilization",
+        },
+      ]
       : [],
   );
   const [loading, setLoading] = useState(false);
@@ -213,8 +216,8 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
           .map((log) => {
             const type: ActionLogEntry["type"] =
               log.action_type === "irrigation" ||
-              log.action_type === "fertilization" ||
-              log.action_type === "info"
+                log.action_type === "fertilization" ||
+                log.action_type === "info"
                 ? log.action_type
                 : "info";
 
@@ -275,11 +278,15 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
                       ? "Fertilization action"
                       : "System update";
 
+                // Localize content for notification
+                const localizedTitle = getLocalizedAction(title, t);
+                const localizedMessage = getLocalizedDescription(entry.description, t);
+
                 const alert: SensorAlert = {
                   id: `action_${entry.id}`,
                   type: alertType,
-                  title,
-                  message: entry.description,
+                  title: localizedTitle,
+                  message: localizedMessage,
                   timestamp: new Date(entry.timestamp),
                   priority:
                     entry.type === "irrigation" ? "medium" : entry.type === "fertilization" ? "low" : "low",
@@ -290,7 +297,7 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
                 storeAlerts(appended);
 
                 // Fire a browser notification as well
-                void sendNotification(title, entry.description, {
+                void sendNotification(localizedTitle, localizedMessage, {
                   type: alertType,
                   enablePush: true,
                   enableSound: true,
@@ -312,7 +319,7 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [ensureCurrentFarmId]);
+  }, [ensureCurrentFarmId, t]); // Added t as dependency
 
   const refreshWeather = useCallback(async () => {
     try {

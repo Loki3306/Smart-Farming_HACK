@@ -17,6 +17,7 @@ export interface ConversationContext {
   location?: string;
   season?: string;
   soilType?: string;
+  language?: string;
 }
 
 export interface ChatbotServiceOptions {
@@ -25,6 +26,7 @@ export interface ChatbotServiceOptions {
   context?: string;
   conversationHistory?: Array<{ role: 'user' | 'assistant'; content: string }>;
   model?: string;
+  language?: string;
 }
 
 class ChatbotService {
@@ -63,6 +65,7 @@ class ChatbotService {
           session_id: options?.userId || this.getSessionId(),
           crop: options?.crop,
           context: options?.context,
+          language: options?.language,
           conversationHistory: options?.conversationHistory || [],
         }),
       });
@@ -104,6 +107,7 @@ class ChatbotService {
           message,
           crop: options?.crop,
           context: options?.context,
+          language: options?.language,
           conversationHistory: options?.conversationHistory || [],
           session_id: options?.userId || this.getSessionId(),
         }),

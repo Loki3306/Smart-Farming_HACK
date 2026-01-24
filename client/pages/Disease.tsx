@@ -7,8 +7,10 @@ import AnalysisPanel from "@/components/disease/AnalysisPanel";
 import ResultCard from "@/components/disease/ResultCard";
 import { predictDisease, getDiseaseInfo } from "@/services/DiseaseService";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 export const Disease: React.FC = () => {
+  const { t, i18n } = useTranslation("disease");
   const [crop, setCrop] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<"idle" | "analyzing" | "result">("idle");
@@ -27,8 +29,8 @@ export const Disease: React.FC = () => {
   }, [crop]);
 
   const handleAnalyze = async () => {
-    if (!crop) return setError("Select a crop to continue.");
-    if (!file) return setError("Upload a clear leaf image.");
+    if (!crop) return setError(t("errorSelectCrop"));
+    if (!file) return setError(t("errorUploadImage"));
 
     setError(null);
     setStatus("analyzing");
@@ -53,7 +55,8 @@ export const Disease: React.FC = () => {
         const info = await getDiseaseInfo(
           crop,
           diseaseName,
-          res.confidence ?? res.top_prediction?.confidence
+          res.confidence ?? res.top_prediction?.confidence,
+          i18n.language || 'en'
         );
         setDiseaseInfo(info);
       } catch (e: any) {
@@ -63,8 +66,8 @@ export const Disease: React.FC = () => {
       }
     } catch (err: any) {
       toast({
-        title: "Analysis failed",
-        description: err?.message || "Something went wrong",
+        title: t("result.analysisFailed", "Analysis failed"),
+        description: err?.message || t("result.somethingWrong", "Something went wrong"),
       });
       setStatus("idle");
     }
@@ -84,11 +87,10 @@ export const Disease: React.FC = () => {
       {/* HERO */}
       <div className="space-y-4">
         <h1 className="text-4xl font-semibold tracking-tight">
-          AI Crop Disease Diagnosis
+          {t("title")}
         </h1>
         <p className="text-muted-foreground max-w-2xl">
-          Upload a leaf image and let our AI analyze visible disease symptoms.
-          Results include confidence levels and actionable treatment guidance.
+          {t("subtitle")}
         </p>
       </div>
 
@@ -100,7 +102,7 @@ export const Disease: React.FC = () => {
 
           {/* Crop */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Crop</label>
+            <label className="text-sm font-medium">{t("cropLabel")}</label>
             <CropSelector
               value={crop}
               onChange={setCrop}
@@ -109,14 +111,14 @@ export const Disease: React.FC = () => {
             />
             {!isCropSupported && crop && (
               <p className="text-xs text-amber-600">
-                This crop is not supported by the current model.
+                {t("cropNotSupported")}
               </p>
             )}
           </div>
 
           {/* Image */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Leaf image</label>
+            <label className="text-sm font-medium">{t("leafImageLabel")}</label>
             <ImageUploader
               file={file}
               onFileSelected={setFile}
@@ -128,7 +130,7 @@ export const Disease: React.FC = () => {
         {/* ACTION */}
         <div className="flex items-center justify-between pt-4 border-t">
           <div className="text-sm text-muted-foreground">
-            {error || "Ensure the leaf is clearly visible and well-lit."}
+            {error || t("helperText")}
           </div>
 
           <div className="flex items-center gap-4">
@@ -137,7 +139,7 @@ export const Disease: React.FC = () => {
                 onClick={handleReset}
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
-                Reset
+                {t("resetBtn")}
               </button>
             )}
 
@@ -148,7 +150,7 @@ export const Disease: React.FC = () => {
               }
               className="rounded-md bg-emerald-600 px-6 py-3 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50"
             >
-              {status === "analyzing" ? "Analyzing…" : "Analyze leaf"}
+              {status === "analyzing" ? t("analyzingBtn") : t("analyzeBtn")}
             </button>
           </div>
         </div>

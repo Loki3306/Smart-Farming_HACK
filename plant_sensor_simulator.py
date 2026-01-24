@@ -114,7 +114,9 @@ class PlantSensorSimulator:
             "phosphorus": 38.0,
             "potassium": 85.0,
             "ph": 6.8,
-            "ec": 1.2
+            "ec": 1.2,
+            "battery_level": 100.0,
+            "signal_strength": -50.0
         }
         
         # Track trends for realistic value progression
@@ -292,6 +294,40 @@ class PlantSensorSimulator:
             self.ranges.EC_MAX
         )
         return round(self.current_values["ec"], 2)
+
+    def simulate_battery(self) -> float:
+        """
+        Simulate Battery Level:
+        - Slow drain over time
+        - Occasional charging event (solar)
+        """
+        # 1% chance of charging (solar panel kick-in)
+        if random.random() < 0.01:
+            charge = random.uniform(2.0, 5.0)
+            change = charge
+        else:
+            # Normal drain
+            drain = random.uniform(0.01, 0.05)
+            change = -drain
+            
+        self.current_values["battery_level"] = max(0.0, min(100.0, self.current_values["battery_level"] + change))
+        return round(self.current_values["battery_level"], 1)
+
+    def simulate_signal(self) -> float:
+        """
+        Simulate Signal Strength (dBm):
+        - Fluctuate around a mean
+        - Occasional drops
+        """
+        base_signal = -55.0
+        fluctuation = random.uniform(-5.0, 5.0)
+        
+        # Occasional deep drop (interference)
+        if random.random() < 0.05:
+            fluctuation -= random.uniform(10.0, 20.0)
+            
+        self.current_values["signal_strength"] = base_signal + fluctuation
+        return round(self.current_values["signal_strength"], 0)
     
     def generate_reading(self) -> Dict[str, Any]:
         """Generate a complete sensor reading"""
@@ -308,6 +344,8 @@ class PlantSensorSimulator:
             "potassium": npk["potassium"],
             "ph": self.simulate_ph(),
             "ec": self.simulate_ec(),
+            "battery_level": self.simulate_battery(),
+            "signal_strength": self.simulate_signal(),
             "timestamp": datetime.now().isoformat()
         }
 

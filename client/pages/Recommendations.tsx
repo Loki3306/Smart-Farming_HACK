@@ -32,6 +32,8 @@ import {
 } from "@/components/ui/dialog";
 import { FarmAnalysisLoader } from "@/components/FarmAnalysisLoader";
 
+import { useTranslation } from "react-i18next";
+
 interface Recommendation {
   id: string;
   type: "irrigation" | "fertilizer" | "pest" | "crop" | "general" | "stress_management" | "soil_treatment";
@@ -45,6 +47,7 @@ interface Recommendation {
 }
 
 export const Recommendations: React.FC = () => {
+  const { t, i18n } = useTranslation("recommendations");
   const { sensorData, refreshSensorData } = useFarmContext();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -89,7 +92,7 @@ export const Recommendations: React.FC = () => {
   const handleAnalyze = async () => {
     // Get crop_type value and check all conditions
     const cropType = farmData?.crop_type;
-    
+
     // STRICT CHECK: Block if no crop
     if (!farmData || cropType === null || cropType === undefined || cropType === "" || (typeof cropType === 'string' && cropType.trim() === "")) {
       toast({
@@ -99,9 +102,9 @@ export const Recommendations: React.FC = () => {
       });
       return;
     }
-    
+
     console.log('[Recommendations] Starting AI analysis for crop:', cropType);
-    
+
     if (!sensorData) {
       toast({
         title: "No Sensor Data",
@@ -129,13 +132,15 @@ export const Recommendations: React.FC = () => {
           phosphorus: sensorData.npk.phosphorus,
           potassium: sensorData.npk.potassium,
           ph: sensorData.pH,
+          ph: sensorData.pH,
           ec: sensorData.ec,
         },
+        language: i18n.language || "en",
       };
-      
+
       console.log('[Recommendations] 📤 Sending request to AI backend:', requestPayload);
       console.log('[Recommendations] 🌾 CROP TYPE BEING SENT:', requestPayload.crop_type);
-      
+
       const response = await fetch('/api/recommendations/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -161,7 +166,7 @@ export const Recommendations: React.FC = () => {
       }));
 
       setRecommendations(mappedRecommendations);
-      
+
       // Signal that analysis is complete for the loader
       setAnalysisComplete(true);
 
@@ -169,10 +174,10 @@ export const Recommendations: React.FC = () => {
       if (user?.id && mappedRecommendations.length > 0) {
         try {
           const highPriorityCount = mappedRecommendations.filter((r: any) => r.priority === 'high').length;
-          const message = highPriorityCount > 0 
+          const message = highPriorityCount > 0
             ? `🤖 ${mappedRecommendations.length} new recommendations (${highPriorityCount} high priority)`
             : `🤖 ${mappedRecommendations.length} new farming recommendations available`;
-          
+
           const notification = await apiNotificationService.createNotification(
             user.id,
             user.id,
@@ -182,9 +187,9 @@ export const Recommendations: React.FC = () => {
             null,
             { recommendations: mappedRecommendations }
           );
-          
+
           console.log('[Recommendations] ✅ Notification created successfully', notification);
-          
+
           // Force immediate badge update by triggering a custom event
           window.dispatchEvent(new CustomEvent('notification-created', { detail: notification }));
         } catch (error) {
@@ -219,7 +224,7 @@ export const Recommendations: React.FC = () => {
   useEffect(() => {
     const loadFarmData = async () => {
       const farmId = localStorage.getItem('current_farm_id');
-      
+
       if (!farmId) {
         console.log('[Recommendations] ⚠️ No farm ID in localStorage');
         setLoadingFarm(false);
@@ -238,7 +243,7 @@ export const Recommendations: React.FC = () => {
             farm_id: farm.id,
             full_response: farm
           });
-          
+
           // Map to the expected structure
           setFarmData({
             farm_id: farm.id,
@@ -287,16 +292,16 @@ export const Recommendations: React.FC = () => {
   };
 
   return (
-    <div className="p-6 lg:p-8 space-y-8">
+    <div className="p-6 lg:p-8 space-y-8 bg-texture-tech min-h-[calc(100vh-4rem)]">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4" data-tour-id="reco-header">
         <div>
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
             <Sparkles className="w-8 h-8 text-primary" />
-            AI Recommendations
+            {t("title")}
           </h1>
           <p className="text-muted-foreground mt-1">
-            Smart suggestions powered by machine learning
+            {t("subtitle")}
           </p>
           {farmData?.crop_type && (
             <div className="mt-2 flex items-center gap-2">
@@ -323,7 +328,7 @@ export const Recommendations: React.FC = () => {
             ) : (
               <>
                 <RefreshCw className="w-4 h-4" />
-                Refresh Analysis
+                {t("refresh")}
               </>
             )}
           </Button>
@@ -342,26 +347,26 @@ export const Recommendations: React.FC = () => {
           </div>
 
           <div className="text-center space-y-2 max-w-md">
-            <h2 className="text-3xl font-bold text-foreground">AI-Powered Recommendations</h2>
+            <h2 className="text-3xl font-bold text-foreground">{t("emptyState.title")}</h2>
             <p className="text-muted-foreground text-lg">
-              Get intelligent farming insights powered by machine learning models
+              {t("emptyState.description")}
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 w-full max-w-3xl justify-center" data-tour-id="reco-stats">
             <Card className="p-4 text-center flex-1">
               <Database className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-              <p className="text-sm font-medium">Sensor Analysis</p>
+              <p className="text-sm font-medium">{t("emptyState.sensorAnalysis")}</p>
               <p className="text-xs text-muted-foreground">NPK, pH, Moisture</p>
             </Card>
             <Card className="p-4 text-center flex-1">
               <Activity className="w-8 h-8 text-green-500 mx-auto mb-2" />
-              <p className="text-sm font-medium">ML Processing</p>
+              <p className="text-sm font-medium">{t("emptyState.mlProcessing")}</p>
               <p className="text-xs text-muted-foreground">6 AI Models</p>
             </Card>
             <Card className="p-4 text-center flex-1">
               <Zap className="w-8 h-8 text-amber-500 mx-auto mb-2" />
-              <p className="text-sm font-medium">Smart Actions</p>
+              <p className="text-sm font-medium">{t("emptyState.smartActions")}</p>
               <p className="text-xs text-muted-foreground">High Confidence</p>
             </Card>
           </div>
@@ -374,7 +379,7 @@ export const Recommendations: React.FC = () => {
             data-tour-id="reco-analyze-btn"
           >
             <Brain className="w-5 h-5" />
-            Get AI Recommendations
+            {t("emptyState.analyzeBtn")}
           </Button>
 
           {loadingFarm ? (
@@ -439,12 +444,12 @@ export const Recommendations: React.FC = () => {
                         <div className="flex items-center gap-2 flex-wrap mb-2">
                           <h3 className="font-semibold text-foreground">{rec.title}</h3>
                           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getPriorityBadge(rec.priority)}`}>
-                            {rec.priority.toUpperCase()}
+                            {t(`priorities.${rec.priority}`, rec.priority.toUpperCase())}
                           </span>
                           {rec.applied && (
                             <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-green-100 text-green-700 flex items-center gap-1">
                               <CheckCircle className="w-3 h-3" />
-                              Applied
+                              {t("list.applied")}
                             </span>
                           )}
                         </div>
@@ -454,12 +459,12 @@ export const Recommendations: React.FC = () => {
                         <div className="flex items-center justify-between flex-wrap gap-2">
                           <div className="flex items-center gap-2 text-sm">
                             <Sparkles className="w-4 h-4 text-primary" />
-                            <span className="font-medium">Confidence:</span>
+                            <span className="font-medium">{t("list.confidence")}:</span>
                             <span className="text-muted-foreground">{rec.confidence.toFixed(1)}%</span>
                           </div>
 
                           <div className="flex items-center gap-1 text-primary text-sm font-medium hover:underline">
-                            View Details
+                            {t("list.viewDetails")}
                             <ChevronRight className="w-4 h-4" />
                           </div>
                         </div>
@@ -487,10 +492,10 @@ export const Recommendations: React.FC = () => {
                     <DialogTitle className="text-2xl mb-2">{selectedRecommendation.title}</DialogTitle>
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className={`text-xs px-2 py-1 rounded-full font-medium ${getPriorityBadge(selectedRecommendation.priority)}`}>
-                        {selectedRecommendation.priority.toUpperCase()} PRIORITY
+                        {t(`priorities.${selectedRecommendation.priority}`, selectedRecommendation.priority.toUpperCase())} {t("detail.priority")}
                       </span>
                       <span className="text-xs px-2 py-1 rounded-full font-medium bg-blue-100 text-blue-700">
-                        {selectedRecommendation.type.replace('_', ' ').toUpperCase()}
+                        {t(`types.${selectedRecommendation.type}`, selectedRecommendation.type.replace('_', ' ').toUpperCase())}
                       </span>
                     </div>
                   </div>
@@ -501,7 +506,7 @@ export const Recommendations: React.FC = () => {
                 {/* Confidence Score */}
                 <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-4 rounded-lg">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-foreground">AI Confidence Score</span>
+                    <span className="text-sm font-medium text-foreground">{t("detail.confidenceScore")}</span>
                     <span className="text-2xl font-bold text-primary">{selectedRecommendation.confidence.toFixed(1)}%</span>
                   </div>
                   <div className="w-full bg-muted rounded-full h-2">
@@ -513,7 +518,7 @@ export const Recommendations: React.FC = () => {
                     />
                   </div>
                   <p className="text-xs text-muted-foreground mt-2">
-                    Based on sensor data analysis and ML model predictions
+                    {t("detail.confidenceDesc")}
                   </p>
                 </div>
 
@@ -521,7 +526,7 @@ export const Recommendations: React.FC = () => {
                 <div>
                   <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4 text-amber-500" />
-                    Problem Analysis
+                    {t("detail.problemAnalysis")}
                   </h4>
                   <p className="text-muted-foreground leading-relaxed">{selectedRecommendation.description}</p>
                 </div>
@@ -530,7 +535,7 @@ export const Recommendations: React.FC = () => {
                 <div>
                   <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
                     <Zap className="w-4 h-4 text-primary" />
-                    Recommended Action
+                    {t("detail.recommendedAction")}
                   </h4>
                   <Card className="p-4 bg-primary/5 border-primary/20">
                     <p className="text-foreground font-medium">{selectedRecommendation.action}</p>
@@ -551,7 +556,7 @@ export const Recommendations: React.FC = () => {
                   <Card className="p-4">
                     <div className="flex items-center gap-2 mb-1">
                       <Brain className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-sm font-medium">Model</span>
+                      <span className="text-sm font-medium">{t("detail.model")}</span>
                     </div>
                     <p className="text-sm text-muted-foreground">FastAPI ML Engine v1.0</p>
                   </Card>
@@ -568,19 +573,19 @@ export const Recommendations: React.FC = () => {
                       className="flex-1 gap-2"
                     >
                       <CheckCircle className="w-4 h-4" />
-                      Mark as Applied
+                      {t("detail.markApplied")}
                     </Button>
                   ) : (
                     <Button variant="outline" disabled className="flex-1 gap-2 bg-green-50 text-green-700 border-green-200">
                       <CheckCircle className="w-4 h-4" />
-                      Already Applied
+                      {t("detail.alreadyApplied")}
                     </Button>
                   )}
                   <Button
                     variant="outline"
                     onClick={() => setSelectedRecommendation(null)}
                   >
-                    Close
+                    {t("detail.close")}
                   </Button>
                 </div>
               </div>

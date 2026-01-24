@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Settings as SettingsIcon,
   User,
@@ -30,9 +31,10 @@ import { useToast } from "@/hooks/use-toast";
 
 export const Settings: React.FC = () => {
   const { logout, user, updateProfile } = useAuth();
-  const { settings, isLoading, isSaving, updateSettings } = useSettings();
+  const { settings, isLoading, isSaving, updateSettings, setLanguage } = useSettings();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation("settings");
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
@@ -60,7 +62,7 @@ export const Settings: React.FC = () => {
   };
 
   const handleLanguageChange = async (lang: string) => {
-    await updateSettings({ language: lang });
+    await setLanguage(lang);
     toast({
       title: "Language changed",
       description: `Language set to ${languages.find(l => l.code === lang)?.name || lang}`,
@@ -81,44 +83,44 @@ export const Settings: React.FC = () => {
     {
       id: "profile",
       icon: User,
-      label: "Profile Settings",
-      description: "Update your personal information",
+      label: t("menu.profile.label"),
+      description: t("menu.profile.description"),
     },
     {
       id: "notifications",
       icon: Bell,
-      label: "Notification Preferences",
-      description: "Manage how you receive notifications",
+      label: t("menu.notifications.label"),
+      description: t("menu.notifications.description"),
     },
     {
       id: "alerts",
       icon: Shield,
-      label: "Alert Settings",
-      description: "Configure farm monitoring alerts",
+      label: t("menu.alerts.label"),
+      description: t("menu.alerts.description"),
     },
     {
       id: "language",
       icon: Globe,
-      label: "Language & Region",
-      description: "Change language and regional settings",
+      label: t("menu.language.label"),
+      description: t("menu.language.description"),
     },
     {
       id: "appearance",
       icon: Palette,
-      label: "Appearance",
-      description: "Customize the look and feel",
+      label: t("menu.appearance.label"),
+      description: t("menu.appearance.description"),
     },
     {
       id: "devices",
       icon: Smartphone,
-      label: "Connected Devices",
-      description: "Manage sensors and IoT devices",
+      label: t("menu.devices.label"),
+      description: t("menu.devices.description"),
     },
     {
       id: "help",
       icon: HelpCircle,
-      label: "Help & Support",
-      description: "Get help and contact support",
+      label: t("menu.help.label"),
+      description: t("menu.help.description"),
     },
   ];
 
@@ -136,32 +138,32 @@ export const Settings: React.FC = () => {
   const notificationSettings = [
     {
       key: "pushNotifications" as const,
-      label: "Push Notifications",
-      description: "Receive push notifications on your device",
+      label: t("sections.notifications.push.label"),
+      description: t("sections.notifications.push.desc"),
       icon: Bell,
     },
     {
       key: "emailNotifications" as const,
-      label: "Email Notifications",
-      description: "Receive important updates via email",
+      label: t("sections.notifications.email.label"),
+      description: t("sections.notifications.email.desc"),
       icon: Mail,
     },
     {
       key: "smsAlerts" as const,
-      label: "SMS Alerts",
-      description: "Receive critical alerts via SMS",
+      label: t("sections.notifications.sms.label"),
+      description: t("sections.notifications.sms.desc"),
       icon: MessageSquare,
     },
     {
       key: "notificationSound" as const,
-      label: "Notification Sound",
-      description: "Play sound for new notifications",
+      label: t("sections.notifications.sound.label"),
+      description: t("sections.notifications.sound.desc"),
       icon: Volume2,
     },
     {
       key: "vibration" as const,
-      label: "Vibration",
-      description: "Vibrate for notifications",
+      label: t("sections.notifications.vibration.label"),
+      description: t("sections.notifications.vibration.desc"),
       icon: Vibrate,
     },
   ];
@@ -169,23 +171,23 @@ export const Settings: React.FC = () => {
   const alertSettings = [
     {
       key: "moistureAlerts" as const,
-      label: "Low Moisture Alerts",
-      description: "Alert when soil moisture drops below threshold",
+      label: t("sections.alerts.lowMoisture.label"),
+      description: t("sections.alerts.lowMoisture.desc"),
     },
     {
       key: "weatherAlerts" as const,
-      label: "Weather Alerts",
-      description: "Severe weather warnings and forecasts",
+      label: t("sections.alerts.weather.label"),
+      description: t("sections.alerts.weather.desc"),
     },
     {
       key: "pestAlerts" as const,
-      label: "Pest Alerts",
-      description: "Pest and disease outbreak warnings",
+      label: t("sections.alerts.pest.label"),
+      description: t("sections.alerts.pest.desc"),
     },
     {
       key: "harvestAlerts" as const,
-      label: "Harvest Reminders",
-      description: "Reminders for optimal harvest time",
+      label: t("sections.alerts.harvest.label"),
+      description: t("sections.alerts.harvest.desc"),
     },
   ];
 
@@ -207,10 +209,10 @@ export const Settings: React.FC = () => {
         <div>
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
             <SettingsIcon className="w-8 h-8 text-primary" />
-            Settings
+            {t("title")}
           </h1>
           <p className="text-muted-foreground mt-1">
-            Manage your account and application preferences
+            {t("subtitle")}
           </p>
         </div>
         <AnimatePresence>
@@ -222,7 +224,7 @@ export const Settings: React.FC = () => {
               className="flex items-center gap-2 text-sm text-muted-foreground bg-muted px-3 py-1.5 rounded-full"
             >
               <Loader2 className="w-3 h-3 animate-spin" />
-              Saving...
+              {t("sections.profile.saving")}
             </motion.div>
           )}
         </AnimatePresence>
@@ -274,21 +276,21 @@ export const Settings: React.FC = () => {
               className="w-full flex items-center gap-4 p-4 rounded-lg text-left bg-destructive/10 text-destructive hover:bg-destructive/20 transition-all mt-4"
             >
               <LogOut className="w-5 h-5" />
-              <span className="font-medium">Log Out</span>
+              <span className="font-medium">{t("menu.logout")}</span>
             </button>
           </motion.div>
         </div>
 
         {/* Content */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 bg-texture-organic rounded-2xl p-6 border border-border/50">
           {!activeSection && (
             <Card className="p-12 text-center">
               <SettingsIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-foreground mb-2">
-                Select a Setting
+                {t("sections.select.title")}
               </h3>
               <p className="text-muted-foreground">
-                Choose a category from the menu to view and modify settings
+                {t("sections.select.description")}
               </p>
             </Card>
           )}
@@ -303,7 +305,7 @@ export const Settings: React.FC = () => {
               <Card className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-semibold text-foreground">
-                    Profile Settings
+                    {t("sections.profile.title")}
                   </h2>
                   <Button
                     variant={isEditingProfile ? "default" : "outline"}
@@ -342,15 +344,15 @@ export const Settings: React.FC = () => {
                     {isSavingProfile ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Saving...
+                        {t("sections.profile.saving")}
                       </>
                     ) : isEditingProfile ? (
                       <>
                         <Check className="w-4 h-4 mr-2" />
-                        Save Changes
+                        {t("sections.profile.save")}
                       </>
                     ) : (
-                      "Edit Profile"
+                      t("sections.profile.edit")
                     )}
                   </Button>
                 </div>
@@ -358,7 +360,7 @@ export const Settings: React.FC = () => {
                   {/* Full Name */}
                   <div className="p-4 bg-muted rounded-lg">
                     <label className="text-sm font-medium text-muted-foreground block mb-2">
-                      Full Name
+                      {t("sections.profile.fullName")}
                     </label>
                     {isEditingProfile ? (
                       <input
@@ -375,7 +377,7 @@ export const Settings: React.FC = () => {
                   {/* Phone Number */}
                   <div className="p-4 bg-muted rounded-lg">
                     <label className="text-sm font-medium text-muted-foreground block mb-2">
-                      Phone Number
+                      {t("sections.profile.phone")}
                     </label>
                     {isEditingProfile ? (
                       <input
@@ -392,7 +394,7 @@ export const Settings: React.FC = () => {
                   {/* Email */}
                   <div className="p-4 bg-muted rounded-lg">
                     <label className="text-sm font-medium text-muted-foreground block mb-2">
-                      Email Address
+                      {t("sections.profile.email")}
                     </label>
                     {isEditingProfile ? (
                       <input
@@ -408,14 +410,14 @@ export const Settings: React.FC = () => {
 
                   {/* Read-only info */}
                   <div className="p-4 bg-muted/50 rounded-lg border border-dashed border-border">
-                    <p className="text-sm text-muted-foreground mb-2">Account Info</p>
+                    <p className="text-sm text-muted-foreground mb-2">{t("sections.profile.accountInfo")}</p>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <span className="text-muted-foreground">Experience: </span>
+                        <span className="text-muted-foreground">{t("sections.profile.experience")}: </span>
                         <span className="font-medium capitalize">{user?.experienceLevel || "N/A"}</span>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">Member since: </span>
+                        <span className="text-muted-foreground">{t("sections.profile.memberSince")}: </span>
                         <span className="font-medium">
                           {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A"}
                         </span>
@@ -436,7 +438,7 @@ export const Settings: React.FC = () => {
             >
               <Card className="p-6">
                 <h2 className="text-xl font-semibold text-foreground mb-6">
-                  Notification Preferences
+                  {t("sections.notifications.title")}
                 </h2>
                 <div className="space-y-4">
                   {notificationSettings.map((setting) => (
@@ -479,7 +481,7 @@ export const Settings: React.FC = () => {
             >
               <Card className="p-6">
                 <h2 className="text-xl font-semibold text-foreground mb-6">
-                  Alert Settings
+                  {t("sections.alerts.title")}
                 </h2>
                 <div className="space-y-4">
                   {alertSettings.map((setting) => (
@@ -517,7 +519,7 @@ export const Settings: React.FC = () => {
             >
               <Card className="p-6">
                 <h2 className="text-xl font-semibold text-foreground mb-6">
-                  Language & Region
+                  {t("sections.language.title")}
                 </h2>
                 <div className="grid grid-cols-2 gap-3">
                   {languages.map((lang) => (
@@ -553,10 +555,10 @@ export const Settings: React.FC = () => {
               transition={{ duration: 0.3 }}
             >
               <Card className="p-6">
-                <h2 className="text-xl font-semibold text-foreground mb-6">Appearance</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-6">{t("sections.appearance.title")}</h2>
                 <div className="space-y-6">
                   <div>
-                    <h3 className="font-medium mb-3">Theme</h3>
+                    <h3 className="font-medium mb-3">{t("sections.appearance.theme")}</h3>
                     <div className="flex gap-3">
                       <button
                         onClick={() => handleThemeChange("light")}
@@ -616,7 +618,7 @@ export const Settings: React.FC = () => {
                   Profile Settings
                 </h2>
                 <Button onClick={() => navigate("/profile")}>
-                  Go to Profile Page
+                  {t("sections.profile.goToProfile")}
                 </Button>
               </Card>
             </motion.div>
@@ -631,10 +633,10 @@ export const Settings: React.FC = () => {
             >
               <Card className="p-6">
                 <h2 className="text-xl font-semibold text-foreground mb-6">
-                  Connected Devices
+                  {t("sections.devices.title")}
                 </h2>
                 <p className="text-muted-foreground mb-4">
-                  Manage your IoT sensors and connected devices
+                  {t("sections.devices.subtitle")}
                 </p>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
@@ -676,7 +678,7 @@ export const Settings: React.FC = () => {
                     </Button>
                   </div>
                 </div>
-                <Button className="mt-6 w-full">Add New Device</Button>
+                <Button className="mt-6 w-full">{t("sections.devices.addNew")}</Button>
               </Card>
             </motion.div>
           )}
@@ -689,12 +691,12 @@ export const Settings: React.FC = () => {
               transition={{ duration: 0.3 }}
             >
               <Card className="p-6">
-                <h2 className="text-xl font-semibold text-foreground mb-6">Help & Support</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-6">{t("sections.help.title")}</h2>
 
                 {/* FAQ Accordion */}
                 <div className="space-y-3 mb-6">
                   <h3 className="font-medium text-muted-foreground text-sm uppercase tracking-wide mb-3">
-                    Frequently Asked Questions
+                    {t("sections.help.faq")}
                   </h3>
                   {[
                     {
@@ -755,7 +757,7 @@ export const Settings: React.FC = () => {
                 {/* Contact Support */}
                 <div className="space-y-3">
                   <h3 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
-                    Contact Support
+                    {t("sections.help.contact")}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <a
@@ -764,7 +766,7 @@ export const Settings: React.FC = () => {
                     >
                       <Mail className="w-5 h-5 text-primary" />
                       <div>
-                        <p className="font-medium">Email Support</p>
+                        <p className="font-medium">{t("sections.help.emailSupport")}</p>
                         <p className="text-sm text-muted-foreground">support@smartfarm.app</p>
                       </div>
                     </a>
@@ -776,8 +778,8 @@ export const Settings: React.FC = () => {
                     >
                       <MessageSquare className="w-5 h-5 text-green-600" />
                       <div>
-                        <p className="font-medium text-green-800 dark:text-green-300">WhatsApp</p>
-                        <p className="text-sm text-green-600 dark:text-green-400">Chat with us</p>
+                        <p className="font-medium text-green-800 dark:text-green-300">{t("sections.help.chat")}</p>
+                        <p className="text-sm text-green-600 dark:text-green-400">{t("sections.help.chat")}</p>
                       </div>
                     </a>
                   </div>
@@ -785,7 +787,7 @@ export const Settings: React.FC = () => {
 
                 {/* App Version */}
                 <div className="mt-6 p-4 bg-primary/10 rounded-lg text-center">
-                  <p className="text-sm text-muted-foreground">Krushi Unnati Version 1.0.0</p>
+                  <p className="text-sm text-muted-foreground">{t("sections.help.version")}</p>
                   <p className="text-xs text-muted-foreground mt-1">© 2024 Krushi Unnati Technologies</p>
                 </div>
               </Card>

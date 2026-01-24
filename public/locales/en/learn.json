@@ -1,0 +1,110 @@
+{
+    "header": {
+        "title": "Learning Hub",
+        "description": "Free courses, articles, and videos to improve your farming skills"
+    },
+    "stats": {
+        "coursesEnrolled": "Courses Enrolled",
+        "completed": "Completed",
+        "learningHours": "Learning Hours",
+        "dayStreak": "Day Streak"
+    },
+    "search": {
+        "placeholder": "Search for {{type}}...",
+        "clear": "Clear search"
+    },
+    "categories": {
+        "all": "All",
+        "cropManagement": "Crop Management",
+        "irrigation": "Irrigation",
+        "pestControl": "Pest Control",
+        "soilHealth": "Soil Health",
+        "equipment": "Equipment",
+        "weatherClimate": "Weather & Climate"
+    },
+    "tabs": {
+        "courses": "Courses",
+        "articles": "Articles",
+        "videos": "Videos"
+    },
+    "empty": {
+        "noCourses": "No courses found",
+        "noArticles": "No articles found",
+        "noVideos": "No videos found"
+    },
+    "error": {
+        "retry": "Retry"
+    },
+    "course": {
+        "free": "Free",
+        "lessons": "lessons",
+        "enrolled": "enrolled",
+        "level": "Level",
+        "duration": "Duration",
+        "instructor": "Instructor"
+    },
+    "article": {
+        "featured": "Featured",
+        "minRead": "min read"
+    },
+    "video": {
+        "featured": "Featured",
+        "views": "views"
+    },
+    "date": {
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "daysAgo": "{{count}} days ago",
+        "weeksAgo": "{{count}} weeks ago",
+        "monthsAgo": "{{count}} months ago"
+    },
+    "endMessage": "You've reached the end! 🎉",
+    "roadmap": {
+        "back": "← Back",
+        "switchToHindi": "हिंदी में बदलें",
+        "switchToEnglish": "Switch to English",
+        "stepsComplete": "steps complete",
+        "steps": "steps",
+        "courseInfo": "Course Info",
+        "lessons": "Lessons",
+        "whatYouLearn": "What You'll Learn",
+        "practicalTechniques": "Practical farming techniques",
+        "modernTools": "Modern agricultural tools",
+        "cropManagement": "Crop management strategies",
+        "weatherPlanning": "Weather-based planning",
+        "startJourney": "Start Your Smart Farming Journey!",
+        "congratulations": "Congratulations!",
+        "courseComplete": "You completed the course!",
+        "enrollToStart": "Enroll to start this learning journey!",
+        "startNowFree": "Start Now - Free!",
+        "enrollNow": "Enroll Now",
+        "yourProgress": "Your Progress",
+        "completed": "Completed",
+        "experience": "Experience",
+        "remaining": "remaining",
+        "currentLevel": "Current Level",
+        "achievements": "Achievements",
+        "earned": "Earned",
+        "completeLessons": "Complete lessons to earn badges!",
+        "nextUp": "Next Up",
+        "startNow": "Start Now",
+        "badges": "Badges:",
+        "levelThemes": {
+            "seedSowing": "Seed Sowing",
+            "irrigation": "Irrigation",
+            "weather": "Weather",
+            "cropGrowth": "Crop Growth",
+            "fertilization": "Fertilization",
+            "smartFarming": "Smart Farming",
+            "master": "Master"
+        },
+        "badgeNames": {
+            "firstStep": "First Step",
+            "waterWise": "Water Wise",
+            "soilExpert": "Soil Expert",
+            "weatherWatcher": "Weather Watcher",
+            "smartFarmer": "Smart Farmer",
+            "masterFarmer": "Master Farmer"
+        }
+    }
+}
