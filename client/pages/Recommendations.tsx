@@ -23,6 +23,8 @@ import { useFarmContext } from "@/context/FarmContext";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { apiNotificationService } from "@/services/apiNotificationService";
+import { regimeService } from "@/services/regimeService";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -48,12 +50,14 @@ export const Recommendations: React.FC = () => {
   const { sensorData, refreshSensorData } = useFarmContext();
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [selectedRecommendation, setSelectedRecommendation] = useState<Recommendation | null>(null);
   const [farmData, setFarmData] = useState<any>(null);
   const [loadingFarm, setLoadingFarm] = useState(true);
   const [analysisComplete, setAnalysisComplete] = useState(false);
+  const [regimeCreated, setRegimeCreated] = useState(false);
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -164,6 +168,85 @@ export const Recommendations: React.FC = () => {
       
       // Signal that analysis is complete for the loader
       setAnalysisComplete(true);
+
+      // AUTO-CREATE/UPDATE 30-DAY REGIME FROM RECOMMENDATIONS
+      if (user?.id && mappedRecommendations.length > 0) {
+        try {
+          console.log('[Recommendations] 🔄 Creating/updating regime from recommendations...');
+          
+          const regimeData = {
+            farmer_id: user.id,
+            farm_id: farmData?.farm_id || null, // Optional - can be null
+            crop_type: farmData?.crop_type || cropType || 'Unknown',
+            crop_stage: 'vegetative', // Could be calculated from sowing date
+            sowing_date: farmData?.sowing_date || new Date().toISOString().split('T')[0],
+            recommendations: mappedRecommendations.map((rec: any) => ({
+              id: rec.id,
+              type: rec.type,
+              priority: rec.priority,
+              title: rec.title,
+              description: rec.description,
+              action: rec.action,
+              confidence: rec.confidence,
+            })),
+            temperature: sensorData.temperature,
+            humidity: sensorData.humidity,
+            rainfall: 0,
+          };
+
+          // Check if active regime already exists
+          const existingRegimes = await regimeService.getRegimes();
+          const activeRegime = existingRegimes?.find((r: any) => r.status === 'active');
+
+          let regime;
+          if (activeRegime) {
+            try {
+              // Update existing regime with new recommendations
+              console.log('[Recommendations] 📝 Updating existing active regime:', activeRegime.regime_id);
+              regime = await regimeService.updateRegime(activeRegime.regime_id, {
+                new_recommendations: regimeData.recommendations,
+                trigger_type: 'ai_recommendation_refresh',
+                temperature: regimeData.temperature,
+                humidity: regimeData.humidity,
+                rainfall: regimeData.rainfall,
+              });
+              toast({
+                title: "30-Day Plan Updated",
+                description: "Your farming regime has been refreshed with new AI recommendations!",
+                variant: "default",
+              });
+            } catch (updateError: any) {
+              // If update fails (regime not found), create new instead
+              if (updateError.message?.includes('not found') || updateError.response?.status === 404) {
+                console.warn('[Recommendations] ⚠️ Regime not found, creating new one instead');
+                regime = await regimeService.createRegime(regimeData);
+                toast({
+                  title: "30-Day Plan Created",
+                  description: "Created a fresh farming regime with new AI recommendations!",
+                  variant: "default",
+                });
+              } else {
+                throw updateError; // Re-throw if it's a different error
+              }
+            }
+          } else {
+            // Create new regime
+            console.log('[Recommendations] ➕ Creating new regime');
+            regime = await regimeService.createRegime(regimeData);
+            toast({
+              title: "30-Day Plan Created",
+              description: "Your personalized farming regime is ready! Click 'View Plan' to see it.",
+              variant: "default",
+            });
+          }
+
+          console.log('[Recommendations] ✅ Regime operation successful:', regime);
+          setRegimeCreated(true);
+        } catch (error) {
+          console.error('[Recommendations] ❌ Failed to create/update regime:', error);
+          // Don't block the UI if regime creation fails
+        }
+      }
 
       // Send notification about new AI recommendations
       if (user?.id && mappedRecommendations.length > 0) {
@@ -377,6 +460,18 @@ export const Recommendations: React.FC = () => {
             Get AI Recommendations
           </Button>
 
+          {regimeCreated && (
+            <Button
+              onClick={() => navigate('/regimes')}
+              variant="outline"
+              size="lg"
+              className="gap-2 px-8"
+            >
+              <Leaf className="w-5 h-5" />
+              View Your 30-Day Plan
+            </Button>
+          )}
+
           {loadingFarm ? (
             <p className="text-sm text-muted-foreground">
               Loading farm data...
@@ -411,7 +506,20 @@ export const Recommendations: React.FC = () => {
         <div className="space-y-4" data-tour-id="reco-list">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-foreground">Your Recommendations</h2>
-            <span className="text-sm text-muted-foreground">{recommendations.length} insights found</span>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-muted-foreground">{recommendations.length} insights found</span>
+              {regimeCreated && (
+                <Button
+                  onClick={() => navigate('/regimes')}
+                  variant="default"
+                  size="sm"
+                  className="gap-2"
+                >
+                  <Leaf className="w-4 h-4" />
+                  View 30-Day Plan
+                </Button>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4">

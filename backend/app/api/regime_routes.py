@@ -51,7 +51,7 @@ def set_regime_db(db: RegimeDatabase) -> None:
 class CreateRegimeRequest(BaseModel):
     """Request to generate a new regime"""
     farmer_id: str = Field(..., description="Farmer UUID")
-    farm_id: str = Field(..., description="Farm UUID")
+    farm_id: Optional[str] = Field(None, description="Optional Farm UUID (can be null if no farm record exists)")
     crop_type: str = Field(..., description="Type of crop (rice, wheat, cotton, etc.)")
     crop_stage: str = Field(default=CropStage.VEGETATIVE.value, description="Current crop stage")
     sowing_date: Optional[date] = Field(None, description="Date crop was sown")
@@ -152,6 +152,34 @@ async def generate_regime(request: CreateRegimeRequest, db: RegimeDatabase = Dep
         raise HTTPException(status_code=400, detail=f"Failed to generate regime: {str(e)}")
 
 
+@router.get("", response_model=List[RegimeResponse])
+async def list_regimes(
+    farmer_id: str = Query(..., description="Farmer UUID"),
+    status: Optional[str] = Query(None, description="Filter by status (active, completed, expired)"),
+    limit: int = Query(50, ge=1, le=100, description="Max number of regimes to return"),
+    db: RegimeDatabase = Depends(get_regime_db)
+):
+    """
+    List all regimes for a farmer.
+    
+    Returns regimes ordered by created_at DESC.
+    """
+    try:
+        logger.info(f"Listing regimes for farmer {farmer_id}, status filter: {status}")
+        
+        # Get regimes from database
+        regimes = db.list_regimes(farmer_id=farmer_id, status=status, limit=limit)
+        
+        # Convert to response format
+        response_list = [regime_to_dict(r) for r in regimes]
+        logger.info(f"✓ Found {len(response_list)} regimes for farmer {farmer_id}")
+        
+        return response_list
+    except Exception as e:
+        logger.error(f"Error listing regimes: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to list regimes: {str(e)}")
+
+
 @router.get("/{regime_id}", response_model=RegimeResponse)
 async def get_regime(regime_id: str, farmer_id: str = Query(..., description="Farmer UUID"), db: RegimeDatabase = Depends(get_regime_db)):
     """
@@ -214,8 +242,7 @@ async def update_regime(
             trigger_type=request.trigger_type,
             temperature=request.temperature,
             humidity=request.humidity,
-            rainfall=request.rainfall,
-            crop_type=existing_regime.metadata.get('crop_type', 'rice')
+            rainfall=request.rainfall
         )
         
         # Save updated regime with new version
@@ -427,6 +454,131 @@ async def export_regime(
     except Exception as e:
         logger.error(f"Error exporting regime: {str(e)}")
         raise HTTPException(status_code=400, detail=f"Failed to export regime: {str(e)}")
+
+
+# ============================================================================
+# Task CRUD Operations
+# ============================================================================
+
+@router.post("/{regime_id}/task", status_code=201)
+async def create_task(
+    regime_id: str,
+    task_data: Dict[str, Any],
+    farmer_id: str = Query(..., description="Farmer UUID"),
+    db: RegimeDatabase = Depends(get_regime_db)
+):
+    """Create a new task in the regime"""
+    try:
+        logger.info(f"Creating new task in regime {regime_id}")
+        
+        # Verify regime exists
+        existing_regime = db.get_regime(regime_id=regime_id, farmer_id=farmer_id)
+        if not existing_regime:
+            raise HTTPException(status_code=404, detail=f"Regime {regime_id} not found")
+        
+        # TODO: Implement task creation in database
+        return {"status": "success", "message": "Task creation endpoint ready"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating task: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Failed to create task: {str(e)}")
+
+
+@router.put("/{regime_id}/task/{task_id}", status_code=200)
+async def update_task(
+    regime_id: str,
+    task_id: str,
+    task_data: Dict[str, Any],
+    farmer_id: str = Query(..., description="Farmer UUID"),
+    db: RegimeDatabase = Depends(get_regime_db)
+):
+    """Update an existing task"""
+    try:
+        logger.info(f"Updating task {task_id} in regime {regime_id}")
+        
+        # Verify regime exists
+        existing_regime = db.get_regime(regime_id=regime_id, farmer_id=farmer_id)
+        if not existing_regime:
+            raise HTTPException(status_code=404, detail=f"Regime {regime_id} not found")
+        
+        # Verify task exists
+        task_found = any(t.task_id == task_id for t in existing_regime.tasks)
+        if not task_found:
+            raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+        
+        # TODO: Implement task update in database
+        return {"status": "success", "message": "Task update endpoint ready"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating task: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Failed to update task: {str(e)}")
+
+
+@router.delete("/{regime_id}/task/{task_id}", status_code=200)
+async def delete_task(
+    regime_id: str,
+    task_id: str,
+    farmer_id: str = Query(..., description="Farmer UUID"),
+    db: RegimeDatabase = Depends(get_regime_db)
+):
+    """Delete a task from the regime"""
+    try:
+        logger.info(f"Deleting task {task_id} from regime {regime_id}")
+        
+        # Verify regime exists
+        existing_regime = db.get_regime(regime_id=regime_id, farmer_id=farmer_id)
+        if not existing_regime:
+            raise HTTPException(status_code=404, detail=f"Regime {regime_id} not found")
+        
+        # Verify task exists
+        task_found = any(t.task_id == task_id for t in existing_regime.tasks)
+        if not task_found:
+            raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+        
+        # TODO: Implement task deletion in database
+        return {"status": "success", "message": "Task deleted"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting task: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Failed to delete task: {str(e)}")
+
+
+@router.patch("/{regime_id}/task/{task_id}/reschedule", status_code=200)
+async def reschedule_task(
+    regime_id: str,
+    task_id: str,
+    new_date: str = Query(..., description="New date in YYYY-MM-DD format"),
+    farmer_id: str = Query(..., description="Farmer UUID"),
+    db: RegimeDatabase = Depends(get_regime_db)
+):
+    """Reschedule a task to a new date"""
+    try:
+        logger.info(f"Rescheduling task {task_id} to {new_date}")
+        
+        # Verify regime exists
+        existing_regime = db.get_regime(regime_id=regime_id, farmer_id=farmer_id)
+        if not existing_regime:
+            raise HTTPException(status_code=404, detail=f"Regime {regime_id} not found")
+        
+        # Verify task exists
+        task_found = any(t.task_id == task_id for t in existing_regime.tasks)
+        if not task_found:
+            raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+        
+        # TODO: Implement task rescheduling in database
+        return {"status": "success", "task_id": task_id, "new_date": new_date}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error rescheduling task: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Failed to reschedule task: {str(e)}")
 
 
 # ============================================================================

@@ -11,11 +11,17 @@ from datetime import datetime
 import importlib
 import sys
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 from app.api import chatbot  # Import chatbot API router
 from app.api import regime_routes  # Import regime system API router
+from app.routes import farm_geometry  # Import farm geometry/mapping API router
 from app.db.regime_db import RegimeDatabase  # Regime database layer
 from app.services.supabase_client import get_supabase_client  # Supabase client
+from app.db.base import startup_db, shutdown_db  # Database lifecycle
 
 # Add backend/app to Python path for model imports
 app_root = os.path.dirname(os.path.abspath(__file__))
@@ -31,13 +37,14 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# Configure CORS for frontend communication
+# Configure CORS for frontend communication - Allow all origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:5000", "*"],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,  # Must be False when allow_origins is ["*"]
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # Include the chatbot API router
@@ -45,6 +52,24 @@ app.include_router(chatbot.router, prefix="/api/chatbot")
 
 # Include the regime system API router
 app.include_router(regime_routes.router, prefix="")
+
+# Include the farm geometry/mapping API router
+app.include_router(farm_geometry.router, prefix="")
+
+# ============================================================================
+# Application Lifecycle Events
+# ============================================================================
+
+@app.on_event("startup")
+async def on_startup():
+    """Initialize database connections on startup"""
+    await startup_db()
+
+
+@app.on_event("shutdown")
+async def on_shutdown():
+    """Close database connections on shutdown"""
+    await shutdown_db()
 
 # ============================================================================
 # Pydantic Models (Request/Response schemas)

@@ -40,6 +40,7 @@ const Settings = lazy(() => import("./pages/Settings").then(m => ({ default: m.S
 const Messages = lazy(() => import("./pages/Messages"));
 const FAQ = lazy(() => import("./pages/FAQ").then(m => ({ default: m.FAQ })));
 const Regimes = lazy(() => import("./pages/Regimes").then(m => ({ default: m.default })));
+const FarmMapping = lazy(() => import("./pages/FarmMappingPage").then(m => ({ default: m.default })));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -91,6 +92,17 @@ function AnimatedRoutes() {
             <ProtectedRoute requireOnboarding>
               <DashboardLayout>
                 <Farm />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/farm-mapping"
+          element={
+            <ProtectedRoute requireOnboarding>
+              <DashboardLayout>
+                <FarmMapping />
               </DashboardLayout>
             </ProtectedRoute>
           }

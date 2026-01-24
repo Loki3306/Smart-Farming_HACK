@@ -37,7 +37,7 @@ class RegimeService {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+    this.baseUrl = import.meta.env.VITE_PYTHON_AI_URL || 'http://localhost:8000';
     this.client = axios.create({
       baseURL: this.baseUrl,
       timeout: 30000,
@@ -72,16 +72,21 @@ class RegimeService {
    * Get all regimes for current user
    */
   async getRegimes() {
-    return this.client.get('/api/regime');
+    const farmerId = localStorage.getItem('current_user') 
+      ? JSON.parse(localStorage.getItem('current_user') || '{}').id 
+      : null;
+    return this.client.get('/api/regime', {
+      params: { farmer_id: farmerId },
+    });
   }
 
   /**
    * Get single regime with all tasks
    */
   async getRegime(regimeId: string) {
-    const farmerId = localStorage.getItem('farmerId');
-    return this.client.get('/api/regime/${regimeId}', {
-      params: { farmer_id: farmerId },
+    const currentUser = JSON.parse(localStorage.getItem('current_user') || '{}');
+    return this.client.get(`/api/regime/${regimeId}`, {
+      params: { farmer_id: currentUser.id },
     });
   }
 
@@ -89,10 +94,18 @@ class RegimeService {
    * Create new regime from recommendations
    */
   async createRegime(data: CreateRegimeRequest) {
-    const farmerId = localStorage.getItem('farmerId');
+    const currentUser = JSON.parse(localStorage.getItem('current_user') || '{}');
+    
+    // Use farm_id from data if provided, otherwise try localStorage, otherwise null
+    const farmId = data.farm_id !== undefined 
+      ? data.farm_id 
+      : (localStorage.getItem('farm_id') || currentUser.farm_id || null);
+    
     return this.client.post('/api/regime/generate', {
       ...data,
-      farmer_id: farmerId,
+      farmer_id: data.farmer_id || currentUser.id,
+      farm_id: farmId,  // Can be null - no fallback to farmer_id
+      recommendations: data.recommendations || [],
     });
   }
 
@@ -100,9 +113,9 @@ class RegimeService {
    * Update regime with new recommendations
    */
   async updateRegime(regimeId: string, data: UpdateRegimeRequest) {
-    const farmerId = localStorage.getItem('farmerId');
-    return this.client.patch('/api/regime/${regimeId}/update', data, {
-      params: { farmer_id: farmerId },
+    const currentUser = JSON.parse(localStorage.getItem('current_user') || '{}');
+    return this.client.patch(`/api/regime/${regimeId}/update`, data, {
+      params: { farmer_id: currentUser.id },
     });
   }
 
@@ -110,9 +123,9 @@ class RegimeService {
    * Archive regime
    */
   async deleteRegime(regimeId: string) {
-    const farmerId = localStorage.getItem('farmerId');
-    return this.client.delete('/api/regime/${regimeId}', {
-      params: { farmer_id: farmerId },
+    const currentUser = JSON.parse(localStorage.getItem('current_user') || '{}');
+    return this.client.delete(`/api/regime/${regimeId}`, {
+      params: { farmer_id: currentUser.id },
     });
   }
 
@@ -120,9 +133,9 @@ class RegimeService {
    * Get regime version history
    */
   async getRegimeHistory(regimeId: string) {
-    const farmerId = localStorage.getItem('farmerId');
-    return this.client.get('/api/regime/${regimeId}/history', {
-      params: { farmer_id: farmerId },
+    const currentUser = JSON.parse(localStorage.getItem('current_user') || '{}');
+    return this.client.get(`/api/regime/${regimeId}/history`, {
+      params: { farmer_id: currentUser.id },
     });
   }
 
@@ -130,10 +143,10 @@ class RegimeService {
    * Get regime tasks with optional filters
    */
   async getRegimeTasks(regimeId: string, filters?: { status?: string; priority?: string }) {
-    const farmerId = localStorage.getItem('farmerId');
-    return this.client.get('/api/regime/${regimeId}/tasks', {
+    const currentUser = JSON.parse(localStorage.getItem('current_user') || '{}');
+    return this.client.get(`/api/regime/${regimeId}/tasks`, {
       params: {
-        farmer_id: farmerId,
+        farmer_id: currentUser.id,
         ...filters,
       },
     });
@@ -148,15 +161,15 @@ class RegimeService {
     status: string,
     notes?: string
   ) {
-    const farmerId = localStorage.getItem('farmerId');
+    const currentUser = JSON.parse(localStorage.getItem('current_user') || '{}');
     return this.client.patch(
-      '/api/regime/${regimeId}/task/${taskId}/status',
+      `/api/regime/${regimeId}/task/${taskId}/status`,
       {
         status,
         farmer_notes: notes,
       },
       {
-        params: { farmer_id: farmerId },
+        params: { farmer_id: currentUser.id },
       }
     );
   }
@@ -166,7 +179,7 @@ class RegimeService {
    */
   async exportRegime(regimeId: string, format: 'pdf' | 'csv') {
     return this.client.post(
-      '/api/regime/${regimeId}/export',
+      `/api/regime/${regimeId}/export`,
       {},
       {
         params: { format },

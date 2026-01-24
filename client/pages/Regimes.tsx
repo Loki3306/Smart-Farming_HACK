@@ -39,6 +39,7 @@ import RegimeList from '../components/regime/RegimeList';
 import RegimeDetail from '../components/regime/RegimeDetail';
 import RegimeForm from '../components/regime/RegimeForm';
 import RegimeTimeline from '../components/regime/RegimeTimeline';
+import RegimeCalendarView from '../components/regime/RegimeCalendarView';
 import { regimeService } from '../services/regimeService';
 
 interface Regime {
@@ -257,83 +258,123 @@ export default function RegimesPage() {
         </Row>
       )}
 
-      {/* Regimes List */}
+      {/* Regimes List/Calendar View */}
       {!regimes || regimes.length === 0 ? (
         <Empty
-          description="No regimes yet"
+          description="No regimes yet. Start by getting AI recommendations!"
           style={{ marginTop: 48, marginBottom: 48 }}
         >
-          <Button type="primary" onClick={() => setFormDrawer(true)}>
-            Create First Regime
+          <Button type="primary" onClick={() => navigate('/recommendations')}>
+            Get AI Recommendations
           </Button>
         </Empty>
       ) : (
-        <div className="space-y-4">
-          {regimes.map((regime) => (
-            <Card
-              key={regime.regime_id}
-              hoverable
-              className="cursor-pointer transition-shadow"
-              onClick={() => {
-                setSelectedRegime(regime);
-                setDetailDrawer(true);
-              }}
-            >
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {regime.name}
-                    </h3>
-                    <Badge color={getStatusColor(regime.status)} text={regime.status} />
-                    <Badge
-                      count={`v${regime.version}`}
-                      style={{ backgroundColor: '#108ee9' }}
-                    />
-                  </div>
-                  <p className="text-gray-600 mb-3">{regime.description}</p>
-                  <div className="flex gap-6 text-sm text-gray-500">
-                    <span>
-                      <CalendarOutlined /> {regime.task_count} tasks
-                    </span>
-                    <span>
-                      Valid until {new Date(regime.valid_until).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <Button
-                    icon={<DownloadOutlined />}
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleExportRegime(regime.regime_id);
-                    }}
-                  />
-                  <Button
-                    icon={<HistoryOutlined />}
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
+        <Tabs
+          defaultActiveKey="calendar"
+          items={[
+            {
+              key: 'calendar',
+              label: (
+                <span>
+                  <CalendarOutlined /> Calendar View
+                </span>
+              ),
+              children: (
+                <RegimeCalendarView
+                  tasks={regimes.flatMap((r) => r.tasks || [])}
+                  onTaskClick={(task) => {
+                    const regime = regimes.find((r) => 
+                      r.tasks?.some((t) => t.task_id === task.task_id)
+                    );
+                    if (regime) {
                       setSelectedRegime(regime);
-                      setHistoryDrawer(true);
-                    }}
-                  />
-                  <Button
-                    icon={<DeleteOutlined />}
-                    danger
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteRegime(regime.regime_id);
-                    }}
-                  />
+                      setDetailDrawer(true);
+                    }
+                  }}
+                  onDateClick={(date) => {
+                    message.info(`Add task for ${date.format('MMMM D, YYYY')}`);
+                  }}
+                />
+              ),
+            },
+            {
+              key: 'list',
+              label: (
+                <span>
+                  <BugOutlined /> List View
+                </span>
+              ),
+              children: (
+                <div className="space-y-4">
+                  {regimes.map((regime) => (
+                    <Card
+                      key={regime.regime_id}
+                      hoverable
+                      className="cursor-pointer transition-shadow"
+                      onClick={() => {
+                        setSelectedRegime(regime);
+                        setDetailDrawer(true);
+                      }}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="text-lg font-semibold text-gray-900">
+                              {regime.name}
+                            </h3>
+                            <Badge color={getStatusColor(regime.status)} text={regime.status} />
+                            <Badge
+                              count={`v${regime.version}`}
+                              style={{ backgroundColor: '#108ee9' }}
+                            />
+                          </div>
+                          <p className="text-gray-600 mb-3">{regime.description}</p>
+                          <div className="flex gap-6 text-sm text-gray-500">
+                            <span>
+                              <CalendarOutlined /> {regime.task_count} tasks
+                            </span>
+                            <span>
+                              Valid until {new Date(regime.valid_until).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <Button
+                            icon={<DownloadOutlined />}
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleExportRegime(regime.regime_id);
+                            }}
+                          />
+                          <Button
+                            icon={<HistoryOutlined />}
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedRegime(regime);
+                              setHistoryDrawer(true);
+                            }}
+                          />
+                          <Button
+                            icon={<DeleteOutlined />}
+                            danger
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteRegime(regime.regime_id);
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
                 </div>
-              </div>
-            </Card>
-          ))}
-        </div>
+              ),
+            },
+          ]}
+        />
       )}
 
       {/* Create Regime Drawer */}
@@ -342,7 +383,7 @@ export default function RegimesPage() {
         placement="right"
         onClose={() => setFormDrawer(false)}
         open={formDrawer}
-        width={600}
+        size="large"
       >
         <RegimeForm
           onSubmit={(data) => createMutation.mutate(data)}
@@ -359,7 +400,7 @@ export default function RegimesPage() {
           setSelectedRegime(null);
         }}
         open={detailDrawer && !!selectedRegime}
-        width={700}
+        size="large"
       >
         {selectedRegime && (
           <RegimeDetail
@@ -383,7 +424,7 @@ export default function RegimesPage() {
         placement="right"
         onClose={() => setHistoryDrawer(false)}
         open={historyDrawer && !!selectedRegime}
-        width={700}
+        size="large"
       >
         {selectedRegime && (
           <RegimeTimeline regimeId={selectedRegime.regime_id} />

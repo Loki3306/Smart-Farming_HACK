@@ -16,12 +16,13 @@ CREATE TABLE IF NOT EXISTS public.regimes (
   auto_refresh_enabled BOOLEAN DEFAULT true,
   metadata JSONB DEFAULT '{}',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  
-  -- Constraint: Only one active regime per farm
-  CONSTRAINT unique_active_regime_per_farm UNIQUE (farm_id, status) 
-    WHERE status = 'active'
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) TABLESPACE pg_default;
+
+-- Partial unique index: Only one active regime per farm
+CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_active_regime_per_farm 
+  ON public.regimes(farm_id) 
+  WHERE status = 'active';
 
 -- Add comments for clarity
 COMMENT ON TABLE public.regimes IS 'Stores farming regime/plan metadata. Each regime is a 30-day farming plan.';

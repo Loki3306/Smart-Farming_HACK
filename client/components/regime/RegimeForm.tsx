@@ -52,20 +52,44 @@ export default function RegimeForm({
   ];
 
   const CROP_STAGES = [
+    { label: 'Germination', value: 'germination' },
     { label: 'Seedling', value: 'seedling' },
     { label: 'Vegetative', value: 'vegetative' },
     { label: 'Flowering', value: 'flowering' },
     { label: 'Fruiting', value: 'fruiting' },
     { label: 'Maturity', value: 'maturity' },
+    { label: 'Harvest', value: 'harvest' },
+    { label: 'Unknown', value: 'unknown' },
   ];
 
   const handleSubmit = (values: any) => {
+    // Transform recommendation IDs into proper recommendation objects
+    const recommendations = (values.recommendations || []).map((recId: string) => ({
+      id: recId,
+      type: recId === 'irrigation' ? 'irrigation' : 
+            recId === 'fertilizer' ? 'fertilizer' :
+            recId === 'pest' ? 'pest_control' :
+            recId === 'weed' ? 'weed_control' : 'general',
+      title: recId.charAt(0).toUpperCase() + recId.slice(1),
+      description: `Apply ${recId} management practices`,
+      action: `Start ${recId} treatment immediately`,
+      priority: 'high',
+      confidence: 85,
+    }));
+
     const data = {
-      ...values,
-      sowing_date: values.sowing_date
-        ? values.sowing_date.toISOString()
-        : undefined,
+      regime_name: values.regime_name,
+      regime_description: values.regime_description,
       crop_type: cropType,
+      crop_stage: values.crop_stage || 'vegetative',
+      sowing_date: values.sowing_date
+        ? values.sowing_date.toISOString().split('T')[0]
+        : undefined,
+      temperature: values.temperature,
+      humidity: values.humidity,
+      rainfall: values.rainfall,
+      regime_validity_days: values.regime_validity_days || 30,
+      recommendations: recommendations,
     };
     onSubmit(data);
   };
@@ -166,7 +190,7 @@ export default function RegimeForm({
               {showWeather && (
                 <div className="space-y-4">
                   <Alert
-                    message="Weather data helps adjust task timing and confidence scores"
+                    title="Weather data helps adjust task timing and confidence scores"
                     type="info"
                     showIcon
                     className="mb-4"
@@ -213,7 +237,7 @@ export default function RegimeForm({
             {/* Recommendations */}
             <Card className="mb-6" title="Initial Recommendations">
               <Alert
-                message="These recommendations will be expanded into multi-step tasks"
+                title="These recommendations will be expanded into multi-step tasks"
                 type="success"
                 showIcon
                 className="mb-4"

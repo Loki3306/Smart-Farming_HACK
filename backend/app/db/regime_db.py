@@ -5,9 +5,9 @@ Handles all CRUD operations for regimes, tasks, and audit logs
 """
 
 from typing import Optional, List, Dict, Any
-from datetime import datetime
+from datetime import datetime, date
 import logging
-import json
+import re
 
 from app.services.regime_service import (
     Regime,
@@ -19,6 +19,70 @@ from app.services.regime_service import (
 )
 
 logger = logging.getLogger(__name__)
+
+# Valid trigger types allowed by database constraint
+VALID_TRIGGER_TYPES = {'auto_refresh', 'manual_update', 'disease_detected', 'weather_change', 'farmer_request'}
+
+
+def parse_datetime_safe(value: Optional[str]) -> Optional[datetime]:
+    """
+    Parse datetime from PostgreSQL/Supabase safely.
+    Handles various formats including truncated microseconds and timezones.
+    Python 3.9's fromisoformat() is strict about microsecond precision.
+    """
+    if not value:
+        return None
+    
+    value = str(value)
+    
+    # Handle 'Z' timezone indicator (Zulu time)
+    if value.endswith('Z'):
+        value = value[:-1] + '+00:00'
+    
+    # Try standard fromisoformat first
+    try:
+        return datetime.fromisoformat(value)
+    except ValueError:
+        pass
+    
+    # Handle truncated microseconds (PostgreSQL often returns 5 digits)
+    match = re.match(r'(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\.?(\d*)(\+.*)?$', value)
+    if match:
+        base = match.group(1)
+        frac = match.group(2) or '0'
+        tz = match.group(3) or ''
+        frac = frac[:6].ljust(6, '0')  # Pad to 6 digits
+        try:
+            return datetime.fromisoformat(f"{base}.{frac}{tz}")
+        except ValueError:
+            # Try without timezone
+            return datetime.fromisoformat(f"{base}.{frac}")
+    
+    # Last resort: try common formats
+    for fmt in ['%Y-%m-%dT%H:%M:%S.%f', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%d']:
+        try:
+            return datetime.strptime(value[:26], fmt)
+        except ValueError:
+            continue
+    
+    raise ValueError(f"Cannot parse datetime: {value}")
+
+
+def parse_date_safe(value: Optional[str]) -> Optional[date]:
+    """Parse date from PostgreSQL safely."""
+    if not value:
+        return None
+    
+    # If it's a datetime string, parse and extract date
+    dt = parse_datetime_safe(value)
+    if dt:
+        return dt.date()
+    
+    # Try direct date parsing
+    try:
+        return date.fromisoformat(str(value)[:10])
+    except ValueError:
+        raise ValueError(f"Cannot parse date: {value}")
 
 
 class RegimeDatabase:
@@ -105,12 +169,12 @@ class RegimeDatabase:
                     'priority': task.priority,
                     'confidence_score': task.confidence_score,
                     'status': task.status,
-                    'dependencies': json.dumps(task.dependencies) if task.dependencies else None,
+                    'dependencies': task.dependencies if task.dependencies else [],
                     'farmer_notes': task.farmer_notes,
                     'completed_at': task.completed_at.isoformat() if task.completed_at else None,
                     'overridden': task.overridden,
-                    'created_at': task.created_at.isoformat(),
-                    'updated_at': task.updated_at.isoformat()
+                    'created_at': task.created_at.isoformat() if task.created_at else datetime.now().isoformat(),
+                    'updated_at': task.updated_at.isoformat() if task.updated_at else datetime.now().isoformat()
                 }
                 task_records.append(task_record)
             
@@ -123,8 +187,9 @@ class RegimeDatabase:
                 regime_id=regime_id,
                 version_number=regime.version,
                 changes_summary=f"Initial regime created with {len(regime.tasks)} tasks",
-                trigger_type='creation',
-                tasks_snapshot=regime_to_dict(regime)
+                trigger_type='farmer_request',
+                tasks_snapshot=regime_to_dict(regime),
+                created_by='system'
             )
             
             # 4. Log to audit trail
@@ -196,12 +261,12 @@ class RegimeDatabase:
                 description=regime_data['description'],
                 crop_stage=regime_data['crop_stage'],
                 status=regime_data['status'],
-                valid_from=datetime.fromisoformat(regime_data['valid_from']),
-                valid_until=datetime.fromisoformat(regime_data['valid_until']),
+                valid_from=parse_datetime_safe(regime_data['valid_from']),
+                valid_until=parse_datetime_safe(regime_data['valid_until']),
                 auto_refresh_enabled=regime_data['auto_refresh_enabled'],
                 metadata=regime_data.get('metadata', {}),
-                created_at=datetime.fromisoformat(regime_data['created_at']),
-                updated_at=datetime.fromisoformat(regime_data['updated_at'])
+                created_at=parse_datetime_safe(regime_data['created_at']),
+                updated_at=parse_datetime_safe(regime_data['updated_at'])
             )
             
             # Reconstruct tasks
@@ -216,22 +281,19 @@ class RegimeDatabase:
                     description=task_data['description'],
                     timing_type=task_data['timing_type'],
                     timing_value=task_data['timing_value'],
-                    timing_window_start=datetime.fromisoformat(task_data['timing_window_start']).date() 
-                        if task_data['timing_window_start'] else None,
-                    timing_window_end=datetime.fromisoformat(task_data['timing_window_end']).date() 
-                        if task_data['timing_window_end'] else None,
+                    timing_window_start=parse_date_safe(task_data['timing_window_start']),
+                    timing_window_end=parse_date_safe(task_data['timing_window_end']),
                     duration_days=task_data['duration_days'],
                     quantity=task_data['quantity'],
                     priority=task_data['priority'],
                     confidence_score=task_data['confidence_score'],
                     status=task_data['status'],
-                    dependencies=json.loads(task_data['dependencies']) if task_data['dependencies'] else [],
+                    dependencies=task_data['dependencies'] if task_data['dependencies'] else [],
                     farmer_notes=task_data['farmer_notes'],
-                    completed_at=datetime.fromisoformat(task_data['completed_at']) 
-                        if task_data['completed_at'] else None,
+                    completed_at=parse_datetime_safe(task_data['completed_at']),
                     overridden=task_data['overridden'],
-                    created_at=datetime.fromisoformat(task_data['created_at']),
-                    updated_at=datetime.fromisoformat(task_data['updated_at'])
+                    created_at=parse_datetime_safe(task_data['created_at']),
+                    updated_at=parse_datetime_safe(task_data['updated_at'])
                 )
                 tasks.append(task)
             
@@ -306,12 +368,12 @@ class RegimeDatabase:
                     'priority': task.priority,
                     'confidence_score': task.confidence_score,
                     'status': task.status,
-                    'dependencies': json.dumps(task.dependencies) if task.dependencies else None,
+                    'dependencies': task.dependencies if task.dependencies else [],
                     'farmer_notes': task.farmer_notes,
                     'completed_at': task.completed_at.isoformat() if task.completed_at else None,
                     'overridden': task.overridden,
-                    'created_at': task.created_at.isoformat(),
-                    'updated_at': task.updated_at.isoformat()
+                    'created_at': task.created_at.isoformat() if task.created_at else datetime.now().isoformat(),
+                    'updated_at': task.updated_at.isoformat() if task.updated_at else datetime.now().isoformat()
                 }
                 task_records.append(task_record)
             
@@ -325,7 +387,8 @@ class RegimeDatabase:
                 version_number=regime.version,
                 changes_summary=regime.metadata.get('last_updated', 'Updated'),
                 trigger_type=regime.metadata.get('trigger_type', 'manual_update'),
-                tasks_snapshot=regime_to_dict(regime)
+                tasks_snapshot=regime_to_dict(regime),
+                created_by='system'
             )
             
             # 4. Log update
@@ -375,6 +438,78 @@ class RegimeDatabase:
             
         except Exception as e:
             logger.error(f"Error archiving regime: {str(e)}")
+            raise
+    
+    def list_regimes(
+        self,
+        farmer_id: str,
+        status: Optional[str] = None,
+        limit: int = 50
+    ) -> List[Regime]:
+        """
+        List all regimes for a farmer with optional filtering.
+        
+        Args:
+            farmer_id: Farmer UUID to filter by
+            status: Optional status filter (active, completed, archived)
+            limit: Maximum number of regimes to return
+        
+        Returns:
+            List of Regime objects with basic info (tasks not loaded for performance)
+        """
+        try:
+            logger.info(f"Listing regimes for farmer {farmer_id}, status={status}, limit={limit}")
+            
+            # Build query
+            query = self.supabase.table('regimes') \
+                .select('*') \
+                .eq('farmer_id', farmer_id)
+            
+            # Add status filter if provided
+            if status:
+                query = query.eq('status', status)
+            
+            # Execute with ordering and limit
+            response = query.order('created_at', desc=True).limit(limit).execute()
+            
+            # Convert to Regime objects (without tasks for performance)
+            regimes = []
+            for regime_data in response.data:
+                # Get task count for this regime
+                tasks_response = self.supabase.table('regime_tasks') \
+                    .select('task_id', count='exact') \
+                    .eq('regime_id', regime_data['regime_id']) \
+                    .execute()
+                
+                task_count = len(tasks_response.data) if tasks_response.data else 0
+                
+                regime = Regime(
+                    regime_id=regime_data['regime_id'],
+                    farmer_id=regime_data['farmer_id'],
+                    farm_id=regime_data.get('farm_id'),
+                    version=regime_data['version'],
+                    name=regime_data['name'],
+                    description=regime_data['description'],
+                    crop_stage=regime_data['crop_stage'],
+                    status=regime_data['status'],
+                    valid_from=parse_datetime_safe(regime_data['valid_from']),
+                    valid_until=parse_datetime_safe(regime_data['valid_until']),
+                    auto_refresh_enabled=regime_data['auto_refresh_enabled'],
+                    metadata=regime_data.get('metadata', {}),
+                    created_at=parse_datetime_safe(regime_data['created_at']),
+                    updated_at=parse_datetime_safe(regime_data['updated_at']),
+                    tasks=[]  # Don't load tasks for list view (performance)
+                )
+                
+                # Add task_count to metadata for frontend
+                regime.metadata['task_count'] = task_count
+                regimes.append(regime)
+            
+            logger.info(f"✓ Listed {len(regimes)} regimes for farmer {farmer_id}")
+            return regimes
+            
+        except Exception as e:
+            logger.error(f"Error listing regimes: {str(e)}")
             raise
     
     # ========================================================================
@@ -500,15 +635,22 @@ class RegimeDatabase:
         version_number: int,
         changes_summary: str,
         trigger_type: str,
-        tasks_snapshot: Dict[str, Any]
+        tasks_snapshot: Dict[str, Any],
+        created_by: str = 'system'
     ) -> None:
         """Create immutable version entry in regime_versions table"""
+        # Validate trigger_type against allowed values
+        if trigger_type not in VALID_TRIGGER_TYPES:
+            logger.warning(f"Invalid trigger_type '{trigger_type}', defaulting to 'manual_update'")
+            trigger_type = 'manual_update'
+        
         version_data = {
             'regime_id': regime_id,
             'version_number': version_number,
             'changes_summary': changes_summary,
             'trigger_type': trigger_type,
             'tasks_snapshot': tasks_snapshot,
+            'created_by': created_by,
             'created_at': datetime.now().isoformat()
         }
         

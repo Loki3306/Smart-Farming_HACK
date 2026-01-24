@@ -19,6 +19,7 @@ import {
   Menu,
   X,
   MessageSquare,
+  Map,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { cn } from "../../lib/utils";
@@ -35,6 +36,7 @@ interface NavItem {
 const mainNavItems: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
   { label: "My Farm", icon: Tractor, path: "/farm" },
+  { label: "Farm Mapping", icon: Map, path: "/farm-mapping" },
   { label: "Weather", icon: CloudSun, path: "/weather" },
   { label: "AI Recommendations", icon: Lightbulb, path: "/recommendations" },
   { label: "Farming Regimes", icon: Leaf, path: "/regimes" },

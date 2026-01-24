@@ -22,10 +22,14 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@ant-design/icons": "^6.1.0",
     "@google/generative-ai": "^0.24.1",
     "@rive-app/react-canvas": "^4.25.1",
     "@supabase/supabase-js": "^2.89.0",
+    "@types/leaflet": "^1.9.21",
+    "@types/leaflet-draw": "^1.0.13",
     "@types/twilio": "^3.19.2",
+    "antd": "^6.2.1",
     "axios": "^1.13.2",
     "canvas-confetti": "^1.9.4",
     "crypto-js": "^4.2.0",
@@ -33,10 +37,14 @@
     "express": "^5.1.0",
     "form-data": "^4.0.5",
     "html2canvas": "^1.4.1",
+    "leaflet": "^1.9.4",
+    "leaflet-draw": "^1.0.4",
     "lottie-react": "^2.4.1",
     "multer": "^2.0.2",
     "ogl": "^1.0.11",
+    "react-hot-toast": "^2.6.0",
     "react-joyride": "^2.9.3",
+    "react-leaflet": "^5.0.0",
     "react-markdown": "^10.1.0",
     "rehype-sanitize": "^6.0.0",
     "remark-gfm": "^4.0.1",
@@ -108,7 +116,9 @@
     "react-router-dom": "^6.30.1",
     "recharts": "^2.12.7",
     "serverless-http": "^3.2.0",
+    "sharp": "^0.33.5",
     "sonner": "^1.7.4",
+    "supertest": "^7.0.0",
     "tailwind-merge": "^2.6.0",
     "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",
@@ -117,9 +127,7 @@
     "typescript": "^5.9.2",
     "vaul": "^1.1.2",
     "vite": "^7.1.2",
-    "vitest": "^3.2.4",
-    "supertest": "^7.0.0",
-    "sharp": "^0.33.5"
+    "vitest": "^3.2.4"
   },
   "packageManager": "pnpm@10.14.0+sha512.ad27a79641b49c3e481a16a805baa71817a04bbe06a38d17e60e2eaee83f6a146c6a688125f5792e48dd5ba30e7da52a5cda4c3992b9ccf333f9ce223af84748"
 }

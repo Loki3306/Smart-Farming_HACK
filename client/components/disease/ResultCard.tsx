@@ -54,6 +54,12 @@ export default function ResultCard({ result, onReset, diseaseInfo, diseaseInfoLo
 
   const diseaseName = rawDisease ? formatDisease(rawDisease) : null;
 
+  // Get confidence label from API or derive from percentage
+  const confidenceLabel = result.confidence_label || (confidence >= 80 ? "sure" : confidence >= 50 ? "maybe" : "confused");
+  
+  // If confidence is below 80%, show error state and ask for better image
+  const showLowConfidenceError = confidence < 80;
+  
   // Confidence comes as percentage (0-100) from API, not decimal (0-1)
   const state = confidence >= 85 ? "confident" : (confidence >= 50 ? "uncertain" : "none");
   const percent = Math.round(confidence * 10) / 10; // Round to 1 decimal place
@@ -93,15 +99,20 @@ export default function ResultCard({ result, onReset, diseaseInfo, diseaseInfoLo
             </svg>
             <div className="absolute left-0 right-0 top-0 bottom-0 flex items-center justify-center">
               <div className="text-center">
-                <div className={`text-sm font-semibold ${state === 'confident' ? 'text-emerald-700' : state === 'uncertain' ? 'text-amber-700' : 'text-red-600'}`}> {percent}%</div>
-                <div className="text-xs text-muted-foreground">confidence</div>
+                <div className={`text-base font-semibold capitalize ${state === 'confident' ? 'text-emerald-700' : state === 'uncertain' ? 'text-amber-700' : 'text-red-600'}`}>{confidenceLabel}</div>
+                <div className="text-xs text-muted-foreground">{percent}%</div>
               </div>
             </div>
           </div>
 
           <div>
             <h3 className="text-lg font-semibold">{diseaseName || 'No disease detected'}</h3>
-            <div className="mt-2 text-sm text-muted-foreground">{state === 'confident' ? 'High confidence result' : state === 'uncertain' ? 'Review suggested steps' : 'Low confidence, try another image'}</div>
+            <div className="mt-2 text-sm text-muted-foreground">
+              {showLowConfidenceError 
+                ? 'Please upload a clearer, better-lit image for accurate detection' 
+                : state === 'confident' ? 'High confidence result' : 'Review suggested steps'
+              }
+            </div>
             <div className="mt-3">
               <button className="inline-flex items-center rounded bg-gray-100 px-3 py-1 text-sm" onClick={onReset}>Check another leaf</button>
             </div>
@@ -110,8 +121,8 @@ export default function ResultCard({ result, onReset, diseaseInfo, diseaseInfoLo
 
         <div className="mt-6 md:mt-0 md:flex-1">
           <div className="flex flex-col gap-4">
-            {/* Other candidates */}
-            {result.predictions && result.predictions.length > 1 && (
+            {/* Other candidates - only show if confidence >= 80% */}
+            {!showLowConfidenceError && result.predictions && result.predictions.length > 1 && (
               <div className="rounded-lg bg-emerald-50 p-3">
                 <div className="text-sm font-medium">Other candidates</div>
                 <ul className="mt-2 text-sm text-muted-foreground">
@@ -123,17 +134,18 @@ export default function ResultCard({ result, onReset, diseaseInfo, diseaseInfoLo
               </div>
             )}
 
-            {/* Disease info */}
-            <div>
-              <div className="flex items-center justify-between">
-                <div className="text-sm font-medium">What you should do next</div>
-                <div className="text-xs text-muted-foreground">Source: {diseaseInfo?.source || 'chatbot'}</div>
-              </div>
+            {/* Disease info - only show if confidence >= 80% */}
+            {!showLowConfidenceError && (
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-medium">What you should do next</div>
+                  <div className="text-xs text-muted-foreground">Source: {diseaseInfo?.source || 'chatbot'}</div>
+                </div>
 
-              {diseaseInfoLoading && <p className="mt-2 text-sm text-muted-foreground">Fetching guidance…</p>}
-              {diseaseInfoError && <p className="mt-2 text-sm text-red-600">{diseaseInfoError}</p>}
+                {diseaseInfoLoading && <p className="mt-2 text-sm text-muted-foreground">Fetching guidance…</p>}
+                {diseaseInfoError && <p className="mt-2 text-sm text-red-600">{diseaseInfoError}</p>}
 
-              {diseaseInfo && diseaseInfo.parsed && (
+                {diseaseInfo && diseaseInfo.parsed && (
                 <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
                   {diseaseInfo.data.treatments?.map((t: any, i: number) => (
                     <div key={i} className="rounded-lg border p-3 hover:shadow-md transition-shadow">
@@ -182,12 +194,13 @@ export default function ResultCard({ result, onReset, diseaseInfo, diseaseInfoLo
                 </div>
               )}
 
-              {!diseaseInfo && !diseaseInfoLoading && !diseaseInfoError && (
-                <p className="mt-2 text-sm text-muted-foreground">No additional guidance available.</p>
-              )}
+                {!diseaseInfo && !diseaseInfoLoading && !diseaseInfoError && (
+                  <p className="mt-2 text-sm text-muted-foreground">No additional guidance available.</p>
+                )}
 
-              <div className="mt-4 text-xs text-muted-foreground">Not a replacement for expert advice • Leaf-based analysis only</div>
-            </div>
+                <div className="mt-4 text-xs text-muted-foreground">Not a replacement for expert advice • Leaf-based analysis only</div>
+              </div>
+            )}
           </div>
         </div>
       </div>
