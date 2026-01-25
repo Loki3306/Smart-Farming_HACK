@@ -21,6 +21,8 @@ import {
   X,
   MessageSquare,
   Map,
+  Eye,
+  Droplets,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { cn } from "../../lib/utils";
@@ -38,6 +40,8 @@ const mainNavItems: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
   { label: "My Farm", icon: Tractor, path: "/farm" },
   { label: "Farm Mapping", icon: Map, path: "/farm-mapping" },
+  { label: "Farm Overview", icon: Eye, path: "/farm-overview" },
+  { label: "Irrigation Planner", icon: Droplets, path: "/irrigation-planner" },
   { label: "Weather", icon: CloudSun, path: "/weather" },
   { label: "AI Recommendations", icon: Lightbulb, path: "/recommendations" },
   { label: "Farming Regimes", icon: Leaf, path: "/regimes" },

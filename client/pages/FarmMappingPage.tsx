@@ -1,48 +1,51 @@
 import React, { useState, useEffect } from 'react';
-import { FarmMapEditor } from '../components/FarmMap/FarmMapEditor';
-import { SectionDetailsPanel } from '../components/FarmMap/SectionDetailsPanel';
-import { farmGeometryService, type FarmSection, type FarmSectionsSummary } from '../services/farmGeometryService';
+import { useLocation } from 'react-router-dom';
+import { FarmMapEditor } from '../components/FarmMap/FarmMapEditorLocalStorage';
+import { SectionDetailsPanelLocalStorage as SectionDetailsPanel } from '../components/FarmMap/SectionDetailsPanelLocalStorage';
+import { getFarmMappingStats, SectionData } from '../utils/farmMappingStorage';
 import { toast, Toaster } from 'react-hot-toast';
 import { Map, Layers, BarChart3, Info } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export const FarmMappingPage: React.FC = () => {
   const { user } = useAuth();
+  const location = useLocation();
+  const navigationState = location.state as { center?: [number, number]; zoom?: number } | null;
   // Get farm ID from localStorage (where FarmContext stores it) or use user's ID as fallback
   const [farmId] = useState(() => {
     const storedFarmId = localStorage.getItem('current_farm_id');
     return storedFarmId || user?.id || '35596319-ef8f-4e76-a0cb-cbd88742a05d';
   });
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
-  const [summary, setSummary] = useState<FarmSectionsSummary | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [stats, setStats] = useState(getFarmMappingStats());
+  const [isLoading, setIsLoading] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    loadSummary();
-  }, [farmId]);
+    loadStats();
+  }, [refreshKey]);
 
-  const loadSummary = async () => {
-    try {
-      const data = await farmGeometryService.getSectionsSummary(farmId);
-      setSummary(data);
-    } catch (error: any) {
-      // Summary might not exist yet if no sections created
-      if (error.response?.status !== 404) {
-        console.error('Failed to load summary:', error);
-      }
-    } finally {
-      setIsLoading(false);
-    }
+  const loadStats = () => {
+    const newStats = getFarmMappingStats();
+    setStats(newStats);
   };
 
-  const handleSectionUpdate = (section: FarmSection) => {
-    // Reload summary when section is updated
-    loadSummary();
+  const handleSectionUpdate = () => {
+    loadStats();
+    setRefreshKey(prev => prev + 1);
   };
 
   const handleSectionDelete = (sectionId: string) => {
     setSelectedSection(null);
-    loadSummary();
+    loadStats();
+    setRefreshKey(prev => prev + 1);
+  };
+
+  const handleStatsUpdate = () => {
+    // Immediate sync - no reload needed
+    const newStats = getFarmMappingStats();
+    setStats(newStats);
+    setRefreshKey(prev => prev + 1);
   };
 
   return (
@@ -62,15 +65,15 @@ export const FarmMappingPage: React.FC = () => {
           </div>
 
           {/* Summary Stats */}
-          {summary && !isLoading && (
+          {stats.hasBoundary && (
             <div className="flex gap-6">
               <div className="text-center">
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <Layers className="w-4 h-4" />
                   <span>Sections</span>
                 </div>
-                <p className="text-2xl font-bold text-gray-900">{summary.total_sections}</p>
-                <p className="text-xs text-gray-500">{summary.active_sections} active</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.sectionsCount}</p>
+                <p className="text-xs text-gray-500">sections created</p>
               </div>
 
               <div className="text-center">
@@ -79,23 +82,10 @@ export const FarmMappingPage: React.FC = () => {
                   <span>Total Area</span>
                 </div>
                 <p className="text-2xl font-bold text-gray-900">
-                  {(summary.total_area_sq_meters / 4046.86).toFixed(2)}
+                  {stats.totalArea.toFixed(2)}
                 </p>
                 <p className="text-xs text-gray-500">acres</p>
               </div>
-
-              {summary.average_health_score !== null && summary.average_health_score !== undefined && (
-                <div className="text-center">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Info className="w-4 h-4" />
-                    <span>Avg Health</span>
-                  </div>
-                  <p className="text-2xl font-bold text-green-600">
-                    {summary.average_health_score.toFixed(1)}%
-                  </p>
-                  <p className="text-xs text-gray-500">health score</p>
-                </div>
-              )}
             </div>
           )}
         </div>
@@ -105,18 +95,19 @@ export const FarmMappingPage: React.FC = () => {
       <div className="flex-1 relative">
         <FarmMapEditor
           farmId={farmId}
-          initialCenter={[12.9716, 77.5946]} // Default Bangalore coordinates
-          initialZoom={15}
+          initialCenter={navigationState?.center || [12.9716, 77.5946]}
+          initialZoom={navigationState?.zoom || 15}
           selectedSection={selectedSection}
           onSectionSelect={setSelectedSection}
           onBoundaryDrawn={() => {
-            toast.success('Farm boundary saved!');
-            loadSummary();
+            toast.success('Farm boundary saved to local storage!');
+            handleStatsUpdate();
           }}
           onSectionDrawn={() => {
-            toast.success('Section created!');
-            loadSummary();
+            toast.success('Section created and saved!');
+            handleStatsUpdate();
           }}
+          onStatsUpdate={handleStatsUpdate}
         />
 
         {/* Section Details Panel */}

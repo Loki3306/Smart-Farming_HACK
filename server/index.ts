@@ -95,7 +95,10 @@ export function createServer() {
     typeof process.env.VITEST === "string";
 
   if (!isTestRun) {
-    autonomousEngine.start();
+    // Add a small delay before starting autonomous engine to allow server to fully initialize
+    setTimeout(() => {
+      autonomousEngine.start();
+    }, 2000);
   }
 
   // ============================================================================

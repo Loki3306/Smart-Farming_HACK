@@ -1,0 +1,109 @@
+{
+  "lastUpdated": "2026-01-25",
+  "basePricing": {
+    "description": "Base pricing in Indian Rupees for Maharashtra region",
+    "sources": ["Amazon India", "Moglix", "Flipkart", "Local Agricultural Markets"],
+    "pipes": {
+      "pvcPipe2inch": { "price": 52, "unit": "per meter", "note": "50mm diameter, standard quality" },
+      "pvcPipe3inch": { "price": 95, "unit": "per meter", "note": "75mm diameter" },
+      "pvcPipe4inch": { "price": 145, "unit": "per meter", "note": "110mm diameter" },
+      "hdpePipe": { "price": 42, "unit": "per meter", "note": "PE-80 grade" }
+    },
+    "dripSystem": {
+      "dripLateralPipe": { "price": 12, "unit": "per meter", "note": "16mm inline drip" },
+      "dripEmitter": { "price": 4.5, "unit": "per piece", "note": "2-4 LPH emitter" },
+      "dripFilter": { "price": 2800, "unit": "per set", "note": "120 mesh screen filter" },
+      "dripMainline": { "price": 35, "unit": "per meter", "note": "63mm HDPE" },
+      "dripVenturi": { "price": 1200, "unit": "per unit", "note": "Fertilizer injector" },
+      "dripPressureRegulator": { "price": 850, "unit": "per unit" }
+    },
+    "sprinklerSystem": {
+      "sprinklerHead": { "price": 380, "unit": "per piece", "note": "Impact type, 12-15m radius" },
+      "sprinklerRiser": { "price": 120, "unit": "per piece", "note": "GI riser 3/4 inch" },
+      "sprinklerPipe": { "price": 55, "unit": "per meter", "note": "63mm HDPE" },
+      "rainGun": { "price": 8500, "unit": "per unit", "note": "30-40m radius" }
+    },
+    "pumps": {
+      "pump1hp": { "price": 9500, "brand": "Crompton/Kirloskar", "type": "Monoblock" },
+      "pump2hp": { "price": 13500, "brand": "Crompton/Kirloskar", "type": "Submersible/Monoblock" },
+      "pump3hp": { "price": 19500, "brand": "Crompton/Kirloskar", "type": "Submersible" },
+      "pump5hp": { "price": 32000, "brand": "Crompton/Kirloskar", "type": "Submersible" },
+      "pump7hp": { "price": 45000, "brand": "Crompton/Kirloskar", "type": "Submersible" }
+    },
+    "valves": {
+      "footValve": { "price": 950, "note": "Brass/PVC foot valve" },
+      "nonReturnValve": { "price": 750, "note": "NRV check valve" },
+      "gateValve": { "price": 480, "note": "2 inch gate valve" },
+      "ballValve": { "price": 320, "note": "PVC ball valve" }
+    },
+    "fittings": {
+      "elbow": { "price": 32, "note": "90° elbow" },
+      "tee": { "price": 45, "note": "T-junction" },
+      "reducer": { "price": 58, "note": "Size reducer" },
+      "endCap": { "price": 18, "note": "End cap" }
+    },
+    "storage": {
+      "tank500L": { "price": 4200, "brand": "Sintex/Supreme" },
+      "tank1000L": { "price": 7200, "brand": "Sintex/Supreme" },
+      "tank2000L": { "price": 12500, "brand": "Sintex/Supreme" },
+      "tank5000L": { "price": 28000, "brand": "Sintex/Supreme" }
+    },
+    "labor": {
+      "laborDigging": { "price": 550, "unit": "per day", "note": "8-hour day, unskilled" },
+      "laborPipeFitting": { "price": 700, "unit": "per day", "note": "Semi-skilled" },
+      "laborElectrician": { "price": 950, "unit": "per day", "note": "Skilled" },
+      "laborPlumber": { "price": 850, "unit": "per day", "note": "Skilled" }
+    },
+    "materials": {
+      "solventCement": { "price": 180, "unit": "per 500ml", "note": "PVC adhesive" },
+      "teflonTape": { "price": 25, "unit": "per roll", "note": "Thread seal tape" },
+      "clamps": { "price": 15, "unit": "per piece", "note": "Pipe clamps" }
+    }
+  },
+  "regionalMultipliers": {
+    "description": "Price multipliers for different states - separate for materials and labor",
+    "note": "Material costs vary due to transport, labor due to wage differences",
+    "states": {
+      "PB": { "name": "Punjab", "material": 1.15, "labor": 1.25, "reason": "Higher wages, good infrastructure" },
+      "HR": { "name": "Haryana", "material": 1.10, "labor": 1.20, "reason": "NCR proximity" },
+      "UP": { "name": "Uttar Pradesh", "material": 0.95, "labor": 0.85, "reason": "Competitive market, lower wages" },
+      "HP": { "name": "Himachal Pradesh", "material": 1.25, "labor": 1.15, "reason": "Hill transport costs" },
+      "JK": { "name": "Jammu & Kashmir", "material": 1.30, "labor": 1.10, "reason": "Remote location" },
+      "KA": { "name": "Karnataka", "material": 1.00, "labor": 1.05, "reason": "Bangalore manufacturing hub" },
+      "TN": { "name": "Tamil Nadu", "material": 1.05, "labor": 1.10, "reason": "Urban centers" },
+      "KL": { "name": "Kerala", "material": 1.20, "labor": 1.30, "reason": "Highest wages, hilly terrain" },
+      "AP": { "name": "Andhra Pradesh", "material": 0.98, "labor": 0.95, "reason": "Agricultural state" },
+      "TS": { "name": "Telangana", "material": 1.02, "labor": 1.00, "reason": "Hyderabad market" },
+      "MH": { "name": "Maharashtra", "material": 1.00, "labor": 1.00, "reason": "BASELINE - Major manufacturing hub" },
+      "GJ": { "name": "Gujarat", "material": 1.05, "labor": 1.08, "reason": "Industrial state" },
+      "RJ": { "name": "Rajasthan", "material": 1.08, "labor": 0.90, "reason": "Desert transport, lower wages" },
+      "GA": { "name": "Goa", "material": 1.15, "labor": 1.25, "reason": "Tourism economy" },
+      "WB": { "name": "West Bengal", "material": 0.90, "labor": 0.88, "reason": "Competitive market" },
+      "BR": { "name": "Bihar", "material": 0.85, "labor": 0.75, "reason": "Lowest costs in India" },
+      "JH": { "name": "Jharkhand", "material": 0.88, "labor": 0.80, "reason": "Developing state" },
+      "OR": { "name": "Odisha", "material": 0.88, "labor": 0.82, "reason": "Coastal region" },
+      "MP": { "name": "Madhya Pradesh", "material": 0.92, "labor": 0.88, "reason": "Agricultural heartland" },
+      "CG": { "name": "Chhattisgarh", "material": 0.90, "labor": 0.85, "reason": "Lower development" },
+      "AS": { "name": "Assam", "material": 1.18, "labor": 0.95, "reason": "Northeast transport" },
+      "NE": { "name": "Northeast States", "material": 1.25, "labor": 1.00, "reason": "Remote, high transport" }
+    }
+  },
+  "updateInstructions": {
+    "howToUpdate": [
+      "1. Research current market prices from Amazon India, Moglix, Flipkart",
+      "2. Get quotes from local agricultural equipment dealers",
+      "3. Check government agriculture department reports",
+      "4. Update the 'price' values in basePricing section",
+      "5. Update 'lastUpdated' date",
+      "6. Restart the application to load new prices"
+    ],
+    "priceReferences": [
+      "Amazon India: amazon.in (search 'drip irrigation', 'agricultural pump')",
+      "Moglix: moglix.com (Industrial supplies)",
+      "Flipkart: flipkart.com (Agricultural equipment)",
+      "BigHaat: bighaat.com (Agricultural marketplace)",
+      "AgroStar: agrostar.in (Farming equipment)",
+      "Government: agricoop.nic.in (Agriculture ministry)"
+    ]
+  }
+}
