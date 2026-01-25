@@ -1,0 +1,466 @@
+{
+    "healthy": {
+        "en": {
+            "symptoms": [
+                "No visible symptoms",
+                "Normal leaf color",
+                "Healthy growth pattern",
+                "No spots or discoloration"
+            ],
+            "causes": [
+                "Proper nutrition",
+                "Adequate water",
+                "Good soil conditions",
+                "Optimal sunlight"
+            ],
+            "treatments": [
+                {
+                    "step": "Continue current care",
+                    "details": "Maintain regular watering and fertilization schedule"
+                },
+                {
+                    "step": "Monitor regularly",
+                    "details": "Check plants weekly for any changes"
+                },
+                {
+                    "step": "Maintain soil health",
+                    "details": "Add organic matter periodically"
+                },
+                {
+                    "step": "Ensure proper drainage",
+                    "details": "Prevent waterlogging"
+                }
+            ],
+            "precautions": [
+                "Monitor for early disease signs",
+                "Maintain proper spacing",
+                "Use organic pest control",
+                "Rotate crops annually"
+            ]
+        },
+        "hi": {
+            "symptoms": [
+                "कोई दिखाई देने वाले लक्षण नहीं",
+                "सामान्य पत्ती का रंग",
+                "स्वस्थ विकास पैटर्न",
+                "कोई धब्बे या रंग परिवर्तन नहीं"
+            ],
+            "causes": [
+                "उचित पोषण",
+                "पर्याप्त पानी",
+                "अच्छी मिट्टी की स्थिति",
+                "इष्टतम धूप"
+            ],
+            "treatments": [
+                {
+                    "step": "वर्तमान देखभाल जारी रखें",
+                    "details": "नियमित पानी और उर्वरक कार्यक्रम बनाए रखें"
+                },
+                {
+                    "step": "नियमित रूप से निगरानी करें",
+                    "details": "किसी भी बदलाव के लिए साप्ताहिक पौधों की जांच करें"
+                },
+                {
+                    "step": "मिट्टी का स्वास्थ्य बनाए रखें",
+                    "details": "समय-समय पर जैविक पदार्थ जोड़ें"
+                },
+                {
+                    "step": "उचित जल निकासी सुनिश्चित करें",
+                    "details": "जलभराव से बचें"
+                }
+            ],
+            "precautions": [
+                "प्रारंभिक रोग संकेतों की निगरानी करें",
+                "उचित दूरी बनाए रखें",
+                "जैविक कीट नियंत्रण का उपयोग करें",
+                "वार्षिक फसल चक्र अपनाएं"
+            ]
+        },
+        "mr": {
+            "symptoms": [
+                "कोणतीही दृश्यमान लक्षणे नाहीत",
+                "सामान्य पानांचा रंग",
+                "निरोगी वाढीचा नमुना",
+                "कोणतेही डाग किंवा रंग बदल नाहीत"
+            ],
+            "causes": [
+                "योग्य पोषण",
+                "पुरेसे पाणी",
+                "चांगल्या मातीची स्थिती",
+                "इष्टतम सूर्यप्रकाश"
+            ],
+            "treatments": [
+                {
+                    "step": "सध्याची काळजी सुरू ठेवा",
+                    "details": "नियमित पाणी आणि खत वेळापत्रक राखा"
+                },
+                {
+                    "step": "नियमितपणे निरीक्षण करा",
+                    "details": "कोणत्याही बदलासाठी साप्ताहिक झाडांची तपासणी करा"
+                },
+                {
+                    "step": "मातीचे आरोग्य राखा",
+                    "details": "वेळोवेळी सेंद्रिय पदार्थ घाला"
+                },
+                {
+                    "step": "योग्य निचरा सुनिश्चित करा",
+                    "details": "पाणी साचण्यापासून प्रतिबंध करा"
+                }
+            ],
+            "precautions": [
+                "लवकर रोग चिन्हांसाठी निरीक्षण करा",
+                "योग्य अंतर राखा",
+                "सेंद्रिय कीटक नियंत्रण वापरा",
+                "वार्षिक पीक फिरवा"
+            ]
+        }
+    },
+    "early_blight": {
+        "en": {
+            "symptoms": [
+                "Dark brown spots with concentric rings",
+                "Yellowing leaves",
+                "Leaf drop",
+                "Stem lesions"
+            ],
+            "causes": [
+                "Fungal infection (Alternaria solani)",
+                "High humidity",
+                "Warm temperatures",
+                "Poor air circulation"
+            ],
+            "treatments": [
+                {
+                    "step": "Remove infected leaves",
+                    "details": "Prune and destroy affected plant parts immediately"
+                },
+                {
+                    "step": "Apply fungicide",
+                    "details": "Use copper-based or organic fungicides weekly"
+                },
+                {
+                    "step": "Improve air circulation",
+                    "details": "Space plants properly and prune lower leaves"
+                },
+                {
+                    "step": "Water at base",
+                    "details": "Avoid overhead watering to reduce leaf wetness"
+                }
+            ],
+            "precautions": [
+                "Use disease-resistant varieties",
+                "Rotate crops every 2-3 years",
+                "Mulch to prevent soil splash",
+                "Remove plant debris regularly"
+            ]
+        },
+        "hi": {
+            "symptoms": [
+                "गाढ़े भूरे धब्बे संकेंद्रित वलयों के साथ",
+                "पीली पत्तियां",
+                "पत्ती गिरना",
+                "तने पर घाव"
+            ],
+            "causes": [
+                "फंगल संक्रमण (अल्टरनेरिया सोलानी)",
+                "उच्च आर्द्रता",
+                "गर्म तापमान",
+                "खराब हवा संचार"
+            ],
+            "treatments": [
+                {
+                    "step": "संक्रमित पत्तियों को हटाएं",
+                    "details": "प्रभावित पौधे के हिस्सों को तुरंत काटें और नष्ट करें"
+                },
+                {
+                    "step": "फफूंदनाशक लगाएं",
+                    "details": "साप्ताहिक तांबा-आधारित या जैविक फफूंदनाशक का उपयोग करें"
+                },
+                {
+                    "step": "हवा संचार में सुधार करें",
+                    "details": "पौधों को ठीक से रखें और निचली पत्तियों की छंटाई करें"
+                },
+                {
+                    "step": "आधार पर पानी दें",
+                    "details": "पत्तियों की नमी कम करने के लिए ऊपर से पानी देने से बचें"
+                }
+            ],
+            "precautions": [
+                "रोग-प्रतिरोधी किस्मों का उपयोग करें",
+                "हर 2-3 साल में फसल चक्र अपनाएं",
+                "मिट्टी के छींटे रोकने के लिए मल्च करें",
+                "नियमित रूप से पौधे के मलबे को हटाएं"
+            ]
+        },
+        "mr": {
+            "symptoms": [
+                "गडद तपकिरी डाग एकाग्र वलयांसह",
+                "पिवळी पाने",
+                "पाने गळणे",
+                "देठावर जखमा"
+            ],
+            "causes": [
+                "बुरशीजन्य संसर्ग (अल्टरनेरिया सोलानी)",
+                "उच्च आर्द्रता",
+                "उबदार तापमान",
+                "खराब हवा परिसंचरण"
+            ],
+            "treatments": [
+                {
+                    "step": "संक्रमित पाने काढा",
+                    "details": "प्रभावित झाडाचे भाग लगेच कापून नष्ट करा"
+                },
+                {
+                    "step": "बुरशीनाशक लावा",
+                    "details": "साप्ताहिक तांबे-आधारित किंवा सेंद्रिय बुरशीनाशक वापरा"
+                },
+                {
+                    "step": "हवा परिसंचरण सुधारा",
+                    "details": "झाडे योग्यरित्या लावा आणि खालच्या पानांची छाटणी करा"
+                },
+                {
+                    "step": "पायथ्याशी पाणी द्या",
+                    "details": "पानांची ओलसरपणा कमी करण्यासाठी वरून पाणी देणे टाळा"
+                }
+            ],
+            "precautions": [
+                "रोग-प्रतिरोधक जाती वापरा",
+                "दर 2-3 वर्षांनी पीक फिरवा",
+                "मातीचे शिडकाव रोखण्यासाठी आच्छादन करा",
+                "नियमितपणे झाडाचा ढिगारा काढा"
+            ]
+        }
+    },
+    "late_blight": {
+        "en": {
+            "symptoms": [
+                "Water-soaked lesions on leaves",
+                "White fuzzy growth on undersides",
+                "Rapid leaf browning",
+                "Fruit rot"
+            ],
+            "causes": [
+                "Fungal pathogen (Phytophthora infestans)",
+                "Cool wet weather",
+                "High humidity",
+                "Poor drainage"
+            ],
+            "treatments": [
+                {
+                    "step": "Apply copper fungicide",
+                    "details": "Spray every 5-7 days during wet weather"
+                },
+                {
+                    "step": "Remove infected plants",
+                    "details": "Destroy severely affected plants to prevent spread"
+                },
+                {
+                    "step": "Improve drainage",
+                    "details": "Ensure soil drains well and avoid waterlogging"
+                },
+                {
+                    "step": "Reduce humidity",
+                    "details": "Increase spacing and improve air flow"
+                }
+            ],
+            "precautions": [
+                "Plant resistant varieties",
+                "Avoid overhead irrigation",
+                "Monitor weather forecasts",
+                "Apply preventive fungicides"
+            ]
+        },
+        "hi": {
+            "symptoms": [
+                "पत्तियों पर पानी से भीगे घाव",
+                "निचली सतह पर सफेद रोएंदार वृद्धि",
+                "तेजी से पत्ती भूरी होना",
+                "फल सड़न"
+            ],
+            "causes": [
+                "फंगल रोगज़नक़ (फाइटोफ्थोरा इन्फेस्टन्स)",
+                "ठंडा गीला मौसम",
+                "उच्च आर्द्रता",
+                "खराब जल निकासी"
+            ],
+            "treatments": [
+                {
+                    "step": "तांबा फफूंदनाशक लगाएं",
+                    "details": "गीले मौसम के दौरान हर 5-7 दिनों में स्प्रे करें"
+                },
+                {
+                    "step": "संक्रमित पौधों को हटाएं",
+                    "details": "फैलाव रोकने के लिए गंभीर रूप से प्रभावित पौधों को नष्ट करें"
+                },
+                {
+                    "step": "जल निकासी में सुधार करें",
+                    "details": "सुनिश्चित करें कि मिट्टी अच्छी तरह से निकलती है और जलभराव से बचें"
+                },
+                {
+                    "step": "आर्द्रता कम करें",
+                    "details": "दूरी बढ़ाएं और हवा के प्रवाह में सुधार करें"
+                }
+            ],
+            "precautions": [
+                "प्रतिरोधी किस्में लगाएं",
+                "ऊपरी सिंचाई से बचें",
+                "मौसम पूर्वानुमान की निगरानी करें",
+                "निवारक फफूंदनाशक लगाएं"
+            ]
+        },
+        "mr": {
+            "symptoms": [
+                "पानांवर पाण्याने भिजलेल्या जखमा",
+                "खालच्या बाजूस पांढरी अस्पष्ट वाढ",
+                "जलद पाने तपकिरी होणे",
+                "फळ कुजणे"
+            ],
+            "causes": [
+                "बुरशीजन्य रोगकारक (फायटोफ्थोरा इन्फेस्टन्स)",
+                "थंड ओले हवामान",
+                "उच्च आर्द्रता",
+                "खराब निचरा"
+            ],
+            "treatments": [
+                {
+                    "step": "तांबे बुरशीनाशक लावा",
+                    "details": "ओल्या हवामानात दर 5-7 दिवसांनी फवारणी करा"
+                },
+                {
+                    "step": "संक्रमित झाडे काढा",
+                    "details": "प्रसार रोखण्यासाठी गंभीरपणे प्रभावित झाडे नष्ट करा"
+                },
+                {
+                    "step": "निचरा सुधारा",
+                    "details": "माती चांगली निचरा होते याची खात्री करा आणि पाणी साचणे टाळा"
+                },
+                {
+                    "step": "आर्द्रता कमी करा",
+                    "details": "अंतर वाढवा आणि हवेचा प्रवाह सुधारा"
+                }
+            ],
+            "precautions": [
+                "प्रतिरोधक जाती लावा",
+                "वरच्या सिंचनापासून टाळा",
+                "हवामान अंदाजांचे निरीक्षण करा",
+                "प्रतिबंधात्मक बुरशीनाशक लावा"
+            ]
+        }
+    },
+    "powdery_mildew": {
+        "en": {
+            "symptoms": [
+                "White powdery coating on leaves",
+                "Leaf curling",
+                "Stunted growth",
+                "Yellowing leaves"
+            ],
+            "causes": [
+                "Fungal infection",
+                "High humidity with dry conditions",
+                "Poor air circulation",
+                "Overcrowding"
+            ],
+            "treatments": [
+                {
+                    "step": "Apply neem oil spray",
+                    "details": "Spray weekly on affected areas"
+                },
+                {
+                    "step": "Use baking soda solution",
+                    "details": "Mix 1 tablespoon per liter of water and spray"
+                },
+                {
+                    "step": "Prune affected areas",
+                    "details": "Remove heavily infected leaves"
+                },
+                {
+                    "step": "Improve ventilation",
+                    "details": "Increase plant spacing"
+                }
+            ],
+            "precautions": [
+                "Avoid overhead watering",
+                "Plant in sunny locations",
+                "Use resistant varieties",
+                "Monitor humidity levels"
+            ]
+        },
+        "hi": {
+            "symptoms": [
+                "पत्तियों पर सफेद पाउडर कोटिंग",
+                "पत्ती मुड़ना",
+                "बौनी वृद्धि",
+                "पीली पत्तियां"
+            ],
+            "causes": [
+                "फंगल संक्रमण",
+                "सूखी स्थिति के साथ उच्च आर्द्रता",
+                "खराब हवा संचार",
+                "भीड़भाड़"
+            ],
+            "treatments": [
+                {
+                    "step": "नीम तेल स्प्रे लगाएं",
+                    "details": "प्रभावित क्षेत्रों पर साप्ताहिक स्प्रे करें"
+                },
+                {
+                    "step": "बेकिंग सोडा घोल का उपयोग करें",
+                    "details": "प्रति लीटर पानी में 1 चम्मच मिलाएं और स्प्रे करें"
+                },
+                {
+                    "step": "प्रभावित क्षेत्रों की छंटाई करें",
+                    "details": "भारी संक्रमित पत्तियों को हटाएं"
+                },
+                {
+                    "step": "वेंटिलेशन में सुधार करें",
+                    "details": "पौधों की दूरी बढ़ाएं"
+                }
+            ],
+            "precautions": [
+                "ऊपरी पानी देने से बचें",
+                "धूप वाले स्थानों में लगाएं",
+                "प्रतिरोधी किस्मों का उपयोग करें",
+                "आर्द्रता स्तर की निगरानी करें"
+            ]
+        },
+        "mr": {
+            "symptoms": [
+                "पानांवर पांढरा पावडर लेप",
+                "पाने वळणे",
+                "बौने वाढ",
+                "पिवळी पाने"
+            ],
+            "causes": [
+                "बुरशीजन्य संसर्ग",
+                "कोरड्या परिस्थितीसह उच्च आर्द्रता",
+                "खराब हवा परिसंचरण",
+                "गर्दी"
+            ],
+            "treatments": [
+                {
+                    "step": "कडुलिंब तेल फवारणी लावा",
+                    "details": "प्रभावित भागावर साप्ताहिक फवारणी करा"
+                },
+                {
+                    "step": "बेकिंग सोडा द्रावण वापरा",
+                    "details": "प्रति लिटर पाण्यात 1 चमचा मिसळा आणि फवारणी करा"
+                },
+                {
+                    "step": "प्रभावित भागांची छाटणी करा",
+                    "details": "जास्त संक्रमित पाने काढा"
+                },
+                {
+                    "step": "वायुवीजन सुधारा",
+                    "details": "झाडांचे अंतर वाढवा"
+                }
+            ],
+            "precautions": [
+                "वरून पाणी देणे टाळा",
+                "सूर्यप्रकाशाच्या ठिकाणी लावा",
+                "प्रतिरोधक जाती वापरा",
+                "आर्द्रता पातळीचे निरीक्षण करा"
+            ]
+        }
+    }
+}

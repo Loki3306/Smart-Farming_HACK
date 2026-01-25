@@ -1,18 +1,14 @@
 import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, RefreshCw } from "lucide-react";
+import { useTranslation } from "react-i18next";
+
 
 /**
  * Farmer-friendly analysis stages
  */
-const FARMING_STAGES = [
-  { text: "Reading your field conditions", emoji: "🌾" },
-  { text: "Checking soil health and nutrients", emoji: "🌱" },
-  { text: "Looking at today's weather", emoji: "🌦️" },
-  { text: "Comparing with successful harvests", emoji: "📊" },
-  { text: "Learning from experienced farmers", emoji: "🤝" },
-  { text: "Preparing your farming plan", emoji: "✅" },
-];
+// FARMING_STAGES moved to component to use t() function
+
 
 const MINIMUM_DISPLAY_TIME = 3000; // 3 seconds
 const STAGE_INTERVAL = 600; // Change text every 0.6 seconds
@@ -28,9 +24,20 @@ export const FarmAnalysisLoader: React.FC<FarmAnalysisLoaderProps> = ({
   onComplete,
   analysisComplete,
 }) => {
+  const { t } = useTranslation("recommendations");
+
+  const FARMING_STAGES = [
+    { text: t("loader.stage1"), emoji: "🌾" },
+    { text: t("loader.stage2"), emoji: "🌱" },
+    { text: t("loader.stage3"), emoji: "🌦️" },
+    { text: t("loader.stage4"), emoji: "📊" },
+    { text: t("loader.stage5"), emoji: "🤝" },
+    { text: t("loader.stage6"), emoji: "✅" },
+  ];
+
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
   const [canExit, setCanExit] = useState(false);
-  
+
   const stageIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const minimumTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -71,7 +78,7 @@ export const FarmAnalysisLoader: React.FC<FarmAnalysisLoaderProps> = ({
         clearInterval(stageIntervalRef.current);
         stageIntervalRef.current = null;
       }
-      
+
       exitTimerRef.current = setTimeout(() => {
         onComplete();
       }, 600);
@@ -98,8 +105,8 @@ export const FarmAnalysisLoader: React.FC<FarmAnalysisLoaderProps> = ({
                 <RefreshCw className="w-6 h-6 text-primary animate-spin" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold">Analyzing Your Farm Data</h3>
-                <p className="text-sm text-muted-foreground">Our AI is processing your information...</p>
+                <h3 className="text-xl font-semibold">{t("loader.title")}</h3>
+                <p className="text-sm text-muted-foreground">{t("loader.subtitle")}</p>
               </div>
             </div>
 
@@ -107,7 +114,7 @@ export const FarmAnalysisLoader: React.FC<FarmAnalysisLoaderProps> = ({
               {FARMING_STAGES.map((stage, index) => {
                 const isCompleted = index < currentStageIndex;
                 const isCurrent = index === currentStageIndex;
-                
+
                 return (
                   <motion.div
                     key={index}
@@ -125,17 +132,16 @@ export const FarmAnalysisLoader: React.FC<FarmAnalysisLoaderProps> = ({
                         <div className="w-2 h-2 rounded-full bg-muted" />
                       )}
                     </div>
-                    
+
                     <div className="flex items-center gap-2 flex-1">
                       <span className="text-xl">{stage.emoji}</span>
                       <span
-                        className={`${
-                          isCurrent
-                            ? "text-primary font-medium"
-                            : isCompleted
+                        className={`${isCurrent
+                          ? "text-primary font-medium"
+                          : isCompleted
                             ? "text-foreground"
                             : "text-muted-foreground"
-                        }`}
+                          }`}
                       >
                         {stage.text}
                       </span>

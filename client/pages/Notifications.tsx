@@ -389,9 +389,9 @@ export const Notifications: React.FC = () => {
 
       {/* Notification Settings Card */}
       <Card className="p-6" data-tour-id="notif-settings">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Settings className="w-5 h-5 text-muted-foreground" />
+            <Settings className="w-5 h-5 text-muted-foreground shrink-0" />
             <div>
               <h3 className="font-semibold text-foreground">Notification Settings</h3>
               <p className="text-sm text-muted-foreground">
@@ -399,11 +399,11 @@ export const Notifications: React.FC = () => {
               </p>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={testNotification}>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button variant="outline" onClick={testNotification} className="flex-1 sm:flex-none">
               🔊 Test Sound
             </Button>
-            <Button variant="outline" onClick={() => navigate('/settings')}>
+            <Button variant="outline" onClick={() => navigate('/settings')} className="flex-1 sm:flex-none">
               Configure
             </Button>
           </div>

@@ -1,0 +1,79 @@
+{
+    "title": "My Farm",
+    "subtitle": "Manage your farm details and view soil analytics",
+    "actions": {
+        "edit": "Edit Details",
+        "save": "Save Changes",
+        "cancel": "Cancel"
+    },
+    "sections": {
+        "location": {
+            "title": "Location Details",
+            "state": "State",
+            "district": "District",
+            "city": "City",
+            "village": "Village"
+        },
+        "specs": {
+            "title": "Farm Specifications",
+            "area": "Total Area",
+            "soilType": "Soil Type",
+            "crop": "Current Crop"
+        },
+        "irrigation": {
+            "title": "Irrigation Details",
+            "waterSource": "Water Source",
+            "type": "Irrigation Type",
+            "season": "Season"
+        },
+        "analytics": {
+            "title": "Soil Analytics",
+            "demo": "Demo Data - Connect sensors for real-time values",
+            "moisture": "Moisture",
+            "temperature": "Temperature",
+            "ph": "pH Level",
+            "nitrogen": "Nitrogen (kg/ha)",
+            "phosphorus": "Phosphorus (kg/ha)",
+            "potassium": "Potassium (kg/ha)"
+        },
+        "health": {
+            "title": "Overall Soil Health",
+            "status": "Good",
+            "recommendation": "Your soil health is good! Consider adding organic matter to improve nitrogen levels."
+        }
+    },
+    "waterSources": {
+        "well": "Well",
+        "borewell": "Borewell",
+        "canal": "Canal",
+        "river": "River",
+        "rainwater": "Rainwater Harvesting",
+        "pond": "Pond"
+    },
+    "irrigationTypes": {
+        "drip": "Drip Irrigation",
+        "sprinkler": "Sprinkler",
+        "flood": "Flood Irrigation",
+        "furrow": "Furrow Irrigation",
+        "manual": "Manual"
+    },
+    "seasons": {
+        "kharif": "Kharif (Monsoon)",
+        "rabi": "Rabi (Winter)",
+        "zaid": "Zaid (Summer)"
+    },
+    "soilTypes": {
+        "black": "Black Cotton Soil",
+        "alluvial": "Alluvial Soil",
+        "red": "Red Soil",
+        "laterite": "Laterite Soil",
+        "clay": "Clay Soil",
+        "sandy": "Sandy Soil",
+        "loamy": "Loamy Soil"
+    },
+    "messages": {
+        "saved": "Farm data saved successfully",
+        "failed": "Failed to save farm data",
+        "noSensor": "No sensor data found, using demo values"
+    }
+}

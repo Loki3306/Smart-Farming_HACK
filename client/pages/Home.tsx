@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { MapPin, Activity, User, LogOut, RotateCcw, Sprout, Link, Bot, Sunrise, Sun, Sunset, Moon, CloudSun } from "lucide-react";
+import { Link, Bot, Sunrise, Sun, Sunset, Moon, CloudSun, MapPin, Activity, User, RotateCcw, LogOut, Sprout } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { SoilMoisture } from "../components/dashboard/SoilMoisture";
 import { ControlCenter } from "../components/dashboard/ControlCenter";
 import { ActionLog } from "../components/dashboard/ActionLog";
@@ -19,6 +20,7 @@ import {
   DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "../components/ui/avatar";
+import { AgronomyPlanner } from "../components/dashboard/AgronomyPlanner";
 
 // Time-based farm images (WebP optimized - 94% smaller!)
 import morningImage from "../assets/farm-time-images/morning.webp";
@@ -28,6 +30,7 @@ import nightImage from "../assets/farm-time-images/night.webp";
 import farmerImage from "../assets/farm-time-images/farmer.webp";
 
 export const Home: React.FC = () => {
+  const { t } = useTranslation("dashboard");
   const { refreshSensorData, refreshWeather, refreshBlockchain, systemStatus } =
     useFarmContext();
   const { user, logout, login } = useAuth();
@@ -60,6 +63,23 @@ export const Home: React.FC = () => {
     };
     fetchFarmName();
   }, [user]);
+
+  // Listen for IoT Notifications (Agronomy Alerts)
+  useEffect(() => {
+    const handleNotification = (event: CustomEvent) => {
+      const data = event.detail;
+
+      toast({
+        title: data.level === 'error' ? '🚨 Critical Alert' : data.level === 'warning' ? '⚠️ Warning' : 'ℹ️ Notification',
+        description: data.message,
+        variant: data.level === 'error' || data.level === 'warning' ? 'destructive' : 'default',
+        duration: 5000,
+      });
+    };
+
+    window.addEventListener('iot-notification', handleNotification as EventListener);
+    return () => window.removeEventListener('iot-notification', handleNotification as EventListener);
+  }, [toast]);
 
   // Determine which farm image to show based on current time
   const getTimeBasedImage = () => {
@@ -189,7 +209,7 @@ export const Home: React.FC = () => {
   }, 300000);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50/50 to-yellow-50 dark:from-stone-900 dark:via-stone-900 dark:to-stone-800">
+    <div className="min-h-screen bg-texture-dashboard bg-gradient-to-br from-amber-50 via-orange-50/50 to-yellow-50 dark:from-stone-900 dark:via-stone-900 dark:to-stone-800">
       {/* Demo Farmer Switcher */}
 
       {/* Header Bar */}
@@ -202,7 +222,7 @@ export const Home: React.FC = () => {
             </h1>
             <p className="text-muted-foreground mt-1 flex items-center gap-2 text-sm">
               <span className="inline-block w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-              Live Farm View • Real-time Data
+              {t("status.liveView")}
             </p>
           </div>
 
@@ -215,9 +235,9 @@ export const Home: React.FC = () => {
             <div className="hidden sm:flex px-4 py-2.5 bg-card rounded-xl shadow-sm border border-border/50 items-center gap-2">
               <div className={`w-2.5 h-2.5 rounded-full ${systemStatus?.isOnline ? 'bg-primary animate-pulse' : 'bg-destructive'}`}></div>
               <div>
-                <div className="text-xs text-muted-foreground">System</div>
+                <div className="text-xs text-muted-foreground">{t("status.system")}</div>
                 <div className="font-semibold text-foreground text-sm">
-                  {systemStatus?.isOnline ? "Online" : "Offline"}
+                  {systemStatus?.isOnline ? t("status.online") : t("status.offline")}
                 </div>
               </div>
             </div>
@@ -242,7 +262,7 @@ export const Home: React.FC = () => {
                     </p>
                     {originalUser && originalUser.phone !== user?.phone && (
                       <p className="text-xs leading-none text-primary mt-2 font-medium">
-                        Original: {originalUser.name}
+                        {t("profile.original")}: {originalUser.name}
                       </p>
                     )}
                   </div>
@@ -256,7 +276,7 @@ export const Home: React.FC = () => {
                       disabled={isRestoring}
                     >
                       <RotateCcw className="mr-2 h-4 w-4" />
-                      <span>{isRestoring ? "Restoring..." : "Restore Original"}</span>
+                      <span>{isRestoring ? t("profile.restoring") : t("profile.restore")}</span>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                   </>
@@ -266,7 +286,7 @@ export const Home: React.FC = () => {
                   onClick={() => navigate("/profile")}
                 >
                   <User className="mr-2 h-4 w-4" />
-                  <span>Profile Settings</span>
+                  <span>{t("profile.settings")}</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -274,7 +294,7 @@ export const Home: React.FC = () => {
                   onClick={handleLogout}
                 >
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
+                  <span>{t("profile.logout")}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -308,34 +328,22 @@ export const Home: React.FC = () => {
                     {timeOfDay === 'Afternoon' && <Sun className="w-4 h-4 text-yellow-300" />}
                     {timeOfDay === 'Evening' && <Sunset className="w-4 h-4 text-orange-300" />}
                     {timeOfDay === 'Night' && <Moon className="w-4 h-4 text-blue-200" />}
-                    <span>{timeOfDay}</span>
+                    <span>{t(`greeting.${timeOfDay.toLowerCase()}`).replace(t(`greeting.${timeOfDay.toLowerCase()}`).split(' ')[0], '') ? t(`greeting.${timeOfDay.toLowerCase()}`).split(' ')[1] || t(`greeting.${timeOfDay.toLowerCase()}`) : t(`greeting.${timeOfDay.toLowerCase()}`)}</span>
                   </div>
 
                   <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 leading-tight drop-shadow-md">
-                    {timeOfDay.includes('Morning')
-                      ? 'Good Morning'
-                      : timeOfDay.includes('Afternoon')
-                        ? 'Good Afternoon'
-                        : timeOfDay.includes('Evening')
-                          ? 'Good Evening'
-                          : 'Good Night'}, {user?.fullName?.split(' ')[0] || 'Farmer'}!
+                    {t(`greeting.${timeOfDay.toLowerCase()}`)}, {user?.fullName?.split(' ')[0] || t("greeting.farmer")}!
                   </h2>
                 </div>
 
                 <p className="text-white/90 text-lg mb-6 leading-relaxed max-w-lg drop-shadow-sm">
-                  {timeOfDay.includes('Morning')
-                    ? "The sun is rising over your fields. A perfect day to check on your crops!"
-                    : timeOfDay.includes('Afternoon')
-                      ? "Your crops are soaking up the sunshine. Everything looks great!"
-                      : timeOfDay.includes('Evening')
-                        ? "The sun is setting beautifully. Time to review today's farm activities!"
-                        : "Time to rest. I'll keep watching over your farm while you sleep."}
+                  {t(`message.${timeOfDay.toLowerCase()}`)}
                 </p>
 
                 <div className="flex items-center gap-3">
                   <div className="px-4 py-2 bg-green-500/20 backdrop-blur-md border border-green-500/30 text-green-100 rounded-lg font-medium flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                    Your crops are thriving
+                    {t("status.thriving")}
                   </div>
                 </div>
               </div>
@@ -359,14 +367,14 @@ export const Home: React.FC = () => {
         {/* Location Bar */}
         <div className="flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-amber-50/80 to-orange-50/80 dark:from-amber-900/20 dark:to-orange-900/20 backdrop-blur-md rounded-xl shadow-sm border border-amber-200/50 dark:border-amber-700/30 w-fit hover:shadow-md transition-all duration-300" data-tour-id="dashboard-header">
           <MapPin className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-          <span className="text-foreground font-medium">{systemStatus?.location || "Loading location..."}</span>
+          <span className="text-foreground font-medium">{systemStatus?.location || t("status.loadingLocation")}</span>
         </div>
 
         {/* Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Soil Moisture Hero */}
+            {/* Soil Moisture Hero - Now with Live IoT Data */}
             <div data-tour-id="soil-moisture">
               <SoilMoisture />
             </div>
@@ -386,14 +394,19 @@ export const Home: React.FC = () => {
           </div>
         </div>
 
+        {/* Agronomy Season Planner */}
+        <div className="animate-in slide-in-from-bottom-5 duration-700 fade-in fill-mode-backwards delay-300">
+          <AgronomyPlanner />
+        </div>
+
         {/* Footer */}
         <div className="mt-8 pt-6 border-t border-border/30 text-center">
           <p className="text-sm text-muted-foreground flex items-center justify-center gap-4">
-            <span className="flex items-center gap-1.5"><Sprout className="w-4 h-4 text-green-500" /> Real-time sensor data</span>
+            <span className="flex items-center gap-1.5"><Sprout className="w-4 h-4 text-green-500" /> {t("footer.sensorData")}</span>
             <span className="hidden sm:inline text-border">•</span>
-            <span className="flex items-center gap-1.5"><Link className="w-4 h-4 text-blue-500" /> Blockchain-verified actions</span>
+            <span className="flex items-center gap-1.5"><Link className="w-4 h-4 text-blue-500" /> {t("footer.blockchain")}</span>
             <span className="hidden sm:inline text-border">•</span>
-            <span className="flex items-center gap-1.5"><Bot className="w-4 h-4 text-purple-500" /> AI-powered optimization</span>
+            <span className="flex items-center gap-1.5"><Bot className="w-4 h-4 text-purple-500" /> {t("footer.ai")}</span>
           </p>
         </div>
       </div>

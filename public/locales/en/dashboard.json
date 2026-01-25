@@ -1,0 +1,99 @@
+{
+    "greeting": {
+        "morning": "Good Morning",
+        "afternoon": "Good Afternoon",
+        "evening": "Good Evening",
+        "night": "Good Night",
+        "farmer": "Farmer"
+    },
+    "message": {
+        "morning": "The sun is rising over your fields. A perfect day to check on your crops!",
+        "afternoon": "Your crops are soaking up the sunshine. Everything looks great!",
+        "evening": "The sun is setting beautifully. Time to review today's farm activities!",
+        "night": "Time to rest. I'll keep watching over your farm while you sleep."
+    },
+    "status": {
+        "liveView": "Live Farm View • Real-time Data",
+        "system": "System",
+        "online": "Online",
+        "offline": "Offline",
+        "thriving": "Your crops are thriving",
+        "loadingLocation": "Loading location..."
+    },
+    "profile": {
+        "settings": "Profile Settings",
+        "logout": "Log out",
+        "restore": "Restore Original",
+        "restoring": "Restoring...",
+        "original": "Original"
+    },
+    "footer": {
+        "sensorData": "Real-time sensor data",
+        "blockchain": "Blockchain-verified actions",
+        "ai": "AI-powered optimization"
+    },
+    "soil": {
+        "title": "Soil Condition",
+        "subtitle": "Real-time sensor readings",
+        "moisture": "Soil Moisture",
+        "nitrogen": "Nitrogen",
+        "phosphorus": "Phosphorus",
+        "potassium": "Potassium",
+        "phLevel": "pH Level",
+        "conductivity": "Conductivity",
+        "status": {
+            "tooWet": "Too Wet",
+            "veryMoist": "Very Moist",
+            "healthy": "Healthy",
+            "moderate": "Moderate",
+            "dry": "Dry",
+            "critical": "Critical",
+            "high": "High",
+            "optimal": "Optimal",
+            "low": "Low",
+            "deficient": "Deficient",
+            "alkaline": "Alkaline",
+            "slightlyAlkaline": "Slightly Alkaline",
+            "slightlyAcidic": "Slightly Acidic",
+            "acidic": "Acidic"
+        }
+    },
+    "control": {
+        "title": "Control Center",
+        "subtitle": "Manage farm systems",
+        "systemMode": "System Mode",
+        "autonomous": "Autonomous",
+        "manual": "Manual",
+        "waterPump": "Water Pump",
+        "fertilizer": "Fertilizer",
+        "dispensingWater": "Dispensing Water...",
+        "dispensingNutrients": "Dispensing Nutrients...",
+        "manualIrrigation": "Manual irrigation trigger",
+        "manualNutrient": "Manual nutrient application",
+        "aiActive": "AI is managing operations automatically.",
+        "systemStatus": "System Status",
+        "online": "Online",
+        "offline": "Offline",
+        "lastUpdated": "Last updated"
+    },
+    "actionLog": {
+        "title": "Action Log",
+        "subtitle": "Recent activities",
+        "noActions": "No recent actions",
+        "willAppear": "Actions will appear here as they happen",
+        "types": {
+            "irrigation": "Irrigation",
+            "fertilization": "Fertilization",
+            "alert": "Alert",
+            "info": "Info"
+        },
+        "logs": {
+            "systemSwitch": "System switched to {{mode}} mode",
+            "irrigationDispensed": "Irrigation - {{amount}}L dispensed",
+            "manualIrrigation": "Manual water pump - {{amount}}L dispensed",
+            "fertilizationSkipped": "Fertilization skipped - rain expected",
+            "manualFertilization": "Manual fertilizer - {{blend}} dispensed",
+            "fertilizationApplied": "Fertilizer applied - {{details}}"
+        }
+    }
+}

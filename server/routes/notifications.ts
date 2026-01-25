@@ -160,6 +160,32 @@ router.put('/read-all', async (req: Request, res: Response) => {
 });
 
 /**
+ * DELETE /api/notifications/clear-all
+ * Clear all notifications for a user
+ */
+router.delete('/clear-all', async (req: Request, res: Response) => {
+  try {
+    const { user_id } = req.query;
+
+    if (!user_id) {
+      return res.status(400).json({ error: 'user_id is required' });
+    }
+
+    const { error } = await supabase
+      .from('notifications')
+      .delete()
+      .eq('user_id', user_id);
+
+    if (error) throw error;
+
+    res.json({ success: true });
+  } catch (error: any) {
+    console.error('Error clearing notifications:', error);
+    res.status(500).json({ error: error.message || 'Failed to clear notifications' });
+  }
+});
+
+/**
  * DELETE /api/notifications/:id
  * Delete a notification
  */
@@ -184,32 +210,6 @@ router.delete('/:id', async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error('Error deleting notification:', error);
     res.status(500).json({ error: error.message || 'Failed to delete notification' });
-  }
-});
-
-/**
- * DELETE /api/notifications/clear-all
- * Clear all notifications for a user
- */
-router.delete('/clear-all', async (req: Request, res: Response) => {
-  try {
-    const { user_id } = req.query;
-
-    if (!user_id) {
-      return res.status(400).json({ error: 'user_id is required' });
-    }
-
-    const { error } = await supabase
-      .from('notifications')
-      .delete()
-      .eq('user_id', user_id);
-
-    if (error) throw error;
-
-    res.json({ success: true });
-  } catch (error: any) {
-    console.error('Error clearing notifications:', error);
-    res.status(500).json({ error: error.message || 'Failed to clear notifications' });
   }
 });
 

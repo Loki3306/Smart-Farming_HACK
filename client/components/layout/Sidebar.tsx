@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { NavLink, useNavigate, Link, useSearchParams } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -52,6 +53,8 @@ const bottomNavItems: NavItem[] = [
 ];
 
 export const Sidebar: React.FC = () => {
+  const { t } = useTranslation();
+
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -59,6 +62,24 @@ export const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   const { unreadCount } = useNotifications();
   const [searchParams] = useSearchParams();
+
+  const mainNavItems: NavItem[] = [
+    { label: t("navigation.dashboard"), icon: LayoutDashboard, path: "/dashboard" },
+    { label: t("navigation.myFarm"), icon: Tractor, path: "/farm" },
+    { label: t("navigation.farmMapping"), icon: Map, path: "/farm-mapping" },
+    { label: t("navigation.weather"), icon: CloudSun, path: "/weather" },
+    { label: t("navigation.aiRecommendations"), icon: Lightbulb, path: "/recommendations" },
+    { label: t("navigation.regimes"), icon: Leaf, path: "/regimes" },
+    { label: t("navigation.diseaseDetection"), icon: Bug, path: "/disease" },
+    { label: t("navigation.marketplace"), icon: ShoppingCart, path: "/marketplace" },
+    { label: t("navigation.learn"), icon: GraduationCap, path: "/learn" },
+    { label: t("navigation.community"), icon: Users, path: "/community" },
+  ];
+
+  const bottomNavItems: NavItem[] = [
+    { label: t("navigation.notifications"), icon: Bell, path: "/notifications" },
+    { label: t("navigation.settings"), icon: Settings, path: "/settings" },
+  ];
 
   // Check if messages should be opened from URL params
   React.useEffect(() => {
@@ -96,7 +117,7 @@ export const Sidebar: React.FC = () => {
       {!isCollapsed && (
         <>
           <span className="font-medium text-sm">{item.label}</span>
-          {item.label === "Notifications" && unreadCount > 0 && (
+          {item.label === t("navigation.notifications") && unreadCount > 0 && (
             <span className="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
               {unreadCount > 99 ? "99+" : unreadCount}
             </span>
@@ -121,8 +142,8 @@ export const Sidebar: React.FC = () => {
         </div>
         {!isCollapsed && (
           <div>
-            <h1 className="font-bold text-lg text-foreground">Krushi Unnati</h1>
-            <p className="text-xs text-muted-foreground">AI-Powered Farming</p>
+            <h1 className="font-bold text-lg text-foreground">{t("app.name")}</h1>
+            <p className="text-xs text-muted-foreground">{t("app.tagline")}</p>
           </div>
         )}
       </Link>
@@ -137,20 +158,7 @@ export const Sidebar: React.FC = () => {
       {/* Bottom Navigation */}
       <div className="px-3 py-2 border-t border-border space-y-1">
         {/* Messages Button */}
-        <button
-          onClick={() => {
-            setIsChatOpen(true);
-            setIsMobileOpen(false);
-          }}
-          className={cn(
-            "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
-            "hover:bg-primary/10 hover:text-primary text-muted-foreground",
-            isCollapsed && "justify-center px-2"
-          )}
-        >
-          <MessageSquare className="w-5 h-5 flex-shrink-0" />
-          {!isCollapsed && <span className="font-medium text-sm">Messages</span>}
-        </button>
+
 
         {bottomNavItems.map((item) => (
           <NavItemComponent key={item.path} item={item} />
@@ -206,7 +214,7 @@ export const Sidebar: React.FC = () => {
           )}
         >
           <LogOut className="w-5 h-5 flex-shrink-0" />
-          {!isCollapsed && <span className="font-medium text-sm">Log out</span>}
+          {!isCollapsed && <span className="font-medium text-sm">{t("auth.logout")}</span>}
         </button>
       </div>
 

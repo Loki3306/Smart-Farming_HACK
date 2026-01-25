@@ -1,0 +1,60 @@
+{
+    "title": "AI Recommendations",
+    "subtitle": "Smart suggestions powered by machine learning",
+    "refresh": "Refresh Analysis",
+    "analyzing": "Analyzing...",
+    "emptyState": {
+        "title": "AI-Powered Recommendations",
+        "description": "Get intelligent farming insights powered by machine learning models",
+        "sensorAnalysis": "Sensor Analysis",
+        "mlProcessing": "ML Processing",
+        "smartActions": "Smart Actions",
+        "analyzeBtn": "Get AI Recommendations",
+        "loadingFarm": "Loading farm data...",
+        "noCrop": "No crop configured",
+        "noCropDesc": "Please set your crop type in Farm Settings before getting recommendations.",
+        "waitingSensor": "Waiting for sensor data..."
+    },
+    "loader": {
+        "title": "Analyzing Your Farm Data",
+        "subtitle": "Our AI is processing your information...",
+        "stage1": "Reading your field conditions",
+        "stage2": "Checking soil health and nutrients",
+        "stage3": "Looking at today's weather",
+        "stage4": "Comparing with successful harvests",
+        "stage5": "Learning from experienced farmers",
+        "stage6": "Preparing your farming plan"
+    },
+    "list": {
+        "title": "Your Recommendations",
+        "insightsFound": "{{count}} insights found",
+        "confidence": "Confidence",
+        "viewDetails": "View Details",
+        "applied": "Applied"
+    },
+    "detail": {
+        "priority": "PRIORITY",
+        "confidenceScore": "AI Confidence Score",
+        "confidenceDesc": "Based on sensor data analysis and ML model predictions",
+        "problemAnalysis": "Problem Analysis",
+        "recommendedAction": "Recommended Action",
+        "generated": "Generated",
+        "model": "Model",
+        "markApplied": "Mark as Applied",
+        "alreadyApplied": "Already Applied",
+        "close": "Close"
+    },
+    "priorities": {
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+    },
+    "types": {
+        "irrigation": "Irrigation",
+        "fertilizer": "Fertilizer",
+        "pest": "Pest Control",
+        "crop": "Crop Health",
+        "stress_management": "Stress Management",
+        "soil_treatment": "Soil Treatment"
+    }
+}

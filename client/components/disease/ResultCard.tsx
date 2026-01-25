@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 interface Prediction { class: string; confidence: number }
 
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export default function ResultCard({ result, onReset, diseaseInfo, diseaseInfoLoading, diseaseInfoError }: Props) {
+  const { t } = useTranslation("disease");
   if (!result) return null;
 
   if (result.status === 'unsupported_crop') {
@@ -26,12 +28,12 @@ export default function ResultCard({ result, onReset, diseaseInfo, diseaseInfoLo
       <section aria-live="polite" className="rounded border p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-muted-foreground">Selected crop is not supported</h3>
-            <p className="mt-2 text-sm text-muted-foreground">The disease detection model does not have labels for: <strong>{displayCrop}</strong></p>
-            <p className="mt-2 text-sm text-muted-foreground">Supported crops include: {SUPPORTED_DISPLAY_CROPS.slice(0,6).join(', ')}{SUPPORTED_DISPLAY_CROPS.length > 6 ? ', ...' : ''}.</p>
+            <h3 className="text-lg font-semibold text-muted-foreground">{t("result.unsupportedCrop")}</h3>
+            <p className="mt-2 text-sm text-muted-foreground">{t("result.unsupportedDesc")} <strong>{displayCrop}</strong></p>
+            <p className="mt-2 text-sm text-muted-foreground">{t("result.supportedCrops")} {SUPPORTED_DISPLAY_CROPS.slice(0, 6).join(', ')}{SUPPORTED_DISPLAY_CROPS.length > 6 ? ', ...' : ''}.</p>
           </div>
           <div>
-            <button className="inline-flex items-center rounded bg-gray-200 px-3 py-1 text-sm" onClick={onReset}>Try another image</button>
+            <button className="inline-flex items-center rounded bg-gray-200 px-3 py-1 text-sm" onClick={onReset}>{t("result.tryAnotherImage")}</button>
           </div>
         </div>
       </section>
@@ -114,7 +116,7 @@ export default function ResultCard({ result, onReset, diseaseInfo, diseaseInfoLo
               }
             </div>
             <div className="mt-3">
-              <button className="inline-flex items-center rounded bg-gray-100 px-3 py-1 text-sm" onClick={onReset}>Check another leaf</button>
+              <button className="inline-flex items-center rounded bg-gray-100 px-3 py-1 text-sm" onClick={onReset}>{t("result.checkAnotherLeaf")}</button>
             </div>
           </div>
         </div>
@@ -124,7 +126,7 @@ export default function ResultCard({ result, onReset, diseaseInfo, diseaseInfoLo
             {/* Other candidates - only show if confidence >= 80% */}
             {!showLowConfidenceError && result.predictions && result.predictions.length > 1 && (
               <div className="rounded-lg bg-emerald-50 p-3">
-                <div className="text-sm font-medium">Other candidates</div>
+                <div className="text-sm font-medium">{t("result.otherCandidates")}</div>
                 <ul className="mt-2 text-sm text-muted-foreground">
                   {result.predictions.map((p: any, i: number) => {
                     const raw = p.class?.includes('___') ? p.class.split('___')[1] : p.class;
@@ -160,7 +162,7 @@ export default function ResultCard({ result, onReset, diseaseInfo, diseaseInfoLo
                 <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 text-sm text-muted-foreground">
                   {diseaseInfo.data.symptoms && (
                     <div className="rounded-lg bg-gray-50 p-3">
-                      <div className="font-medium">Symptoms</div>
+                      <div className="font-medium">{t("result.symptoms")}</div>
                       <ul className="mt-2 list-disc list-inside">
                         {diseaseInfo.data.symptoms.map((s: string, i: number) => <li key={i}>{s}</li>)}
                       </ul>
@@ -169,7 +171,7 @@ export default function ResultCard({ result, onReset, diseaseInfo, diseaseInfoLo
 
                   {diseaseInfo.data.causes && (
                     <div className="rounded-lg bg-gray-50 p-3">
-                      <div className="font-medium">Causes</div>
+                      <div className="font-medium">{t("result.causes")}</div>
                       <ul className="mt-2 list-disc list-inside">
                         {diseaseInfo.data.causes.map((c: string, i: number) => <li key={i}>{c}</li>)}
                       </ul>
@@ -178,7 +180,7 @@ export default function ResultCard({ result, onReset, diseaseInfo, diseaseInfoLo
 
                   {diseaseInfo.data.precautions && (
                     <div className="rounded-lg bg-gray-50 p-3 md:col-span-2">
-                      <div className="font-medium">Precautions</div>
+                      <div className="font-medium">{t("result.precautions")}</div>
                       <ul className="mt-2 list-disc list-inside">
                         {diseaseInfo.data.precautions.map((p: string, i: number) => <li key={i}>{p}</li>)}
                       </ul>
@@ -187,10 +189,31 @@ export default function ResultCard({ result, onReset, diseaseInfo, diseaseInfoLo
                 </div>
               )}
 
-              {diseaseInfo && !diseaseInfo.parsed && (
-                <div className="mt-3 rounded-lg bg-gray-50 p-3">
-                  <div className="font-medium">Raw guidance</div>
-                  <pre className="mt-2 whitespace-pre-wrap break-words text-xs">{diseaseInfo.raw}</pre>
+              {diseaseInfo && !diseaseInfo.parsed && diseaseInfo.raw && (
+                <div className="mt-3 rounded-lg bg-amber-50 border border-amber-200 p-4">
+                  <div className="flex items-start gap-2">
+                    <svg className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div className="flex-1">
+                      <div className="font-medium text-amber-900 mb-2">{t("result.rawGuidance")}</div>
+                      <div className="text-sm text-amber-800 whitespace-pre-wrap break-words leading-relaxed">
+                        {diseaseInfo.raw
+                          .replace(/^\{|\}$/g, '') // Remove outer braces
+                          .replace(/"([^"]+)":/g, '\n$1: ') // Format keys
+                          .replace(/","/g, '"\n"') // Add line breaks between items
+                          .replace(/\\"/g, '"') // Unescape quotes
+                          .replace(/\["/g, '\n  • ') // Format arrays
+                          .replace(/","/g, '\n  • ') // Format array items
+                          .replace(/"\]/g, '') // Remove array closing
+                          .trim()
+                        }
+                      </div>
+                      <div className="mt-2 text-xs text-amber-700">
+                        💡 Note: AI model returned unstructured response. Consider using a more advanced model for better results.
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 

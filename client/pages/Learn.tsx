@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import * as React from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   GraduationCap,
@@ -27,9 +28,11 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import * as LearnService from "@/services/LearnService";
+import { useTranslation } from "react-i18next";
 
 export const Learn: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation("learn");
   const [activeTab, setActiveTab] = useState<"courses" | "articles" | "videos">("courses");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -64,12 +67,12 @@ export const Learn: React.FC = () => {
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const categories = [
-    { id: "crop-management", name: "Crop Management", icon: Leaf },
-    { id: "irrigation", name: "Irrigation", icon: Droplets },
-    { id: "pest-control", name: "Pest Control", icon: Bug },
-    { id: "soil-health", name: "Soil Health", icon: Sprout },
-    { id: "equipment", name: "Equipment", icon: Tractor },
-    { id: "weather", name: "Weather & Climate", icon: Sun },
+    { id: "crop-management", name: t("categories.cropManagement"), icon: Leaf },
+    { id: "irrigation", name: t("categories.irrigation"), icon: Droplets },
+    { id: "pest-control", name: t("categories.pestControl"), icon: Bug },
+    { id: "soil-health", name: t("categories.soilHealth"), icon: Sprout },
+    { id: "equipment", name: t("categories.equipment"), icon: Tractor },
+    { id: "weather", name: t("categories.weatherClimate"), icon: Sun },
   ];
 
   // Fetch stats on mount
@@ -268,15 +271,15 @@ export const Learn: React.FC = () => {
     const date = new Date(dateString);
     const now = new Date();
     const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "Yesterday";
-    if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-    return `${Math.floor(diffDays / 30)} months ago`;
+
+    if (diffDays === 0) return t("date.today");
+    if (diffDays === 1) return t("date.yesterday");
+    if (diffDays < 7) return t("date.daysAgo", { count: diffDays });
+    if (diffDays < 30) return t("date.weeksAgo", { count: Math.floor(diffDays / 7) });
+    return t("date.monthsAgo", { count: Math.floor(diffDays / 30) });
   };
 
-  const isLoading = 
+  const isLoading =
     (activeTab === "courses" && coursesLoading) ||
     (activeTab === "articles" && articlesLoading) ||
     (activeTab === "videos" && videosLoading);
@@ -287,10 +290,10 @@ export const Learn: React.FC = () => {
       <div data-tour-id="learn-header">
         <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
           <GraduationCap className="w-8 h-8 text-primary" />
-          Learning Hub
+          {t("header.title")}
         </h1>
         <p className="text-muted-foreground mt-1">
-          Free courses, articles, and videos to improve your farming skills
+          {t("header.description")}
         </p>
       </div>
 
@@ -305,7 +308,7 @@ export const Learn: React.FC = () => {
           ) : (
             <>
               <p className="text-3xl font-bold text-primary">{stats?.totalCoursesEnrolled || 0}</p>
-              <p className="text-sm text-muted-foreground">Courses Enrolled</p>
+              <p className="text-sm text-muted-foreground">{t("stats.coursesEnrolled")}</p>
             </>
           )}
         </Card>
@@ -318,7 +321,7 @@ export const Learn: React.FC = () => {
           ) : (
             <>
               <p className="text-3xl font-bold text-primary">{stats?.totalCoursesCompleted || 0}</p>
-              <p className="text-sm text-muted-foreground">Completed</p>
+              <p className="text-sm text-muted-foreground">{t("stats.completed")}</p>
             </>
           )}
         </Card>
@@ -331,7 +334,7 @@ export const Learn: React.FC = () => {
           ) : (
             <>
               <p className="text-3xl font-bold text-primary">{stats?.totalLearningHours || 0}h</p>
-              <p className="text-sm text-muted-foreground">Learning Hours</p>
+              <p className="text-sm text-muted-foreground">{t("stats.learningHours")}</p>
             </>
           )}
         </Card>
@@ -344,7 +347,7 @@ export const Learn: React.FC = () => {
           ) : (
             <>
               <p className="text-3xl font-bold text-primary">{stats?.currentStreak || 0}</p>
-              <p className="text-sm text-muted-foreground">Day Streak</p>
+              <p className="text-sm text-muted-foreground">{t("stats.dayStreak")}</p>
             </>
           )}
         </Card>
@@ -355,7 +358,7 @@ export const Learn: React.FC = () => {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
         <input
           type="text"
-          placeholder={`Search for ${activeTab}...`}
+          placeholder={t("search.placeholder", { type: t(`tabs.${activeTab}`) })}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full pl-10 pr-12 py-3 rounded-lg border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary transition-all"
@@ -364,7 +367,7 @@ export const Learn: React.FC = () => {
           <button
             onClick={() => setSearchQuery("")}
             className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-full transition-colors"
-            aria-label="Clear search"
+            aria-label={t("search.clear")}
           >
             <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -381,7 +384,7 @@ export const Learn: React.FC = () => {
           className="whitespace-nowrap"
           onClick={() => setSelectedCategory(null)}
         >
-          All
+          {t("categories.all")}
         </Button>
         {categories.map((cat) => (
           <Button
@@ -401,36 +404,33 @@ export const Learn: React.FC = () => {
       <div className="flex gap-2 border-b border-border" data-tour-id="learn-tabs">
         <button
           onClick={() => setActiveTab("courses")}
-          className={`px-4 py-2 font-medium text-sm transition-colors ${
-            activeTab === "courses"
-              ? "text-primary border-b-2 border-primary"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
+          className={`px-4 py-2 font-medium text-sm transition-colors ${activeTab === "courses"
+            ? "text-primary border-b-2 border-primary"
+            : "text-muted-foreground hover:text-foreground"
+            }`}
         >
           <BookOpen className="w-4 h-4 inline-block mr-2" />
-          Courses
+          {t("tabs.courses")}
         </button>
         <button
           onClick={() => setActiveTab("articles")}
-          className={`px-4 py-2 font-medium text-sm transition-colors ${
-            activeTab === "articles"
-              ? "text-primary border-b-2 border-primary"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
+          className={`px-4 py-2 font-medium text-sm transition-colors ${activeTab === "articles"
+            ? "text-primary border-b-2 border-primary"
+            : "text-muted-foreground hover:text-foreground"
+            }`}
         >
           <FileText className="w-4 h-4 inline-block mr-2" />
-          Articles
+          {t("tabs.articles")}
         </button>
         <button
           onClick={() => setActiveTab("videos")}
-          className={`px-4 py-2 font-medium text-sm transition-colors ${
-            activeTab === "videos"
-              ? "text-primary border-b-2 border-primary"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
+          className={`px-4 py-2 font-medium text-sm transition-colors ${activeTab === "videos"
+            ? "text-primary border-b-2 border-primary"
+            : "text-muted-foreground hover:text-foreground"
+            }`}
         >
           <Video className="w-4 h-4 inline-block mr-2" />
-          Videos
+          {t("tabs.videos")}
         </button>
       </div>
 
@@ -449,7 +449,7 @@ export const Learn: React.FC = () => {
               else fetchVideos(1, true);
             }}
           >
-            Retry
+            {t("error.retry")}
           </Button>
         </div>
       )}
@@ -460,7 +460,7 @@ export const Learn: React.FC = () => {
           {courses.length === 0 && !coursesLoading && (
             <div className="col-span-2 text-center py-12">
               <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">No courses found</p>
+              <p className="text-muted-foreground">{t("empty.noCourses")}</p>
             </div>
           )}
           {courses.map((course, index) => (
@@ -470,7 +470,7 @@ export const Learn: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: index * 0.05 }}
             >
-              <Card 
+              <Card
                 className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
                 onClick={() => navigate(`/learn/courses/${course.id}`)}
               >
@@ -485,7 +485,7 @@ export const Learn: React.FC = () => {
                         <span className="text-xs text-muted-foreground">{course.language}</span>
                         {course.price === 0 && (
                           <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">
-                            Free
+                            {t("course.free")}
                           </span>
                         )}
                       </div>
@@ -502,12 +502,12 @@ export const Learn: React.FC = () => {
                       </span>
                       <span className="flex items-center gap-1">
                         <BookOpen className="w-4 h-4" />
-                        {course.lessons} lessons
+                        {course.lessons} {t("course.lessons")}
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-sm text-muted-foreground">
-                        {course.enrolled_count.toLocaleString()} enrolled
+                        {course.enrolled_count.toLocaleString()} {t("course.enrolled")}
                       </span>
                       <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
@@ -527,7 +527,7 @@ export const Learn: React.FC = () => {
           {articles.length === 0 && !articlesLoading && (
             <div className="text-center py-12">
               <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">No articles found</p>
+              <p className="text-muted-foreground">{t("empty.noArticles")}</p>
             </div>
           )}
           {articles.map((article, index) => (
@@ -537,7 +537,7 @@ export const Learn: React.FC = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.3, delay: index * 0.05 }}
             >
-              <Card 
+              <Card
                 className="p-6 hover:shadow-md transition-shadow cursor-pointer"
                 onClick={() => navigate(`/learn/articles/${article.id}`)}
               >
@@ -546,7 +546,7 @@ export const Learn: React.FC = () => {
                     <div className="flex items-center gap-2 mb-2">
                       {article.is_featured && (
                         <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700">
-                          Featured
+                          {t("article.featured")}
                         </span>
                       )}
                       <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-foreground">
@@ -558,13 +558,14 @@ export const Learn: React.FC = () => {
                     <div className="flex items-center gap-4 text-xs text-muted-foreground">
                       <span>{article.author_name || "Unknown"}</span>
                       <span>•</span>
-                      <span>{article.read_time_minutes || 5} min read</span>
+                      <span>{article.read_time_minutes || 5} {t("article.minRead")}</span>
                       <span>•</span>
                       <span>{formatDate(article.created_at)}</span>
                     </div>
                   </div>
                   <div className="flex flex-col items-center gap-2 ml-4">
                     <button
+                      title={t("actions.like") || "Like"}
                       onClick={(e) => handleLikeArticle(article.id, e)}
                       className="p-2 hover:bg-muted rounded-full transition-colors"
                     >
@@ -584,7 +585,7 @@ export const Learn: React.FC = () => {
           {videos.length === 0 && !videosLoading && (
             <div className="col-span-2 text-center py-12">
               <Video className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">No videos found</p>
+              <p className="text-muted-foreground">{t("empty.noVideos")}</p>
             </div>
           )}
           {videos.map((video, index) => (
@@ -594,7 +595,7 @@ export const Learn: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: index * 0.05 }}
             >
-              <Card 
+              <Card
                 className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
                 onClick={() => video.video_url && window.open(video.video_url, '_blank')}
               >
@@ -620,7 +621,7 @@ export const Learn: React.FC = () => {
                   </span>
                   {video.is_featured && (
                     <span className="absolute top-2 left-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded">
-                      Featured
+                      {t("video.featured")}
                     </span>
                   )}
                 </div>
@@ -629,7 +630,7 @@ export const Learn: React.FC = () => {
                   <div className="flex items-center justify-between mt-2">
                     <p className="text-sm text-muted-foreground flex items-center gap-1">
                       <Eye className="w-4 h-4" />
-                      {video.view_count.toLocaleString()} views
+                      {video.view_count.toLocaleString()} {t("video.views")}
                     </p>
                     <button
                       onClick={(e) => handleLikeVideo(video.id, e)}
@@ -660,10 +661,10 @@ export const Learn: React.FC = () => {
       {((activeTab === "courses" && !coursesHasMore && courses.length > 0) ||
         (activeTab === "articles" && !articlesHasMore && articles.length > 0) ||
         (activeTab === "videos" && !videosHasMore && videos.length > 0)) && (
-        <p className="text-center text-muted-foreground py-4">
-          You've reached the end! 🎉
-        </p>
-      )}
+          <p className="text-center text-muted-foreground py-4">
+            {t("endMessage")}
+          </p>
+        )}
     </div>
   );
 };

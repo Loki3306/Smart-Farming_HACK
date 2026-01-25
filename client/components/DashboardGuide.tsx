@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Lottie from "lottie-react";
-import { ArrowLeft, X, Volume2, VolumeX, HelpCircle, Play, Languages, BookOpen, MessageCircle, Phone } from "lucide-react";
+import { ArrowLeft, X, Volume2, VolumeX, HelpCircle, Play, Languages, BookOpen, MessageCircle, Phone, MessageSquare } from "lucide-react";
 import farmerAnimation from "@/assets/farmer-intro.json";
 import { useTour } from "@/context/TourContext";
 import { useAuth } from "@/context/AuthContext";
 import { useLocation, useNavigate } from "react-router-dom";
+import { EmbeddedChat } from "./chat/EmbeddedChat";
 
-type GuideMode = "welcome" | "language-select" | "help-menu" | "tour-starting";
+type GuideMode = "welcome" | "language-select" | "help-menu" | "tour-starting" | "chat";
 
 interface HelpOption {
     id: string;
@@ -58,15 +59,15 @@ export const DashboardGuide = () => {
     const getStoredLang = () => localStorage.getItem('smartfarm_preferred_language') === 'hi';
 
     // Messages for different modes - bilingual
-    const messagesEn: Record<"welcome" | "languageSelect" | "helpMenu" | "tourStarting", GuideMessage> = {
+    const messagesEn: Record<"welcome" | "languageSelect" | "helpMenu" | "tourStarting" | "chat", GuideMessage> = {
         welcome: {
             greeting: "Namaste! Welcome to your Smart Farm Dashboard! 🌾",
             mainMessage: "I'm Ravi, your farming companion! I can give you a guided tour of all the features, answer your questions, and help you navigate. What would you like to do?",
             tips: [
                 "Get a step-by-step tour of the dashboard",
+                "Ask me any farming questions",
                 "Learn about specific features",
                 "Get help with common tasks",
-                "Contact support for technical issues",
             ],
         },
         languageSelect: {
@@ -81,17 +82,21 @@ export const DashboardGuide = () => {
             greeting: "Let's begin the tour! 🚀",
             mainMessage: "Great choice! I'll walk you through each section of this page. Feel free to skip or pause anytime. Ready? Let's go!",
         },
+        chat: {
+            greeting: "Chat with Ravi 🤖",
+            mainMessage: "Ask me anything about your farm, crops, or this app!",
+        }
     };
 
-    const messagesHi: Record<"welcome" | "languageSelect" | "helpMenu" | "tourStarting", GuideMessage> = {
+    const messagesHi: Record<"welcome" | "languageSelect" | "helpMenu" | "tourStarting" | "chat", GuideMessage> = {
         welcome: {
             greeting: "नमस्ते! स्मार्ट फार्म डैशबोर्ड में आपका स्वागत है! 🌾",
             mainMessage: "मैं रवि हूं, आपका खेती साथी! मैं आपको सभी सुविधाओं का टूर दे सकता हूं, आपके सवालों का जवाब दे सकता हूं। क्या करना चाहेंगे?",
             tips: [
                 "डैशबोर्ड का स्टेप-बाय-स्टेप टूर लें",
+                "खेती से जुड़े सवाल पूछें",
                 "विशेष सुविधाओं के बारे में जानें",
                 "आम कामों में मदद पाएं",
-                "तकनीकी समस्याओं के लिए सपोर्ट से संपर्क करें",
             ],
         },
         languageSelect: {
@@ -106,6 +111,10 @@ export const DashboardGuide = () => {
             greeting: "चलिए टूर शुरू करते हैं! 🚀",
             mainMessage: "बढ़िया! मैं आपको इस पेज के हर हिस्से के बारे में बताऊंगा। जब चाहें रुक सकते हैं। तैयार? चलिए!",
         },
+        chat: {
+            greeting: "रवि से बात करें 🤖",
+            mainMessage: "अपने खेत, फसल या इस ऐप के बारे में कुछ भी पूछें!",
+        }
     };
 
     // Get messages based on current language
@@ -140,6 +149,13 @@ export const DashboardGuide = () => {
             title: isHindi ? `${currentRoute.pageNameHi} का टूर` : `Tour ${currentRoute.pageName}`,
             description: isHindi ? "इस पेज का स्टेप-बाय-स्टेप गाइड" : "Step-by-step walkthrough of this page",
             action: () => setMode("language-select"),
+        },
+        {
+            id: "chat",
+            icon: <MessageSquare className="w-5 h-5" />,
+            title: isHindi ? "रवि से पूछें" : "Ask Ravi",
+            description: isHindi ? "कोई भी सवाल पूछें" : "Chat with AI Assistant",
+            action: () => setMode("chat"),
         },
         {
             id: "learn",
@@ -184,6 +200,8 @@ export const DashboardGuide = () => {
                 return messages.helpMenu;
             case "tour-starting":
                 return messages.tourStarting;
+            case "chat":
+                return messages.chat;
             default:
                 return messages.welcome;
         }
@@ -538,6 +556,20 @@ export const DashboardGuide = () => {
                                     <p className="text-muted-foreground font-semibold">
                                         Starting tour in {selectedLanguage === "english" ? "English" : "Hindi"}...
                                     </p>
+                                    <p className="text-muted-foreground font-semibold">
+                                        Starting tour in {selectedLanguage === "english" ? "English" : "Hindi"}...
+                                    </p>
+                                </motion.div>
+                            )}
+
+                            {mode === "chat" && (
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: 0.1 }}
+                                    className="h-[400px] flex flex-col -mx-2"
+                                >
+                                    <EmbeddedChat className="h-full" />
                                 </motion.div>
                             )}
                         </div>

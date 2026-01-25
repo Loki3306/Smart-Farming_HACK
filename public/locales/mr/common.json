@@ -1,0 +1,58 @@
+{
+    "app": {
+        "name": "कृषी उन्नती",
+        "tagline": "चांगल्या उत्पादनासाठी स्मार्ट शेती"
+    },
+    "chatbot": {
+        "greeting": "नमस्कार!",
+        "subtitle": "मी रवी, आपला एआय शेती सहाय्यक.",
+        "tryAsking": "हे विचारून पहा:",
+        "prompts": {
+            "fertilizer": "गव्हासाठी सर्वोत्तम खत?",
+            "price": "टोमॅटोचा बाजारभाव?",
+            "weather": "हवामान अंदाज?"
+        },
+        "thinking": "रवी विचार करत आहे...",
+        "error": "त्रुटी",
+        "placeholder": "रवीला विचारा...",
+        "clear": "संभाषण साफ करा"
+    },
+    "navigation": {
+        "home": "होम",
+        "dashboard": "डॅशबोर्ड",
+        "myFarm": "माझं शेत",
+        "weather": "हवामान",
+        "aiRecommendations": "एआय शिफारसी",
+        "diseaseDetection": "रोग निदान",
+        "marketplace": "बाजाराची जागा",
+        "learn": "शिका",
+        "community": "समुदाय",
+        "notifications": "सूचना",
+        "messages": "संदेश",
+        "settings": "सेटिंग्ज"
+    },
+    "actions": {
+        "save": "जतन करा",
+        "cancel": "रद्द करा",
+        "delete": "हटवा",
+        "edit": "संपादित करा",
+        "loading": "लोड होत आहे...",
+        "retry": "पुन्हा प्रयत्न करा"
+    },
+    "auth": {
+        "login": "लॉगिन",
+        "logout": "लॉगआउट",
+        "signup": "साइन अप",
+        "forgotPassword": "पासवर्ड विसरलात?"
+    },
+    "units": {
+        "acres": "एकर",
+        "hectares": "हेक्टर",
+        "kg": "किलोग्रॅम",
+        "quintals": "क्विंटल",
+        "celsius": "°से.",
+        "fahrenheit": "°फॅ.",
+        "mm": "मि.मी.",
+        "inches": "इंच"
+    }
+}
