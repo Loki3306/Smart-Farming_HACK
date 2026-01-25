@@ -21,6 +21,9 @@ import { useAuth } from "../context/AuthContext";
 import { INDIAN_STATES, SOIL_TYPES_INDIA } from "../lib/india-data";
 import { motion } from "framer-motion";
 import { CropSelector } from "@/components/ui/CropSelector";
+import { CropAdvisor } from "@/components/dashboard/CropAdvisor";
+import { PrecisionAgriculture } from "@/components/dashboard/PrecisionAgriculture";
+import { IoTService } from "@/services/IoTService";
 
 interface FarmData {
   farmName: string;
@@ -66,28 +69,28 @@ export const Farm: React.FC = () => {
     nitrogen: 0,
     phosphorus: 0,
     potassium: 0,
+    ec: 0,
+    humidity: 0,
   });
 
   const [usesDemoSensorData, setUsesDemoSensorData] = useState(false);
 
-  // Fetch farm data on mount
+  // Fetch farm data on mount and Connect WebSocket
   useEffect(() => {
+    let unsubscribeIoT: (() => void) | undefined;
+    const farmId = localStorage.getItem('current_farm_id') || "farm_001";
+
     const fetchFarmData = async () => {
       if (!user?.id) return;
-
       setLoading(true);
       try {
-        const farmId = localStorage.getItem('current_farm_id');
-
         if (farmId) {
           // Fetch farm details
           const farmResponse = await fetch(`/api/farms/${farmId}`);
           if (farmResponse.ok) {
             const farmResult = await farmResponse.json();
             const farm = farmResult.farm;
-
-            console.log('[Farm] Loaded farm data:', farm);
-
+            // ... (keep existing farm data set logic)
             setFarmData({
               farmName: farm.farm_name || 'My Farm',
               state: farm.state || 'Maharashtra',
@@ -105,47 +108,14 @@ export const Farm: React.FC = () => {
             });
           }
 
-          // Fetch latest sensor data for soil stats
+          // Fetch INITIAL sensor data
           const sensorResponse = await fetch(`/api/sensors/latest?farmId=${farmId}`);
           if (sensorResponse.ok) {
             const sensorResult = await sensorResponse.json();
             const sensor = sensorResult.sensorData;
-
-            if (sensor && sensor.soil_moisture !== null && sensor.soil_moisture !== undefined) {
-              console.log('[Farm] ✅ Loaded real sensor data:', sensor);
-              setSoilStats({
-                moisture: Math.round(sensor.soil_moisture || 0),
-                temperature: Math.round(sensor.temperature || 0),
-                ph: parseFloat((sensor.ph || 0).toFixed(1)),
-                nitrogen: Math.round(sensor.nitrogen || 0),
-                phosphorus: Math.round(sensor.phosphorus || 0),
-                potassium: Math.round(sensor.potassium || 0),
-              });
-              setUsesDemoSensorData(false);
-            } else {
-              console.log('[Farm] ⚠️ No sensor data found, using demo values');
-              // Use realistic demo values based on soil type
-              setSoilStats({
-                moisture: 45,
-                temperature: 28,
-                ph: 6.8,
-                nitrogen: 42,
-                phosphorus: 35,
-                potassium: 38,
-              });
-              setUsesDemoSensorData(true);
+            if (sensor) {
+              updateSoilStatsFromSensor(sensor);
             }
-          } else {
-            console.log('[Farm] ⚠️ Sensor API failed, using demo values');
-            setSoilStats({
-              moisture: 45,
-              temperature: 28,
-              ph: 6.8,
-              nitrogen: 42,
-              phosphorus: 35,
-              potassium: 38,
-            });
-            setUsesDemoSensorData(true);
           }
         }
       } catch (error) {
@@ -155,7 +125,53 @@ export const Farm: React.FC = () => {
       }
     };
 
+    // Helper to update state from sensor object (shared by Fetch and WS)
+    const updateSoilStatsFromSensor = (sensor: any) => {
+      // Handle different field names from WS vs API
+      const moist = sensor.soil_moisture ?? sensor.moisture ?? 0;
+      const temp = sensor.temperature ?? sensor.temp ?? 0;
+      // WS sends npk: number (raw), API sends nitrogen/phosphorus/potassium
+      let n = sensor.nitrogen || 0;
+      let p = sensor.phosphorus || 0;
+      let k = sensor.potassium || 0;
+
+      if (typeof sensor.npk === 'number') {
+        // Decode RAW NPK if needed (simple fallback)
+        n = Math.round(sensor.npk * 0.14);
+        p = Math.round(sensor.npk * 0.045);
+        k = Math.round(sensor.npk * 0.05);
+      } else if (sensor.npk && typeof sensor.npk === 'object') {
+        n = sensor.npk.nitrogen;
+        p = sensor.npk.phosphorus;
+        k = sensor.npk.potassium;
+      }
+
+      setSoilStats({
+        moisture: Math.round(moist),
+        temperature: Math.round(temp),
+        ph: parseFloat((sensor.ph || sensor.soil_ph || 6.5).toFixed(1)),
+        nitrogen: Math.round(n),
+        phosphorus: Math.round(p),
+        potassium: Math.round(k),
+        ec: parseFloat((sensor.ec || sensor.ec_salinity || 1.2).toFixed(2)),
+        humidity: Math.round(sensor.humidity || 50),
+      });
+      setUsesDemoSensorData(false);
+    };
+
     fetchFarmData();
+
+    // CONNECT TO WEBSOCKET
+    IoTService.connect(farmId);
+    unsubscribeIoT = IoTService.onMessage((data) => {
+      console.log("⚡ [Farm] Real-time update:", data);
+      updateSoilStatsFromSensor(data);
+    });
+
+    return () => {
+      if (unsubscribeIoT) unsubscribeIoT();
+      IoTService.disconnect();
+    };
   }, [user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -203,6 +219,21 @@ export const Farm: React.FC = () => {
     } catch (error) {
       console.error('[Farm] Error saving farm data:', error);
     }
+  };
+
+  // Construct sensor object for PrecisionAgriculture
+  const precisionData = {
+    npk: {
+      nitrogen: soilStats.nitrogen,
+      phosphorus: soilStats.phosphorus,
+      potassium: soilStats.potassium
+    },
+    pH: soilStats.ph,
+    ec: soilStats.ec,
+    soilMoisture: soilStats.moisture,
+    temperature: soilStats.temperature,
+    humidity: soilStats.humidity,
+    timestamp: new Date()
   };
 
   return (
@@ -516,6 +547,24 @@ export const Farm: React.FC = () => {
           </Card>
         </div>
       </div>
+
+      {/* Strategic Crop Advisor */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <CropAdvisor sensorData={soilStats} />
+      </motion.div>
+
+      {/* Precision Agronomy Features */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+      >
+        <PrecisionAgriculture sensorDataOverride={precisionData} />
+      </motion.div>
 
       {/* Soil Health Indicator */}
       <Card className="p-6" data-tour-id="farm-soil-health">

@@ -1,10 +1,6 @@
-/**
- * Precision Agriculture Dashboard
- * Advanced analytics for soil health, atmospheric conditions, and water demand
- */
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useFarmContext } from '@/context/FarmContext';
 
 interface SoilChemistry {
     nitrogen: number;
@@ -49,14 +45,50 @@ interface AgronomyAnalysis {
     };
 }
 
-export const PrecisionAgriculture: React.FC = () => {
+interface PrecisionAgricultureProps {
+    sensorDataOverride?: any;
+}
+
+export const PrecisionAgriculture: React.FC<PrecisionAgricultureProps> = ({ sensorDataOverride }) => {
+    const { sensorData: contextSensorData, weatherData } = useFarmContext();
+    // Use override if provided, otherwise context
+    const sensorData = sensorDataOverride || contextSensorData;
+
     const [soilData, setSoilData] = useState<SoilChemistry | null>(null);
     const [atmospheric, setAtmospheric] = useState<AtmosphericData | null>(null);
     const [analysis, setAnalysis] = useState<AgronomyAnalysis | null>(null);
     const [recommendations, setRecommendations] = useState<string[]>([]);
 
     useEffect(() => {
-        // Listen for agronomy analysis from WebSocket
+        if (!sensorData) return;
+
+        // Map sensorData from context to the local chemistry state
+        setSoilData({
+            nitrogen: sensorData.npk.nitrogen,
+            phosphorus: sensorData.npk.phosphorus,
+            potassium: sensorData.npk.potassium,
+            ph: sensorData.pH,
+            salinity: sensorData.ec
+        });
+
+        // Simple real-time logic for atmospheric if not provided by dedicated API
+        const wind = weatherData?.windSpeed || 12;
+        const isSafe = wind < 20;
+        setAtmospheric({
+            windSpeed: wind,
+            et0: 4.2, // Default or calculated
+            isSafeForSpraying: isSafe,
+            riskLevel: isSafe ? 'low' : 'high'
+        });
+
+        // Optional: Generate simple client-side analysis if backend isn't sending full object
+        if (sensorData.pH > 7.5 || sensorData.pH < 5.5) {
+            setRecommendations(prev => [...new Set([...prev, "⚠️ Nutrient Locked zone detected due to pH extremes"])]);
+        }
+    }, [sensorData, weatherData]);
+
+    useEffect(() => {
+        // KEEP WebSocket listener as fallback/override if custom events are still being sent
         const handleAgronomyUpdate = (event: CustomEvent) => {
             const data = event.detail;
 
@@ -163,6 +195,16 @@ export const PrecisionAgriculture: React.FC = () => {
                     if (payload.is_locked) {
                         setRecommendations(prev => [...prev.filter(r => !r.includes("Nutrient Lockout")),
                         `🔒 NUTRIENT LOCKOUT: ${payload.reason}`]);
+                    }
+
+                    // NEW: Dynamic Fertilizer Recommendation from pH Logic
+                    if (payload.nutrient_logic && payload.nutrient_logic.action_priority !== 'Low') {
+                        setRecommendations(prev => {
+                            const newRec = `💊 AGRONOMIST Rx: ${payload.nutrient_logic.recommended_fix} (${payload.nutrient_logic.ph_status} pH)`;
+                            // Avoid duplicates
+                            if (prev.includes(newRec)) return prev;
+                            return [...prev, newRec];
+                        });
                     }
                 }
                 else if (data.subsystem === 'DISEASE') {
@@ -281,11 +323,26 @@ export const PrecisionAgriculture: React.FC = () => {
                         {/* pH and Salinity */}
                         <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t">
                             <div className="text-center">
-                                <div className="text-2xl font-bold text-purple-600">
+                                <div className={`text-2xl font-bold ${soilData.ph == null ? 'text-gray-400' :
+                                    (soilData.ph < 5.8 || soilData.ph > 7.5) ? 'text-red-500' :
+                                        (soilData.ph < 6.0 || soilData.ph > 7.0) ? 'text-yellow-500' :
+                                            'text-green-500'
+                                    }`}>
                                     {soilData.ph != null ? soilData.ph.toFixed(1) : 'N/A'}
                                 </div>
-                                <div className="text-xs text-gray-600">pH Level</div>
-                                {soilData.ph != null && (soilData.ph < 5.5 || soilData.ph > 7.5) && <div className="text-xs text-red-500 font-bold mt-1">LOCKOUT ZONE</div>}
+                                <div className="text-xs font-bold text-gray-600">
+                                    {soilData.ph == null ? 'Unknown' :
+                                        soilData.ph > 7.5 ? 'ALKALINE (High)' :
+                                            soilData.ph < 5.8 ? 'ACIDIC (Low)' :
+                                                soilData.ph > 7.0 ? 'Slightly Alkaline' :
+                                                    soilData.ph < 6.0 ? 'Slightly Acidic' :
+                                                        'OPTIMAL'}
+                                </div>
+                                {soilData.ph != null && (soilData.ph < 5.5 || soilData.ph > 7.5) && (
+                                    <div className="text-xs text-red-600 font-extrabold mt-1 border border-red-200 bg-red-50 px-1 rounded animate-pulse">
+                                        ⚠️ LOCKOUT ZONE
+                                    </div>
+                                )}
                             </div>
                             <div className="text-center">
                                 <div className="text-2xl font-bold text-orange-600">

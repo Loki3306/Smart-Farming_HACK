@@ -199,6 +199,32 @@ export const LiveSensorGrid: React.FC = () => {
                     gradient="from-green-500/90 to-emerald-600/90"
                     isLive={systemStatus.isOnline}
                 />
+
+                {/* pH Level */}
+                <SensorCard
+                    icon={<div className="text-xl font-bold">pH</div>}
+                    label="Soil pH"
+                    value={sensorData?.soil_ph ?? "N/A"}
+                    unit=""
+                    color="text-white"
+                    gradient={
+                        (sensorData?.soil_ph ?? 7) > 7.5 ? "from-red-500/90 to-red-600/90" : // Alkaline Alert
+                            (sensorData?.soil_ph ?? 7) < 5.8 ? "from-amber-500/90 to-amber-600/90" : // Acidic Alert
+                                "from-purple-500/90 to-pink-600/90" // Optimal
+                    }
+                    isLive={systemStatus.isOnline}
+                />
+
+                {/* Salinity (EC) */}
+                <SensorCard
+                    icon={<Activity className="w-6 h-6" />}
+                    label="Salinity (EC)"
+                    value={sensorData?.ec_salinity ?? "N/A"}
+                    unit="dS/m"
+                    color="text-yellow-400"
+                    gradient="from-yellow-500/90 to-orange-500/90"
+                    isLive={systemStatus.isOnline}
+                />
             </div>
 
             {/* Last Update Info */}

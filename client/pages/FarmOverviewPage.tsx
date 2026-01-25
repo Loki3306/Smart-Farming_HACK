@@ -2,22 +2,53 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import anime from 'animejs';
 import { getFarmMapping, FarmMappingData, SectionData } from '../utils/farmMappingStorage';
-import { 
-  MapPin, Sprout, Droplet, Layers, Map, Droplets, 
+import {
+  MapPin, Sprout, Droplet, Layers, Map, Droplets,
   Plus, ArrowRight, Eye, Pencil, Sun,
   Leaf, Waves
 } from 'lucide-react';
+import { CropAdvisor } from '@/components/dashboard/CropAdvisor';
 
 const FarmOverviewPage: React.FC = () => {
   const navigate = useNavigate();
   const [farmData, setFarmData] = useState<FarmMappingData | null>(null);
   const [selectedSection, setSelectedSection] = useState<SectionData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  // Add Sensor Data State
+  const [sensorData, setSensorData] = useState<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const data = getFarmMapping();
     setFarmData(data);
+
+    // FETCH SENSOR DATA for CropAdvisor
+    const fetchSensors = async () => {
+      try {
+        const farmId = localStorage.getItem('current_farm_id') || "farm_001";
+        const res = await fetch(`http://localhost:8000/iot/latest/${farmId}`);
+        if (res.ok) {
+          const json = await res.json();
+          setSensorData({
+            nitrogen: json.npk ? Math.round(json.npk * 0.14) : 60,
+            phosphorus: json.npk ? Math.round(json.npk * 0.045) : 30,
+            potassium: json.npk ? Math.round(json.npk * 0.05) : 40,
+            ph: json.soil_ph || 6.5,
+            moisture: json.moisture || 40,
+            temperature: json.temp || 25,
+            humidity: json.humidity || 50
+          });
+        } else {
+          // Demo fallback
+          setSensorData({ nitrogen: 80, phosphorus: 40, potassium: 40, ph: 6.5, moisture: 55, temperature: 26, humidity: 60 });
+        }
+      } catch (e) {
+        console.error("Sensor fetch fail", e);
+        setSensorData({ nitrogen: 80, phosphorus: 40, potassium: 40, ph: 6.5, moisture: 55, temperature: 26, humidity: 60 });
+      }
+    };
+    fetchSensors();
+
     setIsLoading(false);
   }, []);
 
@@ -70,12 +101,12 @@ const FarmOverviewPage: React.FC = () => {
     if (farmData?.farmBoundary?.center) {
       return farmData.farmBoundary.center;
     }
-    
+
     if (farmData?.sections && farmData.sections.length > 0) {
       let totalLat = 0;
       let totalLng = 0;
       let pointCount = 0;
-      
+
       farmData.sections.forEach(section => {
         section.geometry.coordinates[0].forEach(coord => {
           totalLng += coord[0];
@@ -83,10 +114,10 @@ const FarmOverviewPage: React.FC = () => {
           pointCount++;
         });
       });
-      
+
       return [totalLat / pointCount, totalLng / pointCount];
     }
-    
+
     return null;
   };
 
@@ -101,7 +132,7 @@ const FarmOverviewPage: React.FC = () => {
 
   const handleSectionClick = (section: SectionData) => {
     setSelectedSection(selectedSection?.id === section.id ? null : section);
-    
+
     // Animate selection
     if (selectedSection?.id !== section.id) {
       anime({
@@ -137,21 +168,21 @@ const FarmOverviewPage: React.FC = () => {
             <div className="h-10 w-48 bg-gray-200 dark:bg-gray-700 rounded-2xl mb-2" />
             <div className="h-5 w-64 bg-gray-200 dark:bg-gray-700 rounded-xl" />
           </div>
-          
+
           {/* Quick actions skeleton */}
           <div className="flex gap-3">
             {[1, 2, 3].map(i => (
               <div key={i} className="h-12 w-32 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
             ))}
           </div>
-          
+
           {/* Stats skeleton */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map(i => (
               <div key={i} className="h-32 bg-white dark:bg-gray-800 rounded-3xl shadow-sm animate-pulse" />
             ))}
           </div>
-          
+
           {/* Sections skeleton */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[1, 2, 3].map(i => (
@@ -176,14 +207,14 @@ const FarmOverviewPage: React.FC = () => {
                 <Leaf className="w-12 h-12 text-white animate-float" />
               </div>
             </div>
-            
+
             <h1 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-4">
               Welcome to Your Farm
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
               Start by mapping your farm boundaries and sections. It only takes a few minutes!
             </p>
-            
+
             {/* CTA Button */}
             <button
               onClick={handleEditClick}
@@ -193,7 +224,7 @@ const FarmOverviewPage: React.FC = () => {
               <span>Start Mapping</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
-            
+
             {/* Feature hints */}
             <div className="mt-16 grid grid-cols-3 gap-6 text-center">
               {[
@@ -219,7 +250,7 @@ const FarmOverviewPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50/50 via-white to-teal-50/50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 md:p-6">
       <div ref={containerRef} className="max-w-7xl mx-auto space-y-6">
-        
+
         {/* Header */}
         <div className="animate-header opacity-0 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
@@ -230,7 +261,7 @@ const FarmOverviewPage: React.FC = () => {
               {farmData.sections.length} sections • {totalArea.toFixed(1)} acres total
             </p>
           </div>
-          
+
           {/* Weather widget placeholder */}
           <div className="flex items-center gap-3 px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-sm border border-white/20">
             <Sun className="w-8 h-8 text-amber-500" />
@@ -250,7 +281,7 @@ const FarmOverviewPage: React.FC = () => {
             <Eye className="w-5 h-5 text-emerald-600" />
             <span className="font-medium text-gray-700 dark:text-gray-200">View Map</span>
           </button>
-          
+
           <button
             onClick={handleEditClick}
             className="quick-action opacity-0 inline-flex items-center gap-2 px-5 py-3 bg-white dark:bg-gray-800 rounded-full shadow-sm border-2 border-transparent hover:border-blue-400 hover:shadow-lg transition-all duration-300"
@@ -258,7 +289,7 @@ const FarmOverviewPage: React.FC = () => {
             <Pencil className="w-5 h-5 text-blue-600" />
             <span className="font-medium text-gray-700 dark:text-gray-200">Edit Farm</span>
           </button>
-          
+
           <button
             onClick={() => navigate('/irrigation-planner')}
             className="quick-action opacity-0 inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-300"
@@ -299,6 +330,11 @@ const FarmOverviewPage: React.FC = () => {
             color="amber"
             delay={240}
           />
+        </div>
+
+        {/* AI AGRONOMY ADVISOR */}
+        <div className="animate-fade-in opacity-0" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
+          <CropAdvisor sensorData={sensorData} />
         </div>
 
         {/* Sections Grid */}
@@ -422,7 +458,7 @@ const StatCard: React.FC<StatCardProps> = ({ icon, label, value, suffix = '', co
     >
       {/* Background glow */}
       <div className={`absolute -right-6 -top-6 w-24 h-24 rounded-full ${colors[color].split(' ')[0]} opacity-50 group-hover:opacity-100 group-hover:scale-150 transition-all duration-500`} />
-      
+
       {/* Icon */}
       <div className={`inline-flex p-3 rounded-2xl ${colors[color]} mb-3`}>
         {icon}
@@ -449,15 +485,15 @@ interface SectionCardProps {
   index: number;
 }
 
-const SectionCard: React.FC<SectionCardProps> = ({ 
-  section, 
-  farmData, 
-  isSelected, 
-  onClick, 
+const SectionCard: React.FC<SectionCardProps> = ({
+  section,
+  farmData,
+  isSelected,
+  onClick,
   onEdit,
-  index 
+  index
 }) => {
-  const waterSource = section.nearestWaterSource 
+  const waterSource = section.nearestWaterSource
     ? farmData?.waterSources?.find(ws => ws.id === section.nearestWaterSource?.id)
     : null;
 
@@ -468,15 +504,15 @@ const SectionCard: React.FC<SectionCardProps> = ({
       className={`
         section-card opacity-0 relative p-5 rounded-3xl cursor-pointer transition-all duration-300
         bg-white dark:bg-gray-800 border-2
-        ${isSelected 
-          ? 'border-emerald-400 shadow-xl shadow-emerald-500/10' 
+        ${isSelected
+          ? 'border-emerald-400 shadow-xl shadow-emerald-500/10'
           : 'border-transparent shadow-sm hover:shadow-lg hover:border-emerald-200'
         }
       `}
       style={{ animationDelay: `${index * 100}ms` }}
     >
       {/* Color indicator */}
-      <div 
+      <div
         className="absolute top-0 left-0 w-full h-1.5 rounded-t-3xl"
         style={{ backgroundColor: section.color }}
       />
@@ -489,7 +525,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
         >
           <Sprout className="w-7 h-7 text-white" />
         </div>
-        
+
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-lg text-gray-800 dark:text-white truncate">
             {section.name}
@@ -508,14 +544,14 @@ const SectionCard: React.FC<SectionCardProps> = ({
             {section.cropType}
           </span>
         )}
-        
+
         {section.soilType && (
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs font-medium rounded-full">
             <Layers className="w-3.5 h-3.5" />
             {section.soilType}
           </span>
         )}
-        
+
         {section.irrigationType && (
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-medium rounded-full">
             <Droplet className="w-3.5 h-3.5" />

@@ -201,6 +201,32 @@ class AgronomyEngine:
             "is_locked": is_locked
         }
 
+    def get_ph_corrective_action(self, ph_level: float) -> Dict[str, any]:
+        """
+        Determine corrective action for pH-induced nutrient lockout
+        """
+        if ph_level > 7.5:
+            return {
+                "ph_status": "Alkaline",
+                "lockout_risk": ["Iron", "Zinc", "Phosphate"],
+                "recommended_fix": "Ammonium Sulfate / Sulfur + Chelated Iron Foliar",
+                "action_priority": "Medium"
+            }
+        elif ph_level < 5.8:
+            return {
+                "ph_status": "Acidic",
+                "lockout_risk": ["Phosphate", "Magnesium", "Molybdenum"],
+                "recommended_fix": "Agricultural Lime (CaCO3) or Dolomite",
+                "action_priority": "High"
+            }
+        else:
+            return {
+                "ph_status": "Optimal",
+                "lockout_risk": [],
+                "recommended_fix": "Maintain current regime (Neutral fertilizers like CAN)",
+                "action_priority": "Low"
+            }
+
     def calculate_leaf_wetness_duration(self, humidity_history: list) -> int:
         """
         Derive Leaf Wetness Duration (LWD)
@@ -429,6 +455,83 @@ class AgronomyEngine:
             },
             "advisories": fertilizer_notes
         }
+
+    def calculate_financial_forecast(
+        self,
+        crop: str,
+        area_acres: float,
+        n: float, p: float, k: float, ph: float,
+        crop_price: float
+    ) -> Dict[str, any]:
+        """
+        Economic Agro-Engine: Calculates detailed ROI based on soil health and inputs
+        """
+        # 1. Base Metrics per Acre (Approximations)
+        base_data = {
+            "Rice": {"yield": 2500, "seed_cost": 800, "fert_cost": 3000, "labor_cost": 12000, "base_price": 25},
+            "Maize": {"yield": 3000, "seed_cost": 1200, "fert_cost": 4500, "labor_cost": 8000, "base_price": 20},
+            "Cotton": {"yield": 1200, "seed_cost": 2500, "fert_cost": 6000, "labor_cost": 15000, "base_price": 60},
+            "Sugarcane": {"yield": 40000, "seed_cost": 15000, "fert_cost": 10000, "labor_cost": 25000, "base_price": 3},
+            "Coffee": {"yield": 800, "seed_cost": 5000, "fert_cost": 8000, "labor_cost": 20000, "base_price": 280},
+            "Wheat": {"yield": 2000, "seed_cost": 1000, "fert_cost": 3500, "labor_cost": 9000, "base_price": 22},
+             # Default
+            "default": {"yield": 1500, "seed_cost": 1500, "fert_cost": 4000, "labor_cost": 10000, "base_price": 30}
+        }
+        
+        c = base_data.get(crop, base_data["default"])
+        
+        # 2. Soil Health Index (0.5 to 1.2 Multiplier)
+        # NPK targets (generic)
+        target_n, target_p, target_k, target_ph = 100, 50, 50, 6.5
+        
+        n_score = max(0, 1 - abs(target_n - n) / 100)
+        p_score = max(0, 1 - abs(target_p - p) / 100)
+        k_score = max(0, 1 - abs(target_k - k) / 100)
+        ph_score = max(0, 1 - abs(target_ph - ph) / 3)
+        
+        soil_health_index = (n_score * 0.3) + (p_score * 0.2) + (k_score * 0.2) + (ph_score * 0.3)
+        # Scale to 0.7 - 1.2 range (Penalty for bad soil, Boost for good)
+        yield_multiplier = 0.7 + (soil_health_index * 0.5)
+        
+        # 3. Yield Calculation
+        expected_yield_per_acre = c["yield"] * yield_multiplier
+        total_yield = expected_yield_per_acre * area_acres
+        
+        # 4. Cost Calculation
+        production_cost = (c["seed_cost"] + c["fert_cost"] + c["labor_cost"]) * area_acres
+        
+        # 5. Profit Calculation
+        # Use live market price passed in, or base if 0
+        price_to_use = crop_price if crop_price > 0 else c["base_price"]
+        
+        gross_revenue = total_yield * price_to_use
+        net_profit = gross_revenue - production_cost
+        roi_percentage = (net_profit / production_cost) * 100 if production_cost > 0 else 0
+        
+        return {
+            "estimated_cost": round(production_cost, 2),
+            "projected_revenue": round(gross_revenue, 2),
+            "net_profit": round(net_profit, 2),
+            "roi_percentage": round(roi_percentage, 1),
+            "yield_per_acre_kg": round(expected_yield_per_acre, 1),
+            "soil_health_score": round(soil_health_index * 100, 1)
+        }
+
+    def get_sowing_protocol(self, crop: str) -> Dict[str, str]:
+        """
+        Sowing Intelligence: Technical protocol for planting
+        """
+        protocols = {
+            "Rice": {"depth": "2-3 cm (Nursery)", "spacing": "20x10 cm", "rate": "25 kg/acre", "treatment": "Soak in Salt Water"},
+            "Maize": {"depth": "3-5 cm", "spacing": "60x20 cm", "rate": "8 kg/acre", "treatment": "Imidacloprid coating"},
+            "Cotton": {"depth": "4-5 cm", "spacing": "90x60 cm", "rate": "2.5 kg/acre (Bt)", "treatment": "Acid delinting"},
+            "Wheat": {"depth": "4-5 cm", "spacing": "22.5 cm rows", "rate": "40 kg/acre", "treatment": "Carbendazim"},
+            "Coffee": {"depth": "1-2 cm (Nursery)", "spacing": "2.5x2.5 m", "rate": "3000 plants/acre", "treatment": "Direct berry output"},
+            "Chickpea": {"depth": "8-10 cm", "spacing": "30x10 cm", "rate": "25 kg/acre", "treatment": "Rhizobium culture"},
+            # Default
+            "default": {"depth": "3-4 cm", "spacing": "30x15 cm", "rate": "10 kg/acre", "treatment": "Fungicide powder"}
+        }
+        return protocols.get(crop, protocols["default"])
 
 # Global instance
 agronomy_engine = AgronomyEngine()

@@ -311,6 +311,8 @@ class AgronomyExpert:
             }
             
             # Add Decision
+            ph_correction = self.engine.get_ph_corrective_action(ph)
+            
             analysis["ai_decisions"].append({
                 "type": "AI_DECISION",
                 "subsystem": "NUTRIENT",
@@ -318,7 +320,8 @@ class AgronomyExpert:
                     "status": rule_analysis["nutrient_status"],
                     "reason": rule_analysis["reason"],
                     "nutrients": final_nutrients,
-                    "is_locked": rule_analysis["is_locked"]
+                    "is_locked": rule_analysis["is_locked"],
+                    "nutrient_logic": ph_correction
                 }
             })
             
@@ -448,6 +451,144 @@ class AgronomyExpert:
 
         return analysis
 
+    def recommend_optimal_crop(
+        self,
+        n: float, p: float, k: float, ph: float,
+        moisture: float,
+        temp: float, humidity: float,
+        rainfall_prediction: float = 100.0
+    ) -> Dict[str, any]:
+        """
+        AI Crop Recommendation Bridge
+        Combines Sensor Data + ML Model + Market Economics
+        """
+        from app.ml_models.crop_recommender import crop_recommender
+        from app.ml_models.data_factory import DataFactory
+        
+        # 1. Prepare ML Inputs
+        # Approximate Soil Texture from Moisture retention? Hard.
+        # We'll use a default or simulated lookups.
+        soil_code = 2 # Default Loam
+        if moisture < 30: soil_code = 1 # Sandy-ish behavior
+        if moisture > 70: soil_code = 3 # Clay-ish behavior
+        
+        features = {
+            "N": n, "P": p, "K": k, "ph": ph,
+            "temperature": temp, "humidity": humidity,
+            "rainfall": rainfall_prediction, # From weather API
+            "soil_type_code": soil_code,
+            "altitude": 350, # Example fixed farm altitude
+            "solar_rad": 21.0 # Sunny day assumption
+        }
+        
+        # 2. Get Top 3 Recommendations
+        recommendations = crop_recommender.predict(features)
+        
+        # 3. Market Overlay
+        crop_names = [r["crop"] for r in recommendations]
+        prices = DataFactory.get_market_opportunities(crop_names)
+        
+        # Determine "Best Economic Pick"
+        # Score = Probability * Price
+        best_economic = None
+        max_score = -1
+        
+        for rec in recommendations:
+            crop = rec["crop"]
+            price = prices.get(crop, 0)
+            score = (rec["probability"] / 100.0) * price
+            rec["market_price"] = price
+            
+            if score > max_score:
+                max_score = score
+                best_economic = crop
+        
+        # 4. Generate Strategy
+        primary_rec = recommendations[0]
+        secondary_rec = recommendations[1] if len(recommendations) > 1 else None
+        
+        is_economic_switch = False
+        selected_crop = primary_rec["crop"]
+        
+        # Smart Rationale Engine
+        rationale = ""
+        
+        if ph < 5.8:
+            ph_desc = "acidic"
+        elif ph > 7.5:
+            ph_desc = "alkaline"
+        else:
+            ph_desc = "neutral"
+            
+        base_reason = f"Your soil profile (pH {ph} / {ph_desc}) and current NPK levels heavily favor {primary_rec['crop']} ({primary_rec['probability']} match)."
+        
+        if best_economic != primary_rec["crop"]:
+            is_economic_switch = True
+            selected_crop = best_economic
+            rationale = (f"Market Opportunity Detected: While {primary_rec['crop']} is agronomically ideal ({primary_rec['probability']}%), "
+                         f"our AI recommends {best_economic} due to significantly higher projected ROI "
+                         f"(Market Price: ₹{prices[best_economic]}/kg vs ₹{prices[primary_rec['crop']]}/kg). "
+                         f"Soil conditions are still compatible.")
+        else:
+            rationale = (f"Recommended: {selected_crop}. {base_reason} "
+                         f"Market conditions are also favorable (₹{prices[selected_crop]}/kg). "
+                         f"This offers the best balance of agronomic success and profitability.")
+
+        # 5. Financial Forecast (New Phase 7)
+        # Crop-specific water needs map (Moved up for reuse)
+        water_needs_map = {
+            "Rice": "High - 1200-1400mm (Flooding required)",
+            "Wheat": "Moderate - 450-650mm",
+            "Cotton": "Moderate - 700-1300mm",
+            "Maize": "Moderate - 500-800mm",
+            "Sugarcane": "Very High - 1500-2500mm",
+            "Tomato": "Moderate - 400-600mm",
+            "Potato": "Low - 500-700mm",
+            "Onion": "Low - 350-550mm",
+            "Coffee": "High - 1500-2000mm",
+            "Apple": "High - 800-1200mm"
+        }
+
+        # 5. Generate Detailed Strategy for ALL Top Candidates
+        # This allows the frontend to toggle and compare data for all 3 options
+        for rec in recommendations:
+            c_name = rec["crop"]
+            
+            # Financials
+            rec["financials"] = self.engine.calculate_financial_forecast(
+                crop=c_name,
+                area_acres=5.0, # Default for hackathon
+                n=n, p=p, k=k, ph=ph,
+                crop_price=prices.get(c_name, 0)
+            )
+            
+            # Sowing Protocol
+            rec["sowing_protocol"] = self.engine.get_sowing_protocol(c_name)
+            
+            # Season Roadmap
+            water_info = water_needs_map.get(c_name, "Moderate - 500mm total water budget")
+            rec["season_roadmap"] = {
+                "Phase 1": "Soil Prep & Basal Fertilizer (DAP + Potash)",
+                "Phase 2": "Vegetative Growth (Urea split dose)",
+                "Phase 3": "Flowering/Fruiting (0-52-34 Foliar)",
+                "Irrigation": water_info
+            }
+
+        # Legacy Support: Still return top-level keys for the "Selected" crop
+        # but now the 'top_candidates' array is fully enriched.
+        primary_details = next((r for r in recommendations if r["crop"] == selected_crop), recommendations[0])
+
+        return {
+            "selected_crop": selected_crop,
+            "confidence": primary_rec["probability"],
+            "rationale": rationale,
+            "top_candidates": recommendations,
+            "market_winner": best_economic,
+            "economic_switch": is_economic_switch,
+            "financials": primary_details["financials"],
+            "sowing_protocol": primary_details["sowing_protocol"],
+            "season_roadmap": primary_details["season_roadmap"]
+        }
 
 # Global instance
 agronomy_expert = AgronomyExpert()
