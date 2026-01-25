@@ -36,26 +36,6 @@ interface NavItem {
   badge?: number;
 }
 
-const mainNavItems: NavItem[] = [
-  { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-  { label: "My Farm", icon: Tractor, path: "/farm" },
-  { label: "Farm Mapping", icon: Map, path: "/farm-mapping" },
-  { label: "Farm Overview", icon: Eye, path: "/farm-overview" },
-  { label: "Irrigation Planner", icon: Droplets, path: "/irrigation-planner" },
-  { label: "Weather", icon: CloudSun, path: "/weather" },
-  { label: "AI Recommendations", icon: Lightbulb, path: "/recommendations" },
-  { label: "Farming Regimes", icon: Leaf, path: "/regimes" },
-  { label: "Disease Detection", icon: Bug, path: "/disease" },
-  { label: "Marketplace", icon: ShoppingCart, path: "/marketplace" },
-  { label: "Learn", icon: GraduationCap, path: "/learn" },
-  { label: "Community", icon: Users, path: "/community" },
-];
-
-const bottomNavItems: NavItem[] = [
-  { label: "Notifications", icon: Bell, path: "/notifications" },
-  { label: "Settings", icon: Settings, path: "/settings" },
-];
-
 export const Sidebar: React.FC = () => {
   const { t } = useTranslation();
 
@@ -71,6 +51,8 @@ export const Sidebar: React.FC = () => {
     { label: t("navigation.dashboard"), icon: LayoutDashboard, path: "/dashboard" },
     { label: t("navigation.myFarm"), icon: Tractor, path: "/farm" },
     { label: t("navigation.farmMapping"), icon: Map, path: "/farm-mapping" },
+    { label: "Farm Overview", icon: Eye, path: "/farm-overview" },
+    { label: "Irrigation Planner", icon: Droplets, path: "/irrigation-planner" },
     { label: t("navigation.weather"), icon: CloudSun, path: "/weather" },
     { label: t("navigation.aiRecommendations"), icon: Lightbulb, path: "/recommendations" },
     { label: t("navigation.regimes"), icon: Leaf, path: "/regimes" },
