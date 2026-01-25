@@ -4,6 +4,7 @@ services:
   # PostgreSQL Database (for local development - production uses Supabase)
   postgres:
     image: postgres:15-alpine
+    container_name: smartfarm-postgres
     environment:
       POSTGRES_USER: regime_user
       POSTGRES_PASSWORD: ${DB_PASSWORD:-regime_pass}
@@ -13,33 +14,43 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U regime_user"]
+      test: [ "CMD-SHELL", "pg_isready -U regime_user" ]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - smartfarm-network
 
   # Redis Cache
   redis:
     image: redis:7-alpine
+    container_name: smartfarm-redis
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - smartfarm-network
 
-  # Backend API
+  # Main Backend API (Recommendations, Regime, IoT, etc.)
   backend:
     build:
       context: .
       dockerfile: backend/Dockerfile
+    container_name: smartfarm-backend
     environment:
       DATABASE_URL: postgresql://regime_user:${DB_PASSWORD:-regime_pass}@postgres:5432/regime_db
       SUPABASE_URL: ${SUPABASE_URL}
       SUPABASE_KEY: ${SUPABASE_KEY}
       REDIS_URL: redis://redis:6379
+      DISEASE_MODEL_URL: http://disease-model:8001
       ENVIRONMENT: development
+      PYTHONUNBUFFERED: 1
     ports:
       - "8000:8000"
     depends_on:
@@ -49,21 +60,87 @@ services:
         condition: service_healthy
     volumes:
       - ./backend:/app
+      - ml_models:/app/app/ml_models
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - smartfarm-network
+    restart: unless-stopped
 
-  # Frontend (optional - usually served by npm dev server)
+  # Disease Detection Model Service
+  disease-model:
+    build:
+      context: .
+      dockerfile: disease_model/Dockerfile
+    container_name: smartfarm-disease-model
+    environment:
+      PYTHONUNBUFFERED: 1
+      MODEL_PATH: /app/models
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./disease_model:/app
+      - disease_models:/app/models
+    networks:
+      - smartfarm-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+
+  # Frontend (React + Vite)
   frontend:
     build:
       context: .
       dockerfile: client/Dockerfile
+      target: development
+    container_name: smartfarm-frontend
     ports:
       - "5173:5173"
     volumes:
-      - ./client:/app
+      - ./client:/app/client
+      - ./package.json:/app/package.json
+      - ./tsconfig.json:/app/tsconfig.json
+      - ./tailwind.config.ts:/app/tailwind.config.ts
+      - ./postcss.config.js:/app/postcss.config.js
+      - ./vite.config.ts:/app/vite.config.ts
+      - /app/node_modules
     environment:
-      REACT_APP_API_URL: http://localhost:8000
-      REACT_APP_SUPABASE_URL: ${SUPABASE_URL}
-      REACT_APP_SUPABASE_KEY: ${SUPABASE_KEY}
+      VITE_API_URL: http://localhost:8000
+      VITE_DISEASE_MODEL_URL: http://localhost:8001
+      VITE_SUPABASE_URL: ${SUPABASE_URL}
+      VITE_SUPABASE_ANON_KEY: ${SUPABASE_KEY}
+    networks:
+      - smartfarm-network
+    restart: unless-stopped
+
+  # MQTT Broker (for IoT devices)
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: smartfarm-mqtt
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_logs:/mosquitto/log
+    networks:
+      - smartfarm-network
+    restart: unless-stopped
+
+networks:
+  smartfarm-network:
+    driver: bridge
 
 volumes:
   postgres_data:
+  redis_data:
+  ml_models:
+  disease_models:
+  mosquitto_data:
+  mosquitto_logs:

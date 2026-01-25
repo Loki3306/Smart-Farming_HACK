@@ -1,53 +1,137 @@
 version: '3.8'
 
-# Production variant of docker-compose
-# Use: docker-compose -f docker-compose.prod.yml up -d
+# Production Docker Compose Configuration
+# Usage: docker-compose -f docker-compose.prod.yml up -d
 
 services:
-  # Backend API only (database via Supabase)
+  # Main Backend API (Recommendations, Regime, IoT, ML Models)
   backend:
     build:
       context: .
       dockerfile: backend/Dockerfile
+      args:
+        - BUILD_ENV=production
+    container_name: smartfarm-backend-prod
     environment:
       DATABASE_URL: ${DATABASE_URL}
       SUPABASE_URL: ${SUPABASE_URL}
       SUPABASE_KEY: ${SUPABASE_KEY}
-      REDIS_URL: ${REDIS_URL}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      DISEASE_MODEL_URL: http://disease-model:8001
       ENVIRONMENT: production
+      PYTHONUNBUFFERED: 1
+      WORKERS: 4
     ports:
       - "8000:8000"
-    restart: unless-stopped
+    restart: always
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/regime/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/api/regime/health" ]
       interval: 30s
-      timeout: 3s
+      timeout: 10s
       retries: 3
+      start_period: 40s
     deploy:
       resources:
         limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
           cpus: '1'
           memory: 1G
+    networks:
+      - smartfarm-prod-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Disease Detection Model Service
+  disease-model:
+    build:
+      context: .
+      dockerfile: disease_model/Dockerfile
+      args:
+        - BUILD_ENV=production
+    container_name: smartfarm-disease-model-prod
+    environment:
+      PYTHONUNBUFFERED: 1
+      MODEL_PATH: /app/models
+      WORKERS: 2
+    ports:
+      - "8001:8001"
+    restart: always
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8001/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 3G
         reservations:
+          cpus: '1'
+          memory: 2G
+    networks:
+      - smartfarm-prod-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Redis Cache (Optional - use external Redis in production)
+  redis:
+    image: redis:7-alpine
+    container_name: smartfarm-redis-prod
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_prod_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
           cpus: '0.5'
           memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    networks:
+      - smartfarm-prod-network
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
 
-  # Frontend (optional - can be served separately)
+  # Frontend (Static Build - served via Nginx)
   frontend:
     build:
       context: .
       dockerfile: client/Dockerfile
+      target: production
+    container_name: smartfarm-frontend-prod
     ports:
-      - "5173:5173"
+      - "80:80"
+      - "443:443"
     environment:
-      REACT_APP_API_URL: ${REACT_APP_API_URL}
-      REACT_APP_SUPABASE_URL: ${SUPABASE_URL}
-      REACT_APP_SUPABASE_KEY: ${SUPABASE_KEY}
-    restart: unless-stopped
+      VITE_API_URL: ${VITE_API_URL}
+      VITE_DISEASE_MODEL_URL: ${VITE_DISEASE_MODEL_URL}
+      VITE_SUPABASE_URL: ${SUPABASE_URL}
+      VITE_SUPABASE_ANON_KEY: ${SUPABASE_KEY}
+    restart: always
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5173/"]
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/" ]
       interval: 30s
-      timeout: 3s
+      timeout: 5s
       retries: 3
     deploy:
       resources:
@@ -57,3 +141,44 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    networks:
+      - smartfarm-prod-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # MQTT Broker (for IoT devices)
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: smartfarm-mqtt-prod
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - mosquitto_prod_data:/mosquitto/data
+      - mosquitto_prod_logs:/mosquitto/log
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - smartfarm-prod-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+networks:
+  smartfarm-prod-network:
+    driver: bridge
+
+volumes:
+  redis_prod_data:
+  mosquitto_prod_data:
+  mosquitto_prod_logs:

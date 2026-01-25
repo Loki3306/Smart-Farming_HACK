@@ -1,62 +1,98 @@
-node_modules
-dist
+# Git
 .git
 .gitignore
-README.md
-.env
-.env.local
-.env.development
-.env.test
+.gitattributes
+.github
 
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.DS_Store
+# Dependencies
+node_modules
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# IDEs
 .vscode
 .idea
 *.swp
 *.swo
 *~
-.cursor
-coverage
-.nyc_output
-.eslintcache
-*.log
-*.lock
-*.tmp
-*.tmp.*
-log.txt
-
 .DS_Store
-node_modules
-**/node_modules/**
-build
-data
-.env
-load-ids.txt
 
-# server
-tmp
-types
-.git
-.gitignore
+# Testing
+.pytest_cache
+.coverage
+htmlcov
+*.cover
+.hypothesis
+
+# Build outputs
 dist
-service
-tests
-fixtures-pages
-fixtures-apps
+build
+*.egg-info
+.next
+out
 
-# Netlify
-.netlify
-packages/ml-air/lib
-packages/ml-air/bin
-packages/ml-air/project
-packages/ml-air/share
-packages/ml-air/random_forest_classification/
-packages/ml-air/__pycache__/
-packages/ml-air/app/__pycache__/
-packages/vcp-common/native-bridge/build
-packages/vcp-common/_tests_/dataset-ranking.csv
-node_modules/
-Dockerfile
-.gitignore
+# Environment
+.env
+.env.local
+.env.*.local
+*.log
+
+# Documentation
+*.md
+!README.md
+docs
+
+# Large files
+*.mp4
+*.avi
+*.mov
+*.zip
+*.tar.gz
+
+# Development
+*.dev
+*.test
+test_*
+*_test.py
+verify_*
+
+# Uploads and temporary files
+uploads/*
+temp/*
+tmp/*
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Scripts
+scripts/*
+tools/*
+
+# Assets (if not needed in container)
+assets/*
+attached_assets/*
+
+# Specific to your project
+simulator_state.json
+autonomous_state.json
+sensor_commands.json
+verification_*.txt
+background_design.png
+image.png
+landing_page.png
