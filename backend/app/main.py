@@ -43,7 +43,7 @@ async def lifespan(app: FastAPI):
     Handles startup and shutdown events
     """
     # Startup
-    print("🚀 Starting Smart Farming AI Backend...")
+    print("[INFO] Starting Smart Farming AI Backend...")
     
     # Initialize MQTT client for IoT
     initialize_mqtt_func = None
@@ -55,27 +55,27 @@ async def lifespan(app: FastAPI):
         shutdown_mqtt_func = shutdown_func
         
         if initialize_mqtt_func:
-            print("🔌 Initializing MQTT client for IoT...")
+            print("[INFO] Initializing MQTT client for IoT...")
             await initialize_mqtt_func()
-            print("✅ MQTT client initialized successfully")
+            print("[SUCCESS] MQTT client initialized successfully")
     except ImportError as e:
-        print(f"⚠️ IoT module not available: {e}")
+        print(f"[WARNING] IoT module not available: {e}")
     except Exception as e:
-        print(f"❌ Failed to initialize MQTT: {e}")
+        print(f"[ERROR] Failed to initialize MQTT: {e}")
         import traceback
         traceback.print_exc()
     
     yield  # Application runs here
     
     # Shutdown
-    print("🛑 Shutting down Smart Farming AI Backend...")
+    print("[INFO] Shutting down Smart Farming AI Backend...")
     try:
         if shutdown_mqtt_func:
-            print("🔌 Shutting down MQTT client...")
+            print("[INFO] Shutting down MQTT client...")
             await shutdown_mqtt_func()
-            print("✅ MQTT client shutdown successfully")
+            print("[SUCCESS] MQTT client shutdown successfully")
     except Exception as e:
-        print(f"⚠️ Error during MQTT shutdown: {e}")
+        print(f"[WARNING] Error during MQTT shutdown: {e}")
 
 # Initialize FastAPI app with lifespan
 app = FastAPI(
@@ -107,15 +107,22 @@ app.include_router(regime_routes.router, prefix="")
 app.include_router(farm_geometry.router, prefix="")
 
 # Include the IoT irrigation router
-print("🔧 Attempting to load IoT Irrigation module...")
+print("[INFO] Attempting to load IoT Irrigation module...")
+
 
 try:
     from iot_irrigation.router import router as iot_router
     # Don't add prefix here - router already has prefix="/iot"
     app.include_router(iot_router, tags=["IoT Irrigation"])
-    print("✅ IoT Irrigation module loaded successfully")
+    print("[SUCCESS] IoT Irrigation module loaded successfully")
+    print(f"   Router: {iot_router}")
+    print(f"   Initialize MQTT: {initialize_mqtt}")
 except ImportError as e:
-    print(f"❌ IoT Irrigation module import error: {e}")
+    print(f"[ERROR] IoT Irrigation module import error: {e}")
+    print(f"   Python path: {sys.path}")
+    # Set to None so lifespan doesn't try to call them
+    initialize_mqtt = None
+    shutdown_mqtt = None
 except Exception as e:
     print(f"⚠️ IoT Irrigation module error: {type(e).__name__}: {e}")
     import traceback
@@ -1022,6 +1029,6 @@ if __name__ == "__main__":
         "main:app",
         host="0.0.0.0",
         port=8000,
-        reload=True,
+        reload=False,
         log_level="info"
     )

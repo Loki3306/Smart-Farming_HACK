@@ -6,6 +6,7 @@ import { ControlCenter } from "../components/dashboard/ControlCenter";
 import { ActionLog } from "../components/dashboard/ActionLog";
 import { LiveSensorGrid } from "../components/dashboard/LiveSensorGrid";
 import { PrecisionAgriculture } from "../components/dashboard/PrecisionAgriculture";
+import { AgronomyPlanner } from "../components/dashboard/AgronomyPlanner";
 import { FarmerSwitcher } from "../components/demo/FarmerSwitcher";
 import { useFarmContext } from "../context/FarmContext";
 import { useAuth } from "../context/AuthContext";
@@ -403,6 +404,11 @@ export const Home: React.FC = () => {
             {/* Precision Agriculture Dashboard (Advanced Agronomy) */}
             <div className="bg-card rounded-2xl shadow-lg border border-border/50 overflow-hidden">
               <PrecisionAgriculture />
+            </div>
+
+            {/* Agronomy Season Planner */}
+            <div className="bg-card rounded-2xl shadow-lg border border-border/50 overflow-hidden">
+              <AgronomyPlanner />
             </div>
 
             {/* Soil Moisture Hero */}
