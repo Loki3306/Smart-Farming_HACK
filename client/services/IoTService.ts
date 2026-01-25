@@ -53,27 +53,29 @@ class IoTServiceClass {
         // Close existing connection
         this.disconnect();
 
-        // Get WebSocket URL
+        // Get WebSocket URL - must connect directly to FastAPI backend on port 8000
         const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-        const wsHost = window.location.hostname;
-        const wsPort = window.location.port || (wsProtocol === "wss:" ? "443" : "80");
 
-        // Production-ready WebSocket URL construction
-        // Uses relative path by default to work behind Nginx/Reverse Proxy, or VITE_API_URL if set
-        const apiBase = import.meta.env.VITE_API_URL || "";
-        console.log(`[IoTService] Configured API Base: ${apiBase || "None (Using current host)"}`);
+        // In development, always use localhost:8000 for WebSocket (FastAPI backend)
+        // In production, use VITE_API_URL if available
+        const apiBase = import.meta.env.VITE_API_URL;
 
-        const wsUrl = apiBase
-            ? `${apiBase.replace(/^http/, 'ws')}/iot/ws/telemetry/${farmId}`
-            : `${wsProtocol}//${wsHost}:${wsPort}/iot/ws/telemetry/${farmId}`;
+        let wsUrl: string;
+        if (apiBase) {
+            // Production: use configured API URL
+            wsUrl = `${apiBase.replace(/^http/, 'ws')}/iot/ws/telemetry/${farmId}`;
+        } else {
+            // Development: connect directly to FastAPI backend on port 8000
+            wsUrl = `ws://localhost:8000/iot/ws/telemetry/${farmId}`;
+        }
 
-        console.log(`[IoTService] Connecting to WebSocket: ${wsUrl}`);
+        console.log(`[IoTService] 🔌 Connecting to WebSocket: ${wsUrl}`);
 
         try {
             this.ws = new WebSocket(wsUrl);
 
             this.ws.onopen = () => {
-                console.log("[IoTService] ✅ WebSocket connected");
+                console.log("[IoTService] ✅ WebSocket connected successfully!");
                 this.reconnectAttempts = 0;
                 this.updateStatus(true);
 
@@ -82,8 +84,9 @@ class IoTServiceClass {
             };
 
             this.ws.onmessage = (event) => {
-                // Debug raw message
-                // console.log("[IoTService] 📥 Raw WS Payload:", event.data);
+                // ========== ENHANCED DEBUG LOGGING ==========
+                console.log("%c[IoTService] 📥 RAW WEBSOCKET DATA RECEIVED!", "background: #00ff00; color: #000; font-weight: bold; padding: 4px;");
+                console.log("[IoTService] Raw payload:", event.data);
 
                 try {
                     // Handle non-JSON messages (like "pong")
@@ -93,12 +96,12 @@ class IoTServiceClass {
                     }
 
                     const message = JSON.parse(event.data);
-                    console.log("[IoTService] 📨 Message received:", message);
+                    console.log("%c[IoTService] 📨 PARSED MESSAGE:", "background: #0099ff; color: #fff; font-weight: bold; padding: 4px;", message);
 
                     if (message.type === "sensor_update" || message.type === "initial_data") {
                         const sensorData: LiveSensorData = message.data;
 
-                        // ========== TESTING: PRINT RECEIVED SENSOR VALUES ==========
+                        // ========== CRITICAL: NPK VALUE DEBUGGING ==========
                         console.log("\n" + "=".repeat(70));
                         console.log("🎯 FRONTEND RECEIVED SENSOR DATA");
                         console.log("=".repeat(70));
@@ -107,7 +110,11 @@ class IoTServiceClass {
                         console.log("🌡️  Temperature:   ", sensorData.temp + "°C");
                         console.log("💨 Humidity:      ", sensorData.humidity + "%");
                         console.log("🌬️ Wind Speed:    ", sensorData.wind_speed ? sensorData.wind_speed + " km/h" : "N/A");
-                        console.log("🟢 NPK:           ", sensorData.npk);
+                        console.log("🟢 NPK RAW VALUE: ", sensorData.npk, " (TYPE:", typeof sensorData.npk, ")");
+                        console.log("   ├─ Expected range: 0-1023");
+                        console.log("   ├─ Nitrogen calc: ", Math.round(sensorData.npk * 0.14));
+                        console.log("   ├─ Phosphorus calc: ", Math.round(sensorData.npk * 0.045));
+                        console.log("   └─ Potassium calc: ", Math.round(sensorData.npk * 0.2));
                         console.log("⏰ Timestamp:     ", sensorData.timestamp);
                         console.log("=".repeat(70) + "\n");
                         // ===========================================================

@@ -93,8 +93,15 @@ export const SoilMoisture: React.FC = () => {
   useEffect(() => {
     console.log("[SoilMoisture] Subscribing to live IoT data");
 
+    // CRITICAL FIX: Connect to WebSocket first!
+    const DEMO_FARM_ID = "80ac1084-67f8-4d05-ba21-68e3201213a8";
+    console.log("[SoilMoisture] 🔌 Connecting to IoT service for farm:", DEMO_FARM_ID);
+    IoTService.connect(DEMO_FARM_ID);
+
     const unsubscribe = IoTService.onMessage((data: LiveSensorData) => {
-      console.log("[SoilMoisture] Received live IoT data:", data);
+      console.log("%c[SoilMoisture] 🔥 RECEIVED LIVE IOT DATA", "background: #ff6600; color: #fff; font-weight: bold; padding: 4px;");
+      console.log("[SoilMoisture] Data object:", data);
+      console.log("[SoilMoisture] NPK value:", data.npk, "Type:", typeof data.npk);
       setLiveData(data);
       setIsLive(true);
     });
@@ -106,6 +113,7 @@ export const SoilMoisture: React.FC = () => {
     return () => {
       unsubscribe();
       unsubscribeStatus();
+      IoTService.disconnect();
     };
   }, []);
 
@@ -158,6 +166,17 @@ export const SoilMoisture: React.FC = () => {
   const nitrogenDisplay = Math.round(currentNPK * 0.14); // Approximate N
   const phosphorusDisplay = Math.round(currentNPK * 0.045); // Approximate P
   const potassiumDisplay = Math.round(currentNPK * 0.2); // Approximate K
+
+  // Debug NPK calculations when liveData changes
+  useEffect(() => {
+    if (liveData) {
+      console.log("%c[SoilMoisture] NPK CALCULATIONS", "background: #9900ff; color: #fff; font-weight: bold; padding: 4px;");
+      console.log("[SoilMoisture] Raw NPK value:", currentNPK);
+      console.log("[SoilMoisture] Calculated Nitrogen:", nitrogenDisplay);
+      console.log("[SoilMoisture] Calculated Phosphorus:", phosphorusDisplay);
+      console.log("[SoilMoisture] Calculated Potassium:", potassiumDisplay);
+    }
+  }, [liveData, currentNPK, nitrogenDisplay, phosphorusDisplay, potassiumDisplay]);
 
   // Compute all statuses from current sensor data
   const status = getMoistureStatus(currentMoisture);

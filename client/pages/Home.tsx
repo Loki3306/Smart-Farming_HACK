@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "../components/ui/avatar";
-import { WeatherCard } from "../components/dashboard/WeatherCard";
+import { AgronomyPlanner } from "../components/dashboard/AgronomyPlanner";
 
 // Time-based farm images (WebP optimized - 94% smaller!)
 import morningImage from "../assets/farm-time-images/morning.webp";
@@ -370,13 +370,6 @@ export const Home: React.FC = () => {
           <span className="text-foreground font-medium">{systemStatus?.location || t("status.loadingLocation")}</span>
         </div>
 
-        {/* Weather Card Section */}
-        <div className="animate-in slide-in-from-bottom-5 duration-700 fade-in fill-mode-backwards delay-100">
-          <div className="shadow-sm rounded-2xl">
-            <WeatherCard />
-          </div>
-        </div>
-
         {/* Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Main Content */}
@@ -399,6 +392,11 @@ export const Home: React.FC = () => {
               <ActionLog />
             </div>
           </div>
+        </div>
+
+        {/* Agronomy Season Planner */}
+        <div className="animate-in slide-in-from-bottom-5 duration-700 fade-in fill-mode-backwards delay-300">
+          <AgronomyPlanner />
         </div>
 
         {/* Footer */}

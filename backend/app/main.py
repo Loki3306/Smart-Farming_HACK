@@ -109,9 +109,8 @@ app.include_router(farm_geometry.router, prefix="")
 # Include the IoT irrigation router
 print("[INFO] Attempting to load IoT Irrigation module...")
 
-
 try:
-    from iot_irrigation.router import router as iot_router
+    from iot_irrigation.router import router as iot_router, initialize_mqtt, shutdown_mqtt
     # Don't add prefix here - router already has prefix="/iot"
     app.include_router(iot_router, tags=["IoT Irrigation"])
     print("[SUCCESS] IoT Irrigation module loaded successfully")

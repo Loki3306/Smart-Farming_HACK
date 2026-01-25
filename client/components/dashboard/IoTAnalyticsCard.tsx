@@ -16,9 +16,10 @@ import {
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
-import { Calendar, Activity, Droplets, Thermometer, Sprout, Filter, Download } from "lucide-react";
+import { Calendar, Activity, Droplets, Thermometer, Sprout, Filter, Download, Wifi } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useFarmContext } from "../context/FarmContext";
+import { IoTService, LiveSensorData } from "../../services/IoTService";
 
 // Types for historical data
 interface HistoryPoint {
@@ -39,6 +40,7 @@ export const IoTAnalyticsCard: React.FC = () => {
     const [timeRange, setTimeRange] = useState<"24h" | "7d" | "30d">("24h");
     const [activeTab, setActiveTab] = useState<"soil" | "env" | "nutrients">("soil");
     const [loading, setLoading] = useState(false);
+    const [isReceivingLiveData, setIsReceivingLiveData] = useState(false);
 
     // Generate realistic demo data
     const generateDemoData = (range: "24h" | "7d" | "30d") => {
@@ -126,6 +128,42 @@ export const IoTAnalyticsCard: React.FC = () => {
         return () => clearInterval(interval);
     }, [timeRange]);
 
+    // Subscribe to live IoT data from WebSocket
+    useEffect(() => {
+        console.log("[IoTAnalyticsCard] Subscribing to live sensor data");
+
+        const unsubscribe = IoTService.onMessage((liveData: LiveSensorData) => {
+            console.log("[IoTAnalyticsCard] Received live data:", liveData);
+            setIsReceivingLiveData(true);
+
+            // Convert live data to HistoryPoint format
+            // NPK is a single value (0-1023), we'll split it for display purposes
+            const npkValue = liveData.npk || 0;
+            const newPoint: HistoryPoint = {
+                timestamp: liveData.timestamp,
+                soilMoisture: liveData.moisture,
+                temperature: liveData.temp,
+                humidity: liveData.humidity,
+                nitrogen: npkValue * 0.14,  // Approximate N value
+                phosphorus: npkValue * 0.045,  // Approximate P value
+                potassium: npkValue * 0.2,  // Approximate K value
+                ph: 6.5  // Default pH (not in basic sensor)
+            };
+
+            // Append to existing data (keep last 100 points for 24h view)
+            setData(prev => {
+                const maxPoints = timeRange === "24h" ? 100 : timeRange === "7d" ? 200 : 300;
+                const updated = [...prev, newPoint];
+                return updated.slice(-maxPoints);  // Keep only recent points
+            });
+        });
+
+        return () => {
+            unsubscribe();
+            setIsReceivingLiveData(false);
+        };
+    }, [timeRange]);
+
     const isDark = theme === "dark";
 
     // Custom tooltip for charts
@@ -173,6 +211,12 @@ export const IoTAnalyticsCard: React.FC = () => {
                     <h2 className="text-xl font-bold flex items-center gap-2 text-foreground">
                         <Activity className="w-5 h-5 text-primary" />
                         IoT Analytics
+                        {isReceivingLiveData && (
+                            <span className="flex items-center gap-1.5 px-2 py-0.5 bg-green-500/10 border border-green-500/30 rounded-full">
+                                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                                <span className="text-[10px] font-semibold text-green-600 dark:text-green-400 uppercase">Live</span>
+                            </span>
+                        )}
                     </h2>
                     <p className="text-sm text-muted-foreground mt-1">
                         Real-time sensor data trends and historical analysis

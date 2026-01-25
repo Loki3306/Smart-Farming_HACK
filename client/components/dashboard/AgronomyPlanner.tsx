@@ -25,10 +25,11 @@ export const AgronomyPlanner = () => {
     const generatePlan = async () => {
         setLoading(true);
         try {
-            // Use relative URL which validates with the IoTService proxy setup or local dev proxy
-            // Check if backend API URL is set in env, otherwise assume relative proxy or custom logic
-            const apiBase = import.meta.env.VITE_API_URL || "";
-            const url = apiBase ? `${apiBase}/iot/planner/generate` : '/api/iot/planner/generate';
+            // Use the backend API URL directly
+            const url = 'http://localhost:8000/iot/planner/generate';
+
+            console.log('[AgronomyPlanner] Generating plan with data:', formData);
+            console.log('[AgronomyPlanner] API URL:', url);
 
             const response = await fetch(url, {
                 method: 'POST',
@@ -40,19 +41,24 @@ export const AgronomyPlanner = () => {
                 })
             });
 
-            if (!response.ok) throw new Error("Failed to generate plan");
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('[AgronomyPlanner] API Error:', response.status, errorText);
+                throw new Error(`Failed to generate plan: ${response.status}`);
+            }
 
             const data = await response.json();
+            console.log('[AgronomyPlanner] Plan generated successfully:', data);
             setPlan(data.plan);
             toast({
                 title: "Plan Generated",
                 description: `Season plan for ${formData.crop_type} created successfully.`
             });
         } catch (error) {
-            console.error(error);
+            console.error('[AgronomyPlanner] Error:', error);
             toast({
                 title: "Error",
-                description: "Could not generate agronomic plan.",
+                description: error instanceof Error ? error.message : "Could not generate agronomic plan.",
                 variant: "destructive"
             });
         } finally {
@@ -71,7 +77,7 @@ export const AgronomyPlanner = () => {
             <CardContent className="p-6">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* INPUT SECTION */}
-                    <div className="space-y-6 lg:col-span-1 border-r border-border/40 pr-0 lg:pr-6">
+                    <div className="space-y-6 lg:col-span-1 border-r border-border/40 pr-0 lg:pr-6 relative z-50">
                         <div className="space-y-4">
                             <h3 className="font-semibold text-lg flex items-center gap-2">
                                 <Sprout className="w-4 h-4 text-primary" />
@@ -87,7 +93,7 @@ export const AgronomyPlanner = () => {
                                     <SelectTrigger>
                                         <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent className="z-[100]">
                                         <SelectItem value="wheat">Wheat</SelectItem>
                                         <SelectItem value="corn">Corn (Maize)</SelectItem>
                                         <SelectItem value="rice">Rice (Paddy)</SelectItem>
@@ -116,7 +122,7 @@ export const AgronomyPlanner = () => {
                                     <SelectTrigger>
                                         <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent className="z-[100]">
                                         <SelectItem value="loamy">Loamy (Balanced)</SelectItem>
                                         <SelectItem value="sandy">Sandy (Fast Draining)</SelectItem>
                                         <SelectItem value="clay">Clay (High Retention)</SelectItem>
@@ -154,7 +160,7 @@ export const AgronomyPlanner = () => {
                     </div>
 
                     {/* OUTPUT SECTION */}
-                    <div className="lg:col-span-2 space-y-6">
+                    <div className="lg:col-span-2 space-y-6 relative z-10">
                         {!plan ? (
                             <div className="h-full flex flex-col items-center justify-center text-muted-foreground p-10 border-2 border-dashed rounded-xl bg-muted/20">
                                 <Calendar className="w-12 h-12 mb-4 opacity-50" />

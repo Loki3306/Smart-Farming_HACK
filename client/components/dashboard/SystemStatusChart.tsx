@@ -10,8 +10,7 @@ interface SystemStatusChartProps {
     onClose: () => void;
 }
 
-
-export const SystemStatusChart: React.FC<SystemStatusChartProps> = ({ isOpen, onClose }) => {
+export const SystemStatusChart = ({ isOpen, onClose }: SystemStatusChartProps) => {
     const { sensorData, systemStatus } = useFarmContext();
     const { thresholds, cropName, loading } = useCropThresholds();
 
@@ -108,8 +107,7 @@ export const SystemStatusChart: React.FC<SystemStatusChartProps> = ({ isOpen, on
                                     <button
                                         onClick={onClose}
                                         className="p-2 rounded-lg hover:bg-muted/50 transition-colors"
-                                        aria-label="Close"
-                                        title="Close"
+                                        aria-label="Close system status chart"
                                     >
                                         <X className="w-5 h-5 text-muted-foreground" />
                                     </button>
