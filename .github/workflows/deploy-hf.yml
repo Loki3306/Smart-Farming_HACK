@@ -1,0 +1,73 @@
+name: Deploy to Hugging Face Spaces
+
+on:
+  push:
+    branches:
+      - main
+      - deep-new-branch
+    paths:
+      - 'backend/**'
+      - 'disease_model/**'
+      - '.github/workflows/deploy-hf.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Hugging Face
+        uses: docker/login-action@v2
+        with:
+          registry: registry.hf.space
+          username: ${{ secrets.HF_USERNAME }}
+          password: ${{ secrets.HF_TOKEN }}
+
+      - name: Build and push Backend
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./backend/Dockerfile
+          push: true
+          tags: registry.hf.space/${{ secrets.HF_USERNAME }}/smartfarm-backend:latest
+          cache-from: type=registry,ref=registry.hf.space/${{ secrets.HF_USERNAME }}/smartfarm-backend:buildcache
+          cache-to: type=registry,ref=registry.hf.space/${{ secrets.HF_USERNAME }}/smartfarm-backend:buildcache,mode=max
+          build-args: |
+            BUILD_ENV=production
+
+  deploy-disease-model:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Hugging Face
+        uses: docker/login-action@v2
+        with:
+          registry: registry.hf.space
+          username: ${{ secrets.HF_USERNAME }}
+          password: ${{ secrets.HF_TOKEN }}
+
+      - name: Build and push Disease Model
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./disease_model/Dockerfile
+          push: true
+          tags: registry.hf.space/${{ secrets.HF_USERNAME }}/smartfarm-disease-model:latest
+          cache-from: type=registry,ref=registry.hf.space/${{ secrets.HF_USERNAME }}/smartfarm-disease-model:buildcache
+          cache-to: type=registry,ref=registry.hf.space/${{ secrets.HF_USERNAME }}/smartfarm-disease-model:buildcache,mode=max
+          build-args: |
+            BUILD_ENV=production
