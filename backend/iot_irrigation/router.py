@@ -10,6 +10,7 @@ from datetime import datetime
 from typing import Dict, Set, Union
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
 from .models import SensorData, IrrigationCommand, ActuationCommand
 from .mqtt_client import MQTTIoTClient
@@ -645,6 +646,57 @@ async def send_irrigation_command(command: IrrigationCommand):
         }
     else:
         raise HTTPException(status_code=500, detail="Failed to publish command")
+
+
+# ============================================================================
+# PLANNER API
+# ============================================================================
+
+class PlannerRequest(BaseModel):
+    crop_type: str
+    seeding_date: str  # YYYY-MM-DD
+    soil_type: str
+    target_yield: float  # Tons/Ha
+    farm_area_acres: float
+
+@router.post("/planner/generate")
+async def generate_season_plan(request: PlannerRequest):
+    """
+    Generate a full season agronomic plan
+    """
+    try:
+        from app.utils.agronomy import agronomy_engine
+        
+        # Get current pH from standard sensors if available, else default
+        current_ph = 6.5
+        # Hackathon: Use demo farm data if available
+        if latest_sensor_data:
+            # Try to find a farm with pH data
+            for data in latest_sensor_data.values():
+                if data.soil_ph:
+                    current_ph = data.soil_ph
+                    break
+        
+        plan = agronomy_engine.generate_complete_season_plan(
+            crop_type=request.crop_type,
+            seeding_date_str=request.seeding_date,
+            soil_type=request.soil_type,
+            target_yield_tons_ha=request.target_yield,
+            farm_area_acres=request.farm_area_acres,
+            current_ph=current_ph
+        )
+        
+        return {
+            "status": "success",
+            "plan": plan,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Planner error: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.websocket("/ws/telemetry/{farm_id}")

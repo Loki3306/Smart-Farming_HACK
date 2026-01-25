@@ -246,5 +246,189 @@ class AgronomyEngine:
         }
 
 
+    def get_crop_coefficients(self, crop_type: str) -> Dict[str, float]:
+        """
+        Get FAO-56 Crop Coefficients (Kc)
+        """
+        # (Kc_ini, Kc_mid, Kc_end)
+        coeffs = {
+            "wheat": (0.3, 1.15, 0.4),
+            "tomato": (0.6, 1.15, 0.8),
+            "corn": (0.3, 1.2, 0.35),
+            "rice": (1.05, 1.20, 0.90), # Flooded
+            "cotton": (0.35, 1.15, 0.6),
+            "potato": (0.5, 1.15, 0.75),
+            "default": (0.4, 1.0, 0.5)
+        }
+        return coeffs.get(crop_type.lower(), coeffs["default"])
+
+    def get_growth_stages(self, crop_type: str) -> list[int]:
+        """
+        Get growth stage lengths in days (Initial, Dev, Mid, Late)
+        Total days should sum to season length.
+        """
+        # [Initial, Development, Mid-Season, Late-Season]
+        stages = {
+            "wheat": [20, 30, 40, 30],      # 120 days
+            "corn": [20, 35, 40, 30],       # 125 days
+            "tomato": [30, 40, 40, 25],     # 135 days
+            "rice": [20, 30, 50, 20],       # 120 days
+            "cotton": [30, 50, 60, 40],     # 180 days
+            "potato": [25, 30, 45, 30],     # 130 days
+            "default": [20, 30, 40, 30]
+        }
+        return stages.get(crop_type.lower(), stages["default"])
+
+    def generate_complete_season_plan(
+        self,
+        crop_type: str,
+        seeding_date_str: str,
+        soil_type: str,
+        target_yield_tons_ha: float,
+        farm_area_acres: float,
+        current_ph: float = 6.5
+    ) -> Dict[str, any]:
+        """
+        Generate a comprehensive agronomic master plan
+        """
+        from datetime import datetime, timedelta
+        
+        try:
+            seeding_date = datetime.strptime(seeding_date_str, "%Y-%m-%d")
+        except:
+             seeding_date = datetime.now()
+
+        # 1. Growth Phases timeline
+        stage_days = self.get_growth_stages(crop_type)
+        total_days = sum(stage_days)
+        
+        phases = []
+        current_date = seeding_date
+        stage_names = ["Initial", "Development", "Mid-Season", "Late-Season"]
+        
+        for i, days in enumerate(stage_days):
+            end_date = current_date + timedelta(days=days)
+            phases.append({
+                "phase_name": stage_names[i],
+                "start_date": current_date.strftime("%Y-%m-%d"),
+                "end_date": end_date.strftime("%Y-%m-%d"),
+                "days": days
+            })
+            current_date = end_date
+            
+        # 2. Water Master Plan (Kc Curve)
+        # Generate weekly Kc values
+        kc_curve = []
+        weeks = math.ceil(total_days / 7)
+        kc_vals = self.get_crop_coefficients(crop_type)
+        
+        soil_freq_mult = 1.0
+        if soil_type.lower() == "sandy":
+            soil_freq_mult = 0.7  # More frequent (less days interval) -> handled in rec text
+            # Logic: Sandy soil holds less water, needs irrigation 30% more often naturally
+        
+        # interpolate Kc roughly for weekly points
+        # usage: Kc * ET0 (assume avg 5mm/day) * 7 days
+        avg_et0 = 5.0
+        
+        # 3. Nutrient Master Plan
+        # Estimate NPK removal based on yield
+        # General rule: N ~ 20-30kg/ton, P ~ 10kg/ton, K ~ 20kg/ton (varies widely)
+        n_req = target_yield_tons_ha * 25.0
+        p_req = target_yield_tons_ha * 12.0
+        k_req = target_yield_tons_ha * 25.0
+        
+        # Adjust for farm area (1 Hectare = 2.47 Acres)
+        # target_yield is per Hectare. user input area is Acres.
+        # Total kg needed = (Requirements per Ha) * (Acres / 2.47)
+        area_ha = farm_area_acres / 2.47
+        total_n = n_req * area_ha
+        total_p = p_req * area_ha
+        total_k = k_req * area_ha
+        
+        # pH Correction
+        fertilizer_notes = []
+        if current_ph > 7.5:
+             fertilizer_notes.append("High pH detected. Use Ammonium Sulfate instead of Urea for N source to acidify soil.")
+        elif current_ph < 5.5:
+             fertilizer_notes.append("Low pH detected. Avoid acidifying fertilizers. Apply Lime correction.")
+        
+        # Weekly Plan Generation
+        weekly_plan = []
+        current_phase_idx = 0
+        days_accumulated = 0
+        
+        for w in range(1, weeks + 1):
+            day_in_season = w * 7
+            
+            # Determine Phase
+            phase_name = "Unknown"
+            accum = 0
+            for i, p_days in enumerate(stage_days):
+                accum += p_days
+                if day_in_season <= accum:
+                    phase_name = stage_names[i]
+                    break
+                elif i == len(stage_days) - 1:
+                    phase_name = stage_names[-1]
+
+            # Water
+            # Simple Kc interpolation
+            kc = kc_vals[1] # Default mid
+            if day_in_season < stage_days[0]:
+                kc = kc_vals[0]
+            elif day_in_season > (total_days - stage_days[3]):
+                kc = kc_vals[2]
+            
+            weekly_water_mm = avg_et0 * kc * 7 * soil_freq_mult
+            
+            # Nutrition (Split application)
+            # Veg (Dev phase) gets most N
+            # Bloom/Fruting (Mid) gets P & K
+            fert_dose = ""
+            
+            if phase_name == "Development":
+                # Apply 40% of N here spread over weeks
+                n_dose = (total_n * 0.4) / (stage_days[1]/7)
+                fert_dose += f"N: {n_dose:.1f} kg"
+            elif phase_name == "Mid-Season":
+                 # Apply P & K here
+                 p_dose = (total_p * 0.6) / (stage_days[2]/7)
+                 k_dose = (total_k * 0.6) / (stage_days[2]/7)
+                 fert_dose += f"P: {p_dose:.1f} kg, K: {k_dose:.1f} kg"
+            elif phase_name == "Initial":
+                 # Starter
+                 n_dose = (total_n * 0.2) / (stage_days[0]/7)
+                 p_dose = (total_p * 0.4) / (stage_days[0]/7)
+                 fert_dose += f"Starter mix (N: {n_dose:.1f}, P: {p_dose:.1f})"
+            
+            # Scouting
+            task = f"Monitor {phase_name} progress."
+            if phase_name == "Development": 
+                task = "Scout for leaf eaters/aphids. Check for deficiency signs."
+            elif phase_name == "Mid-Season":
+                task = "Check for fungal issues if humid. Monitor fruit set."
+            
+            weekly_plan.append({
+                "week": w,
+                "phase": phase_name,
+                "water_mm": round(weekly_water_mm, 1),
+                "fertilizer": fert_dose,
+                "task": task
+            })
+
+        return {
+            "crop": crop_type,
+            "total_days": total_days,
+            "phases": phases,
+            "weekly_plan": weekly_plan,
+            "total_nutrients_kg": {
+                "N": round(total_n, 1),
+                "P": round(total_p, 1),
+                "K": round(total_k, 1)
+            },
+            "advisories": fertilizer_notes
+        }
+
 # Global instance
 agronomy_engine = AgronomyEngine()
