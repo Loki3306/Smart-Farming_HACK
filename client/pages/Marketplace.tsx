@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ShoppingCart,
   Search,
@@ -60,7 +61,8 @@ interface Listing {
 }
 
 export const Marketplace: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"buy" | "sell" | "insurance">("buy");
+  const { t } = useTranslation('marketplace');
+  const [activeTab, setActiveTab] = useState<"buy" | "sell">("buy");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [crops, setCrops] = useState<CropData[]>([]);
@@ -106,18 +108,18 @@ export const Marketplace: React.FC = () => {
   };
 
   const categories = [
-    { id: "all", name: "All Items", icon: Package },
-    { id: "seeds", name: "Seeds", icon: Leaf },
-    { id: "fertilizers", name: "Fertilizers", icon: Package },
-    { id: "pesticides", name: "Pesticides", icon: Package },
-    { id: "equipment", name: "Equipment", icon: Package },
-    { id: "produce", name: "Fresh Produce", icon: Leaf },
+    { id: "all", name: t('categories.all'), icon: Package },
+    { id: "seeds", name: t('categories.seeds'), icon: Leaf },
+    { id: "fertilizers", name: t('categories.fertilizers'), icon: Package },
+    { id: "pesticides", name: t('categories.pesticides'), icon: Package },
+    { id: "equipment", name: t('categories.equipment'), icon: Package },
+    { id: "produce", name: t('categories.produce'), icon: Leaf },
   ];
 
   const products: Product[] = [
     {
       id: "1",
-      name: "Hybrid Rice Seeds (IR-64)",
+      name: `${t('products.rice')} ${t('products.seeds')} (IR-64)`,
       category: "seeds",
       price: 450,
       unit: "kg",
@@ -131,7 +133,7 @@ export const Marketplace: React.FC = () => {
     },
     {
       id: "2",
-      name: "Organic Neem Cake Fertilizer",
+      name: `${t('labels.organic')} ${t('products.neem cake')} ${t('products.fertilizer')}`,
       category: "fertilizers",
       price: 25,
       unit: "kg",
@@ -145,7 +147,7 @@ export const Marketplace: React.FC = () => {
     },
     {
       id: "3",
-      name: "Bio-Pesticide (Neem Oil)",
+      name: `Bio-Pesticide (${t('products.neem oil') || 'Neem Oil'})`,
       category: "pesticides",
       price: 350,
       unit: "liter",
@@ -159,7 +161,7 @@ export const Marketplace: React.FC = () => {
     },
     {
       id: "4",
-      name: "Drip Irrigation Kit (1 Acre)",
+      name: `${t('products.drip irrigation')} Kit (1 Acre)`,
       category: "equipment",
       price: 15000,
       unit: "set",
@@ -173,7 +175,7 @@ export const Marketplace: React.FC = () => {
     },
     {
       id: "5",
-      name: "Fresh Organic Tomatoes",
+      name: `Fresh ${t('labels.organic')} ${t('products.tomato')}`,
       category: "produce",
       price: 40,
       unit: "kg",
@@ -187,7 +189,7 @@ export const Marketplace: React.FC = () => {
     },
     {
       id: "6",
-      name: "Wheat Seeds (HD-2967)",
+      name: `${t('products.wheat')} ${t('products.seeds')} (HD-2967)`,
       category: "seeds",
       price: 380,
       unit: "kg",
@@ -269,16 +271,60 @@ export const Marketplace: React.FC = () => {
     return { change: Math.abs(change), isPositive: change >= 0 };
   };
 
+  const getLocalizedName = (name: string) => {
+    const lowerName = name.toLowerCase();
+
+    // Try explicit match first
+    const key = `products.${lowerName}`;
+    const translated = t(key);
+
+    // If translation is different from key (excluding namespace prefix if any), use it
+    if (translated && translated !== key && translated !== `marketplace:${key}`) {
+      return translated;
+    }
+
+    // Check for "Seeds" suffix
+    if (lowerName.includes(' seeds')) {
+      const baseName = lowerName.replace(' seeds', '');
+      const baseKey = `products.${baseName}`;
+      const baseTranslated = t(baseKey);
+
+      if (baseTranslated && baseTranslated !== baseKey && baseTranslated !== `marketplace:${baseKey}`) {
+        return `${baseTranslated} ${t('products.seeds')}`;
+      }
+    }
+
+    // Try partial matches for known crops
+    const knownCrops = [
+      'rice', 'wheat', 'tomato', 'potato', 'onion', 'cotton', 'soybean',
+      'maize', 'chilli', 'sunflower', 'jowar', 'bajra', 'sugarcane',
+      'banana', 'coconut', 'lemon', 'papaya', 'pineapple', 'cucumber',
+      'ginger', 'garlic', 'turmeric'
+    ];
+
+    for (const crop of knownCrops) {
+      if (lowerName.includes(crop)) {
+        const cropKey = `products.${crop}`;
+        const cropTranslated = t(cropKey);
+        if (cropTranslated && cropTranslated !== cropKey && cropTranslated !== `marketplace:${cropKey}`) {
+          return name.replace(new RegExp(crop, 'gi'), cropTranslated);
+        }
+      }
+    }
+
+    return name;
+  };
+
   return (
     <div className="p-6 lg:p-8 space-y-8">
       {/* Header */}
       <div data-tour-id="market-header">
         <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
           <ShoppingCart className="w-8 h-8 text-primary" />
-          Farmer's Marketplace
+          {t('title')}
         </h1>
         <p className="text-muted-foreground mt-1">
-          Buy supplies and sell your produce directly to other farmers
+          {t('subtitle')}
         </p>
       </div>
 
@@ -290,7 +336,7 @@ export const Marketplace: React.FC = () => {
           className="gap-2"
         >
           <Package className="w-4 h-4" />
-          Buy Supplies
+          {t('tabs.buy')}
         </Button>
         <Button
           variant={activeTab === "sell" ? "default" : "outline"}
@@ -298,15 +344,7 @@ export const Marketplace: React.FC = () => {
           className="gap-2"
         >
           <Tag className="w-4 h-4" />
-          Sell Produce
-        </Button>
-        <Button
-          variant={activeTab === "insurance" ? "default" : "outline"}
-          onClick={() => setActiveTab("insurance")}
-          className="gap-2"
-        >
-          <Shield className="w-4 h-4" />
-          Crop Insurance
+          {t('tabs.sell')}
         </Button>
       </div>
 
@@ -605,7 +643,7 @@ export const Marketplace: React.FC = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Search for seeds, fertilizers, equipment..."
+                placeholder={t('searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 rounded-lg border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary"
@@ -634,14 +672,14 @@ export const Marketplace: React.FC = () => {
               // Loading State
               <div className="col-span-full flex flex-col items-center justify-center py-16">
                 <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
-                <p className="text-muted-foreground">Loading fresh crop prices...</p>
+                <p className="text-muted-foreground">{t('loading')}</p>
               </div>
             ) : filteredCrops.length === 0 ? (
               // Empty State
               <div className="col-span-full flex flex-col items-center justify-center py-16">
                 <Package className="w-16 h-16 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No crops found</h3>
-                <p className="text-muted-foreground">Try adjusting your search or filters</p>
+                <h3 className="text-lg font-semibold mb-2">{t('noCrops')}</h3>
+                <p className="text-muted-foreground">{t('noCropsSub')}</p>
               </div>
             ) : (
               // Crop Cards
@@ -695,7 +733,7 @@ export const Marketplace: React.FC = () => {
                         <div className="flex gap-2 mb-3 flex-wrap">
                           {crop.organic && (
                             <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700 font-medium">
-                              Organic
+                              {t('labels.organic')}
                             </span>
                           )}
                           {crop.brand && (
@@ -707,7 +745,7 @@ export const Marketplace: React.FC = () => {
 
                         {/* Product Info */}
                         <h3 className="font-bold text-lg text-foreground mb-1 line-clamp-1">
-                          {crop.name}
+                          {getLocalizedName(crop.name)}
                         </h3>
                         <p className="text-sm text-muted-foreground mb-3 line-clamp-1">
                           {crop.variety}
@@ -721,7 +759,7 @@ export const Marketplace: React.FC = () => {
                               <span className="font-medium text-sm">{crop.rating.toFixed(1)}</span>
                             </div>
                             {crop.reviews && (
-                              <span className="text-xs text-muted-foreground">({crop.reviews} reviews)</span>
+                              <span className="text-xs text-muted-foreground">({crop.reviews} {t('labels.reviews')})</span>
                             )}
                           </div>
                         )}
@@ -734,8 +772,8 @@ export const Marketplace: React.FC = () => {
                         {/* Price Range */}
                         <div className="mb-4 p-2 bg-muted/50 rounded-lg">
                           <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                            <span>Min: ₹{crop.minPrice}</span>
-                            <span>Max: ₹{crop.maxPrice}</span>
+                            <span>{t('labels.min')}: ₹{crop.minPrice}</span>
+                            <span>{t('labels.max')}: ₹{crop.maxPrice}</span>
                           </div>
                           <div className="h-1 bg-background rounded-full overflow-hidden">
                             <div
@@ -763,7 +801,7 @@ export const Marketplace: React.FC = () => {
                             }}
                           >
                             <ShoppingCart className="w-4 h-4 mr-2" />
-                            Buy
+                            {t('labels.buy')}
                           </Button>
                         </div>
                       </div>
@@ -779,10 +817,10 @@ export const Marketplace: React.FC = () => {
           {/* Sell Tab Content */}
           <Card className="p-6" data-tour-id="market-sell-listings">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold">Your Listings</h2>
+              <h2 className="text-xl font-semibold">{t('listings.title')}</h2>
               <Button className="gap-2">
                 <Plus className="w-4 h-4" />
-                Add New Listing
+                {t('listings.addNew')}
               </Button>
             </div>
 
@@ -811,23 +849,23 @@ export const Marketplace: React.FC = () => {
             ) : (
               <div className="text-center py-12">
                 <Package className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="font-semibold text-lg mb-2">No listings yet</h3>
+                <h3 className="font-semibold text-lg mb-2">{t('listings.empty')}</h3>
                 <p className="text-muted-foreground mb-4">
-                  Start selling your produce to other farmers
+                  {t('listings.emptySub')}
                 </p>
-                <Button>Create Your First Listing</Button>
+                <Button>{t('listings.createFirst')}</Button>
               </div>
             )}
           </Card>
 
           {/* Selling Tips */}
           <Card className="p-6 border-l-4 border-l-primary">
-            <h3 className="font-semibold mb-3">💡 Tips for Selling</h3>
+            <h3 className="font-semibold mb-3">💡 {t('tips.title')}</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>• Add clear photos of your produce</li>
-              <li>• Set competitive prices based on market rates</li>
-              <li>• Mention if your produce is organic or certified</li>
-              <li>• Respond quickly to buyer inquiries</li>
+              <li>• {t('tips.photos')}</li>
+              <li>• {t('tips.price')}</li>
+              <li>• {t('tips.organic')}</li>
+              <li>• {t('tips.respond')}</li>
             </ul>
           </Card>
         </>
@@ -839,7 +877,7 @@ export const Marketplace: React.FC = () => {
           {selectedCrop && (
             <>
               <DialogHeader>
-                <DialogTitle className="text-2xl">{selectedCrop.name}</DialogTitle>
+                <DialogTitle className="text-2xl">{getLocalizedName(selectedCrop.name)}</DialogTitle>
                 <DialogDescription>{selectedCrop.variety}</DialogDescription>
               </DialogHeader>
 
@@ -863,59 +901,59 @@ export const Marketplace: React.FC = () => {
 
                 {/* Price Information */}
                 <Card className="p-4 bg-primary/5">
-                  <h3 className="font-semibold mb-3">Price Details</h3>
+                  <h3 className="font-semibold mb-3">{t('priceDetails')}</h3>
                   <div className="grid grid-cols-3 gap-4 text-center">
                     <div>
-                      <p className="text-sm text-muted-foreground mb-1">Minimum</p>
+                      <p className="text-sm text-muted-foreground mb-1">{t('labels.minPrice')}</p>
                       <p className="text-lg font-bold text-red-600">₹{selectedCrop.minPrice}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground mb-1">Modal Price</p>
+                      <p className="text-sm text-muted-foreground mb-1">{t('labels.modalPrice')}</p>
                       <p className="text-2xl font-bold text-primary">₹{selectedCrop.price}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground mb-1">Maximum</p>
+                      <p className="text-sm text-muted-foreground mb-1">{t('labels.maxPrice')}</p>
                       <p className="text-lg font-bold text-green-600">₹{selectedCrop.maxPrice}</p>
                     </div>
                   </div>
                   <p className="text-center text-sm text-muted-foreground mt-3">
-                    Per {selectedCrop.unit}
+                    {t('labels.per')} {selectedCrop.unit}
                   </p>
                 </Card>
 
                 {/* Product Details */}
                 {(selectedCrop.brand || selectedCrop.description || selectedCrop.rating) && (
                   <Card className="p-4">
-                    <h3 className="font-semibold mb-3">Product Details</h3>
+                    <h3 className="font-semibold mb-3">{t('details')}</h3>
                     <div className="space-y-2">
                       {selectedCrop.brand && (
                         <div className="flex items-center gap-2">
-                          <span className="text-sm text-muted-foreground">Brand:</span>
+                          <span className="text-sm text-muted-foreground">{t('labels.brand')}:</span>
                           <span className="font-medium">{selectedCrop.brand}</span>
                         </div>
                       )}
                       {selectedCrop.rating && (
                         <div className="flex items-center gap-2">
-                          <span className="text-sm text-muted-foreground">Rating:</span>
+                          <span className="text-sm text-muted-foreground">{t('labels.rating')}:</span>
                           <div className="flex items-center gap-1">
                             <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                             <span className="font-medium">{selectedCrop.rating.toFixed(1)}</span>
                             {selectedCrop.reviews && (
-                              <span className="text-sm text-muted-foreground">({selectedCrop.reviews} reviews)</span>
+                              <span className="text-sm text-muted-foreground">({selectedCrop.reviews} {t('labels.reviews')})</span>
                             )}
                           </div>
                         </div>
                       )}
                       {selectedCrop.description && (
                         <div>
-                          <span className="text-sm text-muted-foreground">Description:</span>
+                          <span className="text-sm text-muted-foreground">{t('labels.description')}:</span>
                           <p className="text-sm mt-1">{selectedCrop.description}</p>
                         </div>
                       )}
                       {selectedCrop.organic && (
                         <div className="pt-2">
                           <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
-                            ✓ Certified Organic
+                            ✓ {t('labels.certifiedOrganic')}
                           </span>
                         </div>
                       )}
@@ -940,7 +978,7 @@ export const Marketplace: React.FC = () => {
                   <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
                     <Calendar className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-medium">Arrival Date</p>
+                      <p className="font-medium">{t('labels.arrivalDate')}</p>
                       <p className="text-sm text-muted-foreground">
                         {new Date(selectedCrop.arrivalDate).toLocaleDateString('en-IN', {
                           year: 'numeric',
@@ -954,7 +992,7 @@ export const Marketplace: React.FC = () => {
                   <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
                     <Package className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-medium">Category</p>
+                      <p className="font-medium">{t('labels.category')}</p>
                       <p className="text-sm text-muted-foreground capitalize">
                         {selectedCrop.category}
                       </p>
@@ -966,7 +1004,7 @@ export const Marketplace: React.FC = () => {
                 <div className="flex gap-3">
                   <Button className="flex-1" size="lg">
                     <ShoppingCart className="w-5 h-5 mr-2" />
-                    Buy Now
+                    {t('labels.buyNow')}
                   </Button>
                   <Button variant="outline" size="lg">
                     <Heart className="w-5 h-5" />
@@ -975,12 +1013,12 @@ export const Marketplace: React.FC = () => {
 
                 {/* Additional Info */}
                 <Card className="p-4 border-l-4 border-l-primary bg-primary/5">
-                  <h4 className="font-semibold mb-2">💡 Market Insights</h4>
+                  <h4 className="font-semibold mb-2">💡 {t('insights.title')}</h4>
                   <ul className="space-y-1 text-sm text-muted-foreground">
-                    <li>• Price data sourced from Government of India API</li>
-                    <li>• Prices are updated daily based on market arrivals</li>
-                    <li>• Modal price represents the most common trading price</li>
-                    <li>• Contact local mandis for bulk purchases</li>
+                    <li>• {t('insights.source')}</li>
+                    <li>• {t('insights.update')}</li>
+                    <li>• {t('insights.modal')}</li>
+                    <li>• {t('insights.contact')}</li>
                   </ul>
                 </Card>
               </div>

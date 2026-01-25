@@ -1,0 +1,27 @@
+{
+    "title": "Farm Mapping System",
+    "subtitle": "Draw and manage your farm boundaries and sections",
+    "stats": {
+        "sections": "Sections",
+        "sectionsCreated": "sections created",
+        "totalArea": "Total Area",
+        "acres": "acres"
+    },
+    "instructions": {
+        "title": "Getting Started",
+        "tip": "Tip:",
+        "tipText": "Click \"My Location\" button to center the map on your current GPS position",
+        "step1": "Step 1:",
+        "step1Text": "Click \"Draw Farm Boundary\" and click points on the map to draw your farm perimeter",
+        "step2": "Step 2:",
+        "step2Text": "Click \"Add New Section\" to divide your farm into manageable sections",
+        "step3": "Step 3:",
+        "step3Text": "Click on any section to add crop details, soil type, and track health",
+        "step4": "Step 4:",
+        "step4Text": "Use the toolbar on the map to edit or delete sections as needed"
+    },
+    "toast": {
+        "boundarySaved": "Farm boundary saved to local storage!",
+        "sectionCreated": "Section created and saved!"
+    }
+}

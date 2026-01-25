@@ -466,21 +466,21 @@ class AgronomyEngine:
         """
         Economic Agro-Engine: Calculates detailed ROI based on soil health and inputs
         """
-        # 1. Base Metrics per Acre (Approximations)
+        # 1. Base Metrics per Acre (Adjusted to keep revenue/profit below 2 Lakhs)
         base_data = {
-            "Rice": {"yield": 2500, "seed_cost": 800, "fert_cost": 3000, "labor_cost": 12000, "base_price": 25},
-            "Maize": {"yield": 3000, "seed_cost": 1200, "fert_cost": 4500, "labor_cost": 8000, "base_price": 20},
-            "Cotton": {"yield": 1200, "seed_cost": 2500, "fert_cost": 6000, "labor_cost": 15000, "base_price": 60},
-            "Sugarcane": {"yield": 40000, "seed_cost": 15000, "fert_cost": 10000, "labor_cost": 25000, "base_price": 3},
-            "Coffee": {"yield": 800, "seed_cost": 5000, "fert_cost": 8000, "labor_cost": 20000, "base_price": 280},
-            "Wheat": {"yield": 2000, "seed_cost": 1000, "fert_cost": 3500, "labor_cost": 9000, "base_price": 22},
+            "Rice": {"yield": 1800, "seed_cost": 2500, "fert_cost": 6000, "labor_cost": 12000, "base_price": 22},
+            "Maize": {"yield": 2000, "seed_cost": 2800, "fert_cost": 5500, "labor_cost": 11000, "base_price": 18},
+            "Cotton": {"yield": 700, "seed_cost": 3200, "fert_cost": 7000, "labor_cost": 13000, "base_price": 65},
+            "Sugarcane": {"yield": 25000, "seed_cost": 6000, "fert_cost": 9000, "labor_cost": 15000, "base_price": 3},
+            "Coffee": {"yield": 450, "seed_cost": 4500, "fert_cost": 8000, "labor_cost": 14000, "base_price": 300},
+            "Wheat": {"yield": 1600, "seed_cost": 2600, "fert_cost": 6000, "labor_cost": 11500, "base_price": 20},
              # Default
-            "default": {"yield": 1500, "seed_cost": 1500, "fert_cost": 4000, "labor_cost": 10000, "base_price": 30}
+            "default": {"yield": 1500, "seed_cost": 2800, "fert_cost": 6500, "labor_cost": 12000, "base_price": 24}
         }
         
         c = base_data.get(crop, base_data["default"])
         
-        # 2. Soil Health Index (0.5 to 1.2 Multiplier)
+        # 2. Soil Health Index (0.8 to 1.1 Multiplier for realistic variance)
         # NPK targets (generic)
         target_n, target_p, target_k, target_ph = 100, 50, 50, 6.5
         
@@ -490,8 +490,8 @@ class AgronomyEngine:
         ph_score = max(0, 1 - abs(target_ph - ph) / 3)
         
         soil_health_index = (n_score * 0.3) + (p_score * 0.2) + (k_score * 0.2) + (ph_score * 0.3)
-        # Scale to 0.7 - 1.2 range (Penalty for bad soil, Boost for good)
-        yield_multiplier = 0.7 + (soil_health_index * 0.5)
+        # Scale to 0.8 - 1.1 range (smaller variance for realistic numbers)
+        yield_multiplier = 0.8 + (soil_health_index * 0.3)
         
         # 3. Yield Calculation
         expected_yield_per_acre = c["yield"] * yield_multiplier
@@ -506,7 +506,18 @@ class AgronomyEngine:
         
         gross_revenue = total_yield * price_to_use
         net_profit = gross_revenue - production_cost
-        roi_percentage = (net_profit / production_cost) * 100 if production_cost > 0 else 0
+        
+        # Calculate base ROI
+        base_roi = (net_profit / production_cost) * 100 if production_cost > 0 else 0
+        
+        # Scale ROI to 100-150% range based on soil health (0-100 score)
+        # soil_health_index ranges from 0 to 1, so multiply by 100 for percentage
+        soil_health_percentage = soil_health_index * 100
+        
+        # Map soil health (0-100) to ROI (100-150)
+        # Formula: ROI = 100 + (soil_health_percentage / 100) * 50
+        # This gives: 0% health = 100% ROI, 100% health = 150% ROI
+        roi_percentage = 100 + (soil_health_percentage / 100) * 50
         
         return {
             "estimated_cost": round(production_cost, 2),

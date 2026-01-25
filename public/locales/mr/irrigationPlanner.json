@@ -1,0 +1,96 @@
+{
+    "title": "सिंचन नियोजक",
+    "subtitle": "तुमच्या शेतासाठी स्मार्ट पाणी व्यवस्थापन",
+    "regionalPricing": "2026 च्या किमती",
+    "vsBase": "मूळ तुलनेत",
+    "emptyState": {
+        "setupRequired": "सेटअप आवश्यक",
+        "noSections": "प्रथम शेती विभाग तयार करा.",
+        "noWaterSources": "नियोजन सुरू करण्यासाठी पाण्याचे स्रोत जोडा.",
+        "goToMapping": "शेत नकाशावर जा"
+    },
+    "tabs": {
+        "createPlan": "योजना तयार करा",
+        "savedPlans": "जतन केलेल्या योजना"
+    },
+    "steps": {
+        "step1": {
+            "title": "विभाग निवडा",
+            "subtitle": "शेती विभाग निवडा",
+            "noCrop": "पीक नाही",
+            "acres": "एकर"
+        },
+        "step2": {
+            "title": "पाण्याचे स्रोत",
+            "subtitle": "एक किंवा अधिक निवडा",
+            "selectSectionFirst": "प्रथम विभाग निवडा",
+            "selected": "निवडलेले",
+            "selectMultiple": "बॅकअपसाठी एकाधिक निवडा",
+            "primary": "प्राथमिक",
+            "showLess": "कमी दाखवा",
+            "more": "अधिक"
+        },
+        "step3": {
+            "title": "स्मार्ट निवडी",
+            "subtitle": "तुमच्या निवडीवर आधारित",
+            "options": "पर्याय",
+            "selectWaterFirst": "प्रथम पाण्याचा स्रोत निवडा",
+            "sourcesSelected": "स्रोत निवडले",
+            "asPrimary": "प्राथमिक म्हणून",
+            "noMethods": "कोणतीही योग्य पद्धत सापडली नाही",
+            "best": "सर्वोत्तम",
+            "efficiency": "कार्यक्षमता",
+            "perYear": "प्रति वर्ष",
+            "advantages": "✓ फायदे",
+            "consider": "⚠ विचार करा",
+            "visualizeLayout": "लेआउट पहा",
+            "createPlan": "योजना तयार करा"
+        }
+    },
+    "savedPlans": {
+        "searchPlaceholder": "योजना शोधा...",
+        "filterAll": "सर्व योजना",
+        "filterDraft": "मसुदा",
+        "filterApproved": "मंजूर",
+        "filterInProgress": "प्रगतीपथावर",
+        "filterCompleted": "पूर्ण",
+        "noPlans": "अद्याप कोणतीही सिंचन योजना नाही",
+        "noPlansDesc": "सुरू करण्यासाठी तुमची पहिली योजना तयार करा",
+        "createFirst": "पहिली योजना तयार करा",
+        "noResults": "कोणतीही योजना तुमच्या शोधाशी जुळत नाही",
+        "tryDifferent": "वेगळा शोध शब्द किंवा फिल्टर वापरून पहा",
+        "clearFilters": "फिल्टर साफ करा"
+    },
+    "planCard": {
+        "viewDetails": "तपशील पहा",
+        "hideDetails": "तपशील लपवा",
+        "method": "पद्धत",
+        "waterSource": "पाण्याचा स्रोत",
+        "totalCost": "एकूण खर्च",
+        "operational": "ऑपरेशनल",
+        "efficiency": "कार्यक्षमता",
+        "suitability": "योग्यता",
+        "created": "तयार केले",
+        "notes": "टीपा",
+        "markAs": "म्हणून चिन्हांकित करा",
+        "duplicate": "प्रत तयार करा",
+        "export": "निर्यात करा",
+        "delete": "हटवा"
+    },
+    "status": {
+        "draft": "मसुदा",
+        "approved": "मंजूर",
+        "inProgress": "प्रगतीपथावर",
+        "completed": "पूर्ण"
+    },
+    "toast": {
+        "planCreated": "सिंचन योजना यशस्वीरित्या तयार केली!",
+        "planCreatedMultiple": "{count} पाण्याच्या स्रोतांसह योजना तयार केली!",
+        "planDeleted": "योजना हटविली",
+        "planDuplicated": "योजना यशस्वीरित्या डुप्लिकेट केली",
+        "statusUpdated": "योजना {status} म्हणून चिन्हांकित केली",
+        "regionChanged": "प्रदेश {region} मध्ये बदलला. अद्ययावत किमती पाहण्यासाठी \"नवीन योजना तयार करा\" वर जा.",
+        "pricesUpdated": "{region} साठी किमती अद्यतनित केल्या",
+        "regionSet": "प्रदेश {region} वर सेट केला"
+    }
+}

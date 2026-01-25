@@ -1,0 +1,51 @@
+{
+    "title": "फार्म रेजिम प्लानर",
+    "subtitle": "आपकी फसल के लिए आधिकारिक 30-दिवसीय कृषि योजनाएं",
+    "newRegime": "नया रेजिम",
+    "stats": {
+        "active": "सक्रिय योजनाएं",
+        "completed": "पूर्ण",
+        "totalTasks": "कुल कार्य",
+        "avgConfidence": "औसत सफलता"
+    },
+    "emptyState": {
+        "description": "कोई रेजिम नहीं मिली। सिफारिशों के आधार पर एक नई रेजिम शुरू करें।",
+        "button": "सिफारिशें प्राप्त करें"
+    },
+    "tabs": {
+        "calendar": "कैलेंडर दृश्य",
+        "list": "सूची दृश्य"
+    },
+    "status": {
+        "active": "सक्रिय",
+        "completed": "पूर्ण",
+        "archived": "अभिलेखागार",
+        "pending": "लंबित",
+        "in_progress": "प्रगति पर",
+        "skipped": "छोड़ा गया",
+        "failed": "विफल"
+    },
+    "drawers": {
+        "create": {
+            "title": "नई रेजिम बनाएं"
+        },
+        "history": {
+            "title": "इतिहास"
+        }
+    },
+    "actions": {
+        "archiveConfirmTitle": "रेजिम को आर्काइव करें",
+        "archiveConfirmContent": "क्या आप सुनिश्चित हैं कि आप इस रेजिम को आर्काइव करना चाहते हैं? इसे इतिहास में ले जाया जाएगा।",
+        "archive": "आर्काइव",
+        "cancel": "रद्द करें"
+    },
+    "messages": {
+        "regimeCreated": "रेजिम सफलतापर्वक बनाई गई",
+        "createFailed": "रेजिम बनाने में विफल",
+        "regimeArchived": "रेजिम सफलतापूर्वक आर्काइव की गई",
+        "archiveFailed": "रेजिम को आर्काइव करने में विफल",
+        "taskUpdated": "कार्य स्थिति अपडेट की गई",
+        "updateFailed": "कार्य अपडेट करने में विफल",
+        "exportFailed": "रेजिम निर्यात करने में विफल"
+    }
+}

@@ -193,7 +193,7 @@ export const Weather: React.FC = () => {
   const CurrentIcon = getWeatherIconComponent(currentWeather.condition);
 
   return (
-    <div className="p-6 lg:p-8 space-y-8">
+    <div className="p-6 lg:p-8 space-y-8 pb-24">
       {/* Header */}
       <div data-tour-id="weather-header">
         <h1 className="text-3xl font-bold text-foreground">{t('header.title')}</h1>
@@ -208,7 +208,7 @@ export const Weather: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <Card className="p-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white" data-tour-id="weather-current">
+        <Card className="p-6 !bg-gradient-to-br !from-blue-500 !to-blue-600 !text-white border-none shadow-lg" data-tour-id="weather-current" style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' }}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Main Weather */}
             <div className="flex items-center gap-6">

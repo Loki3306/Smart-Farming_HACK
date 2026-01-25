@@ -210,7 +210,7 @@ export const Home: React.FC = () => {
   }, 300000);
 
   return (
-    <div className="min-h-screen bg-texture-dashboard bg-gradient-to-br from-amber-50 via-orange-50/50 to-yellow-50 dark:from-stone-900 dark:via-stone-900 dark:to-stone-800">
+    <div className="min-h-screen">
       {/* Demo Farmer Switcher */}
 
       {/* Header Bar */}

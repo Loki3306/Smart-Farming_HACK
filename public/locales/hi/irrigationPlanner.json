@@ -1,0 +1,96 @@
+{
+    "title": "सिंचाई योजनाकार",
+    "subtitle": "आपके खेत के लिए स्मार्ट जल प्रबंधन",
+    "regionalPricing": "2026 की कीमतें",
+    "vsBase": "आधार के मुकाबले",
+    "emptyState": {
+        "setupRequired": "सेटअॅप आवश्‍यक है",
+        "noSections": "पहले कृषि अनुभाग बनाएं।",
+        "noWaterSources": "योजना शुरू करने के लिए जल स्रोत जोड़ें।",
+        "goToMapping": "खेत मानचित्रण पर जाएं"
+    },
+    "tabs": {
+        "createPlan": "योजना बनाएं",
+        "savedPlans": "सहेजी गई योजनाएं"
+    },
+    "steps": {
+        "step1": {
+            "title": "अनुभाग चुनें",
+            "subtitle": "एक कृषि अनुभाग चुनें",
+            "noCrop": "कोई फसल नहीं",
+            "acres": "एकड़"
+        },
+        "step2": {
+            "title": "जल स्रोत",
+            "subtitle": "एक या अधिक चुनें",
+            "selectSectionFirst": "पहले अनुभाग चुनें",
+            "selected": "चयनित",
+            "selectMultiple": "बैकअप के लिए एकाधिक चुनें",
+            "primary": "प्राथमिक",
+            "showLess": "कम दिखाएं",
+            "more": "अधिक"
+        },
+        "step3": {
+            "title": "स्मार्ट चयन",
+            "subtitle": "आपके चयन के आधार पर",
+            "options": "विकल्प",
+            "selectWaterFirst": "पहले जल स्रोत चुनें",
+            "sourcesSelected": "स्रोत चयनित",
+            "asPrimary": "प्राथमिक के रूप में",
+            "noMethods": "कोई उपयुक्त विधि नहीं मिली",
+            "best": "सर्वोत्तम",
+            "efficiency": "दक्षता",
+            "perYear": "प्रति वर्ष",
+            "advantages": "✓ लाभ",
+            "consider": "⚠ विचार करें",
+            "visualizeLayout": "लेआउट देखें",
+            "createPlan": "योजना बनाएं"
+        }
+    },
+    "savedPlans": {
+        "searchPlaceholder": "योजनाएं खोजें...",
+        "filterAll": "सभी योजनाएं",
+        "filterDraft": "ड्राफ्ट",
+        "filterApproved": "स्वीकृत",
+        "filterInProgress": "प्रगति पर",
+        "filterCompleted": "पूर्ण",
+        "noPlans": "अभी तक कोई सिंचाई योजना नहीं",
+        "noPlansDesc": "शुरू करने के लिए अपनी पहली योजना बनाएं",
+        "createFirst": "पहली योजना बनाएं",
+        "noResults": "आपकी खोज से कोई योजना मेल नहीं खाती",
+        "tryDifferent": "कोई अलग खोज शब्द या फ़िल्टर आज़माएं",
+        "clearFilters": "फ़िल्टर साफ़ करें"
+    },
+    "planCard": {
+        "viewDetails": "विवरण देखें",
+        "hideDetails": "विवरण छिपाएं",
+        "method": "विधि",
+        "waterSource": "जल स्रोत",
+        "totalCost": "कुल लागत",
+        "operational": "परिचालन",
+        "efficiency": "दक्षता",
+        "suitability": "उपयुक्तता",
+        "created": "बनाया गया",
+        "notes": "टिप्पणियाँ",
+        "markAs": "इस रूप में चिह्नित करें",
+        "duplicate": "डुप्लिकेट बनाएं",
+        "export": "निर्यात करें",
+        "delete": "हटाएं"
+    },
+    "status": {
+        "draft": "ड्राफ्ट",
+        "approved": "स्वीकृत",
+        "inProgress": "प्रगति पर",
+        "completed": "पूर्ण"
+    },
+    "toast": {
+        "planCreated": "सिंचाई योजना सफलतापूर्वक बनाई गई!",
+        "planCreatedMultiple": "{count} जल स्रोतों के साथ योजना बनाई गई!",
+        "planDeleted": "योजना हटा दी गई",
+        "planDuplicated": "योजना सफलतापूर्वक डुप्लिकेट की गई",
+        "statusUpdated": "योजना को {status} के रूप में चिह्नित किया गया",
+        "regionChanged": "क्षेत्र {region} में बदल गया। अद्यतन कीमतों को देखने के लिए \"नई योजना बनाएं\" पर स्विच करें।",
+        "pricesUpdated": "{region} के लिए कीमतें अपडेट की गईं",
+        "regionSet": "क्षेत्र {region} पर सेट किया गया"
+    }
+}

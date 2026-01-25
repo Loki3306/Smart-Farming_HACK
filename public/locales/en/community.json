@@ -1,21 +1,18 @@
 {
     "header": {
-        "title": "Farmer Community",
-        "subtitle": "Learn from fellow farmers and experts",
-        "live": "Live",
+        "title": "Community & Expert Forum",
+        "live": "LIVE",
+        "subtitle": "Connect with farmers, ask experts, and share your success stories.",
         "createPost": "Create Post"
     },
-    "offline": {
-        "message": "You're offline. Some features may not work."
-    },
     "search": {
-        "placeholder": "Search posts, crops, topics, farmers...",
-        "filterByCrop": "Filter by crop",
+        "placeholder": "Search posts, crops, or topics...",
+        "filterByCrop": "Filter by Crop",
         "allCrops": "All Crops"
     },
     "tabs": {
         "posts": "Posts",
-        "experts": "Experts",
+        "experts": "Ask Experts",
         "saved": "Saved",
         "myReports": "My Reports"
     },
@@ -38,31 +35,31 @@
     "postTypes": {
         "success": {
             "label": "Success Story",
-            "description": "Share your farming achievement",
-            "cropPrompt": "Which crop gave you success?",
-            "contentPrompt": "What did you achieve? Tell your story...",
-            "methodPrompt": "What method or technique worked?"
+            "description": "Share your farming wins",
+            "cropPrompt": "Which crop is this about?",
+            "contentPrompt": "Tell us about your success...",
+            "methodPrompt": "What method did you use?"
         },
         "question": {
-            "label": "Question",
-            "description": "Ask the community for help",
-            "cropPrompt": "Which crop is this about?",
-            "contentPrompt": "What do you want to know? Be specific...",
-            "methodPrompt": "What have you already tried?"
+            "label": "Ask Question",
+            "description": "Get help from community",
+            "cropPrompt": "Which crop do you have a question about?",
+            "contentPrompt": "What is your question?",
+            "methodPrompt": "Current method (optional)"
         },
         "problem": {
-            "label": "Problem",
-            "description": "Report an issue you're facing",
-            "cropPrompt": "Which crop is affected?",
-            "contentPrompt": "Describe the problem in detail...",
-            "methodPrompt": "What have you observed?"
+            "label": "Report Problem",
+            "description": "Pest or disease issues",
+            "cropPrompt": "Affected crop",
+            "contentPrompt": "Describe the problem...",
+            "methodPrompt": "What have you tried?"
         },
         "update": {
-            "label": "Field Update",
-            "description": "Share what's happening in your field",
-            "cropPrompt": "What crop are you showing?",
-            "contentPrompt": "What's the current situation?",
-            "methodPrompt": "Any special technique being used?"
+            "label": "Farm Update",
+            "description": "General farm status",
+            "cropPrompt": "Crop update",
+            "contentPrompt": "What's happening on your farm?",
+            "methodPrompt": "Any new techniques?"
         }
     },
     "reactions": {
@@ -71,110 +68,103 @@
             "countText": "found helpful"
         },
         "tried": {
-            "label": "Tried this",
+            "label": "Tried",
             "countText": "tried this"
         },
         "didntWork": {
-            "label": "Didn't work",
-            "countText": "said didn't work"
+            "label": "Didn't Work",
+            "countText": "didn't work"
         },
         "newIdea": {
-            "label": "New idea",
-            "countText": "got new ideas"
-        }
+            "label": "New Idea",
+            "countText": "got ideas"
+        },
+        "yourFeedback": "Feedback recorded",
+        "failedToReact": "Failed to react"
+    },
+    "createPost": {
+        "missingInfo": "Missing Information",
+        "missingInfoDesc": "Please fill in all required fields",
+        "postShared": "Post Shared!",
+        "postSharedDesc": "Your post has been shared with the community",
+        "failedToCreate": "Failed to create post",
+        "tryAgainLater": "Please try again later",
+        "selectType": "What would you like to share?",
+        "shareExperience": "Share Your Experience"
+    },
+    "actions": {
+        "tryAgain": "Please try again",
+        "failedToSave": "Failed to save post",
+        "updated": "Updated",
+        "updatedDesc": "Post updated successfully",
+        "failedToUpdate": "Failed to update post",
+        "deleted": "Deleted",
+        "deletedDesc": "Post deleted successfully",
+        "failedToDelete": "Failed to delete post",
+        "reportSubmitted": "Report Submitted",
+        "reportSubmittedDesc": "Thank you for helping keep our community safe",
+        "alreadyReported": "Already Reported",
+        "alreadyReportedDesc": "You have already reported this post",
+        "failedToReport": "Failed to submit report",
+        "retry": "Retry"
+    },
+    "posts": {
+        "loadingPosts": "Loading community posts...",
+        "failedToLoad": "Failed to load posts",
+        "noPosts": "No posts yet",
+        "noPostsDescription": "Be the first to share something with the community!",
+        "loadMore": "Load More"
+    },
+    "experts": {
+        "loading": "Loading experts...",
+        "activeThisWeek": "Active this week",
+        "experience": "experience",
+        "followers": "Followers",
+        "answers": "Answers",
+        "following": "Following",
+        "follow": "Follow",
+        "ask": "Ask"
+    },
+    "saved": {
+        "loading": "Loading saved posts...",
+        "noSaved": "No saved posts yet",
+        "noSavedDesc": "Bookmark posts to save them for later reference",
+        "browse": "Browse Posts"
     },
     "time": {
         "justNow": "Just now",
         "minutesAgo": "{{count}}m ago",
         "hoursAgo": "{{count}}h ago",
-        "daysAgo": "{{count}}d ago"
+        "daysAgo": "{{count}}d ago",
+        "loading": "Loading..."
     },
-    "stats": {
-        "totalPosts": "Total Posts",
-        "activeExperts": "Active Experts",
-        "helpfulAnswers": "Helpful Answers",
-        "trending": "Trending Topics"
-    },
-    "experts": {
-        "verified": "Verified Expert",
-        "activeThisWeek": "Active this week",
-        "follow": "Follow",
-        "following": "Following",
-        "askExpert": "Ask Expert",
-        "noExperts": "No experts found"
-    },
-    "posts": {
-        "loadingPosts": "Loading posts...",
-        "noPosts": "No posts yet",
-        "noPostsDescription": "Be the first to share your farming experience!",
-        "failedToLoad": "Failed to load posts",
-        "loadMore": "Load More",
-        "trending": "Trending",
-        "expertReply": "Expert Reply"
-    },
-    "createPost": {
-        "title": "Create a Post",
-        "selectType": "What would you like to share?",
-        "missingInfo": "Missing information",
-        "missingInfoDesc": "Please fill in all required fields.",
-        "postShared": "Post shared! 🎉",
-        "postSharedDesc": "Your experience is now visible to the community.",
-        "failedToCreate": "Failed to create post",
-        "tryAgainLater": "Please try again later.",
-        "cancel": "Cancel",
-        "post": "Post",
-        "posting": "Posting..."
-    },
-    "actions": {
-        "save": "Save",
-        "saved": "📌 Saved!",
-        "savedDesc": "Post saved to your collection.",
-        "removed": "Removed",
-        "removedDesc": "Post removed from saved items.",
-        "share": "Share",
-        "sharedVia": "Shared via {{method}}",
-        "thankYou": "Thank you for spreading knowledge!",
-        "edit": "Edit",
-        "updated": "✅ Updated!",
-        "updatedDesc": "Your post has been updated successfully.",
-        "delete": "Delete",
-        "deleted": "🗑️ Deleted!",
-        "deletedDesc": "Your post has been removed.",
-        "report": "Report",
-        "reportSubmitted": "🚩 Report Submitted",
-        "reportSubmittedDesc": "Thank you for helping keep our community safe. We'll review this report.",
-        "alreadyReported": "Already Reported",
-        "alreadyReportedDesc": "You've already reported this post. Our team is reviewing it.",
-        "failedToSave": "Failed to save post",
-        "failedToShare": "Failed to share",
-        "failedToUpdate": "Failed to update post",
-        "failedToDelete": "Failed to delete post",
-        "failedToReport": "Failed to submit report",
-        "tryAgain": "Please try again."
+    "offline": {
+        "message": "You are currently offline. Some features may be limited."
     },
     "follow": {
-        "following": "Following!",
-        "followingDesc": "You'll get updates from this expert.",
-        "unfollowed": "Unfollowed",
-        "unfollowedDesc": "You won't receive updates anymore.",
-        "failedToFollow": "Failed to update follow"
+        "failedToFollow": "Failed to update follow status"
     },
-    "reaction": {
-        "yourFeedback": "Your feedback helps the community!",
-        "failedToReact": "Failed to update reaction"
-    },
-    "shareMethod": {
-        "whatsapp": "📱 WhatsApp",
-        "copyLink": "📋 Link",
-        "nativeShare": "📤 Share",
-        "download": "💾 Download"
-    },
-    "saved": {
-        "noSaved": "No saved posts",
-        "noSavedDesc": "Posts you save will appear here"
+    "sidebar": {
+        "dailyBrief": "Daily Farming Brief",
+        "weatherUpdate": "Weather Update",
+        "trendingDiscussion": "Trending Discussion",
+        "expertTip": "Expert Tip",
+        "trendingTopics": "Trending Topics",
+        "communityStats": "Community Stats",
+        "activeFarmers": "Active Farmers",
+        "postsToday": "Posts Today",
+        "questionsAnswered": "Questions Answered",
+        "needExpertHelp": "Need Expert Help?",
+        "getPersonalizedAdvice": "Get personalized advice from verified agricultural experts in your area.",
+        "askExpert": "Ask an Expert",
+        "aiSummary": "AI Summary",
+        "aiSummaryDesc": "Get quick summaries of long discussions with AI"
     },
     "reports": {
-        "noReports": "No reported posts",
-        "noReportsDesc": "Posts you report will appear here"
+        "noReports": "No Reports Yet",
+        "noReportsDesc": "You haven't reported any posts. Use the report feature to flag inappropriate content.",
+        "reason": "Reason",
+        "reportedPostId": "Reported Post ID",
+        "reportNumber": "Report #"
     }
 }

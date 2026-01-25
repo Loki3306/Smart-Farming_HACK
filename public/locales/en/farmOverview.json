@@ -1,0 +1,41 @@
+{
+    "title": "Farm Overview",
+    "subtitle": "sections • acres total",
+    "weather": {
+        "sunny": "Sunny"
+    },
+    "emptyState": {
+        "title": "Welcome to Your Farm",
+        "description": "Start by mapping your farm boundaries and sections. It only takes a few minutes!",
+        "startMapping": "Start Mapping",
+        "features": {
+            "boundaries": "Draw Boundaries",
+            "sections": "Add Sections",
+            "water": "Mark Water"
+        }
+    },
+    "quickActions": {
+        "viewMap": "View Map",
+        "editFarm": "Edit Farm",
+        "planIrrigation": "Plan Irrigation"
+    },
+    "stats": {
+        "sections": "Sections",
+        "totalArea": "Total Area",
+        "waterSources": "Water Sources",
+        "cropTypes": "Crop Types",
+        "acres": " acres"
+    },
+    "sections": {
+        "title": "Your Sections",
+        "addSection": "Add Section",
+        "noSections": "No sections yet",
+        "noSectionsDesc": "Add your first section to get started",
+        "createSection": "Create Section",
+        "edit": "Edit",
+        "irrigate": "Irrigate"
+    },
+    "waterSources": {
+        "title": "Water Sources"
+    }
+}

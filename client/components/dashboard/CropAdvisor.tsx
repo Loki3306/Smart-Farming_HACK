@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sprout, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react';
+import { Sprout, TrendingUp, AlertCircle, CheckCircle, Calendar, Coins, DollarSign } from 'lucide-react';
 
 interface Recommendation {
     selected_crop: string;
@@ -120,7 +120,7 @@ export const CropAdvisor: React.FC<CropAdvisorProps> = ({ sensorData }) => {
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                        <TrendingUp className="w-6 h-6 text-green-600" />
+                        <TrendingUp className="w-6 h-6 text-green-700" />
                         Strategic Crop Advisor
                     </h2>
                     <p className="text-sm text-gray-500">AI-driven biological & econometrics engine</p>
@@ -136,7 +136,7 @@ export const CropAdvisor: React.FC<CropAdvisorProps> = ({ sensorData }) => {
                     <button
                         onClick={runAnalysis}
                         disabled={loading}
-                        className={`px-6 py-2 rounded-lg font-bold text-white transition-all transform hover:scale-105 ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-green-600 to-teal-600 hover:shadow-lg'
+                        className={`px-6 py-2 rounded-xl font-bold text-white transition-all transform hover:scale-105 ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-700 hover:bg-green-800 shadow-md'
                             }`}
                     >
                         {loading ? 'Analyzing...' : 'Run Strategic Analysis'}
@@ -158,7 +158,7 @@ export const CropAdvisor: React.FC<CropAdvisorProps> = ({ sensorData }) => {
                     className="space-y-6"
                 >
                     {/* PRIMARY RECOMMENDATION CARD */}
-                    <div className={`p-6 rounded-xl border-l-8 ${rec.economic_switch ? 'bg-amber-50 border-amber-500' : 'bg-green-50 border-green-500'
+                    <div className={`p-6 rounded-2xl border-l-8 ${rec.economic_switch ? 'bg-green-50 border-green-500' : 'bg-green-50 border-green-500'
                         } shadow-sm`}>
                         <div className="flex justify-between items-start">
                             <div>
@@ -170,20 +170,20 @@ export const CropAdvisor: React.FC<CropAdvisorProps> = ({ sensorData }) => {
                                 </h3>
 
                                 {rec.economic_switch && (
-                                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold border border-amber-200 mb-3">
-                                        💰 Profit Optimized (+30% ROI)
+                                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-100 text-green-800 text-xs font-bold border border-green-200 mb-3">
+                                        <Coins className="w-3 h-3" /> Profit Optimized (+30% ROI)
                                     </span>
                                 )}
                             </div>
                             <div className="text-right">
-                                <div className="text-3xl font-bold text-green-600">{rec.confidence}%</div>
+                                <div className="text-3xl font-bold text-green-700">{rec.confidence}%</div>
                                 <div className="text-xs text-gray-500">Confidence Score</div>
                             </div>
                         </div>
 
                         <div className="mt-4 p-4 bg-white rounded-lg border border-gray-100">
                             <h4 className="font-bold text-gray-700 mb-1 flex items-center gap-2">
-                                <CheckCircle className="w-4 h-4 text-green-500" />
+                                <CheckCircle className="w-4 h-4 text-green-600" />
                                 AI Rationale
                             </h4>
                             <p className="text-gray-600 text-sm leading-relaxed">
@@ -201,22 +201,22 @@ export const CropAdvisor: React.FC<CropAdvisorProps> = ({ sensorData }) => {
                                     key={idx}
                                     onClick={() => setSelectedCandidateIndex(idx)}
                                     className={`p-4 rounded-lg border cursor-pointer transition-all transform hover:scale-105 ${idx === selectedCandidateIndex
-                                            ? 'bg-blue-50 border-blue-400 ring-2 ring-blue-200 shadow-md'
-                                            : 'bg-white border-gray-200 hover:bg-gray-50'
+                                        ? 'bg-green-50 border-green-400 ring-2 ring-green-200 shadow-md'
+                                        : 'bg-white border-gray-200 hover:bg-gray-50'
                                         }`}
                                 >
                                     <div className="flex justify-between items-center mb-2">
                                         <div className="flex flex-col">
-                                            <span className={`font-bold ${idx === selectedCandidateIndex ? 'text-blue-800' : 'text-gray-800'}`}>
+                                            <span className={`font-bold ${idx === selectedCandidateIndex ? 'text-green-800' : 'text-gray-800'}`}>
                                                 #{idx + 1} {cand.crop}
                                             </span>
-                                            {cand.crop === rec.selected_crop && <span className="text-[10px] text-green-600 font-bold uppercase">Officially Recommended</span>}
+                                            {cand.crop === rec.selected_crop && <span className="text-[10px] text-green-700 font-bold uppercase">Officially Recommended</span>}
                                         </div>
                                         <span className="text-sm font-mono text-gray-500">{cand.probability.toFixed(1)}%</span>
                                     </div>
                                     <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
                                         <div
-                                            className={`${idx === selectedCandidateIndex ? 'bg-blue-500' : 'bg-gray-400'} h-full transition-all`}
+                                            className={`${idx === selectedCandidateIndex ? 'bg-green-600' : 'bg-gray-400'} h-full transition-all`}
                                             style={{ width: `${cand.probability}%` }}
                                         />
                                     </div>
@@ -229,33 +229,33 @@ export const CropAdvisor: React.FC<CropAdvisorProps> = ({ sensorData }) => {
                     <div className="animate-fade-in relative">
                         {/* TITLE OF CURRENT VIEW */}
                         <div className="mb-4 flex items-center justify-center">
-                            <span className="bg-slate-800 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg">
+                            <span className="bg-gray-800 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-md">
                                 Showing Data For: {viewingCandidate?.crop}
                             </span>
                         </div>
 
                         {/* FINANCIAL LEDGER */}
                         {financials && (
-                            <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-6 rounded-xl shadow-lg mb-6">
+                            <div className="bg-gray-800 text-white p-6 rounded-2xl shadow-md mb-6">
                                 <h4 className="text-lg font-bold mb-4 flex items-center gap-2">
-                                    <span className="text-2xl">💸</span> Financial Forecast ({(financials as any).area_acres || 5} acres)
+                                    <TrendingUp className="w-5 h-5 text-green-400" /> Financial Forecast ({(financials as any).area_acres || 5} acres)
                                 </h4>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
                                     <div>
-                                        <div className="text-xs text-slate-400 uppercase font-bold">Est. Cost</div>
-                                        <div className="text-xl font-mono text-red-400">₹{(financials as any).estimated_cost.toLocaleString()}</div>
+                                        <div className="text-xs text-gray-400 uppercase font-bold">Est. Cost</div>
+                                        <div className="text-xl font-mono text-white">₹{(financials as any).estimated_cost.toLocaleString()}</div>
                                     </div>
                                     <div>
                                         <div className="text-xs text-slate-400 uppercase font-bold">Revenue</div>
                                         <div className="text-xl font-mono text-green-400">₹{(financials as any).projected_revenue.toLocaleString()}</div>
                                     </div>
                                     <div>
-                                        <div className="text-xs text-slate-400 uppercase font-bold">Net Profit</div>
-                                        <div className="text-2xl font-mono font-bold text-yellow-400">₹{(financials as any).net_profit.toLocaleString()}</div>
+                                        <div className="text-xs text-gray-400 uppercase font-bold">Net Profit</div>
+                                        <div className="text-2xl font-mono font-bold text-green-400">₹{(financials as any).net_profit.toLocaleString()}</div>
                                     </div>
                                     <div>
-                                        <div className="text-xs text-slate-400 uppercase font-bold">ROI</div>
-                                        <div className="text-xl font-mono text-blue-400">{(financials as any).roi_percentage}%</div>
+                                        <div className="text-xs text-gray-400 uppercase font-bold">ROI</div>
+                                        <div className="text-xl font-mono text-green-400">{(financials as any).roi_percentage}%</div>
                                     </div>
                                 </div>
                             </div>
@@ -263,7 +263,7 @@ export const CropAdvisor: React.FC<CropAdvisorProps> = ({ sensorData }) => {
 
                         {/* SOWING PROTOCOL */}
                         {sowing && (
-                            <div className="bg-white p-6 rounded-xl border border-gray-200 mb-6">
+                            <div className="bg-white p-6 rounded-2xl border border-gray-200 mb-6">
                                 <h4 className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-800">
                                     <Sprout className="w-5 h-5 text-green-600" />
                                     Technical Sowing Protocol ({viewingCandidate?.crop})
@@ -291,9 +291,9 @@ export const CropAdvisor: React.FC<CropAdvisorProps> = ({ sensorData }) => {
 
                         {/* SEASON ROADMAP */}
                         {roadmap && (
-                            <div className="bg-white p-6 rounded-xl border border-gray-100">
+                            <div className="bg-white p-6 rounded-2xl border border-gray-200">
                                 <h4 className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-800">
-                                    🗓️ Season Roadmap ({viewingCandidate?.crop})
+                                    <Calendar className="w-5 h-5 text-green-700" /> Season Roadmap ({viewingCandidate?.crop})
                                 </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                     {Object.entries(roadmap).map(([phase, plan], idx) => (

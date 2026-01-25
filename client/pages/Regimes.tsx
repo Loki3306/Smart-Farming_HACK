@@ -1,12 +1,7 @@
-/**
- * Regime Management Page
- * Main interface for viewing and managing 30-day farming plans
- * Users can create, update, and track regime tasks
- */
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import {
   Card,
   Button,
@@ -69,6 +64,7 @@ interface RegimeTask {
 }
 
 export default function RegimesPage() {
+  const { t } = useTranslation('regimes');
   const { regimeId } = useParams();
   const navigate = useNavigate();
   const [detailDrawer, setDetailDrawer] = useState(!!regimeId);
@@ -94,12 +90,12 @@ export default function RegimesPage() {
   const createMutation = useMutation({
     mutationFn: (data: any) => regimeService.createRegime(data),
     onSuccess: () => {
-      message.success('Regime created successfully!');
+      message.success(t('messages.regimeCreated'));
       setFormDrawer(false);
       refetchList();
     },
     onError: (error: any) => {
-      message.error(error.message || 'Failed to create regime');
+      message.error(error.message || t('messages.createFailed'));
     },
   });
 
@@ -107,11 +103,11 @@ export default function RegimesPage() {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => regimeService.deleteRegime(id),
     onSuccess: () => {
-      message.success('Regime archived successfully');
+      message.success(t('messages.regimeArchived'));
       refetchList();
     },
     onError: (error: any) => {
-      message.error(error.message || 'Failed to archive regime');
+      message.error(error.message || t('messages.archiveFailed'));
     },
   });
 
@@ -129,22 +125,22 @@ export default function RegimesPage() {
       notes?: string;
     }) => regimeService.updateTaskStatus(regimeId, taskId, status, notes),
     onSuccess: () => {
-      message.success('Task updated');
+      message.success(t('messages.taskUpdated'));
       if (regimeId) {
         // Refetch regime details
       }
     },
     onError: (error: any) => {
-      message.error(error.message || 'Failed to update task');
+      message.error(error.message || t('messages.updateFailed'));
     },
   });
 
   const handleDeleteRegime = (id: string) => {
     Modal.confirm({
-      title: 'Archive Regime?',
-      content: 'This will move the regime to archived status. Data will be preserved.',
-      okText: 'Archive',
-      cancelText: 'Cancel',
+      title: t('actions.archiveConfirmTitle'),
+      content: t('actions.archiveConfirmContent'),
+      okText: t('actions.archive'),
+      cancelText: t('actions.cancel'),
       onOk() {
         deleteMutation.mutate(id);
       },
@@ -164,7 +160,7 @@ export default function RegimesPage() {
         link.parentElement?.removeChild(link);
       })
       .catch((error) => {
-        message.error(error.message || 'Failed to export regime');
+        message.error(error.message || t('messages.exportFailed'));
       });
   };
 
@@ -201,10 +197,8 @@ export default function RegimesPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Farming Regimes</h1>
-          <p className="text-gray-600 mt-2">
-            View and manage your 30-day farming plans with multi-step tasks
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900">{t('title')}</h1>
+          <p className="text-gray-600 mt-2">{t('subtitle')}</p>
         </div>
         <Button
           type="primary"
@@ -212,7 +206,7 @@ export default function RegimesPage() {
           onClick={() => setFormDrawer(true)}
           className="bg-green-600 hover:bg-green-700"
         >
-          + New Regime
+          {t('newRegime')}
         </Button>
       </div>
 
@@ -222,7 +216,7 @@ export default function RegimesPage() {
           <Col xs={24} sm={12} md={6}>
             <Card>
               <Statistic
-                title="Active Regimes"
+                title={t('stats.active')}
                 value={regimes.filter((r) => r.status === 'active').length}
                 prefix={<ClockCircleOutlined />}
               />
@@ -231,7 +225,7 @@ export default function RegimesPage() {
           <Col xs={24} sm={12} md={6}>
             <Card>
               <Statistic
-                title="Completed"
+                title={t('stats.completed')}
                 value={regimes.filter((r) => r.status === 'completed').length}
                 prefix={<CheckOutlined />}
               />
@@ -240,7 +234,7 @@ export default function RegimesPage() {
           <Col xs={24} sm={12} md={6}>
             <Card>
               <Statistic
-                title="Total Tasks"
+                title={t('stats.totalTasks')}
                 value={regimes.reduce((sum, r) => sum + r.task_count, 0)}
               />
             </Card>
@@ -248,7 +242,7 @@ export default function RegimesPage() {
           <Col xs={24} sm={12} md={6}>
             <Card>
               <Statistic
-                title="Avg Confidence"
+                title={t('stats.avgConfidence')}
                 value="92.5"
                 suffix="%"
                 precision={1}
@@ -261,11 +255,11 @@ export default function RegimesPage() {
       {/* Regimes List/Calendar View */}
       {!regimes || regimes.length === 0 ? (
         <Empty
-          description="No regimes yet. Start by getting AI recommendations!"
+          description={t('emptyState.description')}
           style={{ marginTop: 48, marginBottom: 48 }}
         >
           <Button type="primary" onClick={() => navigate('/recommendations')}>
-            Get AI Recommendations
+            {t('emptyState.button')}
           </Button>
         </Empty>
       ) : (
@@ -276,14 +270,14 @@ export default function RegimesPage() {
               key: 'calendar',
               label: (
                 <span>
-                  <CalendarOutlined /> Calendar View
+                  <CalendarOutlined /> {t('tabs.calendar')}
                 </span>
               ),
               children: (
                 <RegimeCalendarView
                   tasks={regimes.flatMap((r) => r.tasks || [])}
                   onTaskClick={(task) => {
-                    const regime = regimes.find((r) => 
+                    const regime = regimes.find((r) =>
                       r.tasks?.some((t) => t.task_id === task.task_id)
                     );
                     if (regime) {
@@ -301,7 +295,7 @@ export default function RegimesPage() {
               key: 'list',
               label: (
                 <span>
-                  <BugOutlined /> List View
+                  <BugOutlined /> {t('tabs.list')}
                 </span>
               ),
               children: (
@@ -322,7 +316,7 @@ export default function RegimesPage() {
                             <h3 className="text-lg font-semibold text-gray-900">
                               {regime.name}
                             </h3>
-                            <Badge color={getStatusColor(regime.status)} text={regime.status} />
+                            <Badge color={getStatusColor(regime.status)} text={t(`status.${regime.status}`, regime.status)} />
                             <Badge
                               count={`v${regime.version}`}
                               style={{ backgroundColor: '#108ee9' }}
@@ -331,7 +325,7 @@ export default function RegimesPage() {
                           <p className="text-gray-600 mb-3">{regime.description}</p>
                           <div className="flex gap-6 text-sm text-gray-500">
                             <span>
-                              <CalendarOutlined /> {regime.task_count} tasks
+                              <CalendarOutlined /> {regime.task_count} {t('stats.totalTasks')}
                             </span>
                             <span>
                               Valid until {new Date(regime.valid_until).toLocaleDateString()}
@@ -379,7 +373,7 @@ export default function RegimesPage() {
 
       {/* Create Regime Drawer */}
       <Drawer
-        title="Create New Regime"
+        title={t('drawers.create.title')}
         placement="right"
         onClose={() => setFormDrawer(false)}
         open={formDrawer}
@@ -420,7 +414,7 @@ export default function RegimesPage() {
 
       {/* History Drawer */}
       <Drawer
-        title={`${selectedRegime?.name} - Version History`}
+        title={`${selectedRegime?.name} - ${t('drawers.history.title')}`}
         placement="right"
         onClose={() => setHistoryDrawer(false)}
         open={historyDrawer && !!selectedRegime}

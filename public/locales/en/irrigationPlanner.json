@@ -1,0 +1,96 @@
+{
+    "title": "Irrigation Planner",
+    "subtitle": "Smart water management for your farm",
+    "regionalPricing": "2026 Prices",
+    "vsBase": "vs base",
+    "emptyState": {
+        "setupRequired": "Setup Required",
+        "noSections": "Create farm sections first.",
+        "noWaterSources": "Add water sources to start planning.",
+        "goToMapping": "Go to Farm Mapping"
+    },
+    "tabs": {
+        "createPlan": "Create Plan",
+        "savedPlans": "Saved Plans"
+    },
+    "steps": {
+        "step1": {
+            "title": "Select Section",
+            "subtitle": "Choose a farm section",
+            "noCrop": "No crop",
+            "acres": "acres"
+        },
+        "step2": {
+            "title": "Water Sources",
+            "subtitle": "Select one or more",
+            "selectSectionFirst": "Select section first",
+            "selected": "selected",
+            "selectMultiple": "Select multiple for backup",
+            "primary": "Primary",
+            "showLess": "Show Less",
+            "more": "more"
+        },
+        "step3": {
+            "title": "Smart Picks",
+            "subtitle": "Based on your selection",
+            "options": "options",
+            "selectWaterFirst": "Select water source first",
+            "sourcesSelected": "sources selected",
+            "asPrimary": "as primary",
+            "noMethods": "No suitable methods found",
+            "best": "Best",
+            "efficiency": "Efficiency",
+            "perYear": "Per Year",
+            "advantages": "✓ Advantages",
+            "consider": "⚠ Consider",
+            "visualizeLayout": "Visualize Layout",
+            "createPlan": "Create Plan"
+        }
+    },
+    "savedPlans": {
+        "searchPlaceholder": "Search plans...",
+        "filterAll": "All Plans",
+        "filterDraft": "Draft",
+        "filterApproved": "Approved",
+        "filterInProgress": "In Progress",
+        "filterCompleted": "Completed",
+        "noPlans": "No irrigation plans yet",
+        "noPlansDesc": "Create your first plan to get started",
+        "createFirst": "Create First Plan",
+        "noResults": "No plans match your search",
+        "tryDifferent": "Try a different search term or filter",
+        "clearFilters": "Clear Filters"
+    },
+    "planCard": {
+        "viewDetails": "View Details",
+        "hideDetails": "Hide Details",
+        "method": "Method",
+        "waterSource": "Water Source",
+        "totalCost": "Total Cost",
+        "operational": "Operational",
+        "efficiency": "Efficiency",
+        "suitability": "Suitability",
+        "created": "Created",
+        "notes": "Notes",
+        "markAs": "Mark as",
+        "duplicate": "Duplicate",
+        "export": "Export",
+        "delete": "Delete"
+    },
+    "status": {
+        "draft": "Draft",
+        "approved": "Approved",
+        "inProgress": "In Progress",
+        "completed": "Completed"
+    },
+    "toast": {
+        "planCreated": "Irrigation plan created successfully!",
+        "planCreatedMultiple": "Plan created with {count} water sources!",
+        "planDeleted": "Plan deleted",
+        "planDuplicated": "Plan duplicated successfully",
+        "statusUpdated": "Plan marked as {status}",
+        "regionChanged": "Region changed to {region}. Switch to \"Create New Plan\" to see updated prices.",
+        "pricesUpdated": "Prices updated for {region}",
+        "regionSet": "Region set to {region}"
+    }
+}

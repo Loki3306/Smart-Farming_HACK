@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Scan, Stethoscope } from "lucide-react";
 import { CropSelector } from "@/components/ui/CropSelector";
 import { MODEL_CROP_MAP, SUPPORTED_DISPLAY_CROPS } from "@/services/diseaseModelConfig";
 import { Card } from "@/components/ui/card";
@@ -86,9 +87,14 @@ export const Disease: React.FC = () => {
 
       {/* HERO */}
       <div className="space-y-4">
-        <h1 className="text-4xl font-semibold tracking-tight">
-          {t("title")}
-        </h1>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-3 rounded-xl bg-primary/10 text-primary">
+            <Scan className="w-8 h-8" />
+          </div>
+          <h1 className="text-4xl font-semibold tracking-tight">
+            {t("title")}
+          </h1>
+        </div>
         <p className="text-muted-foreground max-w-2xl">
           {t("subtitle")}
         </p>

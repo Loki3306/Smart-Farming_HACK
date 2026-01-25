@@ -1,6 +1,6 @@
 /**
- * YieldTracker Page - Comprehensive yield tracking and comparison
- * Features: Active crops, harvest logging, history, and analytics
+ * YieldTracker Page - Bento Grid Redesign
+ * Features: Dashboard-style view of crops, predictions, and analytics
  */
 
 import React, { useEffect, useState } from 'react';
@@ -8,17 +8,22 @@ import { useNavigate } from 'react-router-dom';
 import {
     Wheat, ArrowLeft, Plus, TrendingUp, TrendingDown, Calendar,
     BarChart3, Target, Check, X, Loader2, ChevronRight, Sparkles,
-    ClipboardCheck, History, Scale
+    ClipboardCheck, History, Scale, Sprout, ArrowUpRight
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { yieldService, YieldRecord, YieldComparison as YieldComparisonType } from '../services/yieldService';
 import { YieldPredictionCard } from '../components/yield/YieldPredictionCard';
 import { SpacingCalculator } from '../components/spacing/SpacingCalculator';
+import { cn } from '@/lib/utils';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export const YieldTracker: React.FC = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
-    const [activeTab, setActiveTab] = useState<'active' | 'history' | 'compare'>('active');
     const [yields, setYields] = useState<YieldRecord[]>([]);
     const [comparisons, setComparisons] = useState<YieldComparisonType[]>([]);
     const [stats, setStats] = useState<any>(null);
@@ -60,362 +65,196 @@ export const YieldTracker: React.FC = () => {
         if (!dateStr) return '—';
         return new Date(dateStr).toLocaleDateString('en-IN', {
             day: 'numeric',
-            month: 'short',
-            year: 'numeric'
+            month: 'short'
         });
     };
 
     // Calculate days
-    const calculateDays = (fromDate?: string, toDate?: string) => {
+    const calculateDays = (fromDate?: string) => {
         if (!fromDate) return null;
         const from = new Date(fromDate);
-        const to = toDate ? new Date(toDate) : new Date();
+        const to = new Date();
         return Math.floor((to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24));
     };
 
-    // Handle log harvest click
+    // Handle log harvest
     const handleLogHarvest = (yieldRecord: YieldRecord) => {
         setSelectedYield(yieldRecord);
         setShowLogModal(true);
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50/50 to-yellow-50 dark:from-stone-900 dark:via-stone-900 dark:to-stone-800">
-            {/* Header */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <button
-                    onClick={() => navigate(-1)}
-                    className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-4"
-                >
-                    <ArrowLeft className="w-4 h-4" />
-                    <span>Back</span>
-                </button>
+        <div className="min-h-screen bg-gray-50/50 dark:bg-stone-900 p-4 md:p-8">
+            <div className="max-w-7xl mx-auto space-y-6">
 
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <div className="p-3 bg-green-500/20 rounded-2xl">
-                            <Wheat className="w-8 h-8 text-green-600 dark:text-green-400" />
+                {/* Header Section */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                            <button onClick={() => navigate(-1)} className="hover:text-foreground transition-colors flex items-center gap-1">
+                                <ArrowLeft className="w-4 h-4" /> Back
+                            </button>
+                            <span>/</span>
+                            <span>Yield Tracker</span>
                         </div>
-                        <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Yield Tracker</h1>
-                            <p className="text-muted-foreground">Track, predict, and compare your crop yields</p>
-                        </div>
+                        <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
+                            <Wheat className="w-8 h-8 text-green-600" />
+                            Yield Analytics
+                        </h1>
+                        <p className="text-muted-foreground text-sm mt-1">Smart predictions and harvest tracking</p>
                     </div>
 
-                    <button
-                        onClick={() => {/* TODO: Add new crop modal */ }}
-                        className="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl font-medium hover:opacity-90 transition-opacity"
-                    >
-                        <Plus className="w-4 h-4" />
-                        Add Crop
-                    </button>
+                    <div className="flex gap-2">
+                        <Button className="bg-primary text-primary-foreground shadow-lg shadow-primary/20">
+                            <Plus className="w-4 h-4 mr-2" /> New Crop
+                        </Button>
+                    </div>
                 </div>
-            </div>
 
-            {/* Main Content */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Left Column - Main Content */}
-                    <div className="lg:col-span-2 space-y-6">
-                        {/* Tabs */}
-                        <div className="bg-card rounded-2xl shadow-lg border border-border/50 p-2 flex gap-2">
-                            {[
-                                { id: 'active', label: 'Active Crops', icon: Wheat },
-                                { id: 'history', label: 'History', icon: History },
-                                { id: 'compare', label: 'Compare', icon: Scale },
-                            ].map(tab => (
-                                <button
-                                    key={tab.id}
-                                    onClick={() => setActiveTab(tab.id as any)}
-                                    className={`flex-1 py-2.5 px-4 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${activeTab === tab.id
-                                        ? 'bg-primary text-primary-foreground'
-                                        : 'text-muted-foreground hover:bg-muted'
-                                        }`}
-                                >
-                                    <tab.icon className="w-4 h-4" />
-                                    <span className="hidden sm:inline">{tab.label}</span>
-                                </button>
-                            ))}
-                        </div>
+                {/* Main Bento Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[minmax(160px,auto)]">
 
-                        {/* Tab Content */}
-                        {loading ? (
-                            <div className="bg-card rounded-2xl shadow-lg border border-border/50 p-12 flex items-center justify-center">
-                                <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                            </div>
-                        ) : activeTab === 'active' ? (
-                            /* Active Crops */
-                            <div className="space-y-4">
-                                {activeYields.length === 0 ? (
-                                    <div className="bg-card rounded-2xl shadow-lg border border-border/50 p-8 text-center">
-                                        <Wheat className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                                        <h3 className="font-semibold text-foreground mb-2">No Active Crops</h3>
-                                        <p className="text-muted-foreground mb-4">Start tracking your crops to get yield predictions</p>
-                                        <button className="px-4 py-2 bg-primary text-primary-foreground rounded-xl font-medium">
-                                            <Plus className="w-4 h-4 inline mr-2" />
-                                            Add Your First Crop
-                                        </button>
-                                    </div>
-                                ) : (
-                                    activeYields.map(yieldRecord => (
-                                        <div key={yieldRecord.id} className="bg-card rounded-2xl shadow-lg border border-border/50 p-5">
-                                            <div className="flex items-start justify-between mb-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="p-2 bg-green-500/20 rounded-xl">
-                                                        <Wheat className="w-5 h-5 text-green-600 dark:text-green-400" />
-                                                    </div>
-                                                    <div>
-                                                        <h3 className="font-semibold text-foreground">{yieldRecord.crop_type}</h3>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            Sowed {formatDate(yieldRecord.sowing_date)}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-medium">
-                                                    Growing
-                                                </span>
-                                            </div>
-
-                                            <div className="grid grid-cols-3 gap-4 mb-4">
-                                                <div className="text-center p-3 bg-muted/30 rounded-xl">
-                                                    <p className="text-xs text-muted-foreground mb-1">Days Growing</p>
-                                                    <p className="font-bold text-foreground">
-                                                        {calculateDays(yieldRecord.sowing_date) || '—'}
-                                                    </p>
-                                                </div>
-                                                <div className="text-center p-3 bg-muted/30 rounded-xl">
-                                                    <p className="text-xs text-muted-foreground mb-1">Expected Yield</p>
-                                                    <p className="font-bold text-foreground">
-                                                        {yieldRecord.predicted_yield_kg ? `${yieldRecord.predicted_yield_kg.toLocaleString()} kg` : '—'}
-                                                    </p>
-                                                </div>
-                                                <div className="text-center p-3 bg-muted/30 rounded-xl">
-                                                    <p className="text-xs text-muted-foreground mb-1">Confidence</p>
-                                                    <p className="font-bold text-foreground">
-                                                        {yieldRecord.prediction_confidence ? `${yieldRecord.prediction_confidence}%` : '—'}
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex gap-3">
-                                                <button
-                                                    onClick={() => handleLogHarvest(yieldRecord)}
-                                                    className="flex-1 py-2.5 px-4 bg-primary text-primary-foreground rounded-xl font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-                                                >
-                                                    <ClipboardCheck className="w-4 h-4" />
-                                                    Log Harvest
-                                                </button>
-                                                <button className="py-2.5 px-4 bg-muted text-foreground rounded-xl font-medium hover:bg-muted/70 transition-colors">
-                                                    Details
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        ) : activeTab === 'history' ? (
-                            /* Harvest History */
-                            <div className="bg-card rounded-2xl shadow-lg border border-border/50 overflow-hidden">
-                                <div className="p-5 border-b border-border/50">
-                                    <h3 className="font-semibold text-foreground">Harvest History</h3>
+                    {/* 1. Summary Stats (Top Left - Wide) */}
+                    <Card className="col-span-1 md:col-span-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border-green-100 dark:border-green-900">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-lg flex items-center gap-2">
+                                <TrendingUp className="w-5 h-5 text-green-600" />
+                                Performance Overview
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="grid grid-cols-3 gap-4">
+                                <div className="p-3 bg-white/60 dark:bg-black/20 rounded-xl">
+                                    <p className="text-xs text-muted-foreground mb-1">Total Harvests</p>
+                                    <p className="text-2xl font-bold">{stats?.total_harvests || 0}</p>
                                 </div>
-                                {harvestedYields.length === 0 ? (
-                                    <div className="p-8 text-center">
-                                        <History className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                                        <p className="text-muted-foreground">No harvest records yet</p>
-                                    </div>
-                                ) : (
-                                    <div className="divide-y divide-border/50">
-                                        {harvestedYields.map(yieldRecord => (
-                                            <div key={yieldRecord.id} className="p-4 hover:bg-muted/30 transition-colors">
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="p-2 bg-amber-500/20 rounded-lg">
-                                                            <Wheat className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                                                        </div>
-                                                        <div>
-                                                            <p className="font-medium text-foreground">{yieldRecord.crop_type}</p>
-                                                            <p className="text-sm text-muted-foreground">
-                                                                Harvested {formatDate(yieldRecord.harvest_date)}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                    <div className="text-right">
-                                                        <p className="font-bold text-foreground">
-                                                            {yieldRecord.actual_yield_kg?.toLocaleString() || '—'} kg
-                                                        </p>
-                                                        {yieldRecord.harvest_quality && (
-                                                            <span className="text-xs text-muted-foreground">
-                                                                Grade {yieldRecord.harvest_quality}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        ) : (
-                            /* Comparison View */
-                            <div className="space-y-4">
-                                {/* Stats Summary */}
-                                {stats && (
-                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                                        <div className="bg-card rounded-xl shadow-lg border border-border/50 p-4 text-center">
-                                            <p className="text-xs text-muted-foreground mb-1">Total Harvests</p>
-                                            <p className="text-2xl font-bold text-foreground">{stats.total_harvests}</p>
-                                        </div>
-                                        <div className="bg-card rounded-xl shadow-lg border border-border/50 p-4 text-center">
-                                            <p className="text-xs text-muted-foreground mb-1">Avg Accuracy</p>
-                                            <p className="text-2xl font-bold text-green-500">{stats.average_accuracy}%</p>
-                                        </div>
-                                        <div className="bg-card rounded-xl shadow-lg border border-border/50 p-4 text-center">
-                                            <p className="text-xs text-muted-foreground mb-1">Exceeded Prediction</p>
-                                            <p className="text-2xl font-bold text-green-500">{stats.harvests_exceeded_prediction}</p>
-                                        </div>
-                                        <div className="bg-card rounded-xl shadow-lg border border-border/50 p-4 text-center">
-                                            <p className="text-xs text-muted-foreground mb-1">Below Prediction</p>
-                                            <p className="text-2xl font-bold text-yellow-500">{stats.harvests_below_prediction}</p>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Comparison List */}
-                                <div className="bg-card rounded-2xl shadow-lg border border-border/50 overflow-hidden">
-                                    <div className="p-5 border-b border-border/50">
-                                        <h3 className="font-semibold text-foreground">Predicted vs Actual</h3>
-                                    </div>
-                                    {comparisons.length === 0 ? (
-                                        <div className="p-8 text-center">
-                                            <Scale className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                                            <p className="text-muted-foreground">No comparison data available yet</p>
-                                            <p className="text-sm text-muted-foreground mt-2">
-                                                Log your first harvest to see comparisons
-                                            </p>
-                                        </div>
-                                    ) : (
-                                        <div className="divide-y divide-border/50">
-                                            {comparisons.map(comparison => (
-                                                <div key={comparison.id} className="p-4">
-                                                    <div className="flex items-center justify-between mb-2">
-                                                        <div>
-                                                            <p className="font-medium text-foreground">{comparison.crop_type}</p>
-                                                            <p className="text-xs text-muted-foreground">
-                                                                {formatDate(comparison.harvest_date)}
-                                                            </p>
-                                                        </div>
-                                                        <div className={`flex items-center gap-1 ${comparison.performed_better ? 'text-green-500' : 'text-yellow-500'}`}>
-                                                            {comparison.performed_better ? (
-                                                                <TrendingUp className="w-4 h-4" />
-                                                            ) : (
-                                                                <TrendingDown className="w-4 h-4" />
-                                                            )}
-                                                            <span className="font-medium">
-                                                                {comparison.performed_better ? '+' : ''}{comparison.difference_kg.toLocaleString()} kg
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex items-center gap-4 text-sm">
-                                                        <span className="text-muted-foreground">
-                                                            Predicted: <span className="text-foreground">{comparison.predicted_yield_kg.toLocaleString()} kg</span>
-                                                        </span>
-                                                        <span className="text-muted-foreground">
-                                                            Actual: <span className="text-foreground font-medium">{comparison.actual_yield_kg.toLocaleString()} kg</span>
-                                                        </span>
-                                                        <span className={`ml-auto font-medium ${comparison.accuracy_percent >= 80 ? 'text-green-500' : comparison.accuracy_percent >= 60 ? 'text-yellow-500' : 'text-red-500'}`}>
-                                                            {comparison.accuracy_percent}% accurate
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
+                                <div className="p-3 bg-white/60 dark:bg-black/20 rounded-xl">
+                                    <p className="text-xs text-muted-foreground mb-1">Accuracy</p>
+                                    <p className="text-2xl font-bold text-green-600">
+                                        {stats?.average_accuracy || 0}%
+                                    </p>
                                 </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Right Column - Sidebar */}
-                    <div className="space-y-6">
-                        {/* Current Prediction */}
-                        <YieldPredictionCard cropType="Wheat" />
-
-                        {/* Row Spacing Optimizer - ZERO COST YIELD BOOST! */}
-                        <div className="bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-orange-900/20 dark:via-amber-900/20 dark:to-yellow-900/20 rounded-2xl shadow-lg border-2 border-orange-300 dark:border-orange-700 p-5">
-                            <div className="flex items-start gap-3 mb-4">
-                                <div className="p-2 bg-orange-500/20 rounded-xl">
-                                    <Sparkles className="w-6 h-6 text-orange-600 dark:text-orange-400" />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-foreground text-lg">🚀 Boost Your Yield!</h3>
-                                    <p className="text-sm text-muted-foreground mt-1">
-                                        Optimize row spacing for 20-40% higher yield
+                                <div className="p-3 bg-white/60 dark:bg-black/20 rounded-xl">
+                                    <p className="text-xs text-muted-foreground mb-1">Exceeded</p>
+                                    <p className="text-2xl font-bold text-amber-500">
+                                        {stats?.harvests_exceeded_prediction || 0}
                                     </p>
                                 </div>
                             </div>
+                        </CardContent>
+                    </Card>
 
-                            <div className="bg-white/50 dark:bg-black/20 rounded-xl p-4 mb-4">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-sm font-medium text-muted-foreground">Potential Gain</span>
-                                    <span className="text-2xl font-bold text-orange-600">+37.8%</span>
+
+
+                    {/* 3. Prediction Highlight (Mid Left - Tall) */}
+                    <div className="col-span-1 md:col-span-2">
+                        <YieldPredictionCard cropType="Wheat" />
+                    </div>
+
+                    {/* 4. Tips (Mid Center) - Now taking remaining width */}
+                    <Card className="col-span-1 md:col-span-2 bg-amber-50 dark:bg-amber-950/20 border-amber-100 flex flex-col justify-center">
+                        <CardContent className="p-4">
+                            <div className="flex items-center gap-4">
+                                <Sparkles className="w-8 h-8 text-amber-500 flex-shrink-0" />
+                                <div>
+                                    <p className="text-base font-bold text-amber-800 dark:text-amber-400 mb-1">Yield Tip</p>
+                                    <p className="text-sm text-amber-700 dark:text-amber-300 leading-relaxed">
+                                        Monitor soil moisture daily during flowering to prevent yield loss.
+                                    </p>
                                 </div>
-                                <p className="text-xs text-muted-foreground">
-                                    Based on ICAR research for optimal wheat spacing
+                            </div>
+                        </CardContent>
+                    </Card>
+
+
+
+                    {/* 6. Spacing Optimizer Teaser (Bottom Right - Wide) */}
+                    <div className="col-span-1 md:col-span-4">
+                        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-orange-400 to-pink-500 p-6 text-white shadow-lg h-full flex flex-col justify-center group cursor-pointer hover:shadow-xl transition-all"
+                            onClick={() => document.getElementById('spacing-calculator')?.scrollIntoView({ behavior: 'smooth' })}>
+                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity transform group-hover:scale-110 duration-500">
+                                <Target className="w-32 h-32" />
+                            </div>
+                            <div className="relative z-10">
+                                <div className="flex items-center gap-2 mb-2 bg-white/20 w-fit px-2 py-1 rounded-lg backdrop-blur-sm">
+                                    <Sparkles className="w-3 h-3" />
+                                    <span className="text-xs font-bold uppercase tracking-wider">Free Yield Boost</span>
+                                </div>
+                                <h3 className="text-2xl font-bold mb-2">Optimize Row Spacing</h3>
+                                <p className="text-white/90 text-sm max-w-sm mb-4">
+                                    Using correct spacing can increase yield by up to 40% without any extra cost.
                                 </p>
-                            </div>
-
-                            <button
-                                onClick={() => {
-                                    // Scroll to spacing calculator or show modal
-                                    document.getElementById('spacing-optimizer')?.scrollIntoView({
-                                        behavior: 'smooth'
-                                    });
-                                }}
-                                className="w-full py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-                            >
-                                <Target className="w-5 h-5" />
-                                See How to Increase Yield
-                            </button>
-
-                            <div className="mt-4 pt-4 border-t border-orange-200 dark:border-orange-800">
-                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                    <Check className="w-4 h-4 text-green-600" />
-                                    <span>Zero cost - just better technique</span>
-                                </div>
+                                <Button size="sm" variant="secondary" className="shadow-lg">
+                                    Open Calculator <ArrowUpRight className="w-4 h-4 ml-2" />
+                                </Button>
                             </div>
                         </div>
+                    </div>
 
-                        {/* Spacing Calculator - Full Component */}
-                        <div id="spacing-optimizer">
-                            <SpacingCalculator
-                                cropType="Wheat"
-                                farmSize={2.5}
-                                soilFertility="medium"
-                                farmEquipment="manual"
-                            />
-                        </div>
-
-                        {/* Quick Tips */}
-                        <div className="bg-card rounded-2xl shadow-lg border border-border/50 p-5">
-                            <div className="flex items-center gap-2 mb-4">
-                                <Sparkles className="w-5 h-5 text-amber-500" />
-                                <h3 className="font-semibold text-foreground">Tips for Better Yield</h3>
-                            </div>
-                            <div className="space-y-3">
-                                {[
-                                    'Monitor soil moisture daily during flowering',
-                                    'Apply fertilizer based on soil test results',
-                                    'Control pests early to prevent yield loss',
-                                    'Harvest at optimal moisture content'
-                                ].map((tip, i) => (
-                                    <div key={i} className="flex items-start gap-2 text-sm">
-                                        <Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                                        <span className="text-muted-foreground">{tip}</span>
-                                    </div>
+                    {/* 7. Comparison Chart (DataViz placeholder) */}
+                    <Card className="col-span-1 md:col-span-4">
+                        <CardHeader>
+                            <CardTitle className="text-base flex items-center gap-2">
+                                <Scale className="w-4 h-4 text-muted-foreground" />
+                                Predicted vs Actual Performance
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="h-48 flex items-end gap-2 md:gap-4 px-2">
+                                {comparisons.slice(0, 10).map((c, i) => (
+                                    <TooltipProvider key={i}>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <div className="flex-1 flex flex-col items-center gap-1 group">
+                                                    <div className="w-full flex items-end gap-1 h-32 justify-center relative">
+                                                        {/* Prediction Bar (Ghost) */}
+                                                        <div className="w-3 md:w-8 bg-muted rounded-t-sm absolute bottom-0 z-0" style={{ height: `${Math.min((c.predicted_yield_kg / Math.max(...comparisons.map(x => x.actual_yield_kg))) * 100, 100)}%` }}></div>
+                                                        {/* Actual Bar */}
+                                                        <div className={cn(
+                                                            "w-3 md:w-8 rounded-t-sm z-10 transition-all group-hover:opacity-80",
+                                                            c.actual_yield_kg >= c.predicted_yield_kg ? "bg-green-500" : "bg-amber-500"
+                                                        )} style={{ height: `${Math.min((c.actual_yield_kg / Math.max(...comparisons.map(x => x.actual_yield_kg))) * 100, 100)}%` }}></div>
+                                                    </div>
+                                                    <span className="text-[10px] text-muted-foreground truncate w-full text-center">{c.crop_type.slice(0, 3)}</span>
+                                                </div>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <div className="text-xs">
+                                                    <p className="font-bold">{c.crop_type}</p>
+                                                    <p>Actual: {c.actual_yield_kg}kg</p>
+                                                    <p className="text-muted-foreground">Predicted: {c.predicted_yield_kg}kg</p>
+                                                    <p className={c.actual_yield_kg >= c.predicted_yield_kg ? "text-green-500" : "text-amber-500"}>
+                                                        {c.accuracy_percent}% accuracy
+                                                    </p>
+                                                </div>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
                                 ))}
+                                {comparisons.length === 0 && (
+                                    <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">
+                                        No comparison data available
+                                    </div>
+                                )}
                             </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* 8. Full Calculator (Bottom) */}
+                    <div id="spacing-calculator" className="col-span-1 md:col-span-4 mt-8 pt-8 border-t border-border">
+                        <div className="mb-6">
+                            <h2 className="text-2xl font-bold flex items-center gap-2">
+                                <Target className="w-6 h-6 text-primary" />
+                                Spacing Optimizer
+                            </h2>
+                            <p className="text-muted-foreground">Calculate potential yield improvements based on farm geometry</p>
                         </div>
+                        <SpacingCalculator
+                            cropType="Wheat"
+                            farmSize={2.5}
+                            soilFertility="medium"
+                            farmEquipment="manual"
+                        />
                     </div>
                 </div>
             </div>
@@ -431,8 +270,7 @@ export const YieldTracker: React.FC = () => {
                     onSuccess={() => {
                         setShowLogModal(false);
                         setSelectedYield(null);
-                        // Refresh data
-                        window.location.reload();
+                        navigate(0); // Refresh
                     }}
                 />
             )}
@@ -440,7 +278,7 @@ export const YieldTracker: React.FC = () => {
     );
 };
 
-// Log Harvest Modal Component
+// Log Harvest Modal Component (Simple version mainly for functionality)
 const LogHarvestModal: React.FC<{
     yieldRecord: YieldRecord;
     onClose: () => void;
@@ -449,129 +287,72 @@ const LogHarvestModal: React.FC<{
     const [actualYield, setActualYield] = useState('');
     const [harvestDate, setHarvestDate] = useState(new Date().toISOString().split('T')[0]);
     const [quality, setQuality] = useState('A');
-    const [notes, setNotes] = useState('');
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!actualYield) return;
-
         setLoading(true);
         try {
-            await yieldService.logHarvest(
-                yieldRecord.id,
-                parseFloat(actualYield),
-                harvestDate,
-                quality,
-                notes
-            );
+            await yieldService.logHarvest(yieldRecord.id, parseFloat(actualYield), harvestDate, quality, '');
             onSuccess();
         } catch (error) {
-            console.error('[LogHarvest] Error:', error);
-            alert('Failed to log harvest. Please try again.');
+            console.error(error);
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-card rounded-2xl shadow-2xl border border-border/50 w-full max-w-md">
-                <div className="p-5 border-b border-border/50 flex items-center justify-between">
-                    <h3 className="font-semibold text-foreground">Log Harvest</h3>
-                    <button onClick={onClose} className="p-1 hover:bg-muted rounded-lg">
-                        <X className="w-5 h-5" />
-                    </button>
-                </div>
-
-                <form onSubmit={handleSubmit} className="p-5 space-y-4">
-                    <div className="p-4 bg-muted/30 rounded-xl">
-                        <div className="flex items-center gap-3 mb-2">
-                            <Wheat className="w-5 h-5 text-green-600" />
-                            <span className="font-medium">{yieldRecord.crop_type}</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                            Predicted yield: {yieldRecord.predicted_yield_kg?.toLocaleString() || '—'} kg
-                        </p>
-                    </div>
-
+        <Dialog open={true} onOpenChange={onClose}>
+            <DialogContent>
+                <CardHeader className="px-0 pt-0">
+                    <CardTitle>Log Harvest for {yieldRecord.crop_type}</CardTitle>
+                    <CardDescription>Predicted: {yieldRecord.predicted_yield_kg} kg</CardDescription>
+                </CardHeader>
+                <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                            Actual Yield (kg)
-                        </label>
+                        <label className="text-sm font-medium">Actual Yield (kg)</label>
                         <input
                             type="number"
-                            value={actualYield}
-                            onChange={(e) => setActualYield(e.target.value)}
-                            placeholder="e.g., 4500"
-                            className="w-full px-4 py-2.5 bg-muted rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"
                             required
+                            className="w-full p-2 border rounded-md"
+                            value={actualYield}
+                            onChange={e => setActualYield(e.target.value)}
                         />
                     </div>
-
                     <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                            Harvest Date
-                        </label>
+                        <label className="text-sm font-medium">Date</label>
                         <input
                             type="date"
+                            required
+                            className="w-full p-2 border rounded-md"
                             value={harvestDate}
-                            onChange={(e) => setHarvestDate(e.target.value)}
-                            className="w-full px-4 py-2.5 bg-muted rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"
+                            onChange={e => setHarvestDate(e.target.value)}
                         />
                     </div>
-
                     <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                            Quality Grade
-                        </label>
-                        <div className="flex gap-2">
-                            {['A', 'B', 'C'].map(grade => (
-                                <button
-                                    key={grade}
+                        <label className="text-sm font-medium">Quality</label>
+                        <div className="flex gap-2 mt-1">
+                            {['A', 'B', 'C'].map(q => (
+                                <Button
+                                    key={q}
                                     type="button"
-                                    onClick={() => setQuality(grade)}
-                                    className={`flex-1 py-2 rounded-xl font-medium transition-colors ${quality === grade
-                                        ? 'bg-primary text-primary-foreground'
-                                        : 'bg-muted text-foreground hover:bg-muted/70'
-                                        }`}
+                                    variant={quality === q ? "default" : "outline"}
+                                    onClick={() => setQuality(q)}
+                                    className="flex-1"
                                 >
-                                    Grade {grade}
-                                </button>
+                                    {q}
+                                </Button>
                             ))}
                         </div>
                     </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                            Notes (Optional)
-                        </label>
-                        <textarea
-                            value={notes}
-                            onChange={(e) => setNotes(e.target.value)}
-                            placeholder="Any observations about the harvest..."
-                            rows={3}
-                            className="w-full px-4 py-2.5 bg-muted rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                        />
-                    </div>
-
-                    <button
-                        type="submit"
-                        disabled={loading || !actualYield}
-                        className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
-                    >
-                        {loading ? (
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                        ) : (
-                            <>
-                                <Check className="w-5 h-5" />
-                                Log Harvest
-                            </>
-                        )}
-                    </button>
+                    <Button type="submit" className="w-full" disabled={loading}>
+                        {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                        Save Log
+                    </Button>
                 </form>
-            </div>
-        </div>
+            </DialogContent>
+        </Dialog>
     );
 };
 
