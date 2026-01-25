@@ -33,6 +33,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { FarmAnalysisLoader } from "@/components/FarmAnalysisLoader";
+import { ProductRecommendationsView } from "@/components/recommendations/ProductRecommendationsView";
 
 import { useTranslation } from "react-i18next";
 
@@ -178,7 +179,7 @@ export const Recommendations: React.FC = () => {
       if (user?.id && mappedRecommendations.length > 0) {
         try {
           console.log('[Recommendations] 🔄 Creating/updating regime from recommendations...');
-          
+
           const regimeData = {
             farmer_id: user.id,
             farm_id: farmData?.farm_id || null, // Optional - can be null
@@ -583,6 +584,24 @@ export const Recommendations: React.FC = () => {
               );
             })}
           </div>
+        </div>
+      )}
+
+      {/* 3.5. Product Recommendations Section (NEW!) */}
+      {sensorData && farmData && !isAnalyzing && (
+        <div className="mt-12">
+          <ProductRecommendationsView
+            soilData={{
+              N: sensorData.npk.nitrogen,
+              P: sensorData.npk.phosphorus,
+              K: sensorData.npk.potassium,
+              pH: sensorData.pH,
+              moisture: sensorData.soilMoisture
+            }}
+            cropType={farmData.crop_type || 'wheat'}
+            farmSize={farmData.farm_size_hectares || 2.5}
+            farmerId={user?.id || 'unknown'}
+          />
         </div>
       )}
 

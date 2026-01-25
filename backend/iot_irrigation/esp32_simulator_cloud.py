@@ -131,7 +131,7 @@ def generate_sensor_data():
         "npk": random.randint(50, 800),
         "wind_speed": round(random.uniform(0, 30), 1),
         "ec_salinity": round(random.uniform(0.5, 3.5), 2),
-        "soil_ph": round(random.uniform(5.5, 8.0), 1),
+        "soil_ph": round(random.uniform(5.5, 8.5), 1), # Widen range to trigger alerts
         "farm_id": "farm_001",
         "timestamp": datetime.utcnow().isoformat() + "Z"
     }

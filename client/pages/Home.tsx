@@ -5,6 +5,7 @@ import { SoilMoisture } from "../components/dashboard/SoilMoisture";
 import { ControlCenter } from "../components/dashboard/ControlCenter";
 import { ActionLog } from "../components/dashboard/ActionLog";
 import { FarmerSwitcher } from "../components/demo/FarmerSwitcher";
+import { YieldPredictionCard } from "../components/yield/YieldPredictionCard";
 import { useFarmContext } from "../context/FarmContext";
 import { useAuth } from "../context/AuthContext";
 import { useInterval } from "../hooks/useInterval";
@@ -209,7 +210,7 @@ export const Home: React.FC = () => {
   }, 300000);
 
   return (
-    <div className="min-h-screen bg-texture-dashboard bg-gradient-to-br from-amber-50 via-orange-50/50 to-yellow-50 dark:from-stone-900 dark:via-stone-900 dark:to-stone-800">
+    <div className="min-h-screen">
       {/* Demo Farmer Switcher */}
 
       {/* Header Bar */}
@@ -390,6 +391,11 @@ export const Home: React.FC = () => {
             {/* Action Log */}
             <div data-tour-id="action-log">
               <ActionLog />
+            </div>
+
+            {/* Yield Prediction */}
+            <div data-tour-id="yield-prediction">
+              <YieldPredictionCard compact />
             </div>
           </div>
         </div>

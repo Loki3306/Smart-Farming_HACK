@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Sprout, ArrowLeft, Leaf, Droplets } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { INDIAN_STATES, INDIAN_FARMER_NAMES } from "../lib/india-data";
 import { motion } from "framer-motion";
 import { AuthGuide } from "@/components/AuthGuide";
@@ -95,207 +94,242 @@ export const Signup: React.FC = () => {
 
   return (
     <>
-      {/* Auth Guide */}
       <AuthGuide mode="signup" currentField={currentField} fieldValues={formData} />
 
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -40 }}
-        transition={{ duration: 0.4, ease: "easeInOut" }}
-        className="min-h-screen bg-gradient-to-br from-emerald-50 via-emerald-50/80 to-sage-50 py-8 px-4"
-      >
-        <Card className="w-full max-w-2xl mx-auto p-8">
-          <div className="space-y-8">
-            {/* Header */}
-            <div className="text-center">
-              <h1 className="text-3xl font-bold text-foreground">
-                Create Farm Account
-              </h1>
-              <p className="text-muted-foreground mt-2">
-                Join thousands of sustainable farmers
-              </p>
+      <div className="min-h-screen w-full flex bg-background">
+        {/* Decorative Side Panel - Desktop Only */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6 }}
+          className="hidden lg:flex lg:w-1/2 relative bg-primary overflow-hidden items-center justify-center p-12"
+        >
+          {/* Background Texture & Gradient */}
+          <div className="absolute inset-0 bg-texture-farm opacity-40 mix-blend-overlay" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/90 to-primary-foreground/20" />
+
+          {/* Organic Shapes */}
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-havens-golden/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-400/10 rounded-full blur-3xl" />
+
+          {/* Content */}
+          <div className="relative z-10 max-w-lg text-white">
+            <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center mb-8 border border-white/20">
+              <Leaf className="w-8 h-8 text-white" />
             </div>
+            <h1 className="text-5xl font-bold mb-6 leading-tight">
+              Start Your <br />
+              <span className="text-havens-golden">Green Revolution</span>
+            </h1>
+            <p className="text-lg text-emerald-50/90 leading-relaxed mb-8">
+              Create an account to access advanced weather insights, crop planning tools, and a community of like-minded farmers.
+            </p>
 
-            {/* Error Alert */}
-            {displayError && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex gap-3">
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-red-700">{displayError}</p>
-              </div>
-            )}
-
-            {/* Signup Form */}
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Full Name */}
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Full Name *
-                </label>
-                <input
-                  type="text"
-                  name="fullName"
-                  value={formData.fullName}
-                  onChange={handleChange}
-                  onFocus={() => handleFocus("fullName")}
-                  placeholder={INDIAN_FARMER_NAMES[Math.floor(Math.random() * INDIAN_FARMER_NAMES.length)]}
-                  className="w-full px-4 py-2 rounded-lg border border-border bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                  disabled={isLoading}
-                />
-              </div>
-
-              {/* Phone Number */}
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Mobile Number *
-                </label>
-                <div className="flex flex-nowrap items-stretch">
-                  <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-border bg-muted text-foreground whitespace-nowrap">
-                    +91
-                  </span>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    onFocus={() => handleFocus("phone")}
-                    placeholder="9876543210"
-                    maxLength={10}
-                    className="flex-1 min-w-0 px-4 py-2 rounded-r-lg border border-border bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                    disabled={isLoading}
-                  />
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+                <div className="w-10 h-10 rounded-full bg-emerald-400/20 flex items-center justify-center">
+                  <Sprout className="w-5 h-5 text-emerald-400" />
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">Enter 10-digit mobile number</p>
-              </div>
-
-              {/* Password */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Password *
-                  </label>
-                  <input
-                    type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    onFocus={() => handleFocus("password")}
-                    placeholder="••••••••"
-                    className="w-full px-4 py-2 rounded-lg border border-border bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                    disabled={isLoading}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Confirm Password *
-                  </label>
-                  <input
-                    type="password"
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    onFocus={() => handleFocus("confirmPassword")}
-                    placeholder="••••••••"
-                    className="w-full px-4 py-2 rounded-lg border border-border bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                    disabled={isLoading}
-                  />
+                  <div className="font-semibold">Optimize Yields</div>
+                  <div className="text-sm text-emerald-100/70">Data-driven farming decisions</div>
                 </div>
               </div>
-
-              {/* Location */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-center gap-4 bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+                <div className="w-10 h-10 rounded-full bg-emerald-400/20 flex items-center justify-center">
+                  <Droplets className="w-5 h-5 text-blue-400" />
+                </div>
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Country *
-                  </label>
-                  <select
-                    title="country"
-                    name="country"
-                    value={formData.country}
-                    onChange={handleChange}
-                    onFocus={() => handleFocus("country")}
-                    className="w-full px-4 py-2 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                    disabled={isLoading}
-                  >
-                    <option>India</option>
-                    <option>United States</option>
-                    <option>Australia</option>
-                    <option>Canada</option>
-                    <option>Brazil</option>
-                    <option>Other</option>
-                  </select>
+                  <div className="font-semibold">Save Resources</div>
+                  <div className="text-sm text-emerald-100/70">Smart irrigation management</div>
                 </div>
               </div>
-
-              {/* State and Experience */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    State/Province *
-                  </label>
-                  <select
-                    title="state"
-                    name="state"
-                    value={formData.state}
-                    onChange={handleChange}
-                    onFocus={() => handleFocus("state")}
-                    className="w-full px-4 py-2 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                    disabled={isLoading}
-                  >
-                    {INDIAN_STATES.map((state) => (
-                      <option key={state} value={state}>
-                        {state}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Experience Level *
-                  </label>
-                  <select
-                    title="experienceLevel"
-                    name="experienceLevel"
-                    value={formData.experienceLevel}
-                    onChange={handleChange}
-                    onFocus={() => handleFocus("experienceLevel")}
-                    className="w-full px-4 py-2 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                    disabled={isLoading}
-                  >
-                    <option value="beginner">Beginner</option>
-                    <option value="intermediate">Intermediate</option>
-                    <option value="experienced">Experienced</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Submit */}
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="w-full mt-6"
-              >
-                {isLoading ? "Creating Account..." : "Create Account"}
-              </Button>
-            </form>
-
-            {/* Login Link */}
-            <div className="text-center text-sm">
-              <span className="text-muted-foreground">
-                Already have an account?{" "}
-              </span>
-              <Link
-                to="/login"
-                className="text-primary font-medium hover:underline"
-              >
-                Sign in
-              </Link>
             </div>
           </div>
-        </Card>
-      </motion.div>
+        </motion.div>
+
+        {/* Form Side */}
+        <div className="flex-1 flex items-start sm:items-center justify-center p-4 sm:p-6 lg:p-12 relative overflow-y-auto min-h-screen">
+          <div className="w-full max-w-lg space-y-6 sm:space-y-8 py-4 sm:py-8">
+            {/* Mobile Logo */}
+            <div className="lg:hidden text-center mb-6 sm:mb-8">\n              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <Sprout className="w-6 h-6 text-primary" />
+            </div>
+              <h1 className="text-2xl font-bold text-foreground">Smart Irrigation</h1>
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              <div className="text-center lg:text-left mb-6 sm:mb-8">
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Create Account</h2>
+                <p className="text-sm sm:text-base text-muted-foreground mt-2">Join thousands of sustainable farmers today</p>
+              </div>
+
+              {displayError && (
+                <div className="mb-4 sm:mb-6 bg-destructive/10 border border-destructive/20 rounded-xl p-3 sm:p-4 flex gap-2 sm:gap-3 text-destructive animate-fade-in">
+                  <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs sm:text-sm font-medium">{displayError}</p>
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+                {/* Full Name */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">Full Name *</label>
+                  <div className="rounded-xl shadow-sm ring-1 ring-inset ring-border focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary bg-card/50">
+                    <input
+                      type="text"
+                      name="fullName"
+                      value={formData.fullName}
+                      onChange={handleChange}
+                      onFocus={() => handleFocus("fullName")}
+                      placeholder={INDIAN_FARMER_NAMES[Math.floor(Math.random() * INDIAN_FARMER_NAMES.length)]}
+                      className="block w-full border-0 bg-transparent py-3 px-4 text-foreground placeholder:text-muted-foreground focus:ring-0 sm:text-sm sm:leading-6 rounded-xl"
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+
+                {/* Mobile Number */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">Mobile Number *</label>
+                  <div className="flex rounded-xl shadow-sm ring-1 ring-inset ring-border focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary bg-card/50">
+                    <span className="flex select-none items-center pl-4 pr-2 text-muted-foreground font-medium border-r border-border/50">
+                      +91
+                    </span>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      onFocus={() => handleFocus("phone")}
+                      placeholder="9876543210"
+                      maxLength={10}
+                      className="block flex-1 border-0 bg-transparent py-3 pl-3 text-foreground placeholder:text-muted-foreground focus:ring-0 sm:text-sm sm:leading-6"
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+
+                {/* Password Fields */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-foreground">Password *</label>
+                    <div className="rounded-xl shadow-sm ring-1 ring-inset ring-border focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary bg-card/50">
+                      <input
+                        type="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        onFocus={() => handleFocus("password")}
+                        placeholder="••••••••"
+                        className="block w-full border-0 bg-transparent py-3 px-4 text-foreground placeholder:text-muted-foreground focus:ring-0 sm:text-sm sm:leading-6 rounded-xl"
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-foreground">Confirm Password *</label>
+                    <div className="rounded-xl shadow-sm ring-1 ring-inset ring-border focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary bg-card/50">
+                      <input
+                        type="password"
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        onFocus={() => handleFocus("confirmPassword")}
+                        placeholder="••••••••"
+                        className="block w-full border-0 bg-transparent py-3 px-4 text-foreground placeholder:text-muted-foreground focus:ring-0 sm:text-sm sm:leading-6 rounded-xl"
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Location Fields */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-foreground">Country *</label>
+                    <div className="rounded-xl shadow-sm ring-1 ring-inset ring-border focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary bg-card/50">
+                      <select
+                        name="country"
+                        value={formData.country}
+                        onChange={handleChange}
+                        onFocus={() => handleFocus("country")}
+                        className="block w-full border-0 bg-transparent py-3 px-4 text-foreground focus:ring-0 sm:text-sm sm:leading-6 rounded-xl"
+                        disabled={isLoading}
+                      >
+                        <option>India</option>
+                        <option>United States</option>
+                        <option>Australia</option>
+                        <option>Canada</option>
+                        <option>Brazil</option>
+                        <option>Other</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-foreground">State/Province *</label>
+                    <div className="rounded-xl shadow-sm ring-1 ring-inset ring-border focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary bg-card/50">
+                      <select
+                        name="state"
+                        value={formData.state}
+                        onChange={handleChange}
+                        onFocus={() => handleFocus("state")}
+                        className="block w-full border-0 bg-transparent py-3 px-4 text-foreground focus:ring-0 sm:text-sm sm:leading-6 rounded-xl"
+                        disabled={isLoading}
+                      >
+                        {INDIAN_STATES.map((state) => (
+                          <option key={state} value={state}>
+                            {state}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Experience Level */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">Experience Level *</label>
+                  <div className="rounded-xl shadow-sm ring-1 ring-inset ring-border focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary bg-card/50">
+                    <select
+                      name="experienceLevel"
+                      value={formData.experienceLevel}
+                      onChange={handleChange}
+                      onFocus={() => handleFocus("experienceLevel")}
+                      className="block w-full border-0 bg-transparent py-3 px-4 text-foreground focus:ring-0 sm:text-sm sm:leading-6 rounded-xl"
+                      disabled={isLoading}
+                    >
+                      <option value="beginner">Beginner</option>
+                      <option value="intermediate">Intermediate</option>
+                      <option value="experienced">Experienced</option>
+                    </select>
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full h-11 text-base font-medium shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] hover:shadow-primary/30 mt-4"
+                >
+                  {isLoading ? "Creating Account..." : "Create Farm Account"}
+                </Button>
+              </form>
+
+              <p className="mt-8 text-center text-sm text-muted-foreground">
+                Already have an account?{" "}
+                <Link to="/login" className="font-semibold text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-1 group">
+                  <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+                  Sign in
+                </Link>
+              </p>
+            </motion.div>
+          </div>
+        </div>
+      </div>
     </>
   );
 };

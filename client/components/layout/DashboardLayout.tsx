@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
 import { cn } from "../../lib/utils";
@@ -29,6 +29,7 @@ const routeTourMap: Record<string, string> = {
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const location = useLocation();
   const { user } = useAuth();
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // Track user presence (online/away/offline)
   useUserPresence();
@@ -39,11 +40,11 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-emerald-50/80 to-sage-50">
-      <Sidebar />
+    <div className="min-h-screen bg-texture-dashboard bg-gradient-to-br from-amber-50 via-orange-50/50 to-yellow-50 dark:from-stone-900 dark:via-stone-900 dark:to-stone-800">
+      <Sidebar isCollapsed={isSidebarCollapsed} onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
 
       {/* Main Content */}
-      <main className="lg:pl-64 transition-all duration-300 pt-16 lg:pt-0">
+      <main className={cn("transition-all duration-300 pt-16 lg:pt-0", isSidebarCollapsed ? "lg:pl-20" : "lg:pl-64")}>
         <div className="min-h-screen">
           {children || <Outlet />}
         </div>

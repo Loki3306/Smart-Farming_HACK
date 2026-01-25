@@ -4,6 +4,7 @@ Serves ML model predictions for agricultural recommendations
 """
 
 from fastapi import FastAPI, HTTPException
+# Reload trigger
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Optional
@@ -124,6 +125,32 @@ except ImportError as e:
     shutdown_mqtt = None
 except Exception as e:
     print(f"⚠️ IoT Irrigation module error: {type(e).__name__}: {e}")
+    import traceback
+    traceback.print_exc()
+
+# Include the product recommendations router
+print("[INFO] Loading Product Recommendations module...")
+try:
+    from app.routes.product_recommendations import router as product_rec_router
+    app.include_router(product_rec_router, tags=["Product Recommendations"])
+    print("[SUCCESS] Product Recommendations module loaded successfully")
+except ImportError as e:
+    print(f"[ERROR] Product Recommendations import error: {e}")
+except Exception as e:
+    print(f"⚠️ Product Recommendations error: {type(e).__name__}: {e}")
+    import traceback
+    traceback.print_exc()
+
+# Include the row spacing optimization router  
+print("[INFO] Loading Row Spacing Optimization module...")
+try:
+    from app.routes.spacing_recommendations import router as spacing_router
+    app.include_router(spacing_router, tags=["Row Spacing"])
+    print("[SUCCESS] Row Spacing Optimization module loaded successfully")
+except ImportError as e:
+    print(f"[ERROR] Row Spacing import error: {e}")
+except Exception as e:
+    print(f"⚠️ Row Spacing error: {type(e).__name__}: {e}")
     import traceback
     traceback.print_exc()
 
@@ -1019,6 +1046,195 @@ async def models_status():
 
 
 # ============================================================================
+# Yield Prediction Endpoints
+# ============================================================================
+
+# Import yield predictor
+try:
+    from app.ml_models.yield_predictor import get_yield_prediction, yield_predictor
+    YIELD_MODEL_LOADED = True
+    print("✓ Yield prediction model loaded")
+except Exception as e:
+    YIELD_MODEL_LOADED = False
+    print(f"⚠️ Could not load yield model: {e}")
+
+
+class YieldPredictionRequest(BaseModel):
+    """Request for yield prediction"""
+    crop_type: str = Field(..., description="Type of crop (Wheat, Rice, Maize, Cotton, Soybean)")
+    soil_moisture: float = Field(..., ge=0, le=100, description="Soil moisture percentage")
+    soil_ph: float = Field(..., ge=0, le=14, description="Soil pH value")
+    temperature: float = Field(..., description="Temperature in Celsius")
+    humidity: float = Field(..., ge=0, le=100, description="Air humidity percentage")
+    rainfall: float = Field(150.0, ge=0, description="Recent rainfall in mm")
+    sunlight_hours: float = Field(7.0, ge=0, le=24, description="Daily sunlight hours")
+    irrigation_type: str = Field("None", description="Irrigation type (None, Drip, Sprinkler, Manual)")
+    fertilizer_type: str = Field("Mixed", description="Fertilizer type (Organic, Inorganic, Mixed)")
+    growing_days: int = Field(120, ge=30, le=300, description="Expected growing days")
+    ndvi_index: float = Field(0.6, ge=0, le=1, description="NDVI crop health index")
+    disease_status: str = Field("None", description="Disease status (None, Mild, Moderate, Severe)")
+
+
+class YieldImprovementTip(BaseModel):
+    """Single improvement tip"""
+    factor: str
+    current: str
+    optimal: str
+    action: str
+    potential_yield_gain: str
+    priority: str
+
+
+class YieldPredictionResponse(BaseModel):
+    """Response with yield prediction"""
+    predicted_yield: float = Field(..., description="Predicted yield in kg/hectare")
+    confidence: float = Field(..., description="Prediction confidence 0-100")
+    yield_potential: float = Field(..., description="Yield potential percentage 0-100")
+    unit: str = "kg/hectare"
+    improvement_tips: List[YieldImprovementTip]
+    model_version: str = "1.0"
+    timestamp: datetime
+
+
+class YieldOptimizationResponse(BaseModel):
+    """Response with yield optimization tips"""
+    current_predicted_yield: float
+    potential_optimized_yield: float
+    total_potential_gain_percent: float
+    top_improvements: List[YieldImprovementTip]
+    regional_benchmark: dict
+    timestamp: datetime
+
+
+@app.post("/api/yield/predict", response_model=YieldPredictionResponse, tags=["Yield Prediction"])
+async def predict_yield(request: YieldPredictionRequest):
+    """
+    Predict crop yield based on current farm conditions
+    
+    **Input**: Crop type, soil conditions, weather data, and growing parameters
+    
+    **Output**: Predicted yield in kg/hectare with confidence score and improvement tips
+    
+    **Example**:
+    ```json
+    {
+      "crop_type": "Wheat",
+      "soil_moisture": 35,
+      "soil_ph": 6.5,
+      "temperature": 25,
+      "humidity": 65,
+      "rainfall": 150
+    }
+    ```
+    """
+    if not YIELD_MODEL_LOADED:
+        raise HTTPException(status_code=503, detail="Yield prediction model not available")
+    
+    try:
+        result = get_yield_prediction(
+            crop_type=request.crop_type,
+            soil_moisture=request.soil_moisture,
+            soil_ph=request.soil_ph,
+            temperature=request.temperature,
+            humidity=request.humidity,
+            rainfall=request.rainfall,
+            sunlight_hours=request.sunlight_hours,
+            irrigation_type=request.irrigation_type,
+            fertilizer_type=request.fertilizer_type,
+            growing_days=request.growing_days,
+            ndvi_index=request.ndvi_index,
+            disease_status=request.disease_status
+        )
+        
+        # Convert improvement tips to Pydantic models
+        tips = [YieldImprovementTip(**tip) for tip in result.get('improvement_tips', [])]
+        
+        return YieldPredictionResponse(
+            predicted_yield=result['predicted_yield'],
+            confidence=result['confidence'],
+            yield_potential=result['yield_potential'],
+            unit=result['unit'],
+            improvement_tips=tips,
+            timestamp=datetime.now()
+        )
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Yield prediction failed: {str(e)}")
+
+
+@app.get("/api/yield/optimize/{crop_type}", response_model=YieldOptimizationResponse, tags=["Yield Prediction"])
+async def get_yield_optimization(
+    crop_type: str,
+    soil_moisture: float = 35.0,
+    soil_ph: float = 6.5,
+    temperature: float = 25.0,
+    humidity: float = 65.0
+):
+    """
+    Get yield optimization suggestions for a crop
+    
+    Returns current predicted yield and actionable tips to maximize production
+    """
+    if not YIELD_MODEL_LOADED:
+        raise HTTPException(status_code=503, detail="Yield prediction model not available")
+    
+    try:
+        # Get current prediction
+        current_result = get_yield_prediction(
+            crop_type=crop_type,
+            soil_moisture=soil_moisture,
+            soil_ph=soil_ph,
+            temperature=temperature,
+            humidity=humidity
+        )
+        
+        # Get optimized prediction (with optimal conditions)
+        optimized_result = get_yield_prediction(
+            crop_type=crop_type,
+            soil_moisture=35.0,  # Optimal moisture
+            soil_ph=6.8,  # Optimal pH
+            temperature=25.0,  # Optimal temp
+            humidity=65.0,  # Optimal humidity
+            disease_status="None",
+            ndvi_index=0.75
+        )
+        
+        current_yield = current_result['predicted_yield']
+        optimized_yield = optimized_result['predicted_yield']
+        gain_percent = ((optimized_yield - current_yield) / current_yield * 100) if current_yield > 0 else 0
+        
+        # Get regional benchmark
+        benchmark = yield_predictor.get_regional_benchmark("India", crop_type)
+        
+        tips = [YieldImprovementTip(**tip) for tip in current_result.get('improvement_tips', [])]
+        
+        return YieldOptimizationResponse(
+            current_predicted_yield=current_yield,
+            potential_optimized_yield=optimized_yield,
+            total_potential_gain_percent=round(max(0, gain_percent), 1),
+            top_improvements=tips,
+            regional_benchmark=benchmark,
+            timestamp=datetime.now()
+        )
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Yield optimization failed: {str(e)}")
+
+
+@app.get("/api/yield/benchmark/{crop_type}", tags=["Yield Prediction"])
+async def get_yield_benchmark(crop_type: str, region: str = "India"):
+    """Get yield benchmarks for a specific crop and region"""
+    if not YIELD_MODEL_LOADED:
+        raise HTTPException(status_code=503, detail="Yield prediction model not available")
+    
+    benchmark = yield_predictor.get_regional_benchmark(region, crop_type)
+    return {
+        **benchmark,
+        "timestamp": datetime.now()
+    }
+
+
+# ============================================================================
 # Run Server (for development)
 # ============================================================================
 
@@ -1031,3 +1247,4 @@ if __name__ == "__main__":
         reload=False,
         log_level="info"
     )
+

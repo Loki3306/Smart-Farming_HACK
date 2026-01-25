@@ -18,9 +18,10 @@ i18n
 
         backend: {
             loadPath: '/locales/{{lng}}/{{ns}}.json',
+            queryStringParams: { v: '1.0.1' },
         },
 
-        ns: ['common', 'dashboard', 'farm', 'weather', 'learn', 'community'],
+        ns: ['common', 'dashboard', 'farm', 'weather', 'learn', 'community', 'farmMapping', 'farmOverview', 'irrigationPlanner', 'regimes', 'marketplace'],
         defaultNS: 'common',
 
         detection: {

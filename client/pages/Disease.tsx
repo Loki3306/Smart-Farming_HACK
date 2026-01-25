@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Scan, Stethoscope } from "lucide-react";
 import { CropSelector } from "@/components/ui/CropSelector";
 import { MODEL_CROP_MAP, SUPPORTED_DISPLAY_CROPS } from "@/services/diseaseModelConfig";
 import { Card } from "@/components/ui/card";
@@ -82,23 +83,28 @@ export const Disease: React.FC = () => {
   };
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-12 space-y-10">
+    <div className="mx-auto max-w-4xl px-4 sm:px-6 py-8 sm:py-12 space-y-8 sm:space-y-10">
 
       {/* HERO */}
       <div className="space-y-4">
-        <h1 className="text-4xl font-semibold tracking-tight">
-          {t("title")}
-        </h1>
-        <p className="text-muted-foreground max-w-2xl">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-2 sm:p-3 rounded-xl bg-primary/10 text-primary">
+            <Scan className="w-6 h-6 sm:w-8 sm:h-8" />
+          </div>
+          <h1 className="text-2xl sm:text-4xl font-semibold tracking-tight">
+            {t("title")}
+          </h1>
+        </div>
+        <p className="text-sm sm:text-base text-muted-foreground max-w-2xl">
           {t("subtitle")}
         </p>
       </div>
 
       {/* WORKSPACE */}
-      <Card className="p-8 space-y-8">
+      <Card className="p-4 sm:p-8 space-y-6 sm:space-y-8">
 
         {/* INPUT ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
 
           {/* Crop */}
           <div className="space-y-2">
@@ -128,16 +134,16 @@ export const Disease: React.FC = () => {
         </div>
 
         {/* ACTION */}
-        <div className="flex items-center justify-between pt-4 border-t">
-          <div className="text-sm text-muted-foreground">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t">
+          <div className="text-xs sm:text-sm text-muted-foreground">
             {error || t("helperText")}
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
             {status !== "idle" && (
               <button
                 onClick={handleReset}
-                className="text-sm text-muted-foreground hover:text-foreground"
+                className="text-sm text-muted-foreground hover:text-foreground whitespace-nowrap"
               >
                 {t("resetBtn")}
               </button>
@@ -148,7 +154,7 @@ export const Disease: React.FC = () => {
               disabled={
                 !crop || !file || !isCropSupported || status === "analyzing"
               }
-              className="rounded-md bg-emerald-600 px-6 py-3 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50"
+              className="flex-1 sm:flex-none rounded-md bg-emerald-600 px-6 py-3 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50 whitespace-nowrap min-w-[120px]"
             >
               {status === "analyzing" ? t("analyzingBtn") : t("analyzeBtn")}
             </button>

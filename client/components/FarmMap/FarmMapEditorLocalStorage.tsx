@@ -19,7 +19,7 @@ import {
 import { fetchWaterSourcesFromOSM, isCacheValid } from '../../services/osmWaterService';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'react-hot-toast';
-import { Navigation, Droplets } from 'lucide-react';
+import { Navigation, Droplets, Hand, MousePointer2, Pencil, Ban, Info, MousePointerClick, Settings, X, Plus } from 'lucide-react';
 
 // Add custom CSS for modern labels
 const labelStyles = `
@@ -105,14 +105,22 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
   const waterSourcesLayerRef = useRef<L.FeatureGroup | null>(null);
   const isDrawingBoundaryRef = useRef<boolean>(false);
   const isDrawingSectionRef = useRef<boolean>(false);
+
   const userMarkerRef = useRef<L.Marker | null>(null);
+
+  // Freehand drawing refs
+  const isFreehandModeRef = useRef<boolean>(false);
+  const freehandPointsRef = useRef<L.LatLng[]>([]);
+  const freehandPolylineRef = useRef<L.Polyline | null>(null);
 
   const [isDrawingBoundary, setIsDrawingBoundary] = useState(false);
   const [isDrawingSection, setIsDrawingSection] = useState(false);
+  const [isFreehandMode, setIsFreehandMode] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
   const [mapCenter, setMapCenter] = useState<[number, number]>(initialCenter);
   const [isFetchingWater, setIsFetchingWater] = useState(false);
   const [waterSources, setWaterSources] = useState<WaterSource[]>([]);
+  const [isToolsOpen, setIsToolsOpen] = useState(false);
 
   // Calculate area in acres from Leaflet geometry
   const calculateArea = (layer: L.Polygon): number => {
@@ -127,7 +135,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
       setMapCenter(initialCenter);
       return;
     }
-    
+
     // Otherwise, try to get user's GPS location and save it
     const savedLocation = localStorage.getItem('user_gps_location');
     if (savedLocation) {
@@ -149,11 +157,25 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
     }
   }, [initialCenter]);
 
+  // Handle map resize when selection changes (for mobile bottom sheet)
+  useEffect(() => {
+    if (mapInstanceRef.current) {
+      // Wait for the transition animation to complete
+      const timer = setTimeout(() => {
+        mapInstanceRef.current?.invalidateSize();
+      }, 350); // slightly longer than the 300ms transition
+
+      return () => clearTimeout(timer);
+    }
+  }, [externalSelectedSection]);
+
   // Initialize map
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
 
-    const map = L.map(mapRef.current).setView(mapCenter, initialZoom);
+    const map = L.map(mapRef.current, { zoomControl: false }).setView(mapCenter, initialZoom);
+
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors',
@@ -163,7 +185,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
     drawnItemsRef.current = new L.FeatureGroup();
     sectionsLayerRef.current = new L.FeatureGroup();
     waterSourcesLayerRef.current = new L.FeatureGroup();
-    
+
     // Add layers to map with error handling
     try {
       map.addLayer(drawnItemsRef.current);
@@ -183,7 +205,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
           feet: false,
           nautic: false,
           shapeOptions: {
-            color: '#3B82F6',
+            color: '#10B981',
             weight: 3,
             fillOpacity: 0.2,
           },
@@ -232,7 +254,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
           const area = calculateArea(polygon);
           const bounds = polygon.getBounds();
           const center: [number, number] = [bounds.getCenter().lat, bounds.getCenter().lng];
-          
+
           saveFarmBoundary(farmId, coordinates, area, center);
           toast.success('Farm boundary updated');
           if (onStatsUpdate) onStatsUpdate();
@@ -246,7 +268,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
               const latLngs = polygon.getLatLngs()[0] as L.LatLng[];
               const coordinates = [latLngs.map(ll => [ll.lng, ll.lat])];
               const area = calculateArea(polygon);
-              
+
               const updatedSection = {
                 ...section,
                 geometry: {
@@ -255,7 +277,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
                 },
                 area,
               };
-              
+
               saveSection(farmId, updatedSection);
               toast.success(`${section.name} updated`);
               if (onStatsUpdate) onStatsUpdate();
@@ -323,6 +345,104 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
     };
   }, [farmId, mapCenter]);
 
+  // Handle Freehand Drawing Logic
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+
+    const map = mapInstanceRef.current;
+
+    const handleFreehandStart = (e: L.LeafletMouseEvent | L.LeafletTouchEvent) => {
+      if (!isFreehandModeRef.current) return;
+
+      // Only start if we are in a drawing mode
+      if (!isDrawingBoundaryRef.current && !isDrawingSectionRef.current) {
+        toast('Select "Draw Farm Boundary" or "Add New Section" first', {
+          icon: <MousePointerClick className="w-5 h-5 text-emerald-500" />
+        });
+        return;
+      }
+
+      map.dragging.disable();
+      freehandPointsRef.current = [e.latlng];
+
+      // Create styling based on what we are drawing
+      const color = isDrawingBoundaryRef.current ? '#10B981' : '#10B981';
+
+      freehandPolylineRef.current = L.polyline([e.latlng], {
+        color: color,
+        weight: 3,
+        opacity: 0.8,
+        dashArray: '5, 5' // Dashed line while drawing
+      }).addTo(map);
+    };
+
+    const handleFreehandMove = (e: L.LeafletMouseEvent | L.LeafletTouchEvent) => {
+      if (!isFreehandModeRef.current || !freehandPolylineRef.current) return;
+
+      const latlng = (e as any).latlng; // Type cast because Leaflet types can be tricky with touch
+      freehandPointsRef.current.push(latlng);
+      freehandPolylineRef.current.setLatLngs(freehandPointsRef.current);
+    };
+
+    const handleFreehandEnd = () => {
+      if (!isFreehandModeRef.current || !freehandPolylineRef.current) return;
+
+      // If we have enough points, close the loop and create polygon
+      if (freehandPointsRef.current.length > 2) {
+        // Create a proper polygon from the points
+        const polygon = L.polygon(freehandPointsRef.current);
+
+        if (isDrawingBoundaryRef.current) {
+          handleBoundaryDrawn(polygon);
+        } else if (isDrawingSectionRef.current) {
+          handleSectionDrawn(polygon);
+        }
+      }
+
+      // Cleanup
+      if (freehandPolylineRef.current) {
+        map.removeLayer(freehandPolylineRef.current);
+        freehandPolylineRef.current = null;
+      }
+      freehandPointsRef.current = [];
+      map.dragging.enable();
+    };
+
+    // Add listeners
+    map.on('mousedown touchstart', handleFreehandStart);
+    map.on('mousemove touchmove', handleFreehandMove);
+    map.on('mouseup touchend', handleFreehandEnd);
+
+    return () => {
+      map.off('mousedown touchstart', handleFreehandStart);
+      map.off('mousemove touchmove', handleFreehandMove);
+      map.off('mouseup touchend', handleFreehandEnd);
+    };
+  }, []); // Run once to attach listeners, utilize refs for state access
+
+  // Toggle Freehand Mode
+  const toggleFreehandMode = () => {
+    const newMode = !isFreehandMode;
+    setIsFreehandMode(newMode);
+    isFreehandModeRef.current = newMode;
+
+    if (newMode) {
+      toast('Freehand mode ON: Drag finger to draw', {
+        icon: <Pencil className="w-5 h-5 text-emerald-500" />
+      });
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.dragging.disable();
+      }
+    } else {
+      toast('Freehand mode OFF', {
+        icon: <Ban className="w-5 h-5 text-red-500" />
+      });
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.dragging.enable();
+      }
+    }
+  };
+
   // Load farm data from localStorage
   const loadFarmData = () => {
     const farmData = getFarmMapping();
@@ -338,7 +458,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
       );
 
       const boundaryLayer = L.polygon(coords, {
-        color: '#3B82F6',
+        color: '#10B981',
         weight: 3,
         fillOpacity: 0.1,
       });
@@ -454,7 +574,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
         className: 'water-source-marker',
         html: `
           <div style="
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
             width: 32px;
             height: 32px;
             border-radius: 50%;
@@ -493,7 +613,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
       marker.bindPopup(`
         <div style="padding: 8px; min-width: 150px;">
           <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0891b2" stroke-width="2">
               <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
             </svg>
             <strong style="color: #1f2937; font-size: 14px;">${source.name}</strong>
@@ -529,15 +649,15 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
         saveWaterSources(sources);
         setWaterSources(sources);
         renderWaterSources(sources);
-        
+
         // Update all sections with nearest water sources
         updateAllSectionsWaterSources();
-        
+
         toast.success(`Found ${sources.length} water source${sources.length !== 1 ? 's' : ''} nearby!`, {
-          icon: '💧',
+          icon: <Droplets className="w-5 h-5 text-blue-500" />
         });
       } else {
-        toast('No water sources found in this area', { icon: 'ℹ️' });
+        toast('No water sources found in this area');
       }
     } catch (error) {
       console.error('Error fetching water sources:', error);
@@ -685,8 +805,11 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
     isDrawingBoundaryRef.current = true;
     setIsDrawingSection(false);
     isDrawingSectionRef.current = false;
-    toast('Click on the map to draw farm boundary', { icon: 'ℹ️' });
+    toast('Click on the map or use "Finger Draw" to trace farm boundary', {
+      icon: <Info className="w-5 h-5 text-emerald-500" />
+    });
   };
+
 
   // Start drawing section
   const startDrawingSection = () => {
@@ -694,8 +817,11 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
     isDrawingSectionRef.current = true;
     setIsDrawingBoundary(false);
     isDrawingBoundaryRef.current = false;
-    toast('Click on the map to draw a new section', { icon: '✏️' });
+    toast('Click on the map or use "Finger Draw" to trace a new section', {
+      icon: <Pencil className="w-5 h-5 text-emerald-500" />
+    });
   };
+
 
   // Get user location
   const handleGetLocation = () => {
@@ -736,49 +862,107 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
 
   return (
     <div className="relative w-full h-full">
-      <div ref={mapRef} className="w-full h-full" />
+      <div
+        ref={mapRef}
+        className="w-full h-full"
+        style={{ touchAction: isFreehandMode ? 'none' : 'auto' }}
+      />
 
-      {/* Control Buttons */}
-      <div className="absolute top-4 left-4 z-[1000] space-y-2">
+      {/* Control Buttons - Mobile Optimized */}
+      <div className="absolute top-4 left-4 z-[1000] flex flex-col gap-2">
+        {/* Main Tools Toggle Button (Mobile) */}
         <button
-          onClick={startDrawingBoundary}
-          className={`px-4 py-2 rounded-lg shadow-lg font-medium transition-all ${
-            isDrawingBoundary
-              ? 'bg-blue-600 text-white'
-              : 'bg-white text-gray-700 hover:bg-gray-50'
-          }`}
+          onClick={() => setIsToolsOpen(!isToolsOpen)}
+          className="md:hidden w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:bg-gray-50 transition-all active:scale-95"
         >
-          {isDrawingBoundary ? 'Drawing Boundary...' : 'Draw Farm Boundary'}
+          {isToolsOpen ? <X className="w-6 h-6" /> : <Settings className="w-6 h-6" />}
         </button>
 
-        <button
-          onClick={startDrawingSection}
-          className={`px-4 py-2 rounded-lg shadow-lg font-medium transition-all block ${
-            isDrawingSection
-              ? 'bg-green-600 text-white'
-              : 'bg-white text-gray-700 hover:bg-gray-50'
-          }`}
-        >
-          {isDrawingSection ? 'Drawing Section...' : 'Add New Section'}
-        </button>
+        {/* Tools Menu - Collapsible on Mobile, Always Visible on Desktop */}
+        <div className={`
+          flex flex-col gap-2 transition-all duration-300 origin-top-left
+          ${isToolsOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none absolute top-14'} 
+          md:opacity-100 md:scale-100 md:pointer-events-auto md:static
+        `}>
+          <div className="bg-white/95 backdrop-blur-sm p-2 rounded-2xl shadow-xl border border-white/20 flex flex-col gap-2 min-w-[200px]">
+            {/* Draw Boundary */}
+            <button
+              onClick={() => {
+                startDrawingBoundary();
+                setIsToolsOpen(false);
+              }}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isDrawingBoundary
+                ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20'
+                : 'hover:bg-gray-100 text-gray-700'
+                }`}
+            >
+              <Info className="w-5 h-5" />
+              <span className="font-medium text-sm">Draw Boundary</span>
+            </button>
 
-        <button
-          onClick={handleGetLocation}
-          disabled={isLocating}
-          className="px-4 py-2 bg-white hover:bg-gray-50 text-gray-700 rounded-lg shadow-lg font-medium transition-all flex items-center gap-2 disabled:opacity-50"
-        >
-          <Navigation className={`w-4 h-4 ${isLocating ? 'animate-spin' : ''}`} />
-          {isLocating ? 'Locating...' : 'My Location'}
-        </button>
+            {/* Add Section */}
+            <button
+              onClick={() => {
+                startDrawingSection();
+                setIsToolsOpen(false);
+              }}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isDrawingSection
+                ? 'bg-teal-500 text-white shadow-md shadow-teal-500/20'
+                : 'hover:bg-gray-100 text-gray-700'
+                }`}
+            >
+              <div className="relative">
+                <Pencil className="w-5 h-5" />
+                <Plus className="w-3 h-3 absolute -top-1 -right-1 bg-white rounded-full text-teal-600" />
+              </div>
+              <span className="font-medium text-sm">Add New Section</span>
+            </button>
 
-        <button
-          onClick={fetchAndDisplayWaterSources}
-          disabled={isFetchingWater}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg font-medium transition-all flex items-center gap-2 disabled:opacity-50"
-        >
-          <Droplets className={`w-4 h-4 ${isFetchingWater ? 'animate-pulse' : ''}`} />
-          {isFetchingWater ? 'Scanning...' : 'Find Water Sources'}
-        </button>
+            {/* Finger Draw Toggle */}
+            <button
+              onClick={() => {
+                toggleFreehandMode();
+                setIsToolsOpen(false);
+              }}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isFreehandMode
+                ? 'bg-amber-500 text-white shadow-md shadow-amber-500/20'
+                : 'hover:bg-gray-100 text-gray-700'
+                }`}
+            >
+              {isFreehandMode ? <Hand className="w-5 h-5" /> : <MousePointer2 className="w-5 h-5" />}
+              <span className="font-medium text-sm">
+                {isFreehandMode ? 'Finger Draw ON' : 'Finger Draw OFF'}
+              </span>
+            </button>
+
+            <div className="h-px bg-gray-100 my-1" />
+
+            {/* Secondary Actions Row */}
+            <div className="flex gap-2">
+              <button
+                onClick={handleGetLocation}
+                disabled={isLocating}
+                className="flex-1 flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-gray-100 text-gray-600 transition-colors disabled:opacity-50"
+              >
+                <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                  <Navigation className={`w-5 h-5 ${isLocating ? 'animate-spin' : ''}`} />
+                </div>
+                <span className="text-[10px] font-medium">Locate</span>
+              </button>
+
+              <button
+                onClick={fetchAndDisplayWaterSources}
+                disabled={isFetchingWater}
+                className="flex-1 flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-gray-100 text-gray-600 transition-colors disabled:opacity-50"
+              >
+                <div className="p-2 bg-cyan-50 text-cyan-600 rounded-lg">
+                  <Droplets className={`w-5 h-5 ${isFetchingWater ? 'animate-pulse' : ''}`} />
+                </div>
+                <span className="text-[10px] font-medium">Water</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

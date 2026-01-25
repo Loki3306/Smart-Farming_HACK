@@ -13,6 +13,8 @@ export interface LiveSensorData {
     timestamp: string;
     farm_id: string;
     wind_speed?: number;
+    ec_salinity?: number;
+    soil_ph?: number;
 }
 
 export interface WindSafetyAlert {

@@ -77,85 +77,92 @@ export const AgronomyPlanner = () => {
             <CardContent className="p-6">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* INPUT SECTION */}
-                    <div className="space-y-6 lg:col-span-1 border-r border-border/40 pr-0 lg:pr-6 relative z-50">
-                        <div className="space-y-4">
-                            <h3 className="font-semibold text-lg flex items-center gap-2">
-                                <Sprout className="w-4 h-4 text-primary" />
-                                Farm Profile
-                            </h3>
+                    <div className="lg:col-span-1 relative z-50">
+                        <div className="bg-emerald-50/40 dark:bg-emerald-900/10 backdrop-blur-md rounded-2xl border border-emerald-100 dark:border-emerald-800 shadow-sm p-6">
+                            <div className="space-y-4">
+                                <h3 className="font-semibold text-lg flex items-center gap-2 text-emerald-800 dark:text-emerald-400">
+                                    <Sprout className="w-5 h-5" />
+                                    Farm Profile
+                                </h3>
 
-                            <div className="space-y-2">
-                                <Label>Crop Type</Label>
-                                <Select
-                                    value={formData.crop_type}
-                                    onValueChange={(v) => setFormData({ ...formData, crop_type: v })}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent className="z-[100]">
-                                        <SelectItem value="wheat">Wheat</SelectItem>
-                                        <SelectItem value="corn">Corn (Maize)</SelectItem>
-                                        <SelectItem value="rice">Rice (Paddy)</SelectItem>
-                                        <SelectItem value="tomato">Tomato</SelectItem>
-                                        <SelectItem value="potato">Potato</SelectItem>
-                                        <SelectItem value="cotton">Cotton</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                                <div className="space-y-4 pt-2">
+                                    <div className="space-y-2">
+                                        <Label>Crop Type</Label>
+                                        <Select
+                                            value={formData.crop_type}
+                                            onValueChange={(v) => setFormData({ ...formData, crop_type: v })}
+                                        >
+                                            <SelectTrigger className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent className="z-[100]">
+                                                <SelectItem value="wheat">Wheat</SelectItem>
+                                                <SelectItem value="corn">Corn (Maize)</SelectItem>
+                                                <SelectItem value="rice">Rice (Paddy)</SelectItem>
+                                                <SelectItem value="tomato">Tomato</SelectItem>
+                                                <SelectItem value="potato">Potato</SelectItem>
+                                                <SelectItem value="cotton">Cotton</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
 
-                            <div className="space-y-2">
-                                <Label>Seeding Date</Label>
-                                <Input
-                                    type="date"
-                                    value={formData.seeding_date}
-                                    onChange={(e) => setFormData({ ...formData, seeding_date: e.target.value })}
-                                />
-                            </div>
+                                    <div className="space-y-2">
+                                        <Label>Seeding Date</Label>
+                                        <Input
+                                            type="date"
+                                            value={formData.seeding_date}
+                                            onChange={(e) => setFormData({ ...formData, seeding_date: e.target.value })}
+                                            className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700"
+                                        />
+                                    </div>
 
-                            <div className="space-y-2">
-                                <Label>Soil Type</Label>
-                                <Select
-                                    value={formData.soil_type}
-                                    onValueChange={(v) => setFormData({ ...formData, soil_type: v })}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent className="z-[100]">
-                                        <SelectItem value="loamy">Loamy (Balanced)</SelectItem>
-                                        <SelectItem value="sandy">Sandy (Fast Draining)</SelectItem>
-                                        <SelectItem value="clay">Clay (High Retention)</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                                    <div className="space-y-2">
+                                        <Label>Soil Type</Label>
+                                        <Select
+                                            value={formData.soil_type}
+                                            onValueChange={(v) => setFormData({ ...formData, soil_type: v })}
+                                        >
+                                            <SelectTrigger className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent className="z-[100]">
+                                                <SelectItem value="loamy">Loamy (Balanced)</SelectItem>
+                                                <SelectItem value="sandy">Sandy (Fast Draining)</SelectItem>
+                                                <SelectItem value="clay">Clay (High Retention)</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>Yield (Tons/Ha)</Label>
-                                    <Input
-                                        type="number" step="0.1"
-                                        value={formData.target_yield}
-                                        onChange={(e) => setFormData({ ...formData, target_yield: e.target.value })}
-                                    />
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label>Yield (Tons/Ha)</Label>
+                                            <Input
+                                                type="number" step="0.1"
+                                                value={formData.target_yield}
+                                                onChange={(e) => setFormData({ ...formData, target_yield: e.target.value })}
+                                                className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Area (Acres)</Label>
+                                            <Input
+                                                type="number" step="0.1"
+                                                value={formData.farm_area_acres}
+                                                onChange={(e) => setFormData({ ...formData, farm_area_acres: e.target.value })}
+                                                className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <Button
+                                        onClick={generatePlan}
+                                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white mt-4 shadow-lg shadow-emerald-600/20"
+                                        disabled={loading}
+                                    >
+                                        {loading ? "Generating Plan..." : "Generate Season Plan"}
+                                    </Button>
                                 </div>
-                                <div className="space-y-2">
-                                    <Label>Area (Acres)</Label>
-                                    <Input
-                                        type="number" step="0.1"
-                                        value={formData.farm_area_acres}
-                                        onChange={(e) => setFormData({ ...formData, farm_area_acres: e.target.value })}
-                                    />
-                                </div>
                             </div>
-
-                            <Button
-                                onClick={generatePlan}
-                                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
-                                disabled={loading}
-                            >
-                                {loading ? "Generating Plan..." : "Generate Season Plan"}
-                            </Button>
                         </div>
                     </div>
 
@@ -182,10 +189,10 @@ export const AgronomyPlanner = () => {
                                                 <div className="text-2xl font-bold text-blue-700 dark:text-blue-400">{plan.total_days} Days</div>
                                             </CardContent>
                                         </Card>
-                                        <Card className="bg-purple-50/50 dark:bg-purple-900/10 border-none shadow-sm">
+                                        <Card className="bg-cyan-50/50 dark:bg-cyan-900/10 border-none shadow-sm">
                                             <CardContent className="p-4 flex flex-col items-center text-center">
                                                 <div className="text-sm text-muted-foreground mb-1">Nutrient Load</div>
-                                                <div className="text-base font-semibold text-purple-700 dark:text-purple-400">
+                                                <div className="text-base font-semibold text-cyan-700 dark:text-cyan-400">
                                                     N: {plan.total_nutrients_kg.N}kg • P: {plan.total_nutrients_kg.P}kg
                                                 </div>
                                             </CardContent>
@@ -212,7 +219,7 @@ export const AgronomyPlanner = () => {
                                                     </div>
                                                     <div className="h-3 w-full bg-muted rounded-full overflow-hidden">
                                                         <div
-                                                            className={`h-full rounded-full ${['bg-emerald-400', 'bg-green-500', 'bg-lime-500', 'bg-amber-500'][idx % 4]}`}
+                                                            className={`h-full rounded-full ${['bg-emerald-500', 'bg-blue-500', 'bg-cyan-500', 'bg-amber-500'][idx % 4]}`}
                                                             style={{ width: '100%' }}
                                                         />
                                                     </div>
@@ -253,7 +260,7 @@ export const AgronomyPlanner = () => {
                                                     <div className="flex-1 space-y-2">
                                                         <div className="flex items-center justify-between">
                                                             <span className="font-semibold text-primary">{week.phase}</span>
-                                                            <div className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded">
+                                                            <div className="flex items-center gap-2 text-sm text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/20 px-2 py-1 rounded">
                                                                 <Droplets className="w-3 h-3" />
                                                                 {week.water_mm}mm
                                                             </div>

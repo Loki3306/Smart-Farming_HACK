@@ -1,0 +1,41 @@
+{
+    "title": "शेताचे विहंगावलोकन",
+    "subtitle": "विभाग • एकूण एकर",
+    "weather": {
+        "sunny": "सनी"
+    },
+    "emptyState": {
+        "title": "तुमच्या शेतात स्वागत आहे",
+        "description": "तुमच्या शेताच्या सीमा आणि विभागांचे मॅपिंग करून सुरुवात करा. यात फक्त काही मिनिटे लागतात!",
+        "startMapping": "मॅपिंग सुरू करा",
+        "features": {
+            "boundaries": "सीमा काढा",
+            "sections": "विभाग जोडा",
+            "water": "पाणी चिन्हांकित करा"
+        }
+    },
+    "quickActions": {
+        "viewMap": "नकाशा पहा",
+        "editFarm": "शेत संपादित करा",
+        "planIrrigation": "सिंचन योजना करा"
+    },
+    "stats": {
+        "sections": "विभाग",
+        "totalArea": "एकूण क्षेत्रफळ",
+        "waterSources": "जल स्रोत",
+        "cropTypes": "पीक प्रकार",
+        "acres": " एकर"
+    },
+    "sections": {
+        "title": "तुमचे विभाग",
+        "addSection": "विभाग जोडा",
+        "noSections": "अद्याप कोणतेही विभाग नाहीत",
+        "noSectionsDesc": "सुरुवात करण्यासाठी तुमचा पहिला विभाग जोडा",
+        "createSection": "विभाग तयार करा",
+        "edit": "संपादित करा",
+        "irrigate": "सिंचन करा"
+    },
+    "waterSources": {
+        "title": "जल स्रोत"
+    }
+}

@@ -1,0 +1,41 @@
+{
+    "title": "खेत का अवलोकन",
+    "subtitle": "अनुभाग • कुल एकड़",
+    "weather": {
+        "sunny": "धूप"
+    },
+    "emptyState": {
+        "title": "अपने खेत में आपका स्वागत है",
+        "description": "अपने खेत की सीमाओं और अनुभागों को मैप करके शुरुआत करें। इसमें केवल कुछ मिनट लगते हैं!",
+        "startMapping": "मानचित्रण शुरू करें",
+        "features": {
+            "boundaries": "सीमाएं बनाएं",
+            "sections": "अनुभाग जोड़ें",
+            "water": "पानी चिह्नित करें"
+        }
+    },
+    "quickActions": {
+        "viewMap": "मानचित्र देखें",
+        "editFarm": "खेत संपादित करें",
+        "planIrrigation": "सिंचाई योजना बनाएं"
+    },
+    "stats": {
+        "sections": "अनुभाग",
+        "totalArea": "कुल क्षेत्रफल",
+        "waterSources": "जल स्रोत",
+        "cropTypes": "फसल के प्रकार",
+        "acres": " एकड़"
+    },
+    "sections": {
+        "title": "आपके अनुभाग",
+        "addSection": "अनुभाग जोड़ें",
+        "noSections": "अभी तक कोई अनुभाग नहीं",
+        "noSectionsDesc": "शुरुआत करने के लिए अपना पहला अनुभाग जोड़ें",
+        "createSection": "अनुभाग बनाएं",
+        "edit": "संपादित करें",
+        "irrigate": "सिंचाई करें"
+    },
+    "waterSources": {
+        "title": "जल स्रोत"
+    }
+}

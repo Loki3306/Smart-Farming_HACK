@@ -96,7 +96,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
     if (!mapRef.current || mapInstanceRef.current) return;
 
     // Create map instance
-    const map = L.map(mapRef.current).setView(initialCenter, initialZoom);
+    const map = L.map(mapRef.current, { attributionControl: false }).setView(initialCenter, initialZoom);
 
     // Add OpenStreetMap tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -222,14 +222,14 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
             fillOpacity: 0.1,
           },
         });
-        
+
         const layer = polygon.getLayers()[0] as L.Polygon;
         farmBoundaryRef.current = layer;
         drawnItemsRef.current.addLayer(layer);
-        
+
         // Fit map to boundary
         mapInstanceRef.current.fitBounds(layer.getBounds());
-        
+
         setFarmGeometry(geometry);
       }
     } catch (error: any) {
@@ -243,14 +243,14 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
   const loadFarmSections = async () => {
     try {
       const loadedSections = await farmGeometryService.listSections(farmId, true);
-      
+
       // Ensure we have an array
       const sectionsArray = Array.isArray(loadedSections) ? loadedSections : [];
       setSections(sectionsArray);
-      
+
       if (sectionsLayerRef.current && mapInstanceRef.current) {
         sectionsLayerRef.current.clearLayers();
-        
+
         sectionsArray.forEach((section) => {
           if (section.section_geojson) {
             const polygon = L.geoJSON(section.section_geojson, {
@@ -260,10 +260,10 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
                 fillOpacity: 0.3,
               },
             });
-            
+
             const layer = polygon.getLayers()[0] as L.Polygon;
             (layer as any).options.sectionId = section.section_id;
-            
+
             // Add popup with section info
             layer.bindPopup(`
               <div>
@@ -273,11 +273,11 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
                 ${section.health_score ? `Health: ${section.health_score}%` : ''}
               </div>
             `);
-            
+
             layer.on('click', () => {
               handleSectionSelect(section.section_id);
             });
-            
+
             sectionsLayerRef.current?.addLayer(layer);
           }
         });
@@ -291,22 +291,22 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
   const handleBoundaryDrawn = async (geometry: GeoJSONPolygon, layer: L.Polygon) => {
     try {
       const updatedGeometry = await farmGeometryService.updateFarmBoundary(farmId, geometry);
-      
+
       // Remove old boundary if exists
       if (farmBoundaryRef.current && drawnItemsRef.current) {
         drawnItemsRef.current.removeLayer(farmBoundaryRef.current);
       }
-      
+
       farmBoundaryRef.current = layer;
       drawnItemsRef.current?.addLayer(layer);
       setFarmGeometry(updatedGeometry);
-      
+
       toast.success(`Farm boundary saved! Area: ${updatedGeometry.area_acres?.toFixed(2)} acres`);
-      
+
       if (onBoundaryDrawn) {
         onBoundaryDrawn(geometry);
       }
-      
+
       setIsDrawingBoundary(false);
       isDrawingBoundaryRef.current = false;
     } catch (error: any) {
@@ -325,7 +325,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
         drawnItemsRef.current?.removeLayer(layer);
         return;
       }
-      
+
       // Create section with default data
       const sectionNumber = sections.length + 1;
       const newSection = await farmGeometryService.createSection(farmId, {
@@ -334,36 +334,36 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
         section_geojson: geometry,
         display_color: getRandomColor(),
       });
-      
+
       (layer as any).options.sectionId = newSection.section_id;
       layer.setStyle({
         color: newSection.display_color || '#3B82F6',
         weight: 2,
         fillOpacity: 0.3,
       });
-      
+
       layer.bindPopup(`
         <div>
           <strong>${newSection.section_name}</strong><br/>
           Area: ${newSection.area_acres?.toFixed(2)} acres
         </div>
       `);
-      
+
       layer.on('click', () => {
         handleSectionSelect(newSection.section_id);
       });
-      
+
       sectionsLayerRef.current?.addLayer(layer);
       setSections([...sections, newSection]);
-      
+
       toast.success(`Section created: ${newSection.area_acres?.toFixed(2)} acres`);
-      
+
       setIsDrawingSection(false);
       isDrawingSectionRef.current = false;
       if (onSectionDrawn) {
         onSectionDrawn(geometry);
       }
-      
+
       setIsDrawingSection(false);
     } catch (error: any) {
       console.error('Failed to save section:', error);
@@ -390,7 +390,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
       const updatedSection = await farmGeometryService.updateSection(farmId, sectionId, {
         section_geojson: geometry,
       });
-      
+
       setSections(sections.map((s) => (s.section_id === sectionId ? updatedSection : s)));
       toast.success('Section updated');
     } catch (error: any) {
@@ -485,7 +485,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
       (error) => {
         console.error('Geolocation error:', error);
         setIsLocating(false);
-        
+
         let errorMessage = 'Unable to get your location';
         if (error.code === error.PERMISSION_DENIED) {
           errorMessage = 'Location access denied. Please enable location permissions in your browser.';
@@ -494,7 +494,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
         } else if (error.code === error.TIMEOUT) {
           errorMessage = 'Location request timed out';
         }
-        
+
         toast.error(errorMessage, { id: 'geolocation', duration: 4000 });
       },
       {
@@ -508,11 +508,11 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
   return (
     <div className="relative w-full h-full">
       <div ref={mapRef} className="w-full h-full" />
-      
+
       {/* Control Panel */}
       <div className="absolute top-4 left-4 bg-white rounded-lg shadow-lg p-4 z-[1000] max-w-xs">
         <h3 className="text-lg font-semibold mb-3">Farm Mapping Tools</h3>
-        
+
         {/* Farm Info */}
         {farmGeometry?.has_geometry && (
           <div className="mb-4 p-3 bg-blue-50 rounded">
@@ -522,7 +522,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
             </p>
           </div>
         )}
-        
+
         {/* Drawing Buttons */}
         <div className="space-y-2">
           <button
@@ -546,7 +546,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
           >
             {farmGeometry?.has_geometry ? 'Redraw' : 'Draw'} Farm Boundary
           </button>
-          
+
           <button
             onClick={() => {
               if (!farmGeometry?.has_geometry) {
@@ -565,7 +565,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
             Add New Section
           </button>
         </div>
-        
+
         {/* Sections List */}
         {sections.length > 0 && (
           <div className="mt-4">
@@ -575,9 +575,8 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
                 <div
                   key={section.section_id}
                   onClick={() => setSelectedSection(section.section_id)}
-                  className={`p-2 rounded cursor-pointer transition ${
-                    selectedSection === section.section_id ? 'bg-blue-100' : 'bg-gray-50 hover:bg-gray-100'
-                  }`}
+                  className={`p-2 rounded cursor-pointer transition ${selectedSection === section.section_id ? 'bg-blue-100' : 'bg-gray-50 hover:bg-gray-100'
+                    }`}
                 >
                   <div className="flex items-center gap-2">
                     <div
@@ -597,7 +596,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
             </div>
           </div>
         )}
-        
+
         {/* Instructions */}
         <div className="mt-4 p-2 bg-gray-50 rounded text-xs text-gray-600">
           <p className="font-medium mb-1">Instructions:</p>

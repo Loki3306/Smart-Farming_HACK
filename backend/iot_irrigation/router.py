@@ -814,3 +814,33 @@ async def shutdown_mqtt():
     if mqtt_client:
         mqtt_client.stop()
         logger.info("🛑 MQTT client shutdown complete")
+# --- CROP RECOMMENDATION API ---
+class RecommendationRequest(BaseModel):
+    n: float
+    p: float
+    k: float
+    ph: float
+    moisture: float
+    temperature: float
+    humidity: float
+    rainfall: float = 100.0
+
+@router.post("/recommend-crop")
+async def recommend_crop_api(data: RecommendationRequest):
+    """
+    Get AI-driven crop recommendations based on soil & weather data.
+    """
+    try:
+        from app.agents.agronomy_expert import agronomy_expert
+        
+        # Call the agent
+        recommendation = agronomy_expert.recommend_optimal_crop(
+            n=data.n, p=data.p, k=data.k, ph=data.ph,
+            moisture=data.moisture, temp=data.temperature, humidity=data.humidity,
+            rainfall_prediction=data.rainfall
+        )
+        
+        return recommendation
+    except Exception as e:
+        logger.error(f"Error in recommendation API: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))

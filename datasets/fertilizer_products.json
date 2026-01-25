@@ -1,0 +1,318 @@
+{
+    "fertilizer_products": {
+        "iffco": [
+            {
+                "product_name": "IFFCO Urea",
+                "manufacturer": "IFFCO",
+                "npk_ratio": "46-0-0",
+                "nitrogen_percent": 46,
+                "phosphorus_percent": 0,
+                "potassium_percent": 0,
+                "bag_size_kg": 45,
+                "price_per_unit": 266.50,
+                "unit_type": "bag",
+                "product_type": "chemical",
+                "description": "High-grade nitrogen fertilizer for all crops. Promotes vegetative growth and green foliage.",
+                "application_stage": [
+                    "vegetative",
+                    "growth"
+                ],
+                "crops_suitable": [
+                    "wheat",
+                    "rice",
+                    "corn",
+                    "sugarcane",
+                    "vegetables"
+                ]
+            },
+            {
+                "product_name": "IFFCO DAP",
+                "manufacturer": "IFFCO",
+                "npk_ratio": "18-46-0",
+                "nitrogen_percent": 18,
+                "phosphorus_percent": 46,
+                "potassium_percent": 0,
+                "bag_size_kg": 50,
+                "price_per_unit": 1350,
+                "unit_type": "bag",
+                "product_type": "chemical",
+                "description": "Di-Ammonium Phosphate - excellent for root development and flowering.",
+                "application_stage": [
+                    "sowing",
+                    "flowering"
+                ],
+                "crops_suitable": [
+                    "wheat",
+                    "rice",
+                    "pulses",
+                    "oilseeds"
+                ]
+            },
+            {
+                "product_name": "IFFCO NPK 10-26-26",
+                "manufacturer": "IFFCO",
+                "npk_ratio": "10-26-26",
+                "nitrogen_percent": 10,
+                "phosphorus_percent": 26,
+                "potassium_percent": 26,
+                "bag_size_kg": 50,
+                "price_per_unit": 1720,
+                "unit_type": "bag",
+                "product_type": "chemical",
+                "description": "Balanced NPK for flowering and fruiting stages. High P&K content.",
+                "application_stage": [
+                    "flowering",
+                    "fruiting"
+                ],
+                "crops_suitable": [
+                    "tomato",
+                    "potato",
+                    "cotton",
+                    "fruits"
+                ]
+            },
+            {
+                "product_name": "IFFCO NPK 12-32-16",
+                "manufacturer": "IFFCO",
+                "npk_ratio": "12-32-16",
+                "nitrogen_percent": 12,
+                "phosphorus_percent": 32,
+                "potassium_percent": 16,
+                "bag_size_kg": 50,
+                "price_per_unit": 1720,
+                "unit_type": "bag",
+                "product_type": "chemical",
+                "description": "Complete fertilizer for balanced crop nutrition.",
+                "application_stage": [
+                    "all_stages"
+                ],
+                "crops_suitable": [
+                    "wheat",
+                    "rice",
+                    "maize",
+                    "vegetables"
+                ]
+            },
+            {
+                "product_name": "IFFCO NPK 20-20-0-13",
+                "manufacturer": "IFFCO",
+                "npk_ratio": "20-20-0-13",
+                "nitrogen_percent": 20,
+                "phosphorus_percent": 20,
+                "potassium_percent": 0,
+                "bag_size_kg": 50,
+                "price_per_unit": 1300,
+                "unit_type": "bag",
+                "product_type": "chemical",
+                "description": "Contains 13% Sulphur - ideal for oilseeds and pulses.",
+                "application_stage": [
+                    "sowing",
+                    "vegetative"
+                ],
+                "crops_suitable": [
+                    "mustard",
+                    "groundnut",
+                    "soybean",
+                    "pulses"
+                ],
+                "special_features": {
+                    "sulphur_content": 13,
+                    "fortified": true
+                }
+            },
+            {
+                "product_name": "IFFCO Nano Urea",
+                "manufacturer": "IFFCO",
+                "npk_ratio": "Nano N",
+                "nitrogen_percent": 0,
+                "phosphorus_percent": 0,
+                "potassium_percent": 0,
+                "bottle_size_ml": 500,
+                "n_equivalent_kg": 10,
+                "price_per_unit": 225,
+                "unit_type": "bottle",
+                "product_type": "nano",
+                "description": "Revolutionary nano-technology urea. One 500ml bottle replaces one bag of conventional urea. 80% reduction in volume, better absorption, eco-friendly.",
+                "application_method": "foliar_spray",
+                "application_stage": [
+                    "vegetative",
+                    "flowering"
+                ],
+                "crops_suitable": [
+                    "all_crops"
+                ],
+                "special_features": {
+                    "nano_particles": true,
+                    "better_absorption": true,
+                    "eco_friendly": true,
+                    "volume_reduction_percent": 80
+                }
+            },
+            {
+                "product_name": "IFFCO Nano DAP",
+                "manufacturer": "IFFCO",
+                "npk_ratio": "Nano NP",
+                "nitrogen_percent": 0,
+                "phosphorus_percent": 0,
+                "potassium_percent": 0,
+                "bottle_size_ml": 500,
+                "n_equivalent_kg": 15,
+                "p_equivalent_kg": 30,
+                "price_per_unit": 600,
+                "unit_type": "bottle",
+                "product_type": "nano",
+                "description": "Nano DAP for enhanced phosphorus and nitrogen absorption.",
+                "application_method": "foliar_spray",
+                "application_stage": [
+                    "flowering",
+                    "fruiting"
+                ],
+                "crops_suitable": [
+                    "all_crops"
+                ],
+                "special_features": {
+                    "nano_particles": true,
+                    "water_soluble": true
+                }
+            }
+        ],
+        "coromandel": [
+            {
+                "product_name": "Coromandel GroShakti 14-35-14",
+                "manufacturer": "Coromandel",
+                "npk_ratio": "14-35-14",
+                "nitrogen_percent": 14,
+                "phosphorus_percent": 35,
+                "potassium_percent": 14,
+                "bag_size_kg": 50,
+                "price_per_unit": 1400,
+                "unit_type": "bag",
+                "product_type": "chemical",
+                "description": "Premium grade NPK with 63% total nutrients. Contains micronutrients for complete plant nutrition.",
+                "application_stage": [
+                    "all_stages"
+                ],
+                "crops_suitable": [
+                    "cotton",
+                    "chili",
+                    "tomato",
+                    "groundnut"
+                ],
+                "special_features": {
+                    "total_nutrients_percent": 63,
+                    "has_micronutrients": true,
+                    "premium_grade": true
+                }
+            },
+            {
+                "product_name": "Coromandel Gromor 12-32-16",
+                "manufacturer": "Coromandel",
+                "npk_ratio": "12-32-16",
+                "nitrogen_percent": 12,
+                "phosphorus_percent": 32,
+                "potassium_percent": 16,
+                "bag_size_kg": 50,
+                "price_per_unit": 1500,
+                "unit_type": "bag",
+                "product_type": "chemical",
+                "description": "Complete NPK fertilizer for balanced crop nutrition.",
+                "application_stage": [
+                    "sowing",
+                    "vegetative"
+                ],
+                "crops_suitable": [
+                    "paddy",
+                    "wheat",
+                    "sugarcane",
+                    "maize"
+                ]
+            },
+            {
+                "product_name": "Coromandel Gromor Ultra DAP",
+                "manufacturer": "Coromandel",
+                "npk_ratio": "18-46-0",
+                "nitrogen_percent": 18,
+                "phosphorus_percent": 46,
+                "potassium_percent": 0,
+                "bag_size_kg": 50,
+                "price_per_unit": 2000,
+                "unit_type": "bag",
+                "product_type": "chemical",
+                "description": "Zinc-fortified DAP for enhanced crop performance. Premium quality phosphate.",
+                "application_stage": [
+                    "sowing",
+                    "basal"
+                ],
+                "crops_suitable": [
+                    "all_crops"
+                ],
+                "special_features": {
+                    "zinc_fortified": true,
+                    "premium_quality": true,
+                    "zinc_percent": 1.5
+                }
+            },
+            {
+                "product_name": "Coromandel Gromor NPK 13-0-45",
+                "manufacturer": "Coromandel",
+                "npk_ratio": "13-0-45",
+                "nitrogen_percent": 13,
+                "phosphorus_percent": 0,
+                "potassium_percent": 45,
+                "bag_size_kg": 50,
+                "price_per_unit": 2200,
+                "unit_type": "bag",
+                "product_type": "chemical",
+                "description": "High potassium fertilizer for quality improvement in fruits and vegetables.",
+                "application_stage": [
+                    "fruiting",
+                    "maturity"
+                ],
+                "crops_suitable": [
+                    "banana",
+                    "grapes",
+                    "mango",
+                    "vegetables"
+                ],
+                "special_features": {
+                    "high_potassium": true,
+                    "quality_enhancer": true
+                }
+            },
+            {
+                "product_name": "Coromandel Organic Compost",
+                "manufacturer": "Coromandel",
+                "npk_ratio": "2-1-2",
+                "nitrogen_percent": 2,
+                "phosphorus_percent": 1,
+                "potassium_percent": 2,
+                "bag_size_kg": 50,
+                "price_per_unit": 450,
+                "unit_type": "bag",
+                "product_type": "organic",
+                "description": "100% organic compost enriched with beneficial microorganisms. Improves soil health and water retention.",
+                "application_stage": [
+                    "soil_preparation",
+                    "all_stages"
+                ],
+                "crops_suitable": [
+                    "all_crops",
+                    "organic_farming"
+                ],
+                "special_features": {
+                    "organic_certified": true,
+                    "improves_soil_health": true,
+                    "eco_friendly": true,
+                    "carbon_content_percent": 25
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "last_updated": "2025-01-25",
+        "source": "IFFCO Official Catalog, Coromandel Product Catalog",
+        "total_products": 12,
+        "price_currency": "INR",
+        "disclaimer": "Prices are subject to change. Please verify with local dealers before purchasing."
+    }
+}

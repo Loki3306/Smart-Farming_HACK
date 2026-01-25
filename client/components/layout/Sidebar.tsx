@@ -17,6 +17,7 @@ import {
   Leaf,
   Bug,
   User,
+  Activity,
   Menu,
   X,
   MessageSquare,
@@ -36,10 +37,18 @@ interface NavItem {
   badge?: number;
 }
 
-export const Sidebar: React.FC = () => {
+interface SidebarProps {
+  isCollapsed?: boolean;
+  onToggle?: () => void;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed: controlledCollapsed, onToggle }) => {
   const { t } = useTranslation();
 
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [localCollapsed, setLocalCollapsed] = useState(false);
+  const isCollapsed = controlledCollapsed !== undefined ? controlledCollapsed : localCollapsed;
+  const toggleCollapse = onToggle || (() => setLocalCollapsed(!localCollapsed));
+
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const { user, logout } = useAuth();
@@ -51,12 +60,12 @@ export const Sidebar: React.FC = () => {
     { label: t("navigation.dashboard"), icon: LayoutDashboard, path: "/dashboard" },
     { label: t("navigation.myFarm"), icon: Tractor, path: "/farm" },
     { label: t("navigation.farmMapping"), icon: Map, path: "/farm-mapping" },
-    { label: "Farm Overview", icon: Eye, path: "/farm-overview" },
-    { label: "Irrigation Planner", icon: Droplets, path: "/irrigation-planner" },
+    { label: t("navigation.farmOverview"), icon: Eye, path: "/farm-overview" },
+    { label: t("navigation.irrigationPlanner"), icon: Droplets, path: "/irrigation-planner" },
     { label: t("navigation.weather"), icon: CloudSun, path: "/weather" },
     { label: t("navigation.aiRecommendations"), icon: Lightbulb, path: "/recommendations" },
-    { label: t("navigation.regimes"), icon: Leaf, path: "/regimes" },
     { label: t("navigation.diseaseDetection"), icon: Bug, path: "/disease" },
+    { label: "Stress Detection", icon: Activity, path: "/stress-detection" },
     { label: t("navigation.marketplace"), icon: ShoppingCart, path: "/marketplace" },
     { label: t("navigation.learn"), icon: GraduationCap, path: "/learn" },
     { label: t("navigation.community"), icon: Users, path: "/community" },
@@ -206,7 +215,7 @@ export const Sidebar: React.FC = () => {
 
       {/* Collapse Toggle (Desktop only) */}
       <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
+        onClick={toggleCollapse}
         className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 rounded-full bg-card border border-border shadow-sm items-center justify-center hover:bg-muted transition-colors"
       >
         {isCollapsed ? (
@@ -221,7 +230,7 @@ export const Sidebar: React.FC = () => {
   return (
     <>
       {/* Mobile Header Bar */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-card/80 backdrop-blur-md border-b border-border z-40 flex items-center px-4 justify-between">
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-card/80 backdrop-blur-md border-b border-border z-[2000] flex items-center px-4 justify-between">
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsMobileOpen(true)}
@@ -237,7 +246,7 @@ export const Sidebar: React.FC = () => {
       {/* Mobile Overlay */}
       {isMobileOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          className="lg:hidden fixed inset-0 bg-black/50 z-[2001]"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
@@ -245,7 +254,7 @@ export const Sidebar: React.FC = () => {
       {/* Mobile Sidebar */}
       <aside
         className={cn(
-          "lg:hidden fixed inset-y-0 left-0 z-50 w-72 bg-sidebar border-r border-sidebar-border transform transition-transform duration-300",
+          "lg:hidden fixed inset-y-0 left-0 z-[2002] w-72 bg-sidebar border-r border-sidebar-border transform transition-transform duration-300",
           isMobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >

@@ -599,7 +599,7 @@ export const Community: React.FC = () => {
   const savedPosts = posts.filter(post => savedPostIds.has(post.id));
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50/50 to-background">
+    <div className="min-h-screen">
       {/* Connection Status Banner */}
       {!isOnline && (
         <div className="bg-amber-100 border-b border-amber-200 px-4 py-2 flex items-center justify-center gap-2 text-amber-800">
@@ -608,7 +608,7 @@ export const Community: React.FC = () => {
         </div>
       )}
 
-      <div className="p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
+      <div className="p-4 lg:p-8 space-y-6 max-w-7xl mx-auto">
         {/* ==================== HEADER ==================== */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -616,7 +616,7 @@ export const Community: React.FC = () => {
           className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
         >
           <div>
-            <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+            <h1 className="text-2xl lg:text-3xl font-bold text-foreground flex items-center gap-3">
               <div className="p-2 rounded-xl bg-primary/10">
                 <Users className="w-7 h-7 text-primary" />
               </div>
@@ -649,7 +649,7 @@ export const Community: React.FC = () => {
               className="gap-2 shadow-md hover:shadow-lg transition-shadow"
             >
               <Plus className="w-5 h-5" />
-              Create Post
+              {t("header.createPost")}
             </Button>
           </div>
         </motion.div>
@@ -691,16 +691,16 @@ export const Community: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="flex gap-2 border-b border-border"
+          className="flex gap-2 border-b border-border overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar"
         >
           <button
             onClick={() => setActiveTab("posts")}
-            className={`px-6 py-3 font-medium text-base transition-all relative ${activeTab === "posts"
+            className={`px-4 py-2 lg:px-6 lg:py-3 font-medium text-base transition-all relative whitespace-nowrap ${activeTab === "posts"
               ? "text-primary"
               : "text-muted-foreground hover:text-foreground"
               }`}
           >
-            Posts
+            {t("tabs.posts")}
             {activeTab === "posts" && (
               <motion.div
                 layoutId="activeTab"
@@ -710,7 +710,7 @@ export const Community: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab("experts")}
-            className={`px-6 py-3 font-medium text-base transition-all relative ${activeTab === "experts"
+            className={`px-4 py-2 lg:px-6 lg:py-3 font-medium text-base transition-all relative whitespace-nowrap ${activeTab === "experts"
               ? "text-primary"
               : "text-muted-foreground hover:text-foreground"
               }`}
@@ -725,7 +725,7 @@ export const Community: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab("saved")}
-            className={`px-6 py-3 font-medium text-base transition-all relative flex items-center gap-2 ${activeTab === "saved"
+            className={`px-4 py-2 lg:px-6 lg:py-3 font-medium text-base transition-all relative flex items-center gap-2 whitespace-nowrap ${activeTab === "saved"
               ? "text-primary"
               : "text-muted-foreground hover:text-foreground"
               }`}
@@ -746,7 +746,7 @@ export const Community: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab("reports")}
-            className={`px-6 py-3 font-medium text-base transition-all relative flex items-center gap-2 ${activeTab === "reports"
+            className={`px-4 py-2 lg:px-6 lg:py-3 font-medium text-base transition-all relative flex items-center gap-2 whitespace-nowrap ${activeTab === "reports"
               ? "text-primary"
               : "text-muted-foreground hover:text-foreground"
               }`}
@@ -804,7 +804,7 @@ export const Community: React.FC = () => {
                           onClick={() => refreshPosts()}
                           className="ml-auto"
                         >
-                          Retry
+                          {t("actions.retry")}
                         </Button>
                       </div>
                     </Card>
@@ -856,12 +856,12 @@ export const Community: React.FC = () => {
                         {postsLoading ? (
                           <>
                             <Loader2 className="w-4 h-4 animate-spin" />
-                            Loading...
+                            {t("time.loading")}
                           </>
                         ) : (
                           <>
                             <ChevronRight className="w-4 h-4" />
-                            {t("posts.loadMore")} Posts
+                            {t("posts.loadMore")}
                           </>
                         )}
                       </Button>
@@ -883,7 +883,7 @@ export const Community: React.FC = () => {
                   {expertsLoading && experts.length === 0 && (
                     <div className="flex flex-col items-center justify-center py-12">
                       <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
-                      <p className="text-muted-foreground">Loading experts...</p>
+                      <p className="text-muted-foreground">{t("experts.loading")}</p>
                     </div>
                   )}
 
@@ -901,7 +901,7 @@ export const Community: React.FC = () => {
                           {expert.isActiveThisWeek && (
                             <div className="bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-2 flex items-center gap-2 border-b">
                               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                              <span className="text-xs font-medium text-green-700">Active this week</span>
+                              <span className="text-xs font-medium text-green-700">{t("experts.activeThisWeek")}</span>
                             </div>
                           )}
 
@@ -926,7 +926,7 @@ export const Community: React.FC = () => {
                                 </div>
                                 <div className="flex items-center gap-1.5 text-sm text-muted-foreground mt-0.5">
                                   <Award className="w-3.5 h-3.5" />
-                                  <span>{expert.experience} experience</span>
+                                  <span>{expert.experience} {t("experts.experience")}</span>
                                 </div>
                               </div>
                             </div>
@@ -946,13 +946,13 @@ export const Community: React.FC = () => {
                                 <p className="text-lg font-semibold text-foreground">
                                   {expert.followers.toLocaleString()}
                                 </p>
-                                <p className="text-xs text-muted-foreground">Followers</p>
+                                <p className="text-xs text-muted-foreground">{t("experts.followers")}</p>
                               </div>
                               <div className="text-center">
                                 <p className="text-lg font-semibold text-foreground">
                                   {expert.questionsAnswered.toLocaleString()}
                                 </p>
-                                <p className="text-xs text-muted-foreground">Answers</p>
+                                <p className="text-xs text-muted-foreground">{t("experts.answers")}</p>
                               </div>
                             </div>
 
@@ -965,11 +965,11 @@ export const Community: React.FC = () => {
                                 onClick={() => handleFollowExpert(expert.id)}
                               >
                                 <UserCheck className="w-4 h-4 mr-1.5 flex-shrink-0" />
-                                <span className="truncate">{followedExperts.has(expert.id) ? "Following" : "Follow"}</span>
+                                <span className="truncate">{followedExperts.has(expert.id) ? t("experts.following") : t("experts.follow")}</span>
                               </Button>
                               <Button variant="outline" size="sm" className="w-full" onClick={() => handleAskExpert(expert.farmer_id)}>
                                 <MessageSquare className="w-4 h-4 mr-1.5" />
-                                Ask
+                                {t("experts.ask")}
                               </Button>
                             </div>
                           </CardContent>
@@ -993,7 +993,7 @@ export const Community: React.FC = () => {
                   {savedPostsLoading && (
                     <div className="flex flex-col items-center justify-center py-12">
                       <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
-                      <p className="text-muted-foreground">Loading saved posts...</p>
+                      <p className="text-muted-foreground">{t("saved.loading")}</p>
                     </div>
                   )}
 
@@ -1001,13 +1001,13 @@ export const Community: React.FC = () => {
                   {!savedPostsLoading && savedPosts.length === 0 && (
                     <Card className="p-8 text-center">
                       <Bookmark className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                      <h3 className="font-semibold text-lg mb-2">No saved posts yet</h3>
+                      <h3 className="font-semibold text-lg mb-2">{t("saved.noSaved")}</h3>
                       <p className="text-muted-foreground mb-4">
-                        Bookmark posts to save them for later reference
+                        {t("saved.noSavedDesc")}
                       </p>
                       <Button onClick={() => setActiveTab("posts")}>
                         <TrendingUp className="w-4 h-4 mr-2" />
-                        Browse Posts
+                        {t("saved.browse")}
                       </Button>
                     </Card>
                   )}
@@ -1052,9 +1052,9 @@ export const Community: React.FC = () => {
                             <Flag className="w-8 h-8 text-muted-foreground" />
                           </div>
                           <div className="space-y-2">
-                            <p className="text-lg font-medium text-foreground">No Reports Yet</p>
+                            <p className="text-lg font-medium text-foreground">{t("reports.noReports")}</p>
                             <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-                              You haven't reported any posts. Use the report feature to flag inappropriate content.
+                              {t("reports.noReportsDesc")}
                             </p>
                           </div>
                         </div>
@@ -1081,7 +1081,7 @@ export const Community: React.FC = () => {
                                     <div className="flex-1 min-w-0 space-y-1">
                                       <div className="flex items-center gap-2 flex-wrap">
                                         <span className="text-sm font-medium text-foreground">
-                                          Report #{report.id.slice(0, 8)}
+                                          {t("reports.reportNumber")}{report.id.slice(0, 8)}
                                         </span>
                                         <Badge
                                           variant={
@@ -1106,7 +1106,7 @@ export const Community: React.FC = () => {
                                 {/* Report Reason */}
                                 <div className="pl-11 space-y-2">
                                   <div className="flex items-center gap-2">
-                                    <span className="text-xs font-medium text-muted-foreground">Reason:</span>
+                                    <span className="text-xs font-medium text-muted-foreground">{t("reports.reason")}:</span>
                                     <Badge variant="outline" className="text-xs">
                                       {report.reason === "spam"
                                         ? "🚫 Spam"
@@ -1165,7 +1165,7 @@ export const Community: React.FC = () => {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base font-semibold text-green-800 flex items-center gap-2">
                     <Sparkles className="w-5 h-5" />
-                    Daily Farming Brief
+                    {t("sidebar.dailyBrief")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -1174,7 +1174,7 @@ export const Community: React.FC = () => {
                       <Sun className="w-4 h-4" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-green-800">Weather Update</p>
+                      <p className="text-xs font-medium text-green-800">{t("sidebar.weatherUpdate")}</p>
                       <p className="text-xs text-green-700/80 mt-0.5">Clear skies expected. Good day for pesticide application.</p>
                     </div>
                   </div>
@@ -1183,7 +1183,7 @@ export const Community: React.FC = () => {
                       <TrendingUp className="w-4 h-4" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-green-800">Trending Discussion</p>
+                      <p className="text-xs font-medium text-green-800">{t("sidebar.trendingDiscussion")}</p>
                       <p className="text-xs text-green-700/80 mt-0.5">Rabi crop preparation tips getting high engagement</p>
                     </div>
                   </div>
@@ -1192,7 +1192,7 @@ export const Community: React.FC = () => {
                       <Lightbulb className="w-4 h-4" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-green-800">Expert Tip</p>
+                      <p className="text-xs font-medium text-green-800">{t("sidebar.expertTip")}</p>
                       <p className="text-xs text-green-700/80 mt-0.5">Add neem cake to soil before sowing for pest prevention</p>
                     </div>
                   </div>
@@ -1210,7 +1210,7 @@ export const Community: React.FC = () => {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base font-semibold flex items-center gap-2">
                     <TrendingUp className="w-5 h-5 text-primary" />
-                    Trending Topics
+                    {t("sidebar.trendingTopics")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
@@ -1247,7 +1247,7 @@ export const Community: React.FC = () => {
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base font-semibold flex items-center justify-between">
-                    Community Stats
+                    {t("sidebar.communityStats")}
                     {statsLoading && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
                   </CardTitle>
                 </CardHeader>
@@ -1255,7 +1255,7 @@ export const Community: React.FC = () => {
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground flex items-center gap-2">
                       <Users className="w-4 h-4" />
-                      Active Farmers
+                      {t("sidebar.activeFarmers")}
                     </span>
                     <span className="font-semibold text-foreground">
                       {stats?.active_farmers?.toLocaleString() || '--'}
@@ -1264,7 +1264,7 @@ export const Community: React.FC = () => {
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground flex items-center gap-2">
                       <MessageSquare className="w-4 h-4" />
-                      Posts Today
+                      {t("sidebar.postsToday")}
                     </span>
                     <span className="font-semibold text-foreground">
                       {stats?.posts_today?.toLocaleString() || '--'}
@@ -1273,7 +1273,7 @@ export const Community: React.FC = () => {
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4" />
-                      Questions Answered
+                      {t("sidebar.questionsAnswered")}
                     </span>
                     <span className="font-semibold text-green-600">
                       {stats?.questions_answered_percent ? `${stats.questions_answered_percent}%` : '--'}
@@ -1293,9 +1293,9 @@ export const Community: React.FC = () => {
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
                 <CardContent className="p-6 relative">
                   <div className="text-4xl mb-3">🧑‍🔬</div>
-                  <h3 className="font-semibold text-lg mb-2">Need Expert Help?</h3>
+                  <h3 className="font-semibold text-lg mb-2">{t("sidebar.needExpertHelp")}</h3>
                   <p className="text-sm opacity-90 mb-4">
-                    Get personalized advice from verified agricultural experts in your area.
+                    {t("sidebar.getPersonalizedAdvice")}
                   </p>
                   <Button
                     variant="secondary"
@@ -1305,7 +1305,7 @@ export const Community: React.FC = () => {
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                   >
-                    Ask an Expert
+                    {t("sidebar.askExpert")}
                   </Button>
                 </CardContent>
               </Card>
@@ -1320,9 +1320,9 @@ export const Community: React.FC = () => {
               <Card className="border-dashed border-2">
                 <CardContent className="p-4 text-center">
                   <Sparkles className="w-8 h-8 text-primary mx-auto mb-2" />
-                  <p className="text-sm font-medium text-foreground">AI Summary</p>
+                  <p className="text-sm font-medium text-foreground">{t("sidebar.aiSummary")}</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Get quick summaries of long discussions with AI
+                    {t("sidebar.aiSummaryDesc")}
                   </p>
                 </CardContent>
               </Card>

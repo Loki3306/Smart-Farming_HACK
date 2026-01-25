@@ -29,6 +29,7 @@ const FarmOverviewMap: React.FC<FarmOverviewMapProps> = ({
           center: [20.5937, 78.9629], // Center of India
           zoom: 5,
           zoomControl: true,
+          attributionControl: false,
           scrollWheelZoom: true,
         });
 
@@ -38,7 +39,7 @@ const FarmOverviewMap: React.FC<FarmOverviewMapProps> = ({
         }).addTo(map);
 
         mapRef.current = map;
-        
+
         // Small delay to ensure map renders properly
         setTimeout(() => {
           map.invalidateSize();
@@ -131,14 +132,14 @@ const FarmOverviewMap: React.FC<FarmOverviewMapProps> = ({
       });
 
       // Add hover effect
-      sectionLayer.on('mouseover', function() {
+      sectionLayer.on('mouseover', function () {
         this.setStyle({
           fillOpacity: 0.5,
           weight: 3,
         });
       });
 
-      sectionLayer.on('mouseout', function() {
+      sectionLayer.on('mouseout', function () {
         if (section.id !== selectedSectionId) {
           this.setStyle({
             fillOpacity: 0.3,
@@ -157,7 +158,7 @@ const FarmOverviewMap: React.FC<FarmOverviewMapProps> = ({
           (coord: number[]) => [coord[1], coord[0]] as L.LatLngExpression
         )
       );
-      
+
       if (allCoordinates.length > 0) {
         const bounds = L.latLngBounds(allCoordinates);
         map.fitBounds(bounds, { padding: [50, 50] });
@@ -196,7 +197,7 @@ const FarmOverviewMap: React.FC<FarmOverviewMapProps> = ({
   return (
     <div className="relative w-full h-full">
       <div ref={mapContainerRef} className="w-full h-full rounded-lg" />
-      
+
       {/* Map Legend */}
       <div className="absolute top-4 right-4 bg-white rounded-lg shadow-lg p-3 z-[1000]">
         <h4 className="font-semibold text-sm mb-2">Map Legend</h4>

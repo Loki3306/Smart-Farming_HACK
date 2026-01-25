@@ -44,41 +44,41 @@ export const IrrigationLayoutMap: React.FC<IrrigationLayoutMapProps> = ({
       totalLat += coord[1];
     });
     const sectionCentroid: [number, number] = [totalLat / coords.length, totalLng / coords.length];
-    
+
     // Initialize map centered between water source and section
     const centerLat = (waterSource.coordinates[0] + sectionCentroid[0]) / 2;
     const centerLng = (waterSource.coordinates[1] + sectionCentroid[1]) / 2;
-    
+
     // Small delay to ensure container is rendered
     setTimeout(() => {
       if (!mapRef.current) return;
-      
+
       const map = L.map(mapRef.current, {
         zoomControl: true,
-        attributionControl: true,
+        attributionControl: false,
       }).setView([centerLat, centerLng], 16);
-      
+
       // Force map to recalculate size
       setTimeout(() => {
         map.invalidateSize();
       }, 100);
 
-    // Add OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      maxZoom: 19,
-    }).addTo(map);
+      // Add OpenStreetMap tiles
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19,
+      }).addTo(map);
 
-    // 1. Draw Section Polygon
-    const sectionCoords = coords.map(coord => [coord[1], coord[0]] as [number, number]);
-    const sectionPolygon = L.polygon(sectionCoords, {
-      color: section.color,
-      weight: 3,
-      fillOpacity: 0.2,
-      fillColor: section.color,
-    }).addTo(map);
-    
-    sectionPolygon.bindPopup(`
+      // 1. Draw Section Polygon
+      const sectionCoords = coords.map(coord => [coord[1], coord[0]] as [number, number]);
+      const sectionPolygon = L.polygon(sectionCoords, {
+        color: section.color,
+        weight: 3,
+        fillOpacity: 0.2,
+        fillColor: section.color,
+      }).addTo(map);
+
+      sectionPolygon.bindPopup(`
       <div class="text-sm">
         <strong class="text-base">${section.name}</strong><br/>
         <span class="text-gray-600">Area: ${section.area.toFixed(2)} acres</span><br/>
@@ -86,10 +86,10 @@ export const IrrigationLayoutMap: React.FC<IrrigationLayoutMapProps> = ({
       </div>
     `);
 
-    // 2. Add Water Source Marker
-    const waterSourceIcon = L.divIcon({
-      className: 'custom-water-source-marker',
-      html: `
+      // 2. Add Water Source Marker
+      const waterSourceIcon = L.divIcon({
+        className: 'custom-water-source-marker',
+        html: `
         <div style="
           width: 40px;
           height: 40px;
@@ -107,15 +107,15 @@ export const IrrigationLayoutMap: React.FC<IrrigationLayoutMapProps> = ({
           </svg>
         </div>
       `,
-      iconSize: [40, 40],
-      iconAnchor: [20, 40],
-    });
+        iconSize: [40, 40],
+        iconAnchor: [20, 40],
+      });
 
-    const waterSourceMarker = L.marker([waterSource.coordinates[0], waterSource.coordinates[1]], {
-      icon: waterSourceIcon,
-    }).addTo(map);
-    
-    waterSourceMarker.bindPopup(`
+      const waterSourceMarker = L.marker([waterSource.coordinates[0], waterSource.coordinates[1]], {
+        icon: waterSourceIcon,
+      }).addTo(map);
+
+      waterSourceMarker.bindPopup(`
       <div class="text-sm">
         <strong class="text-base">${waterSource.name}</strong><br/>
         <span class="text-gray-600 capitalize">${waterSource.type.replace('_', ' ')}</span><br/>
@@ -123,10 +123,10 @@ export const IrrigationLayoutMap: React.FC<IrrigationLayoutMapProps> = ({
       </div>
     `);
 
-    // 3. Add Section Centroid Marker
-    const centroidIcon = L.divIcon({
-      className: 'custom-centroid-marker',
-      html: `
+      // 3. Add Section Centroid Marker
+      const centroidIcon = L.divIcon({
+        className: 'custom-centroid-marker',
+        html: `
         <div style="
           width: 24px;
           height: 24px;
@@ -136,33 +136,33 @@ export const IrrigationLayoutMap: React.FC<IrrigationLayoutMapProps> = ({
           box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         "></div>
       `,
-      iconSize: [24, 24],
-      iconAnchor: [12, 12],
-    });
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
+      });
 
-    L.marker(sectionCentroid, { icon: centroidIcon }).addTo(map)
-      .bindPopup(`
+      L.marker(sectionCentroid, { icon: centroidIcon }).addTo(map)
+        .bindPopup(`
         <div class="text-sm">
           <strong>Section Center</strong><br/>
           <span class="text-gray-600">Main delivery point</span>
         </div>
       `);
 
-    // 4. Draw Main Pipeline
-    const pipelineCoords: [number, number][] = [
-      [waterSource.coordinates[0], waterSource.coordinates[1]],
-      sectionCentroid,
-    ];
+      // 4. Draw Main Pipeline
+      const pipelineCoords: [number, number][] = [
+        [waterSource.coordinates[0], waterSource.coordinates[1]],
+        sectionCentroid,
+      ];
 
-    // Main pipeline
-    const mainPipeline = L.polyline(pipelineCoords, {
-      color: '#2563eb',
-      weight: 5,
-      opacity: 0.8,
-      dashArray: '10, 5',
-    }).addTo(map);
+      // Main pipeline
+      const mainPipeline = L.polyline(pipelineCoords, {
+        color: '#2563eb',
+        weight: 5,
+        opacity: 0.8,
+        dashArray: '10, 5',
+      }).addTo(map);
 
-    mainPipeline.bindPopup(`
+      mainPipeline.bindPopup(`
       <div class="text-sm">
         <strong class="text-base">Main Pipeline</strong><br/>
         <span class="text-gray-600">Length: ${Math.round(distance)}m</span><br/>
@@ -171,18 +171,18 @@ export const IrrigationLayoutMap: React.FC<IrrigationLayoutMapProps> = ({
       </div>
     `);
 
-    // Add animated flow arrows
-    const arrowSpacing = 50; // meters between arrows
-    const numArrows = Math.floor(distance / arrowSpacing);
-    
-    for (let i = 1; i <= numArrows; i++) {
-      const fraction = i / (numArrows + 1);
-      const arrowLat = waterSource.coordinates[0] + (sectionCentroid[0] - waterSource.coordinates[0]) * fraction;
-      const arrowLng = waterSource.coordinates[1] + (sectionCentroid[1] - waterSource.coordinates[1]) * fraction;
-      
-      const arrowIcon = L.divIcon({
-        className: 'flow-arrow',
-        html: `
+      // Add animated flow arrows
+      const arrowSpacing = 50; // meters between arrows
+      const numArrows = Math.floor(distance / arrowSpacing);
+
+      for (let i = 1; i <= numArrows; i++) {
+        const fraction = i / (numArrows + 1);
+        const arrowLat = waterSource.coordinates[0] + (sectionCentroid[0] - waterSource.coordinates[0]) * fraction;
+        const arrowLng = waterSource.coordinates[1] + (sectionCentroid[1] - waterSource.coordinates[1]) * fraction;
+
+        const arrowIcon = L.divIcon({
+          className: 'flow-arrow',
+          html: `
           <div style="
             width: 0;
             height: 0;
@@ -200,19 +200,19 @@ export const IrrigationLayoutMap: React.FC<IrrigationLayoutMapProps> = ({
             }
           </style>
         `,
-        iconSize: [16, 16],
-        iconAnchor: [8, 8],
-      });
-      
-      L.marker([arrowLat, arrowLng], { icon: arrowIcon }).addTo(map);
-    }
+          iconSize: [16, 16],
+          iconAnchor: [8, 8],
+        });
 
-    // 5. Method-Specific Visualization
-    if (method === 'drip') {
-      addDripIrrigationPattern(map, section, sectionCentroid);
-    } else if (method === 'sprinkler') {
-      addSprinklerPattern(map, section, sectionCentroid);
-    }
+        L.marker([arrowLat, arrowLng], { icon: arrowIcon }).addTo(map);
+      }
+
+      // 5. Method-Specific Visualization
+      if (method === 'drip') {
+        addDripIrrigationPattern(map, section, sectionCentroid);
+      } else if (method === 'sprinkler') {
+        addSprinklerPattern(map, section, sectionCentroid);
+      }
 
       // Fit map to show both water source and section
       const bounds = L.latLngBounds([
@@ -245,7 +245,7 @@ export const IrrigationLayoutMap: React.FC<IrrigationLayoutMapProps> = ({
     for (let i = 0, j = coords.length - 1; i < coords.length; j = i++) {
       const xi = coords[i][1], yi = coords[i][0];
       const xj = coords[j][1], yj = coords[j][0];
-      
+
       const intersect = ((yi > lat) !== (yj > lat)) &&
         (lng < (xj - xi) * (lat - yi) / (yj - yi) + xi);
       if (intersect) inside = !inside;
@@ -257,35 +257,35 @@ export const IrrigationLayoutMap: React.FC<IrrigationLayoutMapProps> = ({
   const addDripIrrigationPattern = (map: L.Map, section: SectionData, centroid: [number, number]) => {
     const coords = section.geometry.coordinates[0];
     const bounds = L.latLngBounds(coords.map(c => [c[1], c[0]] as [number, number]));
-    
+
     // Calculate number of drip lines (spacing ~1.2m for row crops)
     const latDiff = bounds.getNorthEast().lat - bounds.getSouthWest().lat;
     const lineSpacing = 1.2; // meters between drip lines
-    
+
     // Rough conversion: 0.00001 degrees ≈ 1 meter
     const numLines = Math.max(5, Math.min(20, Math.floor((latDiff * 111000) / lineSpacing)));
-    
+
     // Draw drip lines across the section horizontally
     for (let i = 0; i < numLines; i++) {
       const fraction = (i + 0.5) / numLines;
       const lat = bounds.getSouthWest().lat + (bounds.getNorthEast().lat - bounds.getSouthWest().lat) * fraction;
-      
+
       // Find intersection points with polygon boundary
       const linePoints: [number, number][] = [];
       const numTestPoints = 100;
-      
+
       for (let k = 0; k <= numTestPoints; k++) {
         const testLng = bounds.getSouthWest().lng + (bounds.getNorthEast().lng - bounds.getSouthWest().lng) * (k / numTestPoints);
         if (isPointInPolygon(lat, testLng, coords)) {
           linePoints.push([lat, testLng]);
         }
       }
-      
+
       // Group consecutive points into line segments
       if (linePoints.length > 1) {
         let segmentStart = 0;
         for (let k = 1; k <= linePoints.length; k++) {
-          if (k === linePoints.length || Math.abs(linePoints[k][1] - linePoints[k-1][1]) > 0.0002) {
+          if (k === linePoints.length || Math.abs(linePoints[k][1] - linePoints[k - 1][1]) > 0.0002) {
             if (k - segmentStart > 1) {
               L.polyline(linePoints.slice(segmentStart, k), {
                 color: '#10b981',
@@ -293,7 +293,7 @@ export const IrrigationLayoutMap: React.FC<IrrigationLayoutMapProps> = ({
                 opacity: 0.7,
                 dashArray: '4, 6',
               }).addTo(map);
-              
+
               // Add emitter dots along this segment
               const segmentPoints = linePoints.slice(segmentStart, k);
               for (let j = 0; j < segmentPoints.length; j += 3) {
@@ -324,27 +324,27 @@ export const IrrigationLayoutMap: React.FC<IrrigationLayoutMapProps> = ({
   const addSprinklerPattern = (map: L.Map, section: SectionData, centroid: [number, number]) => {
     const coords = section.geometry.coordinates[0];
     const bounds = L.latLngBounds(coords.map(c => [c[1], c[0]] as [number, number]));
-    
+
     // Calculate area in square meters roughly
     const latDiff = bounds.getNorthEast().lat - bounds.getSouthWest().lat;
     const lngDiff = bounds.getNorthEast().lng - bounds.getSouthWest().lng;
-    
+
     // Realistic sprinkler coverage: each covers ~80-100m² (8-10m diameter)
     // For a 1 acre (4047m²) section, we'd need about 40-50 sprinklers
     // Let's use 15m spacing for better visualization
     const sprinklerSpacing = 15; // meters between sprinklers
     const coverageRadius = 8; // meters coverage radius per sprinkler
-    
+
     // Calculate grid size based on approximate meters
     // Rough conversion: 0.00001 degrees ≈ 1 meter
     const numRows = Math.max(2, Math.min(6, Math.floor((latDiff * 111000) / sprinklerSpacing)));
     const numCols = Math.max(2, Math.min(6, Math.floor((lngDiff * 111000 * Math.cos(centroid[0] * Math.PI / 180)) / sprinklerSpacing)));
-    
+
     for (let row = 0; row < numRows; row++) {
       for (let col = 0; col < numCols; col++) {
         const lat = bounds.getSouthWest().lat + (bounds.getNorthEast().lat - bounds.getSouthWest().lat) * ((row + 0.5) / numRows);
         const lng = bounds.getSouthWest().lng + (bounds.getNorthEast().lng - bounds.getSouthWest().lng) * ((col + 0.5) / numCols);
-        
+
         // Only place sprinkler if it's inside the polygon
         if (isPointInPolygon(lat, lng, coords)) {
           // Draw sprinkler coverage circle
@@ -356,7 +356,7 @@ export const IrrigationLayoutMap: React.FC<IrrigationLayoutMapProps> = ({
             weight: 2,
             dashArray: '4, 4',
           }).addTo(map);
-          
+
           // Add sprinkler marker
           const sprinklerIcon = L.divIcon({
             className: 'sprinkler-marker',
@@ -373,7 +373,7 @@ export const IrrigationLayoutMap: React.FC<IrrigationLayoutMapProps> = ({
             iconSize: [16, 16],
             iconAnchor: [8, 8],
           });
-          
+
           L.marker([lat, lng], { icon: sprinklerIcon }).addTo(map);
         }
       }

@@ -1,0 +1,51 @@
+{
+    "title": "Farm Regime Planner",
+    "subtitle": "Official 30-Day Farming Plans for Your Crop",
+    "newRegime": "New Regime",
+    "stats": {
+        "active": "Active Plans",
+        "completed": "Completed",
+        "totalTasks": "Total Tasks",
+        "avgConfidence": "Avg. Success"
+    },
+    "emptyState": {
+        "description": "No regimes found. Start a new regime based on recommendations.",
+        "button": "Get Recommendations"
+    },
+    "tabs": {
+        "calendar": "Calendar View",
+        "list": "List View"
+    },
+    "status": {
+        "active": "Active",
+        "completed": "Completed",
+        "archived": "Archived",
+        "pending": "Pending",
+        "in_progress": "In Progress",
+        "skipped": "Skipped",
+        "failed": "Failed"
+    },
+    "drawers": {
+        "create": {
+            "title": "Create New Regime"
+        },
+        "history": {
+            "title": "History"
+        }
+    },
+    "actions": {
+        "archiveConfirmTitle": "Archive Regime",
+        "archiveConfirmContent": "Are you sure you want to archive this regime? It will be moved to history.",
+        "archive": "Archive",
+        "cancel": "Cancel"
+    },
+    "messages": {
+        "regimeCreated": "Regime created successfully",
+        "createFailed": "Failed to create regime",
+        "regimeArchived": "Regime archived successfully",
+        "archiveFailed": "Failed to archive regime",
+        "taskUpdated": "Task status updated",
+        "updateFailed": "Failed to update task",
+        "exportFailed": "Failed to export regime"
+    }
+}
