@@ -219,13 +219,13 @@ export const ProductRecommendationsView: React.FC<ProductRecommendationsViewProp
             {/* Header */}
             <Card className="bg-gradient-to-r from-primary/10 via-primary/5 to-background border-2 border-primary/20">
                 <CardHeader>
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <CardTitle className="text-2xl flex items-center gap-2">
-                                <PackageSearch className="w-7 h-7 text-primary" />
-                                Product Recommendations
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                            <CardTitle className="text-xl sm:text-2xl flex items-center gap-2 flex-wrap">
+                                <PackageSearch className="w-6 h-6 sm:w-7 sm:h-7 text-primary flex-shrink-0" />
+                                <span className="whitespace-nowrap">Product Recommendations</span>
                             </CardTitle>
-                            <p className="text-muted-foreground mt-2">
+                            <p className="text-sm sm:text-base text-muted-foreground mt-2">
                                 Get personalized fertilizer recommendations with real market products and pricing
                             </p>
                         </div>
@@ -234,10 +234,11 @@ export const ProductRecommendationsView: React.FC<ProductRecommendationsViewProp
                                 size="lg"
                                 onClick={handleGenerateRecommendations}
                                 disabled={loading}
-                                className="gap-2"
+                                className="gap-2 w-full sm:w-auto text-sm sm:text-base"
                             >
-                                <Sparkles className="w-5 h-5" />
-                                {loading ? "Analyzing..." : "Generate Recommendations"}
+                                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+                                <span className="hidden sm:inline">{loading ? "Analyzing..." : "Generate Recommendations"}</span>
+                                <span className="sm:hidden">{loading ? "Analyzing..." : "Generate"}</span>
                             </Button>
                         )}
                     </div>
@@ -395,16 +396,16 @@ export const ProductRecommendationsView: React.FC<ProductRecommendationsViewProp
             {/* Empty State */}
             {!recommendations && !loading && (
                 <Card className="border-dashed border-2">
-                    <CardContent className="py-16">
+                    <CardContent className="py-8 sm:py-16 px-4">
                         <div className="flex flex-col items-center justify-center gap-4 text-center">
-                            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
-                                <PackageSearch className="w-10 h-10 text-primary" />
+                            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-primary/10 flex items-center justify-center">
+                                <PackageSearch className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
                             </div>
-                            <div>
-                                <h3 className="font-semibold text-xl mb-2">
+                            <div className="max-w-md px-4">
+                                <h3 className="font-semibold text-lg sm:text-xl mb-2">
                                     Get Personalized Product Recommendations
                                 </h3>
-                                <p className="text-muted-foreground max-w-md">
+                                <p className="text-sm sm:text-base text-muted-foreground">
                                     Our AI will analyze your soil data and recommend the best fertilizer products
                                     from real manufacturers (IFFCO, Coromandel) with actual market prices.
                                 </p>
@@ -412,10 +413,11 @@ export const ProductRecommendationsView: React.FC<ProductRecommendationsViewProp
                             <Button
                                 size="lg"
                                 onClick={handleGenerateRecommendations}
-                                className="gap-2 mt-4"
+                                className="gap-2 mt-4 w-full sm:w-auto text-sm sm:text-base"
                             >
-                                <Sparkles className="w-5 h-5" />
-                                Generate Recommendations Now
+                                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+                                <span className="hidden sm:inline">Generate Recommendations Now</span>
+                                <span className="sm:hidden">Generate Now</span>
                             </Button>
                         </div>
                     </CardContent>

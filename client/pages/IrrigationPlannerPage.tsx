@@ -879,9 +879,9 @@ const IrrigationPlannerPage: React.FC = () => {
                         className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-300 overflow-hidden"
                       >
                         {/* Plan Header */}
-                        <div className="p-6 cursor-pointer" onClick={() => setExpandedPlan(expandedPlan === plan.id ? null : plan.id)}>
-                          <div className="flex items-start justify-between gap-4">
-                            <div className="flex items-start gap-4">
+                        <div className="p-4 sm:p-6 cursor-pointer" onClick={() => setExpandedPlan(expandedPlan === plan.id ? null : plan.id)}>
+                          <div className="flex flex-col sm:flex-row items-start gap-4">
+                            <div className="flex items-start gap-4 w-full sm:w-auto">
                               <div className={`p-3 rounded-2xl ${plan.status === 'completed' ? 'bg-blue-100 text-blue-600' :
                                 plan.status === 'in-progress' ? 'bg-amber-100 text-amber-600' :
                                   plan.status === 'approved' ? 'bg-emerald-100 text-emerald-600' :
@@ -914,56 +914,61 @@ const IrrigationPlannerPage: React.FC = () => {
                                 </div>
                               </div>
                             </div>
-                            <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-xl hover:shadow-md transition-all hover:-translate-y-0.5">
-                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Total Cost</p>
-                              <p className="font-bold text-blue-600 dark:text-blue-400 text-sm">{formatCurrency(plan.estimatedCost.total)}</p>
-                            </div>
-                            <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-xl hover:shadow-md transition-all hover:-translate-y-0.5">
-                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Efficiency</p>
-                              <p className="font-bold text-emerald-600 dark:text-emerald-400 text-sm">{plan.efficiency}%</p>
-                            </div>
-                            <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-xl hover:shadow-md transition-all hover:-translate-y-0.5">
-                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Daily Water</p>
-                              <p className="font-semibold text-gray-800 dark:text-white text-sm">{(plan.waterRequirement / 1000).toFixed(1)}K L</p>
-                            </div>
-                            <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-xl hover:shadow-md transition-all hover:-translate-y-0.5">
-                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Suitability</p>
-                              <p className={`font-bold text-sm ${getScoreColor(plan.suitabilityScore)}`}>{plan.suitabilityScore}%</p>
+                            {/* Stats Grid - Mobile Responsive */}
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 w-full sm:w-auto">
+                              <div className="text-center p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-xl hover:shadow-md transition-all">
+                                <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mb-1">Total Cost</p>
+                                <p className="font-bold text-blue-600 dark:text-blue-400 text-xs sm:text-sm">{formatCurrency(plan.estimatedCost.total)}</p>
+                              </div>
+                              <div className="text-center p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-xl hover:shadow-md transition-all">
+                                <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mb-1">Efficiency</p>
+                                <p className="font-bold text-emerald-600 dark:text-emerald-400 text-xs sm:text-sm">{plan.efficiency}%</p>
+                              </div>
+                              <div className="text-center p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-xl hover:shadow-md transition-all">
+                                <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mb-1">Daily Water</p>
+                                <p className="font-semibold text-gray-800 dark:text-white text-xs sm:text-sm">{(plan.waterRequirement / 1000).toFixed(1)}K L</p>
+                              </div>
+                              <div className="text-center p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-xl hover:shadow-md transition-all">
+                                <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mb-1">Suitability</p>
+                                <p className={`font-bold text-xs sm:text-sm ${getScoreColor(plan.suitabilityScore)}`}>{plan.suitabilityScore}%</p>
+                              </div>
                             </div>
                           </div>
                         </div>
 
                         {/* Plan Details - Collapsible */}
                         {expandedPlan === plan.id && (
-                          <div className="p-5 animate-fade-in">
+                          <div className="p-4 sm:p-5 animate-fade-in">
                             {/* Cost Breakdown */}
                             <div className="mb-5">
-                              <h4 className="font-semibold text-gray-700 dark:text-gray-200 mb-3 flex items-center gap-2">
+                              <h4 className="font-semibold text-sm sm:text-base text-gray-700 dark:text-gray-200 mb-3 flex items-center gap-2">
                                 <div className="p-1.5 rounded-lg bg-blue-100 dark:bg-blue-900/50">
                                   <IndianRupee className="w-4 h-4 text-blue-600" />
                                 </div>
                                 Cost Breakdown
                               </h4>
-                              <div className="grid grid-cols-3 gap-4">
-                                <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-900/30 dark:to-blue-800/20 border border-blue-200/50 dark:border-blue-700/30 rounded-xl hover:scale-[1.02] transition-transform">
-                                  <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">Materials</p>
-                                  <p className="font-bold text-blue-900 dark:text-blue-100 text-lg">{formatCurrency(plan.estimatedCost.materials)}</p>
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                                <div className="text-center p-3 sm:p-4 bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-900/30 dark:to-blue-800/20 border border-blue-200/50 dark:border-blue-700/30 rounded-xl hover:scale-[1.02] transition-transform">
+                                  <p className="text-xs sm:text-sm text-blue-700 dark:text-blue-300 font-medium">Materials</p>
+                                  <p className="font-bold text-blue-900 dark:text-blue-100 text-base sm:text-lg">{formatCurrency(plan.estimatedCost.materials)}</p>
                                 </div>
-                                <div className="text-center p-4 bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-900/30 dark:to-emerald-800/20 border border-emerald-200/50 dark:border-emerald-700/30 rounded-xl hover:scale-[1.02] transition-transform">
-                                  <p className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">Labor</p>
-                                  <p className="font-bold text-emerald-900 dark:text-emerald-100 text-lg">{formatCurrency(plan.estimatedCost.labor)}</p>
+                                <div className="text-center p-3 sm:p-4 bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-900/30 dark:to-emerald-800/20 border border-emerald-200/50 dark:border-emerald-700/30 rounded-xl hover:scale-[1.02] transition-transform">
+                                  <p className="text-xs sm:text-sm text-emerald-700 dark:text-emerald-300 font-medium">Labor</p>
+                                  <p className="font-bold text-emerald-900 dark:text-emerald-100 text-base sm:text-lg">{formatCurrency(plan.estimatedCost.labor)}</p>
                                 </div>
-                                <div className="text-center p-4 bg-gradient-to-br from-amber-50 to-amber-100/50 dark:from-amber-900/30 dark:to-amber-800/20 border border-amber-200/50 dark:border-amber-700/30 rounded-xl hover:scale-[1.02] transition-transform">
-                                  <p className="text-sm text-amber-700 dark:text-amber-300 font-medium">Operational/yr</p>
-                                  <p className="font-bold text-amber-900 dark:text-amber-100 text-lg">{formatCurrency(plan.estimatedCost.operational)}</p>
+                                <div className="text-center p-3 sm:p-4 bg-gradient-to-br from-amber-50 to-amber-100/50 dark:from-amber-900/30 dark:to-amber-800/20 border border-amber-200/50 dark:border-amber-700/30 rounded-xl hover:scale-[1.02] transition-transform">
+                                  <p className="text-xs sm:text-sm text-amber-700 dark:text-amber-300 font-medium">Operational/yr</p>
+                                  <p className="font-bold text-amber-900 dark:text-amber-100 text-base sm:text-lg">{formatCurrency(plan.estimatedCost.operational)}</p>
                                 </div>
                               </div>
                             </div>
 
                             {/* Components */}
                             <div className="mb-5">
-                              <h4 className="font-semibold text-gray-700 dark:text-gray-200 mb-3">Materials Required</h4>
-                              <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
+                              <h4 className="font-semibold text-sm sm:text-base text-gray-700 dark:text-gray-200 mb-3">Materials Required</h4>
+
+                              {/* Desktop Table */}
+                              <div className="hidden sm:block overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
                                 <table className="w-full text-sm">
                                   <thead>
                                     <tr className="bg-gray-50 dark:bg-gray-700">
@@ -984,6 +989,22 @@ const IrrigationPlannerPage: React.FC = () => {
                                     ))}
                                   </tbody>
                                 </table>
+                              </div>
+
+                              {/* Mobile Card Layout */}
+                              <div className="sm:hidden space-y-3">
+                                {plan.components.map((component, idx) => (
+                                  <div key={idx} className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-700">
+                                    <div className="flex justify-between items-start mb-2">
+                                      <p className="font-semibold text-gray-800 dark:text-white text-sm">{component.name}</p>
+                                      <p className="font-bold text-emerald-600 dark:text-emerald-400 text-sm">{formatCurrency(component.totalPrice)}</p>
+                                    </div>
+                                    <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400">
+                                      <span>Qty: {component.quantity} {component.unit}</span>
+                                      <span>@ {formatCurrency(component.unitPrice)}</span>
+                                    </div>
+                                  </div>
+                                ))}
                               </div>
                             </div>
 
@@ -1024,11 +1045,11 @@ const IrrigationPlannerPage: React.FC = () => {
                             )}
 
                             {/* Actions */}
-                            <div className="flex items-center gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
                               <select
                                 value={plan.status}
                                 onChange={(e) => handleStatusChange(plan.id, e.target.value as StoredIrrigationPlan['status'])}
-                                className="px-4 py-2.5 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-gray-700 dark:text-white"
+                                className="w-full sm:w-auto px-4 py-2.5 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-gray-700 dark:text-white"
                               >
                                 <option value="draft">{t('status.draft')}</option>
                                 <option value="approved">{t('status.approved')}</option>
@@ -1038,18 +1059,18 @@ const IrrigationPlannerPage: React.FC = () => {
 
                               <button
                                 onClick={() => handleExportPlan(plan)}
-                                className="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-white rounded-xl text-sm font-semibold transition-all hover:scale-105 flex items-center gap-2"
+                                className="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-white rounded-xl text-sm font-semibold transition-all active:scale-95 sm:hover:scale-105 flex items-center justify-center gap-2"
                               >
                                 <Download className="w-4 h-4" />
-                                {t('planCard.export')}
+                                <span className="sm:inline">{t('planCard.export')}</span>
                               </button>
 
                               <button
                                 onClick={() => handleDeletePlan(plan.id)}
-                                className="px-4 py-2.5 bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 rounded-xl text-sm font-semibold transition-all hover:scale-105 flex items-center gap-2 ml-auto"
+                                className="px-4 py-2.5 bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 rounded-xl text-sm font-semibold transition-all active:scale-95 sm:hover:scale-105 flex items-center justify-center gap-2"
                               >
                                 <Trash2 className="w-4 h-4" />
-                                {t('planCard.delete')}
+                                <span className="sm:inline">{t('planCard.delete')}</span>
                               </button>
                             </div>
                           </div>

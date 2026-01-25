@@ -470,7 +470,7 @@ export const AuthGuide = ({ mode, currentField, fieldValues = {} }: AuthGuidePro
                     animate={{ opacity: 1, x: 0, scale: 1 }}
                     exit={{ opacity: 0, x: 50, scale: 0.9 }}
                     transition={{ duration: 0.4, ease: "easeOut" }}
-                    className="fixed bottom-6 right-6 z-50 max-w-[400px]"
+                    className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 max-w-[calc(100vw-2rem)] sm:max-w-[400px]"
                 >
                     {isMinimized ? (
                         // Minimized state
@@ -500,7 +500,7 @@ export const AuthGuide = ({ mode, currentField, fieldValues = {} }: AuthGuidePro
                         </motion.button>
                     ) : (
                         // Expanded state
-                        <div className="w-[380px] max-w-[calc(100vw-48px)] relative">
+                        <div className="w-full max-w-[380px] sm:w-[380px] relative">
                             {/* Reaction bubble - appears above main card */}
                             <AnimatePresence>
                                 {showReaction && (

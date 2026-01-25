@@ -6,13 +6,13 @@ import { Card } from "@/components/ui/card";
 import ImageUploader from "@/components/disease/ImageUploader";
 import { analyzeStress, type StressAnalysisResult } from "@/services/StressService";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  AlertTriangle, 
-  CheckCircle, 
-  Droplets, 
-  Leaf, 
-  Bug, 
-  Activity, 
+import {
+  AlertTriangle,
+  CheckCircle,
+  Droplets,
+  Leaf,
+  Bug,
+  Activity,
   Sparkles,
   Zap,
   TrendingUp,
@@ -20,7 +20,8 @@ import {
   Satellite,
   Clock,
   MapPin,
-  AlertCircle
+  AlertCircle,
+  Camera
 } from "lucide-react";
 
 export const StressDetection: React.FC = () => {
@@ -59,7 +60,7 @@ export const StressDetection: React.FC = () => {
       const res = await analyzeStress(form);
       setResult(res);
       setStatus("result");
-      
+
       toast({
         title: "✨ Analysis Complete",
         description: `Detected ${res.stressTypes.length} stress indicators`,
@@ -137,14 +138,14 @@ export const StressDetection: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-blue-50 pb-20">
       {/* Hero Header */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="relative overflow-hidden bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white"
       >
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjA1IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30"></div>
-        
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
           <motion.div
             initial={{ scale: 0 }}
@@ -164,7 +165,7 @@ export const StressDetection: React.FC = () => {
               </p>
             </div>
           </motion.div>
-          
+
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -221,8 +222,9 @@ export const StressDetection: React.FC = () => {
                     onFileSelected={handleFileChange}
                     disabled={status === "analyzing"}
                   />
-                  <p className="text-[10px] sm:text-xs text-gray-500 mt-1.5 sm:mt-2">
-                    📸 Clear image of leaves works best • Max 10MB
+                  <p className="text-[10px] sm:text-xs text-gray-500 mt-1.5 sm:mt-2 flex items-center gap-1">
+                    <Camera className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                    Clear image of leaves works best • Max 10MB
                   </p>
                 </div>
 
@@ -246,7 +248,7 @@ export const StressDetection: React.FC = () => {
                       Reset
                     </button>
                   )}
-                  
+
                   <button
                     onClick={handleAnalyze}
                     disabled={!crop || !file || status === "analyzing"}
@@ -275,9 +277,9 @@ export const StressDetection: React.FC = () => {
                     animate={{ opacity: 1, scale: 1 }}
                     className="relative w-full max-w-xs sm:max-w-sm lg:max-w-none aspect-square rounded-xl sm:rounded-2xl overflow-hidden shadow-xl sm:shadow-2xl border-2 sm:border-4 border-white"
                   >
-                    <img 
-                      src={previewUrl} 
-                      alt="Preview" 
+                    <img
+                      src={previewUrl}
+                      alt="Preview"
                       className="w-full h-full object-cover"
                     />
                     {status === "analyzing" && (
@@ -320,7 +322,7 @@ export const StressDetection: React.FC = () => {
                     transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
                   />
                 </div>
-                
+
                 <div className="flex items-start sm:items-center gap-3 sm:gap-6">
                   <motion.div
                     animate={{ rotate: 360 }}
@@ -329,7 +331,7 @@ export const StressDetection: React.FC = () => {
                   >
                     <Activity className="w-8 h-8 sm:w-12 sm:h-12 text-emerald-600" />
                   </motion.div>
-                  
+
                   <div className="flex-1 min-w-0">
                     <h3 className="text-base sm:text-xl font-bold text-emerald-900 mb-1.5 sm:mb-2">AI Analysis in Progress</h3>
                     <div className="space-y-1.5 sm:space-y-2">
@@ -398,7 +400,7 @@ export const StressDetection: React.FC = () => {
                               </div>
                             </div>
                           </div>
-                          
+
                           <div className={`px-3 sm:px-6 py-1.5 sm:py-3 rounded-full ${config.badge} border-2 font-semibold text-xs sm:text-base`}>
                             {result.analysis.image.isHealthy ? "✓ Healthy" : "⚠ Attention Needed"}
                           </div>
@@ -476,7 +478,7 @@ export const StressDetection: React.FC = () => {
                               <span className="text-xs sm:text-sm font-bold text-blue-700">{disease.probability}%</span>
                             </div>
                           </div>
-                          
+
                           {disease.treatment.length > 0 && (
                             <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-white/50 rounded-lg">
                               <p className="text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2 flex items-center gap-1.5 sm:gap-2">
@@ -530,7 +532,7 @@ export const StressDetection: React.FC = () => {
                         <p className="text-[9px] sm:text-xs text-gray-500 mt-1 sm:mt-2 hidden sm:block">Sentinel-2 Satellite</p>
                       </div>
                     </div>
-                    
+
                     {result.analysis.satellite.stress.length > 0 && (
                       <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-white/60 rounded-lg sm:rounded-xl border-2 border-purple-200">
                         <p className="text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3 flex items-center gap-1.5 sm:gap-2">

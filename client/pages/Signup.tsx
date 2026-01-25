@@ -149,13 +149,12 @@ export const Signup: React.FC = () => {
         </motion.div>
 
         {/* Form Side */}
-        <div className="flex-1 flex items-center justify-center p-6 lg:p-12 relative overflow-y-auto">
-          <div className="w-full max-w-lg space-y-8 my-auto">
+        <div className="flex-1 flex items-start sm:items-center justify-center p-4 sm:p-6 lg:p-12 relative overflow-y-auto min-h-screen">
+          <div className="w-full max-w-lg space-y-6 sm:space-y-8 py-4 sm:py-8">
             {/* Mobile Logo */}
-            <div className="lg:hidden text-center mb-8">
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <Sprout className="w-6 h-6 text-primary" />
-              </div>
+            <div className="lg:hidden text-center mb-6 sm:mb-8">\n              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <Sprout className="w-6 h-6 text-primary" />
+            </div>
               <h1 className="text-2xl font-bold text-foreground">Smart Irrigation</h1>
             </div>
 
@@ -164,19 +163,19 @@ export const Signup: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
             >
-              <div className="text-center lg:text-left mb-8">
-                <h2 className="text-3xl font-bold tracking-tight text-foreground">Create Account</h2>
-                <p className="text-muted-foreground mt-2">Join thousands of sustainable farmers today</p>
+              <div className="text-center lg:text-left mb-6 sm:mb-8">
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Create Account</h2>
+                <p className="text-sm sm:text-base text-muted-foreground mt-2">Join thousands of sustainable farmers today</p>
               </div>
 
               {displayError && (
-                <div className="mb-6 bg-destructive/10 border border-destructive/20 rounded-xl p-4 flex gap-3 text-destructive animate-fade-in">
-                  <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm font-medium">{displayError}</p>
+                <div className="mb-4 sm:mb-6 bg-destructive/10 border border-destructive/20 rounded-xl p-3 sm:p-4 flex gap-2 sm:gap-3 text-destructive animate-fade-in">
+                  <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs sm:text-sm font-medium">{displayError}</p>
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
                 {/* Full Name */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-foreground">Full Name *</label>
