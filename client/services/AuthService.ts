@@ -1,14 +1,6 @@
 import CONFIG from "../config";
-import { createClient } from '@supabase/supabase-js';
+import supabase from '../lib/supabase';
 import { encryptData, hashPassword } from '../lib/encryption';
-
-// Supabase configuration
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-
-const supabase = SUPABASE_URL && SUPABASE_ANON_KEY
-  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-  : null;
 
 export interface SignupPayload {
   phone: string;
@@ -82,13 +74,12 @@ mockUsers.set("test@example.com", {
 class AuthServiceClass {
   async signup(payload: SignupPayload): Promise<AuthResponse> {
     // AUTH ALWAYS USES SUPABASE DIRECTLY
-    if (supabase) {
-      await this.simulateDelay();
+    await this.simulateDelay();
 
-      const hashedPassword = hashPassword(payload.password);
+    const hashedPassword = hashPassword(payload.password);
 
-      // Check if phone already exists
-      const { data: existingUser, error: checkError } = await supabase
+    // Check if phone already exists
+    const { data: existingUser, error: checkError } = await supabase
         .from('farmers')
         .select('id')
         .eq('phone', payload.phone)
@@ -154,25 +145,6 @@ class AuthServiceClass {
         user,
         token: mockToken,
       };
-    }
-
-    // Real backend call
-    const response = await fetch(
-      `${CONFIG.API_BASE_URL}${CONFIG.AUTH_ENDPOINTS.SIGNUP}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      },
-    );
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || "Signup failed");
-    }
-
-    return response.json();
   }
 
   async login(payload: LoginPayload): Promise<AuthResponse> {

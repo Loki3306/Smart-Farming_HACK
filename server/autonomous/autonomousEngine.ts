@@ -121,7 +121,11 @@ export class AutonomousEngine {
       try {
         await this.evaluateFarm(farmId, reason);
       } catch (e) {
-        console.warn(`[Autonomous] Evaluate failed for farm ${farmId}:`, e);
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        // Only log warning for non-network errors to reduce console spam
+        if (!errorMessage.includes('ECONNRESET') && !errorMessage.includes('fetch failed')) {
+          console.warn(`[Autonomous] Evaluate failed for farm ${farmId}:`, e);
+        }
       }
     }
   }
@@ -146,7 +150,21 @@ export class AutonomousEngine {
       if (hoursSinceLastRun < 0.1) return; // 6 minutes
     }
 
-    const latest = await db.getLatestSensorData(farmId);
+    let latest;
+    try {
+      latest = await db.getLatestSensorData(farmId);
+    } catch (error) {
+      console.error('[Sensors] Error fetching sensor data:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        details: error instanceof Error ? error.stack : String(error),
+        hint: 'Check if Supabase connection is available',
+        code: (error as any)?.code || ''
+      });
+      // Update last run time to prevent repeated failures
+      autonomousStateStore.setFarmState(farmId, { lastRunAt: nowIso });
+      return;
+    }
+
     if (!latest) {
       autonomousStateStore.setFarmState(farmId, { lastRunAt: nowIso });
       return;

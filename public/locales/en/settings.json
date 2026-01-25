@@ -1,0 +1,131 @@
+{
+    "title": "Settings",
+    "subtitle": "Manage your account and application preferences",
+    "menu": {
+        "profile": {
+            "label": "Profile Settings",
+            "description": "Update your personal information"
+        },
+        "notifications": {
+            "label": "Notification Preferences",
+            "description": "Manage how you receive notifications"
+        },
+        "alerts": {
+            "label": "Alert Settings",
+            "description": "Configure farm monitoring alerts"
+        },
+        "language": {
+            "label": "Language & Region",
+            "description": "Change language and regional settings"
+        },
+        "appearance": {
+            "label": "Appearance",
+            "description": "Customize the look and feel"
+        },
+        "devices": {
+            "label": "Connected Devices",
+            "description": "Manage sensors and IoT devices"
+        },
+        "help": {
+            "label": "Help & Support",
+            "description": "Get help and contact support"
+        },
+        "logout": "Log Out"
+    },
+    "sections": {
+        "select": {
+            "title": "Select a Setting",
+            "description": "Choose a category from the menu to view and modify settings"
+        },
+        "profile": {
+            "title": "Profile Settings",
+            "edit": "Edit Profile",
+            "save": "Save Changes",
+            "saving": "Saving...",
+            "fullName": "Full Name",
+            "phone": "Phone Number",
+            "email": "Email Address",
+            "notSet": "Not set",
+            "accountInfo": "Account Info",
+            "experience": "Experience",
+            "memberSince": "Member since",
+            "goToProfile": "Go to Profile Page"
+        },
+        "notifications": {
+            "title": "Notification Preferences",
+            "push": {
+                "label": "Push Notifications",
+                "desc": "Receive push notifications on your device"
+            },
+            "email": {
+                "label": "Email Notifications",
+                "desc": "Receive important updates via email"
+            },
+            "sms": {
+                "label": "SMS Alerts",
+                "desc": "Receive critical alerts via SMS"
+            },
+            "sound": {
+                "label": "Notification Sound",
+                "desc": "Play sound for new notifications"
+            },
+            "vibration": {
+                "label": "Vibration",
+                "desc": "Vibrate for notifications"
+            }
+        },
+        "alerts": {
+            "title": "Alert Settings",
+            "lowMoisture": {
+                "label": "Low Moisture Alerts",
+                "desc": "Alert when soil moisture drops below threshold"
+            },
+            "weather": {
+                "label": "Weather Alerts",
+                "desc": "Severe weather warnings and forecasts"
+            },
+            "pest": {
+                "label": "Pest Alerts",
+                "desc": "Pest and disease outbreak warnings"
+            },
+            "harvest": {
+                "label": "Harvest Reminders",
+                "desc": "Reminders for optimal harvest time"
+            }
+        },
+        "language": {
+            "title": "Language & Region"
+        },
+        "appearance": {
+            "title": "Appearance",
+            "theme": "Theme",
+            "light": "Light",
+            "dark": "Dark",
+            "system": "System"
+        },
+        "devices": {
+            "title": "Connected Devices",
+            "subtitle": "Manage your IoT sensors and connected devices",
+            "online": "Online",
+            "lastSync": "Last sync {{time}} ago",
+            "lowBattery": "Low Battery",
+            "configure": "Configure",
+            "addNew": "Add New Device"
+        },
+        "help": {
+            "title": "Help & Support",
+            "faq": "Frequently Asked Questions",
+            "contact": "Contact Support",
+            "emailSupport": "Email Support",
+            "chat": "Chat with us",
+            "version": "Krushi Unnati Version 1.0.0"
+        }
+    },
+    "messages": {
+        "saved": "Setting updated",
+        "savedDesc": "Your preference has been saved.",
+        "profileUpdated": "Profile updated",
+        "profileDesc": "Your personal information has been saved.",
+        "themeChanged": "Theme changed"
+    }
+}

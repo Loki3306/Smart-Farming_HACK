@@ -8,37 +8,139 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
+from contextlib import asynccontextmanager
 import importlib
 import sys
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 from app.api import chatbot  # Import chatbot API router
+from app.api import regime_routes  # Import regime system API router
+from app.routes import farm_geometry  # Import farm geometry/mapping API router
+from app.db.regime_db import RegimeDatabase  # Regime database layer
+from app.services.supabase_client import get_supabase_client  # Supabase client
+from app.db.base import startup_db, shutdown_db  # Database lifecycle
+from app.locales import LocalizationManager  # I18n helper
 
 # Add backend/app to Python path for model imports
 app_root = os.path.dirname(os.path.abspath(__file__))
 if app_root not in sys.path:
     sys.path.insert(0, app_root)
 
-# Initialize FastAPI app
+# Add backend directory to path for iot_irrigation module
+backend_root = os.path.dirname(app_root)
+if backend_root not in sys.path:
+    sys.path.insert(0, backend_root)
+
+# Lifespan context manager for startup/shutdown events
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Lifespan context manager for FastAPI application
+    Handles startup and shutdown events
+    """
+    # Startup
+    print("[INFO] Starting Smart Farming AI Backend...")
+    
+    # Initialize MQTT client for IoT
+    initialize_mqtt_func = None
+    shutdown_mqtt_func = None
+    
+    try:
+        from iot_irrigation.router import initialize_mqtt as init_func, shutdown_mqtt as shutdown_func
+        initialize_mqtt_func = init_func
+        shutdown_mqtt_func = shutdown_func
+        
+        if initialize_mqtt_func:
+            print("[INFO] Initializing MQTT client for IoT...")
+            await initialize_mqtt_func()
+            print("[SUCCESS] MQTT client initialized successfully")
+    except ImportError as e:
+        print(f"[WARNING] IoT module not available: {e}")
+    except Exception as e:
+        print(f"[ERROR] Failed to initialize MQTT: {e}")
+        import traceback
+        traceback.print_exc()
+    
+    yield  # Application runs here
+    
+    # Shutdown
+    print("[INFO] Shutting down Smart Farming AI Backend...")
+    try:
+        if shutdown_mqtt_func:
+            print("[INFO] Shutting down MQTT client...")
+            await shutdown_mqtt_func()
+            print("[SUCCESS] MQTT client shutdown successfully")
+    except Exception as e:
+        print(f"[WARNING] Error during MQTT shutdown: {e}")
+
+# Initialize FastAPI app with lifespan
 app = FastAPI(
     title="Smart Farming AI Backend",
     description="ML-powered agricultural recommendations API",
+    lifespan=lifespan,
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
 )
 
-# Configure CORS for frontend communication
+# Configure CORS for frontend communication - Allow all origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:5000", "*"],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,  # Must be False when allow_origins is ["*"]
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # Include the chatbot API router
 app.include_router(chatbot.router, prefix="/api/chatbot")
+
+# Include the regime system API router
+app.include_router(regime_routes.router, prefix="")
+
+# Include the farm geometry/mapping API router
+app.include_router(farm_geometry.router, prefix="")
+
+# Include the IoT irrigation router
+print("[INFO] Attempting to load IoT Irrigation module...")
+
+try:
+    from iot_irrigation.router import router as iot_router, initialize_mqtt, shutdown_mqtt
+    # Don't add prefix here - router already has prefix="/iot"
+    app.include_router(iot_router, tags=["IoT Irrigation"])
+    print("[SUCCESS] IoT Irrigation module loaded successfully")
+    print(f"   Router: {iot_router}")
+    print(f"   Initialize MQTT: {initialize_mqtt}")
+except ImportError as e:
+    print(f"[ERROR] IoT Irrigation module import error: {e}")
+    print(f"   Python path: {sys.path}")
+    # Set to None so lifespan doesn't try to call them
+    initialize_mqtt = None
+    shutdown_mqtt = None
+except Exception as e:
+    print(f"⚠️ IoT Irrigation module error: {type(e).__name__}: {e}")
+    import traceback
+    traceback.print_exc()
+
+# ============================================================================
+# Application Lifecycle Events
+# ============================================================================
+
+@app.on_event("startup")
+async def on_startup():
+    """Initialize database connections on startup"""
+    await startup_db()
+
+
+@app.on_event("shutdown")
+async def on_shutdown():
+    """Close database connections on shutdown"""
+    await shutdown_db()
 
 # ============================================================================
 # Pydantic Models (Request/Response schemas)
@@ -64,6 +166,7 @@ class RecommendationRequest(BaseModel):
     soil_type: str = Field(..., description="Soil type (Clay loam, Sandy, etc.)")
     sensor_data: SensorData
     weather_condition: Optional[str] = Field(None, description="Current weather description")
+    language: Optional[str] = Field("en", description="Preferred language (en, hi, mr)")
 
 
 class Recommendation(BaseModel):
@@ -173,7 +276,8 @@ class RecommendationEngine:
         crop_type: str,
         soil_type: str,
         sensor_data: SensorData,
-        weather_condition: Optional[str] = None
+        weather_condition: Optional[str] = None,
+        language: str = "en"
     ) -> List[Recommendation]:
         """
         Generate actionable recommendations based on sensor data.
@@ -209,9 +313,9 @@ class RecommendationEngine:
                 id="config_error",
                 type="general",
                 priority="high",
-                title="Crop Configuration Required",
-                description=validation_msg,
-                action="Go to Farm Settings and configure your crop type before getting personalized recommendations.",
+                title=LocalizationManager.get_text("config_error_title", language),
+                description=LocalizationManager.get_text("config_error_desc", language),
+                action=LocalizationManager.get_text("config_error_action", language),
                 confidence=100,
                 timestamp=timestamp
             ))
@@ -226,9 +330,9 @@ class RecommendationEngine:
                 id="crop_info",
                 type="general",
                 priority="low",
-                title=f"Growing {crop_type}",
-                description=validation_msg,
-                action="Recommendations will be based on general agricultural best practices. Consider consulting with local agricultural experts for crop-specific guidance.",
+                title=LocalizationManager.get_text("crop_info_title", language, crop_type=crop_type),
+                description=LocalizationManager.get_text("crop_info_desc", language, crop_type=crop_type),
+                action=LocalizationManager.get_text("crop_info_action", language),
                 confidence=85,
                 timestamp=timestamp
             ))
@@ -286,19 +390,8 @@ class RecommendationEngine:
                 print(f"⚠️ Trained ML model error: {e}")
         
         # Fallback to old fertilizer model if trained models fail
-        if not ml_fertilizer_recs and fertilizer_model:
-            try:
-                result = fertilizer_model.predict(
-                    sensor_data.nitrogen,
-                    sensor_data.phosphorus,
-                    sensor_data.potassium,
-                    sensor_data.ph,
-                    soil_type,
-                    crop_type
-                )
-                ml_fertilizer_recs = result.get('recommendations', [])
-            except Exception as e:
-                print(f"⚠️ Fertilizer model error: {e}")
+        # Custom fallback logic if needed
+        pass
         
         agronomist_analysis = None
         if agronomist_agent:
@@ -403,9 +496,12 @@ class RecommendationEngine:
                 id=f"fert_{rec_id_counter}",
                 type="fertilizer",
                 priority="high",
-                title="Nitrogen Deficiency Detected",
-                description=f"Soil nitrogen is critically low ({sensor_data.nitrogen:.1f} mg/kg). ML model analysis confirms immediate action needed. This affects plant growth and leaf development.",
-                action=ml_action,
+                title=LocalizationManager.get_text("nitrogen_low_title", language),
+                description=LocalizationManager.get_text("nitrogen_low_desc", language, value=sensor_data.nitrogen),
+                action=LocalizationManager.get_text("nitrogen_low_action", language, 
+                    bags=(50/2.47)/50, 
+                    amount_per_acre=50/2.47
+                ),
                 confidence=final_confidence,
                 timestamp=timestamp
             ))
@@ -415,9 +511,9 @@ class RecommendationEngine:
                 id=f"fert_{rec_id_counter}",
                 type="fertilizer",
                 priority="low",
-                title="Nitrogen Levels Optimal",
-                description=f"Nitrogen content is sufficient ({sensor_data.nitrogen:.1f} mg/kg). No immediate action needed.",
-                action="Continue monitoring. Retest in 14 days.",
+                title=LocalizationManager.get_text("nitrogen_optimal_title", language),
+                description=LocalizationManager.get_text("nitrogen_optimal_desc", language, value=sensor_data.nitrogen),
+                action=LocalizationManager.get_text("nitrogen_optimal_action", language),
                 confidence=round(min(95, max(82, 88 + base_confidence_adjustment)), 1),
                 timestamp=timestamp
             ))
@@ -440,9 +536,12 @@ class RecommendationEngine:
                 id=f"fert_{rec_id_counter}",
                 type="fertilizer",
                 priority="medium",
-                title="Phosphorus Deficiency",
-                description=f"Phosphorus is below optimal level ({sensor_data.phosphorus:.1f} mg/kg). Important for root development and flowering.",
-                action=ml_action,
+                title=LocalizationManager.get_text("phosphorus_low_title", language),
+                description=LocalizationManager.get_text("phosphorus_low_desc", language, value=sensor_data.phosphorus),
+                action=LocalizationManager.get_text("phosphorus_low_action", language, 
+                    bags=(30/2.47)/50, 
+                    amount_per_acre=30/2.47
+                ),
                 confidence=final_confidence,
                 timestamp=timestamp
             ))
@@ -465,9 +564,12 @@ class RecommendationEngine:
                 id=f"fert_{rec_id_counter}",
                 type="fertilizer",
                 priority="medium",
-                title="Potassium Deficiency",
-                description=f"Potassium level is low ({sensor_data.potassium:.1f} mg/kg). Essential for disease resistance and fruit quality.",
-                action=ml_action,
+                title=LocalizationManager.get_text("potassium_low_title", language),
+                description=LocalizationManager.get_text("potassium_low_desc", language, value=sensor_data.potassium),
+                action=LocalizationManager.get_text("potassium_low_action", language, 
+                    bags=(40/2.47)/50, 
+                    amount_per_acre=40/2.47
+                ),
                 confidence=final_confidence,
                 timestamp=timestamp
             ))
@@ -477,9 +579,9 @@ class RecommendationEngine:
                 id=f"fert_{rec_id_counter}",
                 type="fertilizer",
                 priority="low",
-                title="Potassium Levels Optimal",
-                description=f"Potassium content ({sensor_data.potassium:.1f} mg/kg) is within ideal range for healthy crop development.",
-                action="Continue monitoring. Maintain current fertilization schedule.",
+                title=LocalizationManager.get_text("potassium_optimal_title", language),
+                description=LocalizationManager.get_text("potassium_optimal_desc", language, value=sensor_data.potassium),
+                action=LocalizationManager.get_text("potassium_optimal_action", language),
                 confidence=round(min(92, max(80, 86 + base_confidence_adjustment)), 1),
                 timestamp=timestamp
             ))
@@ -491,9 +593,9 @@ class RecommendationEngine:
                 id=f"fert_{rec_id_counter}",
                 type="fertilizer",
                 priority="low",
-                title="Phosphorus Levels Moderate",
-                description=f"Phosphorus ({sensor_data.phosphorus:.1f} mg/kg) is adequate but could be improved for better root development.",
-                action="Consider applying light phosphate top-dressing during next fertilization cycle.",
+                title=LocalizationManager.get_text("phosphorus_moderate_title", language),
+                description=LocalizationManager.get_text("phosphorus_moderate_desc", language, value=sensor_data.phosphorus),
+                action=LocalizationManager.get_text("phosphorus_moderate_action", language),
                 confidence=round(min(90, max(75, 82 + base_confidence_adjustment)), 1),
                 timestamp=timestamp
             ))
@@ -519,9 +621,9 @@ class RecommendationEngine:
                 id=f"soil_{rec_id_counter}",
                 type="soil_treatment",
                 priority="medium",
-                title="Soil Salinity Elevated",
-                description=f"Electrical conductivity ({sensor_data.ec:.2f} dS/m) indicates elevated salinity that may stress crops.",
-                action="Apply gypsum treatment. Improve drainage. Use low-salt irrigation water if available.",
+                title=LocalizationManager.get_text("salinity_high_title", language),
+                description=LocalizationManager.get_text("salinity_high_desc", language, value=sensor_data.ec),
+                action=LocalizationManager.get_text("salinity_high_action", language),
                 confidence=round(min(91, max(78, 84 + base_confidence_adjustment)), 1),
                 timestamp=timestamp
             ))
@@ -531,9 +633,9 @@ class RecommendationEngine:
                 id=f"soil_{rec_id_counter}",
                 type="soil_treatment",
                 priority="low",
-                title="Soil Salinity Normal",
-                description=f"Electrical conductivity ({sensor_data.ec:.2f} dS/m) is within acceptable range for most crops.",
-                action="Continue monitoring EC levels periodically.",
+                title=LocalizationManager.get_text("salinity_normal_title", language),
+                description=LocalizationManager.get_text("salinity_normal_desc", language, value=sensor_data.ec),
+                action=LocalizationManager.get_text("salinity_normal_action", language),
                 confidence=round(min(92, max(80, 86 + base_confidence_adjustment)), 1),
                 timestamp=timestamp
             ))
@@ -591,9 +693,15 @@ class RecommendationEngine:
                 id=f"irr_{rec_id_counter}",
                 type="irrigation",
                 priority="high" if sensor_data.moisture < (min_moisture - 20) else "medium",
-                title=f"Irrigation Needed for {crop_type}",
-                description=f"Soil moisture is {severity} low ({sensor_data.moisture:.1f}%) for {crop_type}. Optimal range is {min_moisture}-{max_moisture}%. ML weather analysis considered. Immediate irrigation required to prevent crop stress.",
-                action=f"Irrigate with {water_depth}mm water depth. Monitor soil moisture every 6 hours until levels reach {min_moisture}%.",
+                title=LocalizationManager.get_text("irrigation_needed_title", language, crop_type=crop_type),
+                description=LocalizationManager.get_text("irrigation_needed_desc", language, value=sensor_data.moisture, crop_type=crop_type, min=min_moisture, max=max_moisture),
+                action=LocalizationManager.get_text(
+                    "irrigation_rice_action" if crop_type.lower() == "rice" and water_depth > 40 else "irrigation_needed_action", 
+                    language, 
+                    inches=water_depth/25.4, 
+                    amount_mm=water_depth,
+                    hours=(water_depth/25.4) * 1.5
+                ),
                 confidence=final_conf,
                 timestamp=timestamp
             ))
@@ -606,9 +714,9 @@ class RecommendationEngine:
                 id=f"irr_{rec_id_counter}",
                 type="irrigation",
                 priority="medium",
-                title=f"Reduce Irrigation - {crop_type} Optimal Range Exceeded",
-                description=f"Soil moisture is high ({sensor_data.moisture:.1f}%) for {crop_type}. Optimal range is {min_moisture}-{max_moisture}%. Risk of waterlogging and root diseases.",
-                action=f"Pause irrigation for next {pause_days} days. Check drainage system. Monitor for fungal diseases.",
+                title=LocalizationManager.get_text("irrigation_reduce_title", language),
+                description=LocalizationManager.get_text("irrigation_reduce_desc", language, value=sensor_data.moisture, crop_type=crop_type, min=min_moisture, max=max_moisture),
+                action=LocalizationManager.get_text("irrigation_reduce_action", language, days=pause_days),
                 confidence=round(min(96, max(85, 91 + base_confidence_adjustment)), 1),
                 timestamp=timestamp
             ))
@@ -618,9 +726,9 @@ class RecommendationEngine:
                 id=f"irr_{rec_id_counter}",
                 type="irrigation",
                 priority="low",
-                title="Irrigation Levels Optimal",
-                description=f"Soil moisture is in optimal range ({sensor_data.moisture:.1f}%). Continue current irrigation schedule.",
-                action="Maintain current irrigation schedule. Monitor daily.",
+                title=LocalizationManager.get_text("irrigation_optimal_title", language),
+                description=LocalizationManager.get_text("irrigation_optimal_desc", language, value=sensor_data.moisture),
+                action=LocalizationManager.get_text("irrigation_optimal_action", language),
                 confidence=round(min(95, max(82, 89 + base_confidence_adjustment)), 1),
                 timestamp=timestamp
             ))
@@ -649,9 +757,9 @@ class RecommendationEngine:
                 id=f"stress_{rec_id_counter}",
                 type="stress_management",
                 priority="high",
-                title="Heat Stress Alert",
-                description=f"Temperature is {sensor_data.temperature:.1f}°C, exceeding optimal range for most crops. Risk of heat stress, wilting, and reduced yield.",
-                action="Increase irrigation frequency to 2x daily. Apply mulch to reduce soil temperature. Consider shade nets for sensitive crops.",
+                title=LocalizationManager.get_text("heat_stress_title", language),
+                description=LocalizationManager.get_text("heat_stress_desc", language, value=sensor_data.temperature),
+                action=LocalizationManager.get_text("heat_stress_action", language),
                 confidence=93,
                 timestamp=timestamp
             ))
@@ -677,9 +785,9 @@ class RecommendationEngine:
                 id=f"ph_{rec_id_counter}",
                 type="soil_treatment",
                 priority="high",
-                title="Soil Too Acidic",
-                description=f"pH {sensor_data.ph:.1f} is too acidic. Most crops prefer pH 6.0-7.5. Acidic soil reduces nutrient availability.",
-                action="Apply agricultural lime (CaCO3) at 2-3 tons/hectare. Retest pH after 2 weeks.",
+                title=LocalizationManager.get_text("ph_acidic_title", language),
+                description=LocalizationManager.get_text("ph_acidic_desc", language, value=sensor_data.ph),
+                action=LocalizationManager.get_text("ph_acidic_action", language),
                 confidence=90,
                 timestamp=timestamp
             ))
@@ -689,9 +797,9 @@ class RecommendationEngine:
                 id=f"ph_{rec_id_counter}",
                 type="soil_treatment",
                 priority="medium",
-                title="Soil Too Alkaline",
-                description=f"pH {sensor_data.ph:.1f} is too alkaline. This limits iron, zinc, and phosphorus availability.",
-                action="Apply elemental sulfur (200-400 kg/hectare) or gypsum. Organic matter addition also helps.",
+                title=LocalizationManager.get_text("ph_alkaline_title", language),
+                description=LocalizationManager.get_text("ph_alkaline_desc", language, value=sensor_data.ph),
+                action=LocalizationManager.get_text("ph_alkaline_action", language),
                 confidence=87,
                 timestamp=timestamp
             ))
@@ -702,9 +810,9 @@ class RecommendationEngine:
                 id=f"ph_{rec_id_counter}",
                 type="soil_treatment",
                 priority="low",
-                title="Soil pH Optimal",
-                description=f"Soil pH ({sensor_data.ph:.1f}) is within ideal range for most crops. Nutrient availability is optimal.",
-                action="Continue monitoring pH levels monthly. Maintain current soil management practices.",
+                title=LocalizationManager.get_text("ph_optimal_title", language),
+                description=LocalizationManager.get_text("ph_optimal_desc", language, value=sensor_data.ph),
+                action=LocalizationManager.get_text("ph_optimal_action", language),
                 confidence=round(89 + base_confidence_adjustment, 1),
                 timestamp=timestamp
             ))
@@ -717,9 +825,9 @@ class RecommendationEngine:
                 id=f"humidity_{rec_id_counter}",
                 type="general",
                 priority="medium",
-                title="High Humidity Alert",
-                description=f"Air humidity ({sensor_data.humidity:.0f}%) is elevated. Increased risk of fungal diseases.",
-                action="Monitor for signs of fungal infection. Improve air circulation. Consider preventive fungicide application.",
+                title=LocalizationManager.get_text("humidity_high_title", language),
+                description=LocalizationManager.get_text("humidity_high_desc", language, value=sensor_data.humidity),
+                action=LocalizationManager.get_text("humidity_high_action", language),
                 confidence=round(86 + base_confidence_adjustment, 1),
                 timestamp=timestamp
             ))
@@ -799,11 +907,24 @@ class RecommendationEngine:
 
 @app.on_event("startup")
 async def startup_event():
-    """Load models when API starts"""
+    """Load models and initialize database when API starts"""
     print("🚀 Starting Smart Farming AI Backend...")
     print("📦 Loading ML models...")
     status = model_loader.load_models()
-    print(f"✅ API ready! Models loaded: {sum(status.values())}/{len(status)}")
+    print(f"✅ Models loaded: {sum(status.values())}/{len(status)}")
+    
+    # Initialize Regime System database
+    print("📊 Initializing Regime System database...")
+    try:
+        supabase_client = get_supabase_client()
+        regime_db = RegimeDatabase(supabase_client)
+        regime_routes.set_regime_db(regime_db)
+        print("✅ Regime database initialized")
+    except Exception as e:
+        print(f"⚠️ Warning: Could not initialize regime database: {e}")
+        print("   Regime endpoints will be unavailable until database is configured")
+    
+    print("✅ API ready!")
 
 
 @app.get("/", tags=["Root"])
@@ -861,13 +982,17 @@ async def predict_recommendations(request: RecommendationRequest):
     ```
     """
     try:
+        print(f"⚠️ RECEIVED PREDICT REQUEST: farm_id={request.farm_id} lang={request.language}")
+        print(f"⚠️ Sensor data: {request.sensor_data}")
+        
         # Generate recommendations
         recommendations = RecommendationEngine.generate_recommendations(
             farm_id=request.farm_id,
             crop_type=request.crop_type,
             soil_type=request.soil_type,
             sensor_data=request.sensor_data,
-            weather_condition=request.weather_condition
+            weather_condition=request.weather_condition,
+            language=request.language or "en"
         )
         
         return RecommendationResponse(
@@ -903,6 +1028,6 @@ if __name__ == "__main__":
         "main:app",
         host="0.0.0.0",
         port=8000,
-        reload=True,
+        reload=False,
         log_level="info"
     )

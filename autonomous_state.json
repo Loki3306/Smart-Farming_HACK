@@ -13,11 +13,24 @@
     "isAutonomous": false
   },
   "f6c5dd64-9044-4700-9071-29aeeafffa30": {
-    "isAutonomous": true,
-    "lastRunAt": "2025-12-31T18:24:48.419Z"
+    "isAutonomous": false,
+    "lastRunAt": "2026-01-25T01:30:10.268Z"
   },
   "e153ea77-b9f0-4950-876e-9632d4294316": {
     "isAutonomous": true,
-    "lastRunAt": "2026-01-23T16:47:35.327Z"
+    "lastRunAt": "2026-01-25T01:11:11.720Z"
+  },
+  "1bd3d15a-2acc-456d-ab00-7d7cad534c9f": {
+    "isAutonomous": true,
+    "lastRunAt": "2026-01-23T19:58:28.072Z"
+  },
+  "37f067e0-fe20-4e8e-9364-3587a4925246": {
+    "isAutonomous": false,
+    "lastRunAt": "2026-01-23T20:09:03.911Z"
+  },
+  "80ac1084-67f8-4d05-ba21-68e3201213a8": {
+    "isAutonomous": false,
+    "lastIrrigationAt": "2026-01-24T17:09:32.659Z",
+    "lastRunAt": "2026-01-24T17:29:32.664Z"
   }
 }

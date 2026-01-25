@@ -19,6 +19,22 @@ function getSupabaseClient(): SupabaseClient {
     auth: {
       autoRefreshToken: false,
       persistSession: false
+    },
+    global: {
+      fetch: (...args) => {
+        return fetch(args[0], {
+          ...args[1],
+          signal: AbortSignal.timeout(10000) // 10 second timeout
+        }).catch((error) => {
+          // Log connection errors but don't throw to prevent server crashes
+          if (error.name === 'AbortError') {
+            console.warn('[Supabase] Request timeout after 10s');
+          } else if (error.code === 'ECONNRESET' || error.message?.includes('ECONNRESET')) {
+            console.warn('[Supabase] Connection reset - network or SSL issue');
+          }
+          throw error;
+        });
+      }
     }
   });
   

@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Droplet, Leaf, Zap, Settings, Bot, Hand } from "lucide-react";
 import { useFarmContext } from "../../context/FarmContext";
+import { useTranslation } from "react-i18next";
 
 export const ControlCenter: React.FC = () => {
+  const { t } = useTranslation("dashboard");
   const {
     systemStatus,
     setAutonomous,
@@ -40,8 +42,8 @@ export const ControlCenter: React.FC = () => {
       {/* Simple Header */}
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h3 className="text-lg font-semibold text-foreground">Control Center</h3>
-          <p className="text-sm text-muted-foreground">Manage farm systems</p>
+          <h3 className="text-lg font-semibold text-foreground">{t("control.title")}</h3>
+          <p className="text-sm text-muted-foreground">{t("control.subtitle")}</p>
         </div>
         <div className="w-10 h-10 rounded-full bg-amber-200/50 dark:bg-amber-700/30 flex items-center justify-center">
           <Settings className="w-6 h-6 text-amber-600 dark:text-amber-400" />
@@ -62,13 +64,13 @@ export const ControlCenter: React.FC = () => {
           </div>
           <div>
             <div className="text-sm font-semibold text-foreground">
-              System Mode
+              {t("control.systemMode")}
             </div>
             <div className="text-xs text-muted-foreground">
               {systemStatus?.isAutonomous
-                ? <span className="flex items-center gap-1"><Bot className="w-3 h-3" /> Autonomous</span>
-                : <span className="flex items-center gap-1"><Hand className="w-3 h-3" /> Manual</span>
-              } Control
+                ? <span className="flex items-center gap-1"><Bot className="w-3 h-3" /> {t("control.autonomous")}</span>
+                : <span className="flex items-center gap-1"><Hand className="w-3 h-3" /> {t("control.manual")}</span>
+              }
             </div>
           </div>
         </div>
@@ -108,10 +110,10 @@ export const ControlCenter: React.FC = () => {
           </div>
           <div className="flex-1 text-left">
             <div className="font-semibold text-foreground">
-              {pumpLoading ? "Dispensing Water..." : "Water Pump"}
+              {pumpLoading ? t("control.dispensingWater") : t("control.waterPump")}
             </div>
             <div className="text-xs text-muted-foreground">
-              Manual irrigation trigger
+              {t("control.manualIrrigation")}
             </div>
           </div>
         </button>
@@ -135,10 +137,10 @@ export const ControlCenter: React.FC = () => {
           </div>
           <div className="flex-1 text-left">
             <div className="font-semibold text-foreground">
-              {fertilizerLoading ? "Dispensing Nutrients..." : "Fertilizer"}
+              {fertilizerLoading ? t("control.dispensingNutrients") : t("control.fertilizer")}
             </div>
             <div className="text-xs text-muted-foreground">
-              Manual nutrient application
+              {t("control.manualNutrient")}
             </div>
           </div>
         </button>
@@ -151,7 +153,7 @@ export const ControlCenter: React.FC = () => {
             <Zap className="w-5 h-5 text-green-600 dark:text-green-400" />
           </div>
           <p className="text-sm text-green-700 dark:text-green-300 font-medium">
-            AI is managing operations automatically.
+            {t("control.aiActive")}
           </p>
         </div>
       )}
@@ -159,7 +161,7 @@ export const ControlCenter: React.FC = () => {
       {/* System Status Footer */}
       <div className="mt-5 pt-4 border-t border-amber-200/30 dark:border-amber-700/30 space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">System Status</span>
+          <span className="text-sm text-muted-foreground">{t("control.systemStatus")}</span>
           <div className="flex items-center gap-2">
             <div
               className={`w-2.5 h-2.5 rounded-full ${systemStatus?.isOnline
@@ -168,12 +170,12 @@ export const ControlCenter: React.FC = () => {
                 }`}
             />
             <span className="text-sm font-semibold text-foreground">
-              {systemStatus?.isOnline ? "Online" : "Offline"}
+              {systemStatus?.isOnline ? t("control.online") : t("control.offline")}
             </span>
           </div>
         </div>
         <div className="text-xs text-muted-foreground text-right">
-          Last updated:{" "}
+          {t("control.lastUpdated")}:{" "}
           {systemStatus?.lastUpdate
             ? new Date(systemStatus.lastUpdate).toLocaleTimeString()
             : "—"}

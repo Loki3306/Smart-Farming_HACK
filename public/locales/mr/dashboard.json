@@ -1,0 +1,99 @@
+{
+    "greeting": {
+        "morning": "शुभ प्रभात",
+        "afternoon": "शुभ दुपार",
+        "evening": "शुभ संध्याकाळ",
+        "night": "शुभ रात्री",
+        "farmer": "शेतकरी"
+    },
+    "message": {
+        "morning": "तुमच्या शेतावर सूर्य उगवत आहे. पिकांची तपासणी करण्यासाठी एक उत्तम दिवस!",
+        "afternoon": "तुमची पिके उन्हाचा आनंद घेत आहेत. सर्व काही छान दिसत आहे!",
+        "evening": "सूर्य सुंदर मावळत आहे. आजच्या शेती कामांचा आढावा घेण्याची वेळ!",
+        "night": "विश्रांतीची वेळ. तुम्ही झोपताना मी तुमच्या शेतावर लक्ष ठेवीन."
+    },
+    "status": {
+        "liveView": "थेट शेत दृश्य • रिअल-टाइम डेटा",
+        "system": "प्रणाली",
+        "online": "ऑनलाइन",
+        "offline": "ऑफलाइन",
+        "thriving": "तुमची पिके बहरत आहेत",
+        "loadingLocation": "स्थान लोड होत आहे..."
+    },
+    "profile": {
+        "settings": "प्रोफाईल सेटिंग्ज",
+        "logout": "बाहेर पडा",
+        "restore": "मूळ पुनर्संचयित करा",
+        "restoring": "पुनर्संचयित करत आहे...",
+        "original": "मूळ"
+    },
+    "footer": {
+        "sensorData": "रिअल-टाइम सेन्सर डेटा",
+        "blockchain": "ब्लॉकचेन-सत्यापित क्रिया",
+        "ai": "एआय-समर्थित ऑप्टिमायझेशन"
+    },
+    "soil": {
+        "title": "मातीची स्थिती",
+        "subtitle": "रिअल-टाइम सेन्सर रीडिंग",
+        "moisture": "मातीचा ओलावा",
+        "nitrogen": "नायट्रोजन",
+        "phosphorus": "फॉस्फरस",
+        "potassium": "पोटॅशियम",
+        "phLevel": "पीएच स्तर",
+        "conductivity": "वाहकता",
+        "status": {
+            "tooWet": "खूप ओले",
+            "veryMoist": "खूप ओलसर",
+            "healthy": "निरोगी",
+            "moderate": "मध्यम",
+            "dry": "कोरडे",
+            "critical": "गंभीर",
+            "high": "जास्त",
+            "optimal": "इष्टतम",
+            "low": "कमी",
+            "deficient": "तुटवडा",
+            "alkaline": "अल्ल्कधर्मी",
+            "slightlyAlkaline": "किंचित अल्कधर्मी",
+            "slightlyAcidic": "किंचित आम्लयुक्त",
+            "acidic": "आम्लयुक्त"
+        }
+    },
+    "control": {
+        "title": "नियंत्रण केंद्र",
+        "subtitle": "शेती प्रणाली व्यवस्थापित करा",
+        "systemMode": "सिस्टम मोड",
+        "autonomous": "स्वायत्त",
+        "manual": "मॅन्युअल",
+        "waterPump": "पाणी पंप",
+        "fertilizer": "खत",
+        "dispensingWater": "पाणी देत आहे...",
+        "dispensingNutrients": "पोषक तत्वे देत आहे...",
+        "manualIrrigation": "मॅन्युअल सिंचन ट्रिगर",
+        "manualNutrient": "मॅन्युअल पोषक तत्व वापर",
+        "aiActive": "एआय स्वयंचलितपणे ऑपरेशन्स व्यवस्थापित करत आहे.",
+        "systemStatus": "सिस्टम स्थिती",
+        "online": "ऑनलाइन",
+        "offline": "ऑफलाइन",
+        "lastUpdated": "अंतिम अद्यतन"
+    },
+    "actionLog": {
+        "title": "कृती लॉग",
+        "subtitle": "अलीकडील क्रियाकलाप",
+        "noActions": "कोणतीही अलीकडील कृती नाही",
+        "willAppear": "जशा क्रिया घडतील तशा येथे दिसतील",
+        "types": {
+            "irrigation": "सिंचन",
+            "fertilization": "खत वापर",
+            "alert": "सतर्कता",
+            "info": "माहिती"
+        },
+        "logs": {
+            "systemSwitch": "सिस्टम {{mode}} मोडवर बदलले",
+            "irrigationDispensed": "सिंचन - {{amount}} लिटर पाणी दिले",
+            "manualIrrigation": "मॅन्युअल पाणी पंप - {{amount}} लिटर पाणी दिले",
+            "fertilizationSkipped": "खत वापर वगळले - पावसाची शक्यता",
+            "manualFertilization": "मॅन्युअल खत - {{blend}} दिले",
+            "fertilizationApplied": "खत लागू - {{details}}"
+        }
+    }
+}

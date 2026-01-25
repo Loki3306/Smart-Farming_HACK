@@ -1,0 +1,44 @@
+{
+    "header": {
+        "title": "Weather Forecast",
+        "subtitle": "Real-time weather data for your farm location"
+    },
+    "current": {
+        "feelsLike": "Feels like",
+        "humidity": "Humidity",
+        "wind": "Wind",
+        "visibility": "Visibility",
+        "uvIndex": "UV Index",
+        "sunrise": "Sunrise",
+        "sunset": "Sunset",
+        "high": "High"
+    },
+    "forecast": {
+        "title": "7-Day Forecast",
+        "today": "Today"
+    },
+    "insights": {
+        "title": "Farming Insights",
+        "rainExpected": "Rain expected on {{day}}: Consider delaying fertilizer application",
+        "highUV": "High UV index today: Ideal for drying harvested crops",
+        "lowWind": "Low wind conditions: Good day for spraying pesticides",
+        "highWind": "High wind conditions: Avoid spraying pesticides today",
+        "soilMoisture": "Soil moisture: Expected to increase after upcoming rain",
+        "highTemp": "High temperature alert: Ensure adequate irrigation for crops",
+        "lowHumidity": "Low humidity: Monitor crops for water stress",
+        "highHumidity": "High humidity: Watch for fungal diseases in crops"
+    },
+    "conditions": {
+        "sunny": "Sunny",
+        "clear": "Clear",
+        "partlyCloudy": "Partly Cloudy",
+        "cloudy": "Cloudy",
+        "overcast": "Overcast",
+        "rain": "Rain",
+        "showers": "Showers",
+        "thunderstorm": "Thunderstorm",
+        "snow": "Snow",
+        "fog": "Fog",
+        "mist": "Mist"
+    }
+}

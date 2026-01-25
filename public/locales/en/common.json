@@ -1,0 +1,60 @@
+{
+    "app": {
+        "name": "Krushi Unnati",
+        "tagline": "Smart Farming for Better Yields"
+    },
+    "chatbot": {
+        "greeting": "Namaste!",
+        "subtitle": "I'm Ravi, your AI farming assistant.",
+        "tryAsking": "Try asking:",
+        "prompts": {
+            "fertilizer": "Best fertilizer for wheat?",
+            "price": "Market price for tomato?",
+            "weather": "Weather forecast?"
+        },
+        "thinking": "Ravi is thinking...",
+        "error": "Error",
+        "placeholder": "Ask Ravi...",
+        "clear": "Clear conversation"
+    },
+    "navigation": {
+        "home": "Home",
+        "dashboard": "Dashboard",
+        "myFarm": "My Farm",
+        "farmMapping": "Farm Mapping",
+        "weather": "Weather",
+        "aiRecommendations": "AI Recommendations",
+        "regimes": "Farming Regimes",
+        "diseaseDetection": "Disease Detection",
+        "marketplace": "Marketplace",
+        "learn": "Learn",
+        "community": "Community",
+        "notifications": "Notifications",
+        "messages": "Messages",
+        "settings": "Settings"
+    },
+    "actions": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "loading": "Loading...",
+        "retry": "Retry"
+    },
+    "auth": {
+        "login": "Login",
+        "logout": "Logout",
+        "signup": "Sign Up",
+        "forgotPassword": "Forgot Password?"
+    },
+    "units": {
+        "acres": "acres",
+        "hectares": "hectares",
+        "kg": "kg",
+        "quintals": "quintals",
+        "celsius": "°C",
+        "fahrenheit": "°F",
+        "mm": "mm",
+        "inches": "inches"
+    }
+}

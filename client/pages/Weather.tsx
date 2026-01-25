@@ -44,8 +44,13 @@ interface CurrentWeather {
   sunset: string;
 }
 
+import { useTranslation } from "react-i18next";
+// ... imports
+
 export const Weather: React.FC = () => {
+  const { t, i18n } = useTranslation("weather");
   const [loading, setLoading] = useState(true);
+
   const [currentWeather, setCurrentWeather] = useState<CurrentWeather>({
     temperature: 0,
     feelsLike: 0,
@@ -62,73 +67,22 @@ export const Weather: React.FC = () => {
 
   const [forecast, setForecast] = useState<WeatherDay[]>([]);
 
-  // Fetch real weather data
-  useEffect(() => {
-    const fetchWeather = async () => {
-      setLoading(true);
-      try {
-        // Fetch current weather
-        const current = await WeatherService.getCurrentWeather();
-        console.log('[Weather Page] Current weather:', current);
-
-        // Calculate sunrise/sunset from timestamp (mock for now, OpenWeather free tier doesn't include this)
-        const now = new Date();
-        const sunriseTime = new Date(now);
-        sunriseTime.setHours(6, 15, 0);
-        const sunsetTime = new Date(now);
-        sunsetTime.setHours(18, 45, 0);
-
-        setCurrentWeather({
-          temperature: current.temperature,
-          feelsLike: current.feelsLike,
-          condition: current.condition,
-          humidity: current.humidity,
-          windSpeed: current.windSpeed,
-          windDirection: 'N/A', // OpenWeather free tier doesn't include wind direction
-          visibility: 10, // Default visibility
-          uvIndex: current.uvIndex || 0,
-          pressure: current.pressure,
-          sunrise: sunriseTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
-          sunset: sunsetTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
-        });
-
-        // Fetch forecast
-        const forecastData = await WeatherService.getForecast();
-        console.log('[Weather Page] Forecast:', forecastData);
-
-        // Extract daily forecast
-        const dailyForecast = forecastData.forecast || forecastData;
-
-        const formattedForecast: WeatherDay[] = dailyForecast.map((day: any, index: number) => {
-          const date = new Date(day.date);
-          const dayName = index === 0 ? 'Today' : date.toLocaleDateString('en-US', { weekday: 'short' });
-          const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-
-          return {
-            day: dayName,
-            date: dateStr,
-            high: day.high,
-            low: day.low,
-            condition: day.condition,
-            icon: getWeatherIconComponent(day.condition),
-            precipitation: day.rainChance,
-          };
-        });
-
-        setForecast(formattedForecast);
-      } catch (error) {
-        console.error('[Weather Page] Error fetching weather:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchWeather();
-
-    // Refresh weather every 5 minutes
-    const interval = setInterval(fetchWeather, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, []);
+  // Helper to get localized condition
+  const getLocalizedCondition = (condition: string) => {
+    // Map API condition strings to translation keys
+    const lower = condition.toLowerCase();
+    if (lower.includes('partly')) return t('conditions.partlyCloudy');
+    if (lower.includes('cloud')) return t('conditions.cloudy');
+    if (lower.includes('rain')) return t('conditions.rain');
+    if (lower.includes('showers')) return t('conditions.showers');
+    if (lower.includes('thunder')) return t('conditions.thunderstorm');
+    if (lower.includes('snow')) return t('conditions.snow');
+    if (lower.includes('fog')) return t('conditions.fog');
+    if (lower.includes('mist')) return t('conditions.mist');
+    if (lower.includes('clear')) return t('conditions.clear');
+    if (lower.includes('sunny')) return t('conditions.sunny');
+    return condition; // Fallback to original string if no match
+  };
 
   // Helper to map condition string to icon component
   const getWeatherIconComponent = (condition: string): React.ElementType => {
@@ -168,15 +122,83 @@ export const Weather: React.FC = () => {
     }
   };
 
-  const CurrentIcon = getWeatherIcon(currentWeather.condition);
+  // Fetch real weather data
+  useEffect(() => {
+    const fetchWeather = async () => {
+      setLoading(true);
+      try {
+        // Fetch current weather
+        const current = await WeatherService.getCurrentWeather();
+        console.log('[Weather Page] Current weather:', current);
+
+        // Calculate sunrise/sunset from timestamp (mock for now, OpenWeather free tier doesn't include this)
+        const now = new Date();
+        const sunriseTime = new Date(now);
+        sunriseTime.setHours(6, 15, 0);
+        const sunsetTime = new Date(now);
+        sunsetTime.setHours(18, 45, 0);
+
+        setCurrentWeather({
+          temperature: current.temperature,
+          feelsLike: current.feelsLike,
+          condition: current.condition,
+          humidity: current.humidity,
+          windSpeed: current.windSpeed,
+          windDirection: 'N/A', // OpenWeather free tier doesn't include wind direction
+          visibility: 10, // Default visibility
+          uvIndex: current.uvIndex || 0,
+          pressure: current.pressure,
+          sunrise: sunriseTime.toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit', hour12: false }),
+          sunset: sunsetTime.toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit', hour12: false }),
+        });
+
+        // Fetch forecast
+        const forecastData = await WeatherService.getForecast();
+        console.log('[Weather Page] Forecast:', forecastData);
+
+        // Extract daily forecast
+        const dailyForecast = forecastData.forecast || forecastData;
+
+        const formattedForecast: WeatherDay[] = dailyForecast.map((day: any, index: number) => {
+          const date = new Date(day.date);
+          const dayName = index === 0 ? t('forecast.today') : date.toLocaleDateString(i18n.language, { weekday: 'short' });
+          const dateStr = date.toLocaleDateString(i18n.language, { month: 'short', day: 'numeric' });
+
+          return {
+            day: dayName,
+            date: dateStr,
+            high: day.high,
+            low: day.low,
+            condition: day.condition,
+            icon: getWeatherIconComponent(day.condition),
+            precipitation: day.rainChance,
+          };
+        });
+
+        setForecast(formattedForecast);
+      } catch (error) {
+        console.error('[Weather Page] Error fetching weather:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWeather();
+
+    // Refresh weather every 5 minutes
+    const interval = setInterval(fetchWeather, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const CurrentIcon = getWeatherIconComponent(currentWeather.condition);
 
   return (
     <div className="p-6 lg:p-8 space-y-8">
       {/* Header */}
       <div data-tour-id="weather-header">
-        <h1 className="text-3xl font-bold text-foreground">Weather Forecast</h1>
+        <h1 className="text-3xl font-bold text-foreground">{t('header.title')}</h1>
         <p className="text-muted-foreground mt-1">
-          Real-time weather data for your farm location
+          {t('header.subtitle')}
         </p>
       </div>
 
@@ -193,9 +215,9 @@ export const Weather: React.FC = () => {
               <CurrentIcon className="w-24 h-24" />
               <div>
                 <p className="text-6xl font-bold">{currentWeather.temperature}°C</p>
-                <p className="text-xl opacity-90">{currentWeather.condition}</p>
+                <p className="text-xl opacity-90">{getLocalizedCondition(currentWeather.condition)}</p>
                 <p className="text-sm opacity-75">
-                  Feels like {currentWeather.feelsLike}°C
+                  {t('current.feelsLike')} {currentWeather.feelsLike}°C
                 </p>
               </div>
             </div>
@@ -205,42 +227,42 @@ export const Weather: React.FC = () => {
               <div className="flex items-center gap-3">
                 <Droplets className="w-5 h-5 opacity-75" />
                 <div>
-                  <p className="text-sm opacity-75">Humidity</p>
+                  <p className="text-sm opacity-75">{t('current.humidity')}</p>
                   <p className="font-semibold">{currentWeather.humidity}%</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Wind className="w-5 h-5 opacity-75" />
                 <div>
-                  <p className="text-sm opacity-75">Wind</p>
+                  <p className="text-sm opacity-75">{t('current.wind')}</p>
                   <p className="font-semibold">{currentWeather.windSpeed} km/h {currentWeather.windDirection}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Eye className="w-5 h-5 opacity-75" />
                 <div>
-                  <p className="text-sm opacity-75">Visibility</p>
+                  <p className="text-sm opacity-75">{t('current.visibility')}</p>
                   <p className="font-semibold">{currentWeather.visibility} km</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Sun className="w-5 h-5 opacity-75" />
                 <div>
-                  <p className="text-sm opacity-75">UV Index</p>
-                  <p className="font-semibold">{currentWeather.uvIndex} (High)</p>
+                  <p className="text-sm opacity-75">{t('current.uvIndex')}</p>
+                  <p className="font-semibold">{currentWeather.uvIndex} ({t('current.high')})</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Sunrise className="w-5 h-5 opacity-75" />
                 <div>
-                  <p className="text-sm opacity-75">Sunrise</p>
+                  <p className="text-sm opacity-75">{t('current.sunrise')}</p>
                   <p className="font-semibold">{currentWeather.sunrise}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Sunset className="w-5 h-5 opacity-75" />
                 <div>
-                  <p className="text-sm opacity-75">Sunset</p>
+                  <p className="text-sm opacity-75">{t('current.sunset')}</p>
                   <p className="font-semibold">{currentWeather.sunset}</p>
                 </div>
               </div>
@@ -249,9 +271,8 @@ export const Weather: React.FC = () => {
         </Card>
       </motion.div>
 
-      {/* 7-Day Forecast */}
       <div data-tour-id="weather-7day">
-        <h2 className="text-xl font-semibold text-foreground mb-4">7-Day Forecast</h2>
+        <h2 className="text-xl font-semibold text-foreground mb-4">{t('forecast.title')}</h2>
         <div className="space-y-2">
           {forecast.map((day, index) => (
             <motion.div
@@ -261,22 +282,20 @@ export const Weather: React.FC = () => {
               transition={{ duration: 0.3, delay: index * 0.05 }}
             >
               <Card className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4 w-32">
-                    <div>
-                      <p className="font-semibold">{day.day}</p>
-                      <p className="text-sm text-muted-foreground">{day.date}</p>
-                    </div>
+                <div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-2 sm:gap-4">
+                  <div className="min-w-0">
+                    <p className="font-semibold whitespace-nowrap">{day.day}</p>
+                    <p className="text-sm text-muted-foreground whitespace-nowrap">{day.date}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <day.icon className="w-8 h-8 text-primary" />
-                    <span className="text-sm text-muted-foreground w-24">{day.condition}</span>
+                    <day.icon className="w-8 h-8 text-primary shrink-0" />
+                    <span className="text-sm text-muted-foreground hidden sm:block w-24 truncate">{getLocalizedCondition(day.condition)}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Droplets className="w-4 h-4 text-blue-500" />
-                    <span className="text-sm w-12">{day.precipitation}%</span>
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <Droplets className="w-4 h-4 text-blue-500 shrink-0" />
+                    <span className="text-sm w-8 sm:w-12 text-right">{day.precipitation}%</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 sm:gap-2 justify-end min-w-[3.5rem]">
                     <span className="font-semibold">{day.high}°</span>
                     <span className="text-muted-foreground">/</span>
                     <span className="text-muted-foreground">{day.low}°</span>
@@ -292,32 +311,32 @@ export const Weather: React.FC = () => {
       <Card className="p-6 border-l-4 border-l-primary" data-tour-id="weather-insights">
         <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
           <Sprout className="w-5 h-5 text-primary" />
-          Farming Insights
+          {t('insights.title')}
         </h3>
         <ul className="space-y-2 text-sm text-muted-foreground">
           {forecast.length > 0 && forecast.some(day => day.precipitation > 50) && (
-            <li>• <strong>Rain expected on {forecast.find(day => day.precipitation > 50)?.day}:</strong> Consider delaying fertilizer application</li>
+            <li>• <strong>{t('insights.rainExpected', { day: forecast.find(day => day.precipitation > 50)?.day })}</strong></li>
           )}
           {currentWeather.uvIndex >= 6 && (
-            <li>• <strong>High UV index today:</strong> Ideal for drying harvested crops</li>
+            <li>• <strong>{t('insights.highUV')}</strong></li>
           )}
           {currentWeather.windSpeed < 15 && (
-            <li>• <strong>Low wind conditions:</strong> Good day for spraying pesticides</li>
+            <li>• <strong>{t('insights.lowWind')}</strong></li>
           )}
           {currentWeather.windSpeed >= 15 && (
-            <li>• <strong>High wind conditions:</strong> Avoid spraying pesticides today</li>
+            <li>• <strong>{t('insights.highWind')}</strong></li>
           )}
           {forecast.length > 0 && forecast.some(day => day.precipitation > 50) && (
-            <li>• <strong>Soil moisture:</strong> Expected to increase after upcoming rain</li>
+            <li>• <strong>{t('insights.soilMoisture')}</strong></li>
           )}
           {currentWeather.temperature > 30 && (
-            <li>• <strong>High temperature alert:</strong> Ensure adequate irrigation for crops</li>
+            <li>• <strong>{t('insights.highTemp')}</strong></li>
           )}
           {currentWeather.humidity < 40 && (
-            <li>• <strong>Low humidity:</strong> Monitor crops for water stress</li>
+            <li>• <strong>{t('insights.lowHumidity')}</strong></li>
           )}
           {currentWeather.humidity > 80 && (
-            <li>• <strong>High humidity:</strong> Watch for fungal diseases in crops</li>
+            <li>• <strong>{t('insights.highHumidity')}</strong></li>
           )}
         </ul>
       </Card>

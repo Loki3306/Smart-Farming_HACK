@@ -3,22 +3,11 @@
  * Handles CRUD operations for user settings in Supabase
  */
 
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
-
-// Supabase configuration
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-
-let supabaseClient: SupabaseClient | null = null;
+import { SupabaseClient } from '@supabase/supabase-js';
+import supabase from '../lib/supabase';
 
 function getSupabaseClient(): SupabaseClient | null {
-    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-        return null;
-    }
-    if (!supabaseClient) {
-        supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    }
-    return supabaseClient;
+    return supabase;
 }
 
 /**

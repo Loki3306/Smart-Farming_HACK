@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Tractor,
   MapPin,
@@ -39,6 +40,7 @@ interface FarmData {
 
 export const Farm: React.FC = () => {
   const { user } = useAuth();
+  const { t } = useTranslation("farm");
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [farmData, setFarmData] = useState<FarmData>({
@@ -204,29 +206,29 @@ export const Farm: React.FC = () => {
   };
 
   return (
-    <div className="p-6 lg:p-8 space-y-8">
+    <div className="p-6 lg:p-8 space-y-8 bg-texture-farm min-h-[calc(100vh-4rem)]">
       {/* Header */}
       <div className="flex items-center justify-between" data-tour-id="farm-header">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">My Farm</h1>
+          <h1 className="text-3xl font-bold text-foreground">{t("title")}</h1>
           <p className="text-muted-foreground mt-1">
-            Manage your farm details and view soil analytics
+            {t("subtitle")}
           </p>
         </div>
         {!isEditing ? (
           <Button onClick={() => setIsEditing(true)} className="gap-2">
             <Edit className="w-4 h-4" />
-            Edit Details
+            {t("actions.edit")}
           </Button>
         ) : (
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => setIsEditing(false)}>
               <X className="w-4 h-4 mr-2" />
-              Cancel
+              {t("actions.cancel")}
             </Button>
             <Button onClick={handleSave}>
               <Save className="w-4 h-4 mr-2" />
-              Save Changes
+              {t("actions.save")}
             </Button>
           </div>
         )}
@@ -273,11 +275,11 @@ export const Farm: React.FC = () => {
             <div className="space-y-4" data-tour-id="farm-location">
               <h3 className="font-semibold text-foreground flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-primary" />
-                Location Details
+                {t("sections.location.title")}
               </h3>
               <div className="space-y-3">
                 <div>
-                  <label htmlFor="state" className="text-sm text-muted-foreground">State</label>
+                  <label htmlFor="state" className="text-sm text-muted-foreground">{t("sections.location.state")}</label>
                   {isEditing ? (
                     <select
                       name="state"
@@ -295,7 +297,7 @@ export const Farm: React.FC = () => {
                   )}
                 </div>
                 <div>
-                  <label htmlFor="district" className="text-sm text-muted-foreground">District</label>
+                  <label htmlFor="district" className="text-sm text-muted-foreground">{t("sections.location.district")}</label>
                   {isEditing ? (
                     <input
                       type="text"
@@ -310,7 +312,7 @@ export const Farm: React.FC = () => {
                   )}
                 </div>
                 <div>
-                  <label htmlFor="city" className="text-sm text-muted-foreground">City</label>
+                  <label htmlFor="city" className="text-sm text-muted-foreground">{t("sections.location.city")}</label>
                   {isEditing ? (
                     <input
                       type="text"
@@ -331,11 +333,11 @@ export const Farm: React.FC = () => {
             <div className="space-y-4" data-tour-id="farm-specs">
               <h3 className="font-semibold text-foreground flex items-center gap-2">
                 <Mountain className="w-4 h-4 text-primary" />
-                Farm Specifications
+                {t("sections.specs.title")}
               </h3>
               <div className="space-y-3">
                 <div>
-                  <label htmlFor="areaAcres" className="text-sm text-muted-foreground">Total Area</label>
+                  <label htmlFor="areaAcres" className="text-sm text-muted-foreground">{t("sections.specs.area")}</label>
                   {isEditing ? (
                     <div className="flex gap-2">
                       <input
@@ -353,7 +355,7 @@ export const Farm: React.FC = () => {
                   )}
                 </div>
                 <div>
-                  <label htmlFor="soilType" className="text-sm text-muted-foreground">Soil Type</label>
+                  <label htmlFor="soilType" className="text-sm text-muted-foreground">{t("sections.specs.soilType")}</label>
                   {isEditing ? (
                     <select
                       name="soilType"
@@ -363,15 +365,15 @@ export const Farm: React.FC = () => {
                       className="w-full px-3 py-2 border border-border rounded-lg"
                     >
                       {SOIL_TYPES_INDIA.map((soil) => (
-                        <option key={soil.value} value={soil.value}>{soil.label}</option>
+                        <option key={soil.value} value={soil.value}>{t(`soilTypes.${soil.value}`)}</option>
                       ))}
                     </select>
                   ) : (
-                    <p className="font-medium capitalize">{farmData.soilType} Soil</p>
+                    <p className="font-medium capitalize">{t(`soilTypes.${farmData.soilType}`)}</p>
                   )}
                 </div>
                 <div>
-                  <label htmlFor="crop" className="text-sm text-muted-foreground">Current Crop</label>
+                  <label htmlFor="crop" className="text-sm text-muted-foreground">{t("sections.specs.crop")}</label>
                   {isEditing ? (
                     <CropSelector
                       value={farmData.crop}
@@ -389,11 +391,11 @@ export const Farm: React.FC = () => {
             <div className="space-y-4" data-tour-id="farm-irrigation">
               <h3 className="font-semibold text-foreground flex items-center gap-2">
                 <Droplets className="w-4 h-4 text-primary" />
-                Irrigation Details
+                {t("sections.irrigation.title")}
               </h3>
               <div className="space-y-3">
                 <div>
-                  <label htmlFor="waterSource" className="text-sm text-muted-foreground">Water Source</label>
+                  <label htmlFor="waterSource" className="text-sm text-muted-foreground">{t("sections.irrigation.waterSource")}</label>
                   {isEditing ? (
                     <select
                       name="waterSource"
@@ -402,19 +404,19 @@ export const Farm: React.FC = () => {
                       onChange={handleChange}
                       className="w-full px-3 py-2 border border-border rounded-lg"
                     >
-                      <option value="well">Well</option>
-                      <option value="borewell">Borewell</option>
-                      <option value="canal">Canal</option>
-                      <option value="river">River</option>
-                      <option value="rainwater">Rainwater Harvesting</option>
-                      <option value="pond">Pond</option>
+                      <option value="well">{t("waterSources.well")}</option>
+                      <option value="borewell">{t("waterSources.borewell")}</option>
+                      <option value="canal">{t("waterSources.canal")}</option>
+                      <option value="river">{t("waterSources.river")}</option>
+                      <option value="rainwater">{t("waterSources.rainwater")}</option>
+                      <option value="pond">{t("waterSources.pond")}</option>
                     </select>
                   ) : (
-                    <p className="font-medium capitalize">{farmData.waterSource}</p>
+                    <p className="font-medium capitalize">{t(`waterSources.${farmData.waterSource}`)}</p>
                   )}
                 </div>
                 <div>
-                  <label htmlFor="irrigationType" className="text-sm text-muted-foreground">Irrigation Type</label>
+                  <label htmlFor="irrigationType" className="text-sm text-muted-foreground">{t("sections.irrigation.type")}</label>
                   {isEditing ? (
                     <select
                       name="irrigationType"
@@ -423,18 +425,18 @@ export const Farm: React.FC = () => {
                       onChange={handleChange}
                       className="w-full px-3 py-2 border border-border rounded-lg"
                     >
-                      <option value="drip">Drip Irrigation</option>
-                      <option value="sprinkler">Sprinkler</option>
-                      <option value="flood">Flood Irrigation</option>
-                      <option value="furrow">Furrow Irrigation</option>
-                      <option value="manual">Manual</option>
+                      <option value="drip">{t("irrigationTypes.drip")}</option>
+                      <option value="sprinkler">{t("irrigationTypes.sprinkler")}</option>
+                      <option value="flood">{t("irrigationTypes.flood")}</option>
+                      <option value="furrow">{t("irrigationTypes.furrow")}</option>
+                      <option value="manual">{t("irrigationTypes.manual")}</option>
                     </select>
                   ) : (
-                    <p className="font-medium capitalize">{farmData.irrigationType.replace("-", " ")}</p>
+                    <p className="font-medium capitalize">{t(`irrigationTypes.${farmData.irrigationType}`)}</p>
                   )}
                 </div>
                 <div>
-                  <label htmlFor="season" className="text-sm text-muted-foreground">Season</label>
+                  <label htmlFor="season" className="text-sm text-muted-foreground">{t("sections.irrigation.season")}</label>
                   {isEditing ? (
                     <select
                       name="season"
@@ -443,12 +445,12 @@ export const Farm: React.FC = () => {
                       onChange={handleChange}
                       className="w-full px-3 py-2 border border-border rounded-lg"
                     >
-                      <option value="kharif">Kharif (Monsoon)</option>
-                      <option value="rabi">Rabi (Winter)</option>
-                      <option value="zaid">Zaid (Summer)</option>
+                      <option value="kharif">{t("seasons.kharif")}</option>
+                      <option value="rabi">{t("seasons.rabi")}</option>
+                      <option value="zaid">{t("seasons.zaid")}</option>
                     </select>
                   ) : (
-                    <p className="font-medium capitalize">{farmData.season}</p>
+                    <p className="font-medium capitalize">{t(`seasons.${farmData.season}`)}</p>
                   )}
                 </div>
               </div>
@@ -460,11 +462,11 @@ export const Farm: React.FC = () => {
       {/* Soil Stats Section */}
       <div data-tour-id="farm-soil-analytics">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-foreground">Soil Analytics</h2>
+          <h2 className="text-xl font-semibold text-foreground">{t("sections.analytics.title")}</h2>
           {usesDemoSensorData && (
             <Badge variant="secondary" className="text-xs">
               <Info className="w-3 h-3 mr-1" />
-              Demo Data - Connect sensors for real-time values
+              {t("sections.analytics.demo")}
             </Badge>
           )}
         </div>
@@ -472,13 +474,13 @@ export const Farm: React.FC = () => {
           <Card className="p-4 text-center">
             <Droplets className="w-8 h-8 text-blue-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-foreground">{soilStats.moisture}%</p>
-            <p className="text-sm text-muted-foreground">Moisture</p>
+            <p className="text-sm text-muted-foreground">{t("sections.analytics.moisture")}</p>
           </Card>
 
           <Card className="p-4 text-center">
             <Thermometer className="w-8 h-8 text-orange-500 mx-auto mb-2" />
             <p className="text-2xl font-bold text-foreground">{soilStats.temperature}°C</p>
-            <p className="text-sm text-muted-foreground">Temperature</p>
+            <p className="text-sm text-muted-foreground">{t("sections.analytics.temperature")}</p>
           </Card>
 
           <Card className="p-4 text-center">
@@ -486,7 +488,7 @@ export const Farm: React.FC = () => {
               <span className="text-purple-600 font-bold text-sm">pH</span>
             </div>
             <p className="text-2xl font-bold text-foreground">{soilStats.ph}</p>
-            <p className="text-sm text-muted-foreground">pH Level</p>
+            <p className="text-sm text-muted-foreground">{t("sections.analytics.ph")}</p>
           </Card>
 
           <Card className="p-4 text-center">
@@ -494,7 +496,7 @@ export const Farm: React.FC = () => {
               <span className="text-green-600 font-bold text-sm">N</span>
             </div>
             <p className="text-2xl font-bold text-foreground">{soilStats.nitrogen}</p>
-            <p className="text-sm text-muted-foreground">Nitrogen (kg/ha)</p>
+            <p className="text-sm text-muted-foreground">{t("sections.analytics.nitrogen")}</p>
           </Card>
 
           <Card className="p-4 text-center">
@@ -502,7 +504,7 @@ export const Farm: React.FC = () => {
               <span className="text-yellow-600 font-bold text-sm">P</span>
             </div>
             <p className="text-2xl font-bold text-foreground">{soilStats.phosphorus}</p>
-            <p className="text-sm text-muted-foreground">Phosphorus (kg/ha)</p>
+            <p className="text-sm text-muted-foreground">{t("sections.analytics.phosphorus")}</p>
           </Card>
 
           <Card className="p-4 text-center">
@@ -510,14 +512,14 @@ export const Farm: React.FC = () => {
               <span className="text-red-600 font-bold text-sm">K</span>
             </div>
             <p className="text-2xl font-bold text-foreground">{soilStats.potassium}</p>
-            <p className="text-sm text-muted-foreground">Potassium (kg/ha)</p>
+            <p className="text-sm text-muted-foreground">{t("sections.analytics.potassium")}</p>
           </Card>
         </div>
       </div>
 
       {/* Soil Health Indicator */}
       <Card className="p-6" data-tour-id="farm-soil-health">
-        <h3 className="font-semibold text-foreground mb-4">Overall Soil Health</h3>
+        <h3 className="font-semibold text-foreground mb-4">{t("sections.health.title")}</h3>
         <div className="flex items-center gap-4">
           <div className="flex-1">
             <div className="h-4 bg-muted rounded-full overflow-hidden">
@@ -530,11 +532,11 @@ export const Farm: React.FC = () => {
           <div className="flex items-center gap-2">
             <Leaf className="w-5 h-5 text-green-500" />
             <span className="text-xl font-bold text-green-600">78%</span>
-            <span className="text-muted-foreground">Good</span>
+            <span className="text-muted-foreground">{t("sections.health.status")}</span>
           </div>
         </div>
         <p className="text-sm text-muted-foreground mt-4">
-          Your soil health is good! Consider adding organic matter to improve nitrogen levels.
+          {t("sections.health.recommendation")}
         </p>
       </Card>
     </div>

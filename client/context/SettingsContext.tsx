@@ -77,9 +77,9 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
 
                 // Sync language with LanguageContext ONLY if they differ
                 // This prevents overriding a language change that just happened
-                if ((userSettings.language === 'hi' || userSettings.language === 'en') && 
+                if ((userSettings.language === 'hi' || userSettings.language === 'en' || userSettings.language === 'mr') &&
                     userSettings.language !== currentLanguage) {
-                    setAppLanguage(userSettings.language);
+                    setAppLanguage(userSettings.language as any);
                 }
             } catch (err) {
                 console.error('[SettingsContext] Failed to load settings:', err);
@@ -98,7 +98,9 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
                 clearTimeout(saveTimeoutRef.current);
             }
         };
-    }, [user?.id, setAppLanguage]);
+        // Removed setAppLanguage dependency to avoid loop since it's stable but its usage might trigger re-renders
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user?.id]);
 
     // Clear settings on logout
     useEffect(() => {
@@ -110,16 +112,20 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
 
     // Apply theme whenever it changes
     useEffect(() => {
-        const applyTheme = (theme: 'light' | 'dark' | 'system') => {
+        const applyTheme = () => {
             const root = document.documentElement;
+            const theme = settings.theme;
+
             if (theme === 'dark') {
                 root.classList.add('dark');
             } else if (theme === 'light') {
                 root.classList.remove('dark');
             } else {
-                // System preference
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                if (prefersDark) {
+                // System = Auto (Time based: 7 PM - 6 AM is Dark)
+                const hour = new Date().getHours();
+                const isNight = hour >= 19 || hour < 6;
+
+                if (isNight) {
                     root.classList.add('dark');
                 } else {
                     root.classList.remove('dark');
@@ -127,21 +133,17 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
             }
         };
 
-        applyTheme(settings.theme);
+        applyTheme();
 
-        // Listen for system theme changes when using 'system' mode
+        // If system (auto), check every minute to switch automatically
+        let intervalId: NodeJS.Timeout;
         if (settings.theme === 'system') {
-            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-            const handleChange = (e: MediaQueryListEvent) => {
-                if (e.matches) {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
-            };
-            mediaQuery.addEventListener('change', handleChange);
-            return () => mediaQuery.removeEventListener('change', handleChange);
+            intervalId = setInterval(applyTheme, 60000); // Check every minute
         }
+
+        return () => {
+            if (intervalId) clearInterval(intervalId);
+        };
     }, [settings.theme]);
 
     // Request push notification permission when enabled
@@ -227,8 +229,8 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
         await updateSettings({ language });
 
         // Also update the global LanguageContext
-        if (language === 'hi' || language === 'en') {
-            setAppLanguage(language);
+        if (language === 'hi' || language === 'en' || language === 'mr') {
+            setAppLanguage(language as any);
         }
     }, [updateSettings, setAppLanguage]);
 

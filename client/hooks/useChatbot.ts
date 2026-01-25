@@ -46,7 +46,7 @@ export function useChatbot(options?: UseChatbotOptions) {
 
   // Send message without streaming (now delegates to streaming to ensure UI receives incremental chunks)
   const sendMessage = useCallback(
-    async (content: string) => {
+    async (content: string, language?: string) => {
       if (!content.trim()) return;
 
       // Add user message
@@ -91,6 +91,7 @@ export function useChatbot(options?: UseChatbotOptions) {
             userId: user?.id,
             crop: contextRef.current.crop,
             context: contextString,
+            language: language,
             conversationHistory: messages.map((m) => ({ role: m.role, content: m.message })),
           }
         );
@@ -115,7 +116,7 @@ export function useChatbot(options?: UseChatbotOptions) {
 
   // Send message with streaming
   const sendMessageStream = useCallback(
-    async (content: string) => {
+    async (content: string, language?: string) => {
       if (!content.trim()) return;
 
       // Add user message
@@ -178,9 +179,9 @@ export function useChatbot(options?: UseChatbotOptions) {
           prev.map((m) =>
             m.id === assistantMessageId
               ? {
-                  ...m,
-                  message: `Sorry, I encountered an error: ${message}. Please make sure Ollama is running.`,
-                }
+                ...m,
+                message: `Sorry, I encountered an error: ${message}. Please make sure Ollama is running.`,
+              }
               : m
           )
         );
