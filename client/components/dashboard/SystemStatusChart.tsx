@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Brain, Droplets, Leaf, FlaskConical, Beaker, Activity } from 'lucide-react';
 import { useFarmContext } from '../../context/FarmContext';
@@ -108,6 +108,8 @@ export const SystemStatusChart: React.FC<SystemStatusChartProps> = ({ isOpen, on
                                     <button
                                         onClick={onClose}
                                         className="p-2 rounded-lg hover:bg-muted/50 transition-colors"
+                                        aria-label="Close"
+                                        title="Close"
                                     >
                                         <X className="w-5 h-5 text-muted-foreground" />
                                     </button>

@@ -4,9 +4,6 @@ import { useTranslation } from "react-i18next";
 import { SoilMoisture } from "../components/dashboard/SoilMoisture";
 import { ControlCenter } from "../components/dashboard/ControlCenter";
 import { ActionLog } from "../components/dashboard/ActionLog";
-import { LiveSensorGrid } from "../components/dashboard/LiveSensorGrid";
-import { PrecisionAgriculture } from "../components/dashboard/PrecisionAgriculture";
-import { AgronomyPlanner } from "../components/dashboard/AgronomyPlanner";
 import { FarmerSwitcher } from "../components/demo/FarmerSwitcher";
 import { useFarmContext } from "../context/FarmContext";
 import { useAuth } from "../context/AuthContext";
@@ -23,8 +20,6 @@ import {
   DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "../components/ui/avatar";
-import { IoTAnalyticsCard } from "../components/dashboard/IoTAnalyticsCard";
-import { DeviceHealthCard } from "../components/dashboard/DeviceHealthCard";
 import { WeatherCard } from "../components/dashboard/WeatherCard";
 
 // Time-based farm images (WebP optimized - 94% smaller!)
@@ -375,16 +370,6 @@ export const Home: React.FC = () => {
           <span className="text-foreground font-medium">{systemStatus?.location || t("status.loadingLocation")}</span>
         </div>
 
-        {/* IoT Analytics & Device Health Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in slide-in-from-bottom-5 duration-700 fade-in fill-mode-backwards">
-          <div className="lg:col-span-2 shadow-sm rounded-2xl">
-            <IoTAnalyticsCard />
-          </div>
-          <div className="shadow-sm rounded-2xl">
-            <DeviceHealthCard />
-          </div>
-        </div>
-
         {/* Weather Card Section */}
         <div className="animate-in slide-in-from-bottom-5 duration-700 fade-in fill-mode-backwards delay-100">
           <div className="shadow-sm rounded-2xl">
@@ -396,22 +381,7 @@ export const Home: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Live IoT Sensor Monitor */}
-            <div className="bg-card rounded-2xl p-6 shadow-lg border border-border/50">
-              <LiveSensorGrid />
-            </div>
-
-            {/* Precision Agriculture Dashboard (Advanced Agronomy) */}
-            <div className="bg-card rounded-2xl shadow-lg border border-border/50 overflow-hidden">
-              <PrecisionAgriculture />
-            </div>
-
-            {/* Agronomy Season Planner */}
-            <div className="bg-card rounded-2xl shadow-lg border border-border/50 overflow-hidden">
-              <AgronomyPlanner />
-            </div>
-
-            {/* Soil Moisture Hero */}
+            {/* Soil Moisture Hero - Now with Live IoT Data */}
             <div data-tour-id="soil-moisture">
               <SoilMoisture />
             </div>

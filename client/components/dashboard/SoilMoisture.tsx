@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { EnhancedGauge } from "../ui/EnhancedGauge";
 import { useFarmContext } from "../../context/FarmContext";
+import { IoTService, LiveSensorData } from "../../services/IoTService";
 import cropProfilesData from "../../../shared/crop_profiles.json";
 import LottieFarmScene from "./LottieFarmScene";
 import { SystemStatusChart } from "./SystemStatusChart";
-import { Sprout, AlertTriangle, AlertOctagon, CheckCircle2, Droplets, Info } from "lucide-react";
+import { Sprout, AlertTriangle, AlertOctagon, CheckCircle2, Droplets, Info, Wind, Thermometer } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 // Type for crop profile thresholds
@@ -51,6 +52,10 @@ export const SoilMoisture: React.FC = () => {
   const [cropName, setCropName] = useState<string>("General");
   const [showAiStatus, setShowAiStatus] = useState(false);
 
+  // Live IoT sensor data from WebSocket
+  const [liveData, setLiveData] = useState<LiveSensorData | null>(null);
+  const [isLive, setIsLive] = useState(false);
+
   // Fetch crop from farm_settings on mount
   useEffect(() => {
     async function fetchCropSettings() {
@@ -82,6 +87,26 @@ export const SoilMoisture: React.FC = () => {
     }
 
     fetchCropSettings();
+  }, []);
+
+  // Subscribe to live IoT data
+  useEffect(() => {
+    console.log("[SoilMoisture] Subscribing to live IoT data");
+
+    const unsubscribe = IoTService.onMessage((data: LiveSensorData) => {
+      console.log("[SoilMoisture] Received live IoT data:", data);
+      setLiveData(data);
+      setIsLive(true);
+    });
+
+    const unsubscribeStatus = IoTService.onStatusChange((status) => {
+      setIsLive(status.isOnline);
+    });
+
+    return () => {
+      unsubscribe();
+      unsubscribeStatus();
+    };
   }, []);
 
   // Realistic agricultural moisture thresholds (dynamic based on crop)
@@ -120,24 +145,41 @@ export const SoilMoisture: React.FC = () => {
     return { label: t("soil.status.acidic"), color: "text-red-600", icon: AlertOctagon };
   };
 
-  // Compute all statuses from current sensor data
-  const status = getMoistureStatus(sensorData?.soilMoisture ?? 0);
-  const nStatus = getNutrientStatus(sensorData?.npk.nitrogen ?? 0, 'N');
-  const pStatus = getNutrientStatus(sensorData?.npk.phosphorus ?? 0, 'P');
-  const kStatus = getNutrientStatus(sensorData?.npk.potassium ?? 0, 'K');
-  const phStatus = getPhStatus(sensorData?.pH ?? 7);
+  // Use live data if available, otherwise fall back to context data
+  const currentMoisture = liveData?.moisture ?? sensorData?.soilMoisture ?? 0;
+  const currentTemp = liveData?.temp ?? sensorData?.temperature ?? 0;
+  const currentHumidity = liveData?.humidity ?? sensorData?.humidity ?? 0;
+  const currentNPK = liveData?.npk ?? 0;
+  const currentPH = sensorData?.pH ?? 7; // pH not in basic IoT sensor
+  const currentEC = sensorData?.ec ?? 0; // EC not in basic IoT sensor
+  const currentWindSpeed = liveData?.wind_speed ?? 0;
 
-  // Display formatting (keep calculations on raw values, but show clean integers)
-  const nitrogenDisplay = Math.round(sensorData?.npk.nitrogen ?? 0);
-  const phosphorusDisplay = Math.round(sensorData?.npk.phosphorus ?? 0);
-  const potassiumDisplay = Math.round(sensorData?.npk.potassium ?? 0);
+  // Calculate NPK values from raw sensor (0-1023 range)
+  const nitrogenDisplay = Math.round(currentNPK * 0.14); // Approximate N
+  const phosphorusDisplay = Math.round(currentNPK * 0.045); // Approximate P
+  const potassiumDisplay = Math.round(currentNPK * 0.2); // Approximate K
+
+  // Compute all statuses from current sensor data
+  const status = getMoistureStatus(currentMoisture);
+  const nStatus = getNutrientStatus(nitrogenDisplay, 'N');
+  const pStatus = getNutrientStatus(phosphorusDisplay, 'P');
+  const kStatus = getNutrientStatus(potassiumDisplay, 'K');
+  const phStatus = getPhStatus(currentPH);
 
   return (
     <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-amber-50/80 via-orange-50/60 to-yellow-50/80 dark:from-amber-900/20 dark:via-orange-900/15 dark:to-yellow-900/20 backdrop-blur-md border border-amber-200/50 dark:border-amber-700/30 shadow-lg hover:shadow-xl transition-all duration-300 p-6">
       {/* Simple Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-foreground">{t("soil.title")}</h3>
+          <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+            {t("soil.title")}
+            {isLive && (
+              <span className="flex items-center gap-1.5 px-2 py-0.5 bg-green-500/10 border border-green-500/30 rounded-full">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                <span className="text-[10px] font-semibold text-green-600 dark:text-green-400 uppercase">Live</span>
+              </span>
+            )}
+          </h3>
           <p className="text-sm text-muted-foreground">{t("soil.subtitle")}</p>
         </div>
         <div className="w-10 h-10 rounded-full bg-amber-200/50 dark:bg-amber-700/30 flex items-center justify-center">
@@ -149,7 +191,7 @@ export const SoilMoisture: React.FC = () => {
         {/* Left Column: Enhanced Gauge */}
         <div className="flex flex-col items-center justify-center">
           <EnhancedGauge
-            value={sensorData?.soilMoisture ?? 0}
+            value={currentMoisture}
             max={100}
             min={0}
             label={t("soil.moisture")}
@@ -208,8 +250,48 @@ export const SoilMoisture: React.FC = () => {
         </div>
       </div>
 
-      {/* Additional Metrics */}
-      <div className="grid grid-cols-2 gap-4 pt-4 border-t border-amber-200/30 dark:border-amber-700/30">
+      {/* Additional Metrics - Expanded Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4 border-t border-amber-200/30 dark:border-amber-700/30">
+        {/* Temperature */}
+        <div className="flex items-center gap-3 p-3 bg-amber-100/40 dark:bg-amber-800/20 backdrop-blur-sm rounded-xl border border-amber-200/30 dark:border-amber-700/30 hover:bg-amber-100/60 dark:hover:bg-amber-800/30 transition-all duration-300">
+          <div className="w-10 h-10 rounded-full bg-orange-500/15 dark:bg-orange-500/25 flex items-center justify-center">
+            <Thermometer className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+          </div>
+          <div>
+            <div className="text-xs text-muted-foreground">Temperature</div>
+            <div className="text-xl font-bold text-foreground">
+              {currentTemp.toFixed(1)}°C
+            </div>
+          </div>
+        </div>
+
+        {/* Humidity */}
+        <div className="flex items-center gap-3 p-3 bg-amber-100/40 dark:bg-amber-800/20 backdrop-blur-sm rounded-xl border border-amber-200/30 dark:border-amber-700/30 hover:bg-amber-100/60 dark:hover:bg-amber-800/30 transition-all duration-300">
+          <div className="w-10 h-10 rounded-full bg-cyan-500/15 dark:bg-cyan-500/25 flex items-center justify-center">
+            <Droplets className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+          </div>
+          <div>
+            <div className="text-xs text-muted-foreground">Humidity</div>
+            <div className="text-xl font-bold text-foreground">
+              {currentHumidity.toFixed(1)}%
+            </div>
+          </div>
+        </div>
+
+        {/* Wind Speed */}
+        <div className="flex items-center gap-3 p-3 bg-amber-100/40 dark:bg-amber-800/20 backdrop-blur-sm rounded-xl border border-amber-200/30 dark:border-amber-700/30 hover:bg-amber-100/60 dark:hover:bg-amber-800/30 transition-all duration-300">
+          <div className="w-10 h-10 rounded-full bg-blue-500/15 dark:bg-blue-500/25 flex items-center justify-center">
+            <Wind className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+          </div>
+          <div>
+            <div className="text-xs text-muted-foreground">Wind Speed</div>
+            <div className="text-xl font-bold text-foreground">
+              {currentWindSpeed.toFixed(1)} km/h
+            </div>
+          </div>
+        </div>
+
+        {/* pH Level */}
         <div className="flex items-center gap-3 p-3 bg-amber-100/40 dark:bg-amber-800/20 backdrop-blur-sm rounded-xl border border-amber-200/30 dark:border-amber-700/30 hover:bg-amber-100/60 dark:hover:bg-amber-800/30 transition-all duration-300">
           <div className="w-10 h-10 rounded-full bg-blue-500/15 dark:bg-blue-500/25 flex items-center justify-center">
             <span className="text-blue-600 dark:text-blue-400 font-bold text-sm">pH</span>
@@ -217,7 +299,7 @@ export const SoilMoisture: React.FC = () => {
           <div>
             <div className="text-xs text-muted-foreground">{t("soil.phLevel")}</div>
             <div className="text-xl font-bold text-foreground">
-              {sensorData?.pH.toFixed(1) ?? 0}
+              {currentPH.toFixed(1)}
             </div>
             <div className={`text-xs font-semibold ${phStatus.color} flex items-center gap-1`}>
               <phStatus.icon className="w-3 h-3" />
@@ -225,6 +307,8 @@ export const SoilMoisture: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* EC (Conductivity) */}
         <div className="flex items-center gap-3 p-3 bg-amber-100/40 dark:bg-amber-800/20 backdrop-blur-sm rounded-xl border border-amber-200/30 dark:border-amber-700/30 hover:bg-amber-100/60 dark:hover:bg-amber-800/30 transition-all duration-300">
           <div className="w-10 h-10 rounded-full bg-purple-500/15 dark:bg-purple-500/25 flex items-center justify-center">
             <span className="text-purple-600 dark:text-purple-400 font-bold text-sm">EC</span>
@@ -232,7 +316,7 @@ export const SoilMoisture: React.FC = () => {
           <div>
             <div className="text-xs text-muted-foreground">{t("soil.conductivity")}</div>
             <div className="text-xl font-bold text-foreground">
-              {sensorData?.ec.toFixed(2) ?? 0}
+              {currentEC.toFixed(2)}
             </div>
           </div>
         </div>
@@ -243,11 +327,11 @@ export const SoilMoisture: React.FC = () => {
         <LottieFarmScene
           cropName={cropName}
           sensorData={{
-            soilMoisture: sensorData?.soilMoisture ?? 50,
-            temperature: sensorData?.temperature ?? 25,
+            soilMoisture: currentMoisture,
+            temperature: currentTemp,
             npk: {
-              nitrogen: sensorData?.npk.nitrogen ?? 50,
-              potassium: sensorData?.npk.potassium ?? 50
+              nitrogen: nitrogenDisplay,
+              potassium: potassiumDisplay
             }
           }}
           thresholds={{ moisture: thresholds.moisture }}

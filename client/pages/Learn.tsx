@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import * as React from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   GraduationCap,
@@ -404,8 +405,8 @@ export const Learn: React.FC = () => {
         <button
           onClick={() => setActiveTab("courses")}
           className={`px-4 py-2 font-medium text-sm transition-colors ${activeTab === "courses"
-              ? "text-primary border-b-2 border-primary"
-              : "text-muted-foreground hover:text-foreground"
+            ? "text-primary border-b-2 border-primary"
+            : "text-muted-foreground hover:text-foreground"
             }`}
         >
           <BookOpen className="w-4 h-4 inline-block mr-2" />
@@ -414,8 +415,8 @@ export const Learn: React.FC = () => {
         <button
           onClick={() => setActiveTab("articles")}
           className={`px-4 py-2 font-medium text-sm transition-colors ${activeTab === "articles"
-              ? "text-primary border-b-2 border-primary"
-              : "text-muted-foreground hover:text-foreground"
+            ? "text-primary border-b-2 border-primary"
+            : "text-muted-foreground hover:text-foreground"
             }`}
         >
           <FileText className="w-4 h-4 inline-block mr-2" />
@@ -424,8 +425,8 @@ export const Learn: React.FC = () => {
         <button
           onClick={() => setActiveTab("videos")}
           className={`px-4 py-2 font-medium text-sm transition-colors ${activeTab === "videos"
-              ? "text-primary border-b-2 border-primary"
-              : "text-muted-foreground hover:text-foreground"
+            ? "text-primary border-b-2 border-primary"
+            : "text-muted-foreground hover:text-foreground"
             }`}
         >
           <Video className="w-4 h-4 inline-block mr-2" />
@@ -564,6 +565,7 @@ export const Learn: React.FC = () => {
                   </div>
                   <div className="flex flex-col items-center gap-2 ml-4">
                     <button
+                      title={t("actions.like") || "Like"}
                       onClick={(e) => handleLikeArticle(article.id, e)}
                       className="p-2 hover:bg-muted rounded-full transition-colors"
                     >
