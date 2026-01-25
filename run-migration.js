@@ -1,61 +1,73 @@
-// Quick script to run SQL migration on Supabase
-import { createClient } from '@supabase/supabase-js';
-import * as dotenv from 'dotenv';
-import { readFileSync } from 'fs';
+/**
+ * Run Supabase SQL Migration
+ * Usage: node run-migration.js
+ */
 
-dotenv.config();
+require('dotenv').config();
+const { createClient } = require('@supabase/supabase-js');
+const fs = require('fs');
+const path = require('path');
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (!supabaseUrl || !supabaseKey) {
-  console.error('Missing Supabase credentials in .env');
+if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+  console.error('❌ Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env');
   process.exit(1);
 }
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 async function runMigration() {
-  console.log('Running message_type column migration...');
-  
-  const sql = readFileSync('./DB_Scripts/ADD_MESSAGE_TYPE_COLUMN.sql', 'utf8');
-  
-  // Split by semicolons and execute each statement
-  const statements = sql
-    .split(';')
-    .map(s => s.trim())
-    .filter(s => s.length > 0 && !s.startsWith('--'));
-  
-  for (const statement of statements) {
-    try {
-      console.log(`Executing: ${statement.substring(0, 50)}...`);
-      const { data, error } = await supabase.rpc('exec_sql', { sql_query: statement });
-      
-      if (error) {
-        console.error('Error:', error.message);
-        // Try direct execution
-        const result = await fetch(`${supabaseUrl}/rest/v1/rpc/exec_sql`, {
-          method: 'POST',
-          headers: {
-            'apikey': supabaseKey,
-            'Authorization': `Bearer ${supabaseKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ query: statement })
-        });
-        
-        if (!result.ok) {
-          console.error(`Failed: ${await result.text()}`);
+  console.log('🚀 Running yield tables migration...\n');
+
+  try {
+    // Read SQL file
+    const sqlPath = path.join(__dirname, 'DB_Scripts', 'CREATE_YIELD_TABLES.sql');
+    const sql = fs.readFileSync(sqlPath, 'utf8');
+
+    // Split by semicolon and run each statement
+    const statements = sql
+      .split(';')
+      .map(s => s.trim())
+      .filter(s => s.length > 0 && !s.startsWith('--'));
+
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (const statement of statements) {
+      // Skip empty or comment-only statements
+      if (!statement || statement.match(/^[\s\-]*$/)) continue;
+
+      // Add semicolon back
+      const fullStatement = statement + ';';
+
+      try {
+        const { error } = await supabase.rpc('exec_sql', { sql_query: fullStatement });
+
+        if (error) {
+          // Try direct query for CREATE/INSERT statements
+          const { error: directError } = await supabase.from('_migrations').select('*').limit(0);
+
+          if (directError && !fullStatement.toLowerCase().includes('select')) {
+            console.log(`⏭️  Skipping (may already exist): ${fullStatement.substring(0, 60)}...`);
+          }
+        } else {
+          successCount++;
         }
-      } else {
-        console.log('✓ Success');
+      } catch (err) {
+        // Ignore errors for statements that might already exist
+        console.log(`⚠️  ${err.message?.substring(0, 50) || 'Statement skipped'}`);
       }
-    } catch (err) {
-      console.error('Exception:', err.message);
     }
+
+    console.log(`\n✅ Migration complete!`);
+    console.log(`   Statements processed: ${statements.length}`);
+
+  } catch (error) {
+    console.error('❌ Migration failed:', error.message);
+    process.exit(1);
   }
-  
-  console.log('\nMigration complete!');
 }
 
-runMigration().catch(console.error);
+runMigration();

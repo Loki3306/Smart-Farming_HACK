@@ -143,10 +143,26 @@ export function createServer() {
   app.use("/api/chatbot", chatbotRouter);
   console.log("✅ Chatbot routes registered at /api/chatbot");
 
-//disease detection route
+  //disease detection route
   console.log("🌿 Registering Disease Detection routes...");
-app.use("/api/disease", diseaseRouter);
-console.log("✅ Disease routes registered at /api/disease");
+  app.use("/api/disease", diseaseRouter);
+  console.log("✅ Disease routes registered at /api/disease");
+
+  // ============================================================================
+  // YIELD PREDICTION & TRACKING - ML-based yield prediction and harvest tracking
+  // ============================================================================
+  console.log("🌾 Registering Yield routes...");
+  const yieldRoutes = require("./routes/yield");
+  app.post("/api/yields/predict", yieldRoutes.predictYield);
+  app.get("/api/yields/optimize/:cropType", yieldRoutes.getOptimizationTips);
+  app.get("/api/yields/benchmark/:cropType", yieldRoutes.getYieldBenchmark);
+  app.get("/api/yields/farmer/:farmerId", yieldRoutes.getYieldsByFarmer);
+  app.get("/api/yields/compare/:farmerId", yieldRoutes.getYieldComparison);
+  app.get("/api/yields/history/:farmerId", yieldRoutes.getYieldHistory);
+  app.get("/api/yields/:id", yieldRoutes.getYieldById);
+  app.post("/api/yields", yieldRoutes.createYieldRecord);
+  app.put("/api/yields/:id/harvest", yieldRoutes.logHarvest);
+  console.log("✅ Yield routes registered at /api/yields");
 
   // ============================================================================
   // AI RECOMMENDATIONS PROXY - Forward requests to Python FastAPI backend

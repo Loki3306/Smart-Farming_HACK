@@ -41,8 +41,9 @@ const Messages = lazy(() => import("./pages/Messages"));
 const FAQ = lazy(() => import("./pages/FAQ").then(m => ({ default: m.FAQ })));
 const Regimes = lazy(() => import("./pages/Regimes").then(m => ({ default: m.default })));
 const FarmMapping = lazy(() => import("./pages/FarmMappingPage").then(m => ({ default: m.default })));
-const FarmOverview = lazy(() => import("./pages/FarmOverviewPage").then(m => ({ default: m.default })));
-const IrrigationPlanner = lazy(() => import("./pages/IrrigationPlannerPage").then(m => ({ default: m.default })));
+const YieldTracker = lazy(() => import("./pages/YieldTracker").then(m => ({ default: m.YieldTracker })));
+const Planner = lazy(() => import("./pages/Planner").then(m => ({ default: m.Planner })));
+
 
 // Loading fallback component
 const PageLoader = () => (
@@ -62,275 +63,275 @@ function AnimatedRoutes() {
           {/* Landing Page */}
           <Route path="/" element={<Landing />} />
 
-        {/* Public Routes */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+          {/* Public Routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
 
-        {/* Onboarding Route (authenticated only, before dashboard) */}
-        <Route
-          path="/onboarding"
-          element={
-            <ProtectedRoute>
-              <FarmOnboarding />
-            </ProtectedRoute>
-          }
-        />
+          {/* Onboarding Route (authenticated only, before dashboard) */}
+          <Route
+            path="/onboarding"
+            element={
+              <ProtectedRoute>
+                <FarmOnboarding />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Protected Dashboard Routes */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute requireOnboarding>
-              <DashboardLayout>
-                <Home />
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
+          {/* Protected Dashboard Routes */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <DashboardLayout>
+                  <Home />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/farm"
-          element={
-            <ProtectedRoute requireOnboarding>
-              <DashboardLayout>
-                <Farm />
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/farm"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <DashboardLayout>
+                  <Farm />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/farm-mapping"
-          element={
-            <ProtectedRoute requireOnboarding>
-              <DashboardLayout>
-                <FarmMapping />
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/farm-mapping"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <DashboardLayout>
+                  <FarmMapping />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/farm-overview"
-          element={
-            <ProtectedRoute requireOnboarding>
-              <DashboardLayout>
-                <FarmOverview />
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/weather"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <DashboardLayout>
+                  <Weather />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/irrigation-planner"
-          element={
-            <ProtectedRoute requireOnboarding>
-              <DashboardLayout>
-                <IrrigationPlanner />
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/recommendations"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <DashboardLayout>
+                  <Recommendations />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/weather"
-          element={
-            <ProtectedRoute requireOnboarding>
-              <DashboardLayout>
-                <Weather />
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/planner"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <DashboardLayout>
+                  <Planner />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/recommendations"
-          element={
-            <ProtectedRoute requireOnboarding>
-              <DashboardLayout>
-                <Recommendations />
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/regimes"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <DashboardLayout>
+                  <Regimes />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/regimes"
-          element={
-            <ProtectedRoute requireOnboarding>
-              <DashboardLayout>
-                <Regimes />
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/regime/:regimeId"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <DashboardLayout>
+                  <Regimes />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/regime/:regimeId"
-          element={
-            <ProtectedRoute requireOnboarding>
-              <DashboardLayout>
-                <Regimes />
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/disease"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <DashboardLayout>
+                  <Disease />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/disease"
-          element={
-            <ProtectedRoute requireOnboarding>
-              <DashboardLayout>
-                <Disease />
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/marketplace"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <DashboardLayout>
+                  <Marketplace />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/marketplace"
-          element={
-            <ProtectedRoute requireOnboarding>
-              <DashboardLayout>
-                <Marketplace />
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/learn"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <DashboardLayout>
+                  <Learn />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/learn"
-          element={
-            <ProtectedRoute requireOnboarding>
-              <DashboardLayout>
-                <Learn />
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/learn/articles/:id"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <DashboardLayout>
+                  <ArticleDetail />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/learn/articles/:id"
-          element={
-            <ProtectedRoute requireOnboarding>
-              <DashboardLayout>
-                <ArticleDetail />
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/learn/courses/:courseId"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <DashboardLayout>
+                  <CourseDetail />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/learn/courses/:courseId"
-          element={
-            <ProtectedRoute requireOnboarding>
-              <DashboardLayout>
-                <CourseDetail />
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/learn/courses/:courseId/lesson/:lessonId"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <CoursePlayer />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/learn/courses/:courseId/lesson/:lessonId"
-          element={
-            <ProtectedRoute requireOnboarding>
-              <CoursePlayer />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/learn/quiz/:quizId"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <QuizPlayer />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/learn/quiz/:quizId"
-          element={
-            <ProtectedRoute requireOnboarding>
-              <QuizPlayer />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/community"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <DashboardLayout>
+                  <Community />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/community"
-          element={
-            <ProtectedRoute requireOnboarding>
-              <DashboardLayout>
-                <Community />
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/messages"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <DashboardLayout>
+                  <Messages />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/messages"
-          element={
-            <ProtectedRoute requireOnboarding>
-              <DashboardLayout>
-                <Messages />
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <DashboardLayout>
+                  <Notifications />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/notifications"
-          element={
-            <ProtectedRoute requireOnboarding>
-              <DashboardLayout>
-                <Notifications />
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <DashboardLayout>
+                  <Settings />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/settings"
-          element={
-            <ProtectedRoute requireOnboarding>
-              <DashboardLayout>
-                <Settings />
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <DashboardLayout>
+                  <Profile />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute requireOnboarding>
-              <DashboardLayout>
-                <Profile />
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/audit-trail"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <DashboardLayout>
+                  <AuditTrail />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/audit-trail"
-          element={
-            <ProtectedRoute requireOnboarding>
-              <DashboardLayout>
-                <AuditTrail />
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/faq"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <DashboardLayout>
+                  <FAQ />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/faq"
-          element={
-            <ProtectedRoute requireOnboarding>
-              <DashboardLayout>
-                <FAQ />
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/yield"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <DashboardLayout>
+                  <YieldTracker />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        {/* 404 */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      </Suspense>
-    </AnimatePresence>
+          {/* 404 */}
+          <Route path="*" element={<NotFound />} />
+        </Routes >
+      </Suspense >
+    </AnimatePresence >
   );
 }
 
@@ -344,12 +345,7 @@ export const App = () => (
               <TourContextProvider>
                 <Toaster />
                 <Sonner />
-                <BrowserRouter
-                  future={{
-                    v7_startTransition: true,
-                    v7_relativeSplatPath: true,
-                  }}
-                >
+                <BrowserRouter>
                   <AnimatedRoutes />
                 </BrowserRouter>
               </TourContextProvider>
