@@ -7,48 +7,17 @@ import {
   Plus, ArrowRight, Eye, Pencil, Sun,
   Leaf, Waves
 } from 'lucide-react';
-import { CropAdvisor } from '@/components/dashboard/CropAdvisor';
 
 const FarmOverviewPage: React.FC = () => {
   const navigate = useNavigate();
   const [farmData, setFarmData] = useState<FarmMappingData | null>(null);
   const [selectedSection, setSelectedSection] = useState<SectionData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  // Add Sensor Data State
-  const [sensorData, setSensorData] = useState<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const data = getFarmMapping();
     setFarmData(data);
-
-    // FETCH SENSOR DATA for CropAdvisor
-    const fetchSensors = async () => {
-      try {
-        const farmId = localStorage.getItem('current_farm_id') || "farm_001";
-        const res = await fetch(`http://localhost:8000/iot/latest/${farmId}`);
-        if (res.ok) {
-          const json = await res.json();
-          setSensorData({
-            nitrogen: json.npk ? Math.round(json.npk * 0.14) : 60,
-            phosphorus: json.npk ? Math.round(json.npk * 0.045) : 30,
-            potassium: json.npk ? Math.round(json.npk * 0.05) : 40,
-            ph: json.soil_ph || 6.5,
-            moisture: json.moisture || 40,
-            temperature: json.temp || 25,
-            humidity: json.humidity || 50
-          });
-        } else {
-          // Demo fallback
-          setSensorData({ nitrogen: 80, phosphorus: 40, potassium: 40, ph: 6.5, moisture: 55, temperature: 26, humidity: 60 });
-        }
-      } catch (e) {
-        console.error("Sensor fetch fail", e);
-        setSensorData({ nitrogen: 80, phosphorus: 40, potassium: 40, ph: 6.5, moisture: 55, temperature: 26, humidity: 60 });
-      }
-    };
-    fetchSensors();
-
     setIsLoading(false);
   }, []);
 
@@ -330,11 +299,6 @@ const FarmOverviewPage: React.FC = () => {
             color="amber"
             delay={240}
           />
-        </div>
-
-        {/* AI AGRONOMY ADVISOR */}
-        <div className="animate-fade-in opacity-0" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
-          <CropAdvisor sensorData={sensorData} />
         </div>
 
         {/* Sections Grid */}

@@ -22,6 +22,7 @@ import NotFound from "./pages/NotFound";
 // Lazy load heavy components to reduce initial bundle size
 const Landing = lazy(() => import("./pages/Landing").then(m => ({ default: m.Landing })));
 const Disease = lazy(() => import("./pages/Disease"));
+const StressDetection = lazy(() => import("./pages/StressDetection"));
 const AuditTrail = lazy(() => import("./pages/AuditTrail").then(m => ({ default: m.AuditTrail })));
 const Profile = lazy(() => import("./pages/Profile").then(m => ({ default: m.Profile })));
 const FarmOnboarding = lazy(() => import("./pages/FarmOnboarding").then(m => ({ default: m.FarmOnboarding })));
@@ -43,6 +44,8 @@ const Regimes = lazy(() => import("./pages/Regimes").then(m => ({ default: m.def
 const FarmMapping = lazy(() => import("./pages/FarmMappingPage").then(m => ({ default: m.default })));
 const YieldTracker = lazy(() => import("./pages/YieldTracker").then(m => ({ default: m.YieldTracker })));
 const Planner = lazy(() => import("./pages/Planner").then(m => ({ default: m.Planner })));
+const FarmOverview = lazy(() => import("./pages/FarmOverviewPage"));
+const IrrigationPlanner = lazy(() => import("./pages/IrrigationPlannerPage"));
 
 
 // Loading fallback component
@@ -106,6 +109,28 @@ function AnimatedRoutes() {
               <ProtectedRoute requireOnboarding>
                 <DashboardLayout>
                   <FarmMapping />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/farm-overview"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <DashboardLayout>
+                  <FarmOverview />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/irrigation-planner"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <DashboardLayout>
+                  <IrrigationPlanner />
                 </DashboardLayout>
               </ProtectedRoute>
             }
@@ -183,6 +208,17 @@ function AnimatedRoutes() {
               <ProtectedRoute requireOnboarding>
                 <DashboardLayout>
                   <Marketplace />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/stress-detection"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <DashboardLayout>
+                  <StressDetection />
                 </DashboardLayout>
               </ProtectedRoute>
             }

@@ -126,3 +126,14 @@ async def shutdown_db():
             print("✅ Database disconnected")
     except Exception:
         pass
+
+
+async def get_db_connection():
+    """
+    Get a database connection (alias for compatibility with product recommendations)
+    
+    Returns the database instance after ensuring it's connected.
+    """
+    if not database.is_connected:
+        await database.connect()
+    return database
