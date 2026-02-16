@@ -24,9 +24,13 @@ import learnRouter from "./routes/learn";
 import communityRouter from "./routes/community";
 import chatRouter from "./routes/chat";
 import presenceRouter from "./routes/presence";
+<<<<<<< Updated upstream
 import notificationsRouter from "./routes/notifications";
 import chatbotRouter from "./routes/chatbot";
 import { autonomousEngine } from "./autonomous/autonomousEngine";
+=======
+import notificationRouter from "./routes/notifications";
+>>>>>>> Stashed changes
 
 // Python AI Backend Configuration
 const PYTHON_AI_URL = process.env.PYTHON_AI_URL || "http://localhost:8000";
@@ -126,6 +130,7 @@ export function createServer() {
   console.log("✅ Presence routes registered at /api/presence");
 
   // ============================================================================
+<<<<<<< Updated upstream
   // NOTIFICATIONS - User notifications for interactions
   // ============================================================================
   console.log("🔔 Registering Notifications routes...");
@@ -138,6 +143,14 @@ export function createServer() {
   console.log("🤖 Registering Chatbot routes...");
   app.use("/api/chatbot", chatbotRouter);
   console.log("✅ Chatbot routes registered at /api/chatbot");
+=======
+  // SMS NOTIFICATIONS - Twilio SMS notifications for calls, messages, AI recommendations
+  // ============================================================================
+  console.log("📱 Registering Notification routes...");
+  app.use("/api/notifications", notificationRouter);
+  console.log("✅ Notification routes registered at /api/notifications");
+  console.log("✅ Presence routes registered at /api/presence");
+>>>>>>> Stashed changes
 
   // ============================================================================
   // AI RECOMMENDATIONS PROXY - Forward requests to Python FastAPI backend

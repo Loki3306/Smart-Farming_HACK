@@ -582,7 +582,7 @@ Smart-Farming-AI-Platform/
 ├── 🌐 shared/                      # Shared Configs
 │   └── crop_profiles.json         # Crop metadata
 │
-├── 📚 documents/                   # Documentation
+├── 📚 Documentation
 │   ├── CHATBOT_INDEX.md           # Chatbot feature docs
 │   ├── CHATBOT_QUICK_REFERENCE.md
 │   ├── CHATBOT_FARMING_PROMPTS.md # 200+ example queries
@@ -591,11 +591,7 @@ Smart-Farming-AI-Platform/
 │   ├── COMMUNITY_PAGE_ANALYSIS.md # Community features
 │   ├── SMS_NOTIFICATION_INTEGRATION_GUIDE.md
 │   ├── FREE_AI_ALTERNATIVES.md
-│   ├── FILES_CREATED_MODIFIED.md
-│   └── MD/                        # Additional documentation
-│       ├── AI_RECOMMENDATIONS_NOTIFICATIONS.md
-│       ├── AUTH_GUIDE_ENHANCEMENT.md
-│       └── ... (30+ more docs)
+│   └── FILES_CREATED_MODIFIED.md
 │
 ├── 🚀 Configuration
 │   ├── package.json               # Node dependencies
@@ -739,7 +735,7 @@ The platform includes an intelligent agricultural chatbot powered by Google Gemi
 - "Which Rabi crops are most profitable?"
 ```
 
-**📚 Full Prompt Library**: See [CHATBOT_FARMING_PROMPTS.md](documents/CHATBOT_FARMING_PROMPTS.md)
+**📚 Full Prompt Library**: See [CHATBOT_FARMING_PROMPTS.md](CHATBOT_FARMING_PROMPTS.md)
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="Divider">
 
@@ -879,30 +875,30 @@ Core features implemented and tested. Ready for pilot deployment with farmers.
 ## 🔗 Project Links & Documentation
 
 <div align="center">
-  <a href="./documents/CHATBOT_QUICK_REFERENCE.md">
+  <a href="./CHATBOT_QUICK_REFERENCE.md">
     <img src="https://img.shields.io/badge/🤖-Chatbot_Quick_Start-EC4899?style=for-the-badge" alt="Chatbot Quick Start">
   </a>
-  <a href="./documents/CHATBOT_FARMING_PROMPTS.md">
+  <a href="./CHATBOT_FARMING_PROMPTS.md">
     <img src="https://img.shields.io/badge/💬-200+_Prompts-10B981?style=for-the-badge" alt="Farming Prompts">
   </a>
-  <a href="./documents/COMMUNITY_PAGE_ANALYSIS.md">
+  <a href="./COMMUNITY_PAGE_ANALYSIS.md">
     <img src="https://img.shields.io/badge/👥-Community_Features-3B82F6?style=for-the-badge" alt="Community">
   </a>
   <br><br>
-  <a href="./documents/SMS_NOTIFICATION_INTEGRATION_GUIDE.md">
+  <a href="./SMS_NOTIFICATION_INTEGRATION_GUIDE.md">
     <img src="https://img.shields.io/badge/📱-SMS_Integration-F59E0B?style=for-the-badge" alt="SMS Guide">
   </a>
-  <a href="./documents/FREE_AI_ALTERNATIVES.md">
+  <a href="./FREE_AI_ALTERNATIVES.md">
     <img src="https://img.shields.io/badge/🆓-Free_AI_Options-8B5CF6?style=for-the-badge" alt="AI Alternatives">
   </a>
-  <a href="./documents/CHATBOT_VERIFICATION.md">
+  <a href="./CHATBOT_VERIFICATION.md">
     <img src="https://img.shields.io/badge/✅-Verification_Report-06B6D4?style=for-the-badge" alt="Verification">
   </a>
   <br><br>
-  <a href="./documents/CHATBOT_SETUP_GUIDE.md">
+  <a href="./CHATBOT_SETUP_GUIDE.md">
     <img src="https://img.shields.io/badge/📖-Setup_Guide-EF4444?style=for-the-badge" alt="Setup Guide">
   </a>
-  <a href="./documents/FILES_CREATED_MODIFIED.md">
+  <a href="./FILES_CREATED_MODIFIED.md">
     <img src="https://img.shields.io/badge/📝-File_Index-14B8A6?style=for-the-badge" alt="File Index">
   </a>
 </div>

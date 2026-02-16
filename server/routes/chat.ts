@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { supabase } from '../db/supabase';
+import { SmsNotificationService } from '../services/SmsNotificationService';
 
 const router = Router();
 
@@ -341,6 +342,41 @@ router.post('/messages/send', async (req: Request, res: Response) => {
           type: 'message',
           message: `sent you a message: ${content?.substring(0, 50) || '[Image]'}`,
         }]);
+      
+      // Send SMS notification if receiver is offline or has SMS enabled
+      const { data: receiver } = await supabase
+        .from('users')
+        .select('name, phone_number, sms_notifications_enabled')
+        .eq('id', receiver_id)
+        .single();
+
+      const { data: sender } = await supabase
+        .from('users')
+        .select('name')
+        .eq('id', sender_id)
+        .single();
+
+      if (receiver?.sms_notifications_enabled && receiver?.phone_number && sender) {
+        // Check if receiver is online via presence
+        const { data: presence } = await supabase
+          .from('user_presence')
+          .select('status')
+          .eq('user_id', receiver_id)
+          .single();
+
+        // Only send SMS if user is offline or has been inactive for 5+ minutes
+        const shouldSendSms = !presence || 
+          presence.status === 'offline' || 
+          (presence.last_seen && new Date().getTime() - new Date(presence.last_seen).getTime() > 300000);
+
+        if (shouldSendSms) {
+          await SmsNotificationService.sendChatMessageNotification(
+            receiver.phone_number,
+            sender.name,
+            content || '[Image]'
+          );
+        }
+      }
     } catch (notifError) {
       console.warn('Failed to create notification:', notifError);
       // Don't fail the message send if notification fails
