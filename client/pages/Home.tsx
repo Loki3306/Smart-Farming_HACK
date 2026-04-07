@@ -1,5 +1,19 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Link, Bot, Sunrise, Sun, Sunset, Moon, CloudSun, MapPin, Activity, User, RotateCcw, LogOut, Sprout } from "lucide-react";
+import {
+  Link,
+  Bot,
+  Sunrise,
+  Sun,
+  Sunset,
+  Moon,
+  CloudSun,
+  MapPin,
+  Activity,
+  User,
+  RotateCcw,
+  LogOut,
+  Sprout,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { SoilMoisture } from "../components/dashboard/SoilMoisture";
 import { ControlCenter } from "../components/dashboard/ControlCenter";
@@ -37,7 +51,10 @@ export const Home: React.FC = () => {
   const { user, logout, login } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [originalUser, setOriginalUser] = useState<{ phone: string; name: string } | null>(null);
+  const [originalUser, setOriginalUser] = useState<{
+    phone: string;
+    name: string;
+  } | null>(null);
   const [isRestoring, setIsRestoring] = useState(false);
   const [farmName, setFarmName] = useState<string>("Your Farm");
 
@@ -48,7 +65,7 @@ export const Home: React.FC = () => {
   useEffect(() => {
     const fetchFarmName = async () => {
       try {
-        const farmId = localStorage.getItem('current_farm_id');
+        const farmId = localStorage.getItem("current_farm_id");
         if (farmId) {
           const response = await fetch(`/api/farms/${farmId}`);
           if (response.ok) {
@@ -59,7 +76,7 @@ export const Home: React.FC = () => {
           }
         }
       } catch (error) {
-        console.error('[Home] Error fetching farm name:', error);
+        console.error("[Home] Error fetching farm name:", error);
       }
     };
     fetchFarmName();
@@ -71,34 +88,49 @@ export const Home: React.FC = () => {
       const data = event.detail;
 
       toast({
-        title: data.level === 'error' ? '🚨 Critical Alert' : data.level === 'warning' ? '⚠️ Warning' : 'ℹ️ Notification',
+        title:
+          data.level === "error"
+            ? "🚨 Critical Alert"
+            : data.level === "warning"
+              ? "⚠️ Warning"
+              : "ℹ️ Notification",
         description: data.message,
-        variant: data.level === 'error' || data.level === 'warning' ? 'destructive' : 'default',
+        variant:
+          data.level === "error" || data.level === "warning"
+            ? "destructive"
+            : "default",
         duration: 5000,
       });
     };
 
-    window.addEventListener('iot-notification', handleNotification as EventListener);
-    return () => window.removeEventListener('iot-notification', handleNotification as EventListener);
+    window.addEventListener(
+      "iot-notification",
+      handleNotification as EventListener,
+    );
+    return () =>
+      window.removeEventListener(
+        "iot-notification",
+        handleNotification as EventListener,
+      );
   }, [toast]);
 
   // Determine which farm image to show based on current time
   const getTimeBasedImage = () => {
     const hour = new Date().getHours();
-    console.log('Current hour:', hour); // Debug log
+    console.log("Current hour:", hour); // Debug log
 
     if (hour >= 5 && hour < 12) {
       // Morning: 5 AM to 12 PM
-      return { image: morningImage, period: 'Morning' };
+      return { image: morningImage, period: "Morning" };
     } else if (hour >= 12 && hour < 17) {
       // Afternoon: 12 PM to 5 PM
-      return { image: afternoonImage, period: 'Afternoon' };
+      return { image: afternoonImage, period: "Afternoon" };
     } else if (hour >= 17 && hour < 20) {
       // Evening: 5 PM to 8 PM
-      return { image: eveningImage, period: 'Evening' };
+      return { image: eveningImage, period: "Evening" };
     } else {
       // Night: 8 PM to 5 AM
-      return { image: nightImage, period: 'Night' };
+      return { image: nightImage, period: "Night" };
     }
   };
 
@@ -109,7 +141,7 @@ export const Home: React.FC = () => {
 
   // Load original user from localStorage
   useEffect(() => {
-    const storedOriginal = localStorage.getItem('original_user');
+    const storedOriginal = localStorage.getItem("original_user");
     if (storedOriginal) {
       setOriginalUser(JSON.parse(storedOriginal));
     }
@@ -131,32 +163,34 @@ export const Home: React.FC = () => {
 
     // Demo farmers list
     const DEMO_FARMERS = [
-      { phone: '+919876543210' },
-      { phone: '+919876543211' },
-      { phone: '+919876543212' },
-      { phone: '+919876543213' }
+      { phone: "+919876543210" },
+      { phone: "+919876543211" },
+      { phone: "+919876543212" },
+      { phone: "+919876543213" },
     ];
 
-    const isDemoFarmer = DEMO_FARMERS.some(f => f.phone === originalUser.phone);
+    const isDemoFarmer = DEMO_FARMERS.some(
+      (f) => f.phone === originalUser.phone,
+    );
 
     if (isDemoFarmer) {
       // Demo farmer - use demo password
       try {
-        await login({ phone: originalUser.phone, password: 'demo123' });
+        await login({ phone: originalUser.phone, password: "demo123" });
 
         toast({
           title: `Restored to ${originalUser.name}`,
-          description: 'Back to your original account',
+          description: "Back to your original account",
           duration: 3000,
         });
 
-        localStorage.removeItem('current_farm_id');
+        localStorage.removeItem("current_farm_id");
         window.location.reload();
       } catch (error) {
         toast({
-          title: 'Restore failed',
-          description: 'Could not restore original account',
-          variant: 'destructive',
+          title: "Restore failed",
+          description: "Could not restore original account",
+          variant: "destructive",
         });
       } finally {
         setIsRestoring(false);
@@ -165,8 +199,9 @@ export const Home: React.FC = () => {
       // Real user account - need to logout and redirect to login
       setIsRestoring(false);
       toast({
-        title: 'Restore Original Account',
-        description: 'You will be logged out. Please log back in with your credentials.',
+        title: "Restore Original Account",
+        description:
+          "You will be logged out. Please log back in with your credentials.",
         duration: 4000,
       });
 
@@ -174,10 +209,10 @@ export const Home: React.FC = () => {
       setTimeout(async () => {
         try {
           await logout();
-          localStorage.removeItem('current_farm_id');
-          navigate('/login');
+          localStorage.removeItem("current_farm_id");
+          navigate("/login");
         } catch (error) {
-          navigate('/login');
+          navigate("/login");
         }
       }, 1500);
     }
@@ -234,11 +269,17 @@ export const Home: React.FC = () => {
 
             {/* Status Badge */}
             <div className="hidden sm:flex px-4 py-2.5 bg-card rounded-xl shadow-sm border border-border/50 items-center gap-2">
-              <div className={`w-2.5 h-2.5 rounded-full ${systemStatus?.isOnline ? 'bg-primary animate-pulse' : 'bg-destructive'}`}></div>
+              <div
+                className={`w-2.5 h-2.5 rounded-full ${systemStatus?.isOnline ? "bg-primary animate-pulse" : "bg-destructive"}`}
+              ></div>
               <div>
-                <div className="text-xs text-muted-foreground">{t("status.system")}</div>
+                <div className="text-xs text-muted-foreground">
+                  {t("status.system")}
+                </div>
                 <div className="font-semibold text-foreground text-sm">
-                  {systemStatus?.isOnline ? t("status.online") : t("status.offline")}
+                  {systemStatus?.isOnline
+                    ? t("status.online")
+                    : t("status.offline")}
                 </div>
               </div>
             </div>
@@ -257,7 +298,9 @@ export const Home: React.FC = () => {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user?.fullName || "User"}</p>
+                    <p className="text-sm font-medium leading-none">
+                      {user?.fullName || "User"}
+                    </p>
                     <p className="text-xs leading-none text-muted-foreground">
                       {user?.phone || ""}
                     </p>
@@ -277,7 +320,11 @@ export const Home: React.FC = () => {
                       disabled={isRestoring}
                     >
                       <RotateCcw className="mr-2 h-4 w-4" />
-                      <span>{isRestoring ? t("profile.restoring") : t("profile.restore")}</span>
+                      <span>
+                        {isRestoring
+                          ? t("profile.restoring")
+                          : t("profile.restore")}
+                      </span>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                   </>
@@ -307,7 +354,6 @@ export const Home: React.FC = () => {
       <div className="w-full px-4 sm:px-6 lg:px-8 py-4">
         <div className="max-w-7xl mx-auto">
           <div className="relative rounded-2xl overflow-hidden shadow-xl border border-border/20 min-h-[360px] group">
-
             {/* 1. Background Scene - Full Cover */}
             <div className="absolute inset-0">
               <img
@@ -325,15 +371,33 @@ export const Home: React.FC = () => {
               <div className="max-w-[65%] md:max-w-xl">
                 <div className="mb-4">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/10 text-white text-sm font-medium mb-3">
-                    {timeOfDay === 'Morning' && <Sunrise className="w-4 h-4 text-amber-300" />}
-                    {timeOfDay === 'Afternoon' && <Sun className="w-4 h-4 text-yellow-300" />}
-                    {timeOfDay === 'Evening' && <Sunset className="w-4 h-4 text-orange-300" />}
-                    {timeOfDay === 'Night' && <Moon className="w-4 h-4 text-blue-200" />}
-                    <span>{t(`greeting.${timeOfDay.toLowerCase()}`).replace(t(`greeting.${timeOfDay.toLowerCase()}`).split(' ')[0], '') ? t(`greeting.${timeOfDay.toLowerCase()}`).split(' ')[1] || t(`greeting.${timeOfDay.toLowerCase()}`) : t(`greeting.${timeOfDay.toLowerCase()}`)}</span>
+                    {timeOfDay === "Morning" && (
+                      <Sunrise className="w-4 h-4 text-amber-300" />
+                    )}
+                    {timeOfDay === "Afternoon" && (
+                      <Sun className="w-4 h-4 text-yellow-300" />
+                    )}
+                    {timeOfDay === "Evening" && (
+                      <Sunset className="w-4 h-4 text-orange-300" />
+                    )}
+                    {timeOfDay === "Night" && (
+                      <Moon className="w-4 h-4 text-blue-200" />
+                    )}
+                    <span>
+                      {t(`greeting.${timeOfDay.toLowerCase()}`).replace(
+                        t(`greeting.${timeOfDay.toLowerCase()}`).split(" ")[0],
+                        "",
+                      )
+                        ? t(`greeting.${timeOfDay.toLowerCase()}`).split(
+                            " ",
+                          )[1] || t(`greeting.${timeOfDay.toLowerCase()}`)
+                        : t(`greeting.${timeOfDay.toLowerCase()}`)}
+                    </span>
                   </div>
 
                   <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 leading-tight drop-shadow-md">
-                    {t(`greeting.${timeOfDay.toLowerCase()}`)}, {user?.fullName?.split(' ')[0] || t("greeting.farmer")}!
+                    {t(`greeting.${timeOfDay.toLowerCase()}`)},{" "}
+                    {user?.fullName?.split(" ")[0] || t("greeting.farmer")}!
                   </h2>
                 </div>
 
@@ -362,13 +426,17 @@ export const Home: React.FC = () => {
         </div>
       </div>
 
-
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Location Bar */}
-        <div className="flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-amber-50/80 to-orange-50/80 dark:from-amber-900/20 dark:to-orange-900/20 backdrop-blur-md rounded-xl shadow-sm border border-amber-200/50 dark:border-amber-700/30 w-fit hover:shadow-md transition-all duration-300" data-tour-id="dashboard-header">
+        <div
+          className="flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-amber-50/80 to-orange-50/80 dark:from-amber-900/20 dark:to-orange-900/20 backdrop-blur-md rounded-xl shadow-sm border border-amber-200/50 dark:border-amber-700/30 w-fit hover:shadow-md transition-all duration-300"
+          data-tour-id="dashboard-header"
+        >
           <MapPin className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-          <span className="text-foreground font-medium">{systemStatus?.location || t("status.loadingLocation")}</span>
+          <span className="text-foreground font-medium">
+            {systemStatus?.location || t("status.loadingLocation")}
+          </span>
         </div>
 
         {/* Main Grid */}
@@ -408,11 +476,19 @@ export const Home: React.FC = () => {
         {/* Footer */}
         <div className="mt-8 pt-6 border-t border-border/30 text-center">
           <p className="text-sm text-muted-foreground flex items-center justify-center gap-4">
-            <span className="flex items-center gap-1.5"><Sprout className="w-4 h-4 text-green-500" /> {t("footer.sensorData")}</span>
+            <span className="flex items-center gap-1.5">
+              <Sprout className="w-4 h-4 text-green-500" />{" "}
+              {t("footer.sensorData")}
+            </span>
             <span className="hidden sm:inline text-border">•</span>
-            <span className="flex items-center gap-1.5"><Link className="w-4 h-4 text-blue-500" /> {t("footer.blockchain")}</span>
+            <span className="flex items-center gap-1.5">
+              <Link className="w-4 h-4 text-blue-500" />{" "}
+              {t("footer.blockchain")}
+            </span>
             <span className="hidden sm:inline text-border">•</span>
-            <span className="flex items-center gap-1.5"><Bot className="w-4 h-4 text-purple-500" /> {t("footer.ai")}</span>
+            <span className="flex items-center gap-1.5">
+              <Bot className="w-4 h-4 text-purple-500" /> {t("footer.ai")}
+            </span>
           </p>
         </div>
       </div>

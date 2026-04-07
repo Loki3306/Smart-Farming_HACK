@@ -1,110 +1,110 @@
 {
-    "header": {
-        "title": "शिक्षण केंद्र",
-        "description": "तुमची शेती कौशल्ये सुधारण्यासाठी मोफत अभ्यासक्रम, लेख आणि व्हिडिओ"
+  "header": {
+    "title": "शिक्षण केंद्र",
+    "description": "तुमची शेती कौशल्ये सुधारण्यासाठी मोफत अभ्यासक्रम, लेख आणि व्हिडिओ"
+  },
+  "stats": {
+    "coursesEnrolled": "नोंदणीकृत अभ्यासक्रम",
+    "completed": "पूर्ण",
+    "learningHours": "शिकण्याचे तास",
+    "dayStreak": "दिवसांची सलग मालिका"
+  },
+  "search": {
+    "placeholder": "{{type}} शोधा...",
+    "clear": "शोध साफ करा"
+  },
+  "categories": {
+    "all": "सर्व",
+    "cropManagement": "पीक व्यवस्थापन",
+    "irrigation": "सिंचन",
+    "pestControl": "कीड नियंत्रण",
+    "soilHealth": "माती आरोग्य",
+    "equipment": "उपकरणे",
+    "weatherClimate": "हवामान आणि वातावरण"
+  },
+  "tabs": {
+    "courses": "अभ्यासक्रम",
+    "articles": "लेख",
+    "videos": "व्हिडिओ"
+  },
+  "empty": {
+    "noCourses": "कोणतेही अभ्यासक्रम आढळले नाहीत",
+    "noArticles": "कोणतेही लेख आढळले नाहीत",
+    "noVideos": "कोणतेही व्हिडिओ आढळले नाहीत"
+  },
+  "error": {
+    "retry": "पुन्हा प्रयत्न करा"
+  },
+  "course": {
+    "free": "मोफत",
+    "lessons": "धडे",
+    "enrolled": "नोंदणीकृत",
+    "level": "स्तर",
+    "duration": "कालावधी",
+    "instructor": "शिक्षक"
+  },
+  "article": {
+    "featured": "वैशिष्ट्यीकृत",
+    "minRead": "मिनिट वाचा"
+  },
+  "video": {
+    "featured": "वैशिष्ट्यीकृत",
+    "views": "दृश्ये"
+  },
+  "date": {
+    "today": "आज",
+    "yesterday": "काल",
+    "daysAgo": "{{count}} दिवसांपूर्वी",
+    "weeksAgo": "{{count}} आठवड्यांपूर्वी",
+    "monthsAgo": "{{count}} महिन्यांपूर्वी"
+  },
+  "endMessage": "तुम्ही शेवटापर्यंत पोहोचलात! 🎉",
+  "roadmap": {
+    "back": "← मागे",
+    "switchToHindi": "हिंदी में बदलें",
+    "switchToEnglish": "Switch to English",
+    "stepsComplete": "पायऱ्या पूर्ण",
+    "steps": "पायऱ्या",
+    "courseInfo": "अभ्यासक्रम माहिती",
+    "lessons": "धडे",
+    "whatYouLearn": "तुम्ही काय शिकाल",
+    "practicalTechniques": "व्यावहारिक शेती तंत्रे",
+    "modernTools": "आधुनिक कृषी साधने",
+    "cropManagement": "पीक व्यवस्थापन धोरणे",
+    "weatherPlanning": "हवामान-आधारित नियोजन",
+    "startJourney": "तुमचा स्मार्ट शेती प्रवास सुरू करा!",
+    "congratulations": "अभिनंदन!",
+    "courseComplete": "तुम्ही अभ्यासक्रम पूर्ण केला!",
+    "enrollToStart": "हा शिक्षण प्रवास सुरू करण्यासाठी नोंदणी करा!",
+    "startNowFree": "आता सुरू करा - मोफत!",
+    "enrollNow": "आता नोंदणी करा",
+    "yourProgress": "तुमची प्रगती",
+    "completed": "पूर्ण",
+    "experience": "अनुभव",
+    "remaining": "शिल्लक",
+    "currentLevel": "सध्याचा स्तर",
+    "achievements": "उपलब्धी",
+    "earned": "मिळवले",
+    "completeLessons": "बॅज मिळवण्यासाठी धडे पूर्ण करा!",
+    "nextUp": "पुढील",
+    "startNow": "आता सुरू करा",
+    "badges": "बॅज:",
+    "levelThemes": {
+      "seedSowing": "बीज पेरणी",
+      "irrigation": "सिंचन",
+      "weather": "हवामान",
+      "cropGrowth": "पीक वाढ",
+      "fertilization": "खत",
+      "smartFarming": "स्मार्ट शेती",
+      "master": "मास्टर"
     },
-    "stats": {
-        "coursesEnrolled": "नोंदणीकृत अभ्यासक्रम",
-        "completed": "पूर्ण",
-        "learningHours": "शिकण्याचे तास",
-        "dayStreak": "दिवसांची सलग मालिका"
-    },
-    "search": {
-        "placeholder": "{{type}} शोधा...",
-        "clear": "शोध साफ करा"
-    },
-    "categories": {
-        "all": "सर्व",
-        "cropManagement": "पीक व्यवस्थापन",
-        "irrigation": "सिंचन",
-        "pestControl": "कीड नियंत्रण",
-        "soilHealth": "माती आरोग्य",
-        "equipment": "उपकरणे",
-        "weatherClimate": "हवामान आणि वातावरण"
-    },
-    "tabs": {
-        "courses": "अभ्यासक्रम",
-        "articles": "लेख",
-        "videos": "व्हिडिओ"
-    },
-    "empty": {
-        "noCourses": "कोणतेही अभ्यासक्रम आढळले नाहीत",
-        "noArticles": "कोणतेही लेख आढळले नाहीत",
-        "noVideos": "कोणतेही व्हिडिओ आढळले नाहीत"
-    },
-    "error": {
-        "retry": "पुन्हा प्रयत्न करा"
-    },
-    "course": {
-        "free": "मोफत",
-        "lessons": "धडे",
-        "enrolled": "नोंदणीकृत",
-        "level": "स्तर",
-        "duration": "कालावधी",
-        "instructor": "शिक्षक"
-    },
-    "article": {
-        "featured": "वैशिष्ट्यीकृत",
-        "minRead": "मिनिट वाचा"
-    },
-    "video": {
-        "featured": "वैशिष्ट्यीकृत",
-        "views": "दृश्ये"
-    },
-    "date": {
-        "today": "आज",
-        "yesterday": "काल",
-        "daysAgo": "{{count}} दिवसांपूर्वी",
-        "weeksAgo": "{{count}} आठवड्यांपूर्वी",
-        "monthsAgo": "{{count}} महिन्यांपूर्वी"
-    },
-    "endMessage": "तुम्ही शेवटापर्यंत पोहोचलात! 🎉",
-    "roadmap": {
-        "back": "← मागे",
-        "switchToHindi": "हिंदी में बदलें",
-        "switchToEnglish": "Switch to English",
-        "stepsComplete": "पायऱ्या पूर्ण",
-        "steps": "पायऱ्या",
-        "courseInfo": "अभ्यासक्रम माहिती",
-        "lessons": "धडे",
-        "whatYouLearn": "तुम्ही काय शिकाल",
-        "practicalTechniques": "व्यावहारिक शेती तंत्रे",
-        "modernTools": "आधुनिक कृषी साधने",
-        "cropManagement": "पीक व्यवस्थापन धोरणे",
-        "weatherPlanning": "हवामान-आधारित नियोजन",
-        "startJourney": "तुमचा स्मार्ट शेती प्रवास सुरू करा!",
-        "congratulations": "अभिनंदन!",
-        "courseComplete": "तुम्ही अभ्यासक्रम पूर्ण केला!",
-        "enrollToStart": "हा शिक्षण प्रवास सुरू करण्यासाठी नोंदणी करा!",
-        "startNowFree": "आता सुरू करा - मोफत!",
-        "enrollNow": "आता नोंदणी करा",
-        "yourProgress": "तुमची प्रगती",
-        "completed": "पूर्ण",
-        "experience": "अनुभव",
-        "remaining": "शिल्लक",
-        "currentLevel": "सध्याचा स्तर",
-        "achievements": "उपलब्धी",
-        "earned": "मिळवले",
-        "completeLessons": "बॅज मिळवण्यासाठी धडे पूर्ण करा!",
-        "nextUp": "पुढील",
-        "startNow": "आता सुरू करा",
-        "badges": "बॅज:",
-        "levelThemes": {
-            "seedSowing": "बीज पेरणी",
-            "irrigation": "सिंचन",
-            "weather": "हवामान",
-            "cropGrowth": "पीक वाढ",
-            "fertilization": "खत",
-            "smartFarming": "स्मार्ट शेती",
-            "master": "मास्टर"
-        },
-        "badgeNames": {
-            "firstStep": "पहिले पाऊल",
-            "waterWise": "जल तज्ञ",
-            "soilExpert": "माती तज्ञ",
-            "weatherWatcher": "हवामान निरीक्षक",
-            "smartFarmer": "स्मार्ट शेतकरी",
-            "masterFarmer": "मास्टर शेतकरी"
-        }
+    "badgeNames": {
+      "firstStep": "पहिले पाऊल",
+      "waterWise": "जल तज्ञ",
+      "soilExpert": "माती तज्ञ",
+      "weatherWatcher": "हवामान निरीक्षक",
+      "smartFarmer": "स्मार्ट शेतकरी",
+      "masterFarmer": "मास्टर शेतकरी"
     }
+  }
 }

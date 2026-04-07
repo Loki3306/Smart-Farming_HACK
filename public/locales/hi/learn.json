@@ -1,110 +1,110 @@
 {
-    "header": {
-        "title": "शिक्षा केंद्र",
-        "description": "अपने खेती कौशल को बेहतर बनाने के लिए मुफ्त पाठ्यक्रम, लेख और वीडियो"
+  "header": {
+    "title": "शिक्षा केंद्र",
+    "description": "अपने खेती कौशल को बेहतर बनाने के लिए मुफ्त पाठ्यक्रम, लेख और वीडियो"
+  },
+  "stats": {
+    "coursesEnrolled": "नामांकित पाठ्यक्रम",
+    "completed": "पूर्ण",
+    "learningHours": "सीखने के घंटे",
+    "dayStreak": "दिन की लकीर"
+  },
+  "search": {
+    "placeholder": "{{type}} खोजें...",
+    "clear": "खोज साफ़ करें"
+  },
+  "categories": {
+    "all": "सभी",
+    "cropManagement": "फसल प्रबंधन",
+    "irrigation": "सिंचाई",
+    "pestControl": "कीट नियंत्रण",
+    "soilHealth": "मिट्टी स्वास्थ्य",
+    "equipment": "उपकरण",
+    "weatherClimate": "मौसम और जलवायु"
+  },
+  "tabs": {
+    "courses": "पाठ्यक्रम",
+    "articles": "लेख",
+    "videos": "वीडियो"
+  },
+  "empty": {
+    "noCourses": "कोई पाठ्यक्रम नहीं मिला",
+    "noArticles": "कोई लेख नहीं मिला",
+    "noVideos": "कोई वीडियो नहीं मिला"
+  },
+  "error": {
+    "retry": "पुनः प्रयास करें"
+  },
+  "course": {
+    "free": "मुफ्त",
+    "lessons": "पाठ",
+    "enrolled": "नामांकित",
+    "level": "स्तर",
+    "duration": "अवधि",
+    "instructor": "शिक्षक"
+  },
+  "article": {
+    "featured": "विशेष",
+    "minRead": "मिनट पढ़ें"
+  },
+  "video": {
+    "featured": "विशेष",
+    "views": "दृश्य"
+  },
+  "date": {
+    "today": "आज",
+    "yesterday": "कल",
+    "daysAgo": "{{count}} दिन पहले",
+    "weeksAgo": "{{count}} सप्ताह पहले",
+    "monthsAgo": "{{count}} महीने पहले"
+  },
+  "endMessage": "आप अंत तक पहुंच गए! 🎉",
+  "roadmap": {
+    "back": "← वापस",
+    "switchToHindi": "हिंदी में बदलें",
+    "switchToEnglish": "Switch to English",
+    "stepsComplete": "चरण पूरे",
+    "steps": "चरण",
+    "courseInfo": "कोर्स की जानकारी",
+    "lessons": "पाठ",
+    "whatYouLearn": "आप क्या सीखेंगे",
+    "practicalTechniques": "व्यावहारिक खेती के तरीके",
+    "modernTools": "आधुनिक कृषि उपकरण",
+    "cropManagement": "फसल प्रबंधन",
+    "weatherPlanning": "मौसम के अनुसार योजना",
+    "startJourney": "आपकी स्मार्ट खेती यात्रा शुरू करें!",
+    "congratulations": "बधाई हो!",
+    "courseComplete": "आपने कोर्स पूरा किया!",
+    "enrollToStart": "इस यात्रा को शुरू करने के लिए enroll करें!",
+    "startNowFree": "अभी शुरू करें - मुफ्त!",
+    "enrollNow": "कोर्स में शामिल हों",
+    "yourProgress": "आपकी प्रगति",
+    "completed": "पूर्ण",
+    "experience": "अनुभव अंक",
+    "remaining": "शेष",
+    "currentLevel": "वर्तमान स्तर",
+    "achievements": "उपलब्धियां",
+    "earned": "अर्जित",
+    "completeLessons": "पाठ पूरे करें और बैज अर्जित करें!",
+    "nextUp": "अगला पाठ",
+    "startNow": "अभी शुरू करें",
+    "badges": "बैज:",
+    "levelThemes": {
+      "seedSowing": "बीज बोना",
+      "irrigation": "सिंचाई",
+      "weather": "मौसम",
+      "cropGrowth": "फसल विकास",
+      "fertilization": "खाद",
+      "smartFarming": "स्मार्ट खेती",
+      "master": "मास्टर"
     },
-    "stats": {
-        "coursesEnrolled": "नामांकित पाठ्यक्रम",
-        "completed": "पूर्ण",
-        "learningHours": "सीखने के घंटे",
-        "dayStreak": "दिन की लकीर"
-    },
-    "search": {
-        "placeholder": "{{type}} खोजें...",
-        "clear": "खोज साफ़ करें"
-    },
-    "categories": {
-        "all": "सभी",
-        "cropManagement": "फसल प्रबंधन",
-        "irrigation": "सिंचाई",
-        "pestControl": "कीट नियंत्रण",
-        "soilHealth": "मिट्टी स्वास्थ्य",
-        "equipment": "उपकरण",
-        "weatherClimate": "मौसम और जलवायु"
-    },
-    "tabs": {
-        "courses": "पाठ्यक्रम",
-        "articles": "लेख",
-        "videos": "वीडियो"
-    },
-    "empty": {
-        "noCourses": "कोई पाठ्यक्रम नहीं मिला",
-        "noArticles": "कोई लेख नहीं मिला",
-        "noVideos": "कोई वीडियो नहीं मिला"
-    },
-    "error": {
-        "retry": "पुनः प्रयास करें"
-    },
-    "course": {
-        "free": "मुफ्त",
-        "lessons": "पाठ",
-        "enrolled": "नामांकित",
-        "level": "स्तर",
-        "duration": "अवधि",
-        "instructor": "शिक्षक"
-    },
-    "article": {
-        "featured": "विशेष",
-        "minRead": "मिनट पढ़ें"
-    },
-    "video": {
-        "featured": "विशेष",
-        "views": "दृश्य"
-    },
-    "date": {
-        "today": "आज",
-        "yesterday": "कल",
-        "daysAgo": "{{count}} दिन पहले",
-        "weeksAgo": "{{count}} सप्ताह पहले",
-        "monthsAgo": "{{count}} महीने पहले"
-    },
-    "endMessage": "आप अंत तक पहुंच गए! 🎉",
-    "roadmap": {
-        "back": "← वापस",
-        "switchToHindi": "हिंदी में बदलें",
-        "switchToEnglish": "Switch to English",
-        "stepsComplete": "चरण पूरे",
-        "steps": "चरण",
-        "courseInfo": "कोर्स की जानकारी",
-        "lessons": "पाठ",
-        "whatYouLearn": "आप क्या सीखेंगे",
-        "practicalTechniques": "व्यावहारिक खेती के तरीके",
-        "modernTools": "आधुनिक कृषि उपकरण",
-        "cropManagement": "फसल प्रबंधन",
-        "weatherPlanning": "मौसम के अनुसार योजना",
-        "startJourney": "आपकी स्मार्ट खेती यात्रा शुरू करें!",
-        "congratulations": "बधाई हो!",
-        "courseComplete": "आपने कोर्स पूरा किया!",
-        "enrollToStart": "इस यात्रा को शुरू करने के लिए enroll करें!",
-        "startNowFree": "अभी शुरू करें - मुफ्त!",
-        "enrollNow": "कोर्स में शामिल हों",
-        "yourProgress": "आपकी प्रगति",
-        "completed": "पूर्ण",
-        "experience": "अनुभव अंक",
-        "remaining": "शेष",
-        "currentLevel": "वर्तमान स्तर",
-        "achievements": "उपलब्धियां",
-        "earned": "अर्जित",
-        "completeLessons": "पाठ पूरे करें और बैज अर्जित करें!",
-        "nextUp": "अगला पाठ",
-        "startNow": "अभी शुरू करें",
-        "badges": "बैज:",
-        "levelThemes": {
-            "seedSowing": "बीज बोना",
-            "irrigation": "सिंचाई",
-            "weather": "मौसम",
-            "cropGrowth": "फसल विकास",
-            "fertilization": "खाद",
-            "smartFarming": "स्मार्ट खेती",
-            "master": "मास्टर"
-        },
-        "badgeNames": {
-            "firstStep": "पहला कदम",
-            "waterWise": "जल विशेषज्ञ",
-            "soilExpert": "मिट्टी विशेषज्ञ",
-            "weatherWatcher": "मौसम पारखी",
-            "smartFarmer": "स्मार्ट किसान",
-            "masterFarmer": "मास्टर किसान"
-        }
+    "badgeNames": {
+      "firstStep": "पहला कदम",
+      "waterWise": "जल विशेषज्ञ",
+      "soilExpert": "मिट्टी विशेषज्ञ",
+      "weatherWatcher": "मौसम पारखी",
+      "smartFarmer": "स्मार्ट किसान",
+      "masterFarmer": "मास्टर किसान"
     }
+  }
 }

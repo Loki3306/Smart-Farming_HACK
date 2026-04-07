@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Trophy,
   CheckCircle,
@@ -10,11 +10,11 @@ import {
   Target,
   Clock,
   AlertCircle,
-} from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import confetti from 'canvas-confetti';
+} from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import confetti from "canvas-confetti";
 
 export interface QuizQuestion {
   question: string;
@@ -45,7 +45,9 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [hasAnswered, setHasAnswered] = useState(false);
-  const [answers, setAnswers] = useState<(number | null)[]>(Array(quiz.questions.length).fill(null));
+  const [answers, setAnswers] = useState<(number | null)[]>(
+    Array(quiz.questions.length).fill(null),
+  );
   const [showResults, setShowResults] = useState(false);
   const [startTime] = useState(Date.now());
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -66,15 +68,15 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   const handleAnswer = (optionIndex: number) => {
     if (hasAnswered) return;
-    
+
     setSelectedAnswer(optionIndex);
     setHasAnswered(true);
-    
+
     // Save answer
     const newAnswers = [...answers];
     newAnswers[currentQuestionIndex] = optionIndex;
@@ -83,7 +85,7 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
 
   const handleNext = () => {
     if (currentQuestionIndex < quiz.questions.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
+      setCurrentQuestionIndex((prev) => prev + 1);
       setSelectedAnswer(null);
       setHasAnswered(false);
     } else {
@@ -96,20 +98,22 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
     const correctCount = answers.reduce((count, answer, index) => {
       return count + (answer === quiz.questions[index].correctIndex ? 1 : 0);
     }, 0);
-    const scorePercent = Math.round((correctCount / quiz.questions.length) * 100);
-    
+    const scorePercent = Math.round(
+      (correctCount / quiz.questions.length) * 100,
+    );
+
     setShowResults(true);
-    
+
     // Celebrate if passed
     if (scorePercent >= passingScore) {
       confetti({
         particleCount: 100,
         spread: 70,
         origin: { y: 0.6 },
-        colors: ['#22c55e', '#16a34a', '#15803d', '#fbbf24', '#f59e0b'],
+        colors: ["#22c55e", "#16a34a", "#15803d", "#fbbf24", "#f59e0b"],
       });
     }
-    
+
     onComplete?.(scorePercent, scorePercent >= passingScore);
   };
 
@@ -122,8 +126,8 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
   };
 
   const getScore = () => {
-    const correctCount = answers.filter((answer, index) => 
-      answer === quiz.questions[index].correctIndex
+    const correctCount = answers.filter(
+      (answer, index) => answer === quiz.questions[index].correctIndex,
     ).length;
     return {
       correct: correctCount,
@@ -143,13 +147,15 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
         animate={{ opacity: 1, scale: 1 }}
         className="max-w-2xl mx-auto"
       >
-        <Card className={`p-8 ${passed ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200' : 'bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200'}`}>
+        <Card
+          className={`p-8 ${passed ? "bg-gradient-to-br from-green-50 to-emerald-50 border-green-200" : "bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200"}`}
+        >
           <div className="text-center">
             {/* Result Icon */}
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ type: 'spring', delay: 0.2 }}
+              transition={{ type: "spring", delay: 0.2 }}
               className="mb-6"
             >
               {passed ? (
@@ -164,18 +170,25 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
             </motion.div>
 
             {/* Title */}
-            <h2 className={`text-2xl font-bold mb-2 ${passed ? 'text-green-800' : 'text-orange-800'}`}>
-              {passed ? '🎉 Excellent Work!' : '💪 Keep Learning!'}
+            <h2
+              className={`text-2xl font-bold mb-2 ${passed ? "text-green-800" : "text-orange-800"}`}
+            >
+              {passed ? "🎉 Excellent Work!" : "💪 Keep Learning!"}
             </h2>
-            <p className={`mb-6 ${passed ? 'text-green-700' : 'text-orange-700'}`}>
-              {passed 
+            <p
+              className={`mb-6 ${passed ? "text-green-700" : "text-orange-700"}`}
+            >
+              {passed
                 ? "You've demonstrated great understanding of the material!"
                 : `You need ${passingScore}% to pass. Review the lesson and try again!`}
             </p>
 
             {/* Score Display */}
             <div className="bg-card rounded-xl p-6 mb-6 shadow-sm">
-              <div className="text-5xl font-bold mb-2" style={{ color: passed ? '#22c55e' : '#f97316' }}>
+              <div
+                className="text-5xl font-bold mb-2"
+                style={{ color: passed ? "#22c55e" : "#f97316" }}
+              >
                 {score.percent}%
               </div>
               <p className="text-muted-foreground">
@@ -189,15 +202,17 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
 
             {/* Question Review */}
             <div className="mb-6 text-left">
-              <h3 className="font-semibold text-foreground mb-3">Question Review:</h3>
+              <h3 className="font-semibold text-foreground mb-3">
+                Question Review:
+              </h3>
               <div className="space-y-2">
                 {quiz.questions.map((q, index) => {
                   const wasCorrect = answers[index] === q.correctIndex;
                   return (
-                    <div 
+                    <div
                       key={index}
                       className={`flex items-center gap-2 p-2 rounded-lg ${
-                        wasCorrect ? 'bg-green-100' : 'bg-red-100'
+                        wasCorrect ? "bg-green-100" : "bg-red-100"
                       }`}
                     >
                       {wasCorrect ? (
@@ -222,10 +237,10 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
                   Try Again
                 </Button>
               )}
-              <Button 
+              <Button
                 onClick={() => onComplete?.(score.percent, passed)}
                 size="lg"
-                className={passed ? 'bg-green-500 hover:bg-green-600' : ''}
+                className={passed ? "bg-green-500 hover:bg-green-600" : ""}
               >
                 {passed ? (
                   <>
@@ -283,16 +298,17 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
               {currentQuestion.options.map((option, index) => {
                 const isSelected = selectedAnswer === index;
                 const isCorrectOption = index === currentQuestion.correctIndex;
-                
-                let optionStyle = 'border-border hover:border-primary hover:bg-primary/5';
+
+                let optionStyle =
+                  "border-border hover:border-primary hover:bg-primary/5";
                 if (hasAnswered) {
                   if (isCorrectOption) {
-                    optionStyle = 'border-green-500 bg-green-50';
+                    optionStyle = "border-green-500 bg-green-50";
                   } else if (isSelected && !isCorrectOption) {
-                    optionStyle = 'border-red-500 bg-red-50';
+                    optionStyle = "border-red-500 bg-red-50";
                   }
                 } else if (isSelected) {
-                  optionStyle = 'border-primary bg-primary/10';
+                  optionStyle = "border-primary bg-primary/10";
                 }
 
                 return (
@@ -301,19 +317,21 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
                     onClick={() => handleAnswer(index)}
                     disabled={hasAnswered}
                     className={`w-full p-4 rounded-xl border-2 text-left transition-all ${optionStyle} ${
-                      !hasAnswered ? 'cursor-pointer' : 'cursor-default'
+                      !hasAnswered ? "cursor-pointer" : "cursor-default"
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                        hasAnswered && isCorrectOption
-                          ? 'bg-green-500 text-white'
-                          : hasAnswered && isSelected && !isCorrectOption
-                          ? 'bg-red-500 text-white'
-                          : isSelected
-                          ? 'bg-primary text-white'
-                          : 'bg-muted text-muted-foreground'
-                      }`}>
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                          hasAnswered && isCorrectOption
+                            ? "bg-green-500 text-white"
+                            : hasAnswered && isSelected && !isCorrectOption
+                              ? "bg-red-500 text-white"
+                              : isSelected
+                                ? "bg-primary text-white"
+                                : "bg-muted text-muted-foreground"
+                        }`}
+                      >
                         {hasAnswered && isCorrectOption ? (
                           <CheckCircle className="w-5 h-5" />
                         ) : hasAnswered && isSelected && !isCorrectOption ? (
@@ -335,17 +353,25 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
             {hasAnswered && currentQuestion.explanation && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
+                animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
               >
-                <Card className={`p-4 mb-6 ${isCorrect ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'}`}>
+                <Card
+                  className={`p-4 mb-6 ${isCorrect ? "bg-green-50 border-green-200" : "bg-blue-50 border-blue-200"}`}
+                >
                   <div className="flex items-start gap-3">
-                    <AlertCircle className={`w-5 h-5 mt-0.5 flex-shrink-0 ${isCorrect ? 'text-green-600' : 'text-blue-600'}`} />
+                    <AlertCircle
+                      className={`w-5 h-5 mt-0.5 flex-shrink-0 ${isCorrect ? "text-green-600" : "text-blue-600"}`}
+                    />
                     <div>
-                      <h4 className={`font-semibold mb-1 ${isCorrect ? 'text-green-800' : 'text-blue-800'}`}>
-                        {isCorrect ? '✓ Correct!' : 'Explanation'}
+                      <h4
+                        className={`font-semibold mb-1 ${isCorrect ? "text-green-800" : "text-blue-800"}`}
+                      >
+                        {isCorrect ? "✓ Correct!" : "Explanation"}
                       </h4>
-                      <p className={`text-sm ${isCorrect ? 'text-green-700' : 'text-blue-700'}`}>
+                      <p
+                        className={`text-sm ${isCorrect ? "text-green-700" : "text-blue-700"}`}
+                      >
                         {currentQuestion.explanation}
                       </p>
                     </div>
@@ -359,11 +385,7 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
 
       {/* Navigation */}
       <div className="flex justify-end">
-        <Button
-          onClick={handleNext}
-          disabled={!hasAnswered}
-          size="lg"
-        >
+        <Button onClick={handleNext} disabled={!hasAnswered} size="lg">
           {currentQuestionIndex < quiz.questions.length - 1 ? (
             <>
               Next Question

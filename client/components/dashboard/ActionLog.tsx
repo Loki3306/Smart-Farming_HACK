@@ -2,7 +2,10 @@ import React from "react";
 import { Droplet, Leaf, Info, Clock, ClipboardList } from "lucide-react";
 import { useFarmContext } from "../../context/FarmContext";
 import { useTranslation } from "react-i18next";
-import { getLocalizedDescription, getLocalizedAction } from "../../lib/logTranslator";
+import {
+  getLocalizedDescription,
+  getLocalizedAction,
+} from "../../lib/logTranslator";
 
 export const ActionLog: React.FC = () => {
   const { t } = useTranslation("dashboard");
@@ -21,10 +24,14 @@ export const ActionLog: React.FC = () => {
 
   const getLocalizedType = (type: string) => {
     switch (type) {
-      case "irrigation": return t("actionLog.types.irrigation");
-      case "fertilization": return t("actionLog.types.fertilization");
-      case "alert": return t("actionLog.types.alert");
-      default: return type.charAt(0).toUpperCase() + type.slice(1);
+      case "irrigation":
+        return t("actionLog.types.irrigation");
+      case "fertilization":
+        return t("actionLog.types.fertilization");
+      case "alert":
+        return t("actionLog.types.alert");
+      default:
+        return type.charAt(0).toUpperCase() + type.slice(1);
     }
   };
 
@@ -34,25 +41,29 @@ export const ActionLog: React.FC = () => {
         return {
           bg: "bg-blue-100/50 dark:bg-blue-800/30",
           border: "border-blue-200/50 dark:border-blue-700/40",
-          badge: "bg-blue-200/60 dark:bg-blue-700/50 text-blue-700 dark:text-blue-300",
+          badge:
+            "bg-blue-200/60 dark:bg-blue-700/50 text-blue-700 dark:text-blue-300",
         };
       case "fertilization":
         return {
           bg: "bg-green-100/50 dark:bg-green-800/30",
           border: "border-green-200/50 dark:border-green-700/40",
-          badge: "bg-green-200/60 dark:bg-green-700/50 text-green-700 dark:text-green-300",
+          badge:
+            "bg-green-200/60 dark:bg-green-700/50 text-green-700 dark:text-green-300",
         };
       case "info":
         return {
           bg: "bg-amber-100/30 dark:bg-amber-800/20",
           border: "border-amber-200/30 dark:border-amber-700/30",
-          badge: "bg-amber-200/50 dark:bg-amber-700/40 text-amber-700 dark:text-amber-300",
+          badge:
+            "bg-amber-200/50 dark:bg-amber-700/40 text-amber-700 dark:text-amber-300",
         };
       default:
         return {
           bg: "bg-gray-100/30 dark:bg-gray-800/20",
           border: "border-gray-200/30 dark:border-gray-700/30",
-          badge: "bg-gray-200/50 dark:bg-gray-700/40 text-gray-700 dark:text-gray-300",
+          badge:
+            "bg-gray-200/50 dark:bg-gray-700/40 text-gray-700 dark:text-gray-300",
         };
     }
   };
@@ -62,8 +73,12 @@ export const ActionLog: React.FC = () => {
       {/* Simple Header */}
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h3 className="text-lg font-semibold text-foreground">{t("actionLog.title")}</h3>
-          <p className="text-sm text-muted-foreground">{t("actionLog.subtitle")}</p>
+          <h3 className="text-lg font-semibold text-foreground">
+            {t("actionLog.title")}
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            {t("actionLog.subtitle")}
+          </p>
         </div>
         <div className="w-10 h-10 rounded-full bg-amber-200/50 dark:bg-amber-700/30 flex items-center justify-center">
           <ClipboardList className="w-6 h-6 text-amber-600 dark:text-amber-400" />
@@ -75,7 +90,9 @@ export const ActionLog: React.FC = () => {
           <div className="w-16 h-16 rounded-full bg-amber-100/50 dark:bg-amber-800/30 flex items-center justify-center mx-auto mb-4">
             <Clock className="w-8 h-8 text-amber-500 dark:text-amber-400" />
           </div>
-          <p className="text-muted-foreground font-medium">{t("actionLog.noActions")}</p>
+          <p className="text-muted-foreground font-medium">
+            {t("actionLog.noActions")}
+          </p>
           <p className="text-sm text-muted-foreground/70 mt-1">
             {t("actionLog.willAppear")}
           </p>
@@ -89,7 +106,8 @@ export const ActionLog: React.FC = () => {
                 key={entry.id}
                 className={`relative flex items-start gap-3 p-4 rounded-xl ${styles.bg} border ${styles.border} backdrop-blur-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5`}
                 style={{
-                  animation: index === 0 ? 'fadeInSlide 0.3s ease-out' : undefined
+                  animation:
+                    index === 0 ? "fadeInSlide 0.3s ease-out" : undefined,
                 }}
               >
                 {/* Icon */}

@@ -4,9 +4,9 @@
  * Users can create, update, and track regime tasks
  */
 
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   Card,
   Button,
@@ -23,7 +23,7 @@ import {
   Col,
   Timeline,
   Progress,
-} from 'antd';
+} from "antd";
 import {
   CheckOutlined,
   ClockCircleOutlined,
@@ -33,20 +33,20 @@ import {
   HistoryOutlined,
   CalendarOutlined,
   BugOutlined,
-} from '@ant-design/icons';
+} from "@ant-design/icons";
 
-import RegimeList from '../components/regime/RegimeList';
-import RegimeDetail from '../components/regime/RegimeDetail';
-import RegimeForm from '../components/regime/RegimeForm';
-import RegimeTimeline from '../components/regime/RegimeTimeline';
-import RegimeCalendarView from '../components/regime/RegimeCalendarView';
-import { regimeService } from '../services/regimeService';
+import RegimeList from "../components/regime/RegimeList";
+import RegimeDetail from "../components/regime/RegimeDetail";
+import RegimeForm from "../components/regime/RegimeForm";
+import RegimeTimeline from "../components/regime/RegimeTimeline";
+import RegimeCalendarView from "../components/regime/RegimeCalendarView";
+import { regimeService } from "../services/regimeService";
 
 interface Regime {
   regime_id: string;
   name: string;
   description: string;
-  status: 'active' | 'completed' | 'archived';
+  status: "active" | "completed" | "archived";
   valid_from: string;
   valid_until: string;
   task_count: number;
@@ -58,8 +58,8 @@ interface RegimeTask {
   task_id: string;
   task_name: string;
   description: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'skipped' | 'failed';
-  priority: 'high' | 'medium' | 'low';
+  status: "pending" | "in_progress" | "completed" | "skipped" | "failed";
+  priority: "high" | "medium" | "low";
   timing_type: string;
   timing_value: number;
   timing_window_start?: string;
@@ -77,15 +77,19 @@ export default function RegimesPage() {
   const [historyDrawer, setHistoryDrawer] = useState(false);
 
   // Fetch list of regimes
-  const { data: regimes, isLoading: listLoading, refetch: refetchList } = useQuery({
-    queryKey: ['regimes'],
+  const {
+    data: regimes,
+    isLoading: listLoading,
+    refetch: refetchList,
+  } = useQuery({
+    queryKey: ["regimes"],
     queryFn: () => regimeService.getRegimes(),
     staleTime: 30000,
   });
 
   // Fetch selected regime details
   const { data: regimeDetail, isLoading: detailLoading } = useQuery({
-    queryKey: ['regime', regimeId],
+    queryKey: ["regime", regimeId],
     queryFn: () => regimeService.getRegime(regimeId!),
     enabled: !!regimeId && detailDrawer,
   });
@@ -94,12 +98,12 @@ export default function RegimesPage() {
   const createMutation = useMutation({
     mutationFn: (data: any) => regimeService.createRegime(data),
     onSuccess: () => {
-      message.success('Regime created successfully!');
+      message.success("Regime created successfully!");
       setFormDrawer(false);
       refetchList();
     },
     onError: (error: any) => {
-      message.error(error.message || 'Failed to create regime');
+      message.error(error.message || "Failed to create regime");
     },
   });
 
@@ -107,11 +111,11 @@ export default function RegimesPage() {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => regimeService.deleteRegime(id),
     onSuccess: () => {
-      message.success('Regime archived successfully');
+      message.success("Regime archived successfully");
       refetchList();
     },
     onError: (error: any) => {
-      message.error(error.message || 'Failed to archive regime');
+      message.error(error.message || "Failed to archive regime");
     },
   });
 
@@ -129,22 +133,23 @@ export default function RegimesPage() {
       notes?: string;
     }) => regimeService.updateTaskStatus(regimeId, taskId, status, notes),
     onSuccess: () => {
-      message.success('Task updated');
+      message.success("Task updated");
       if (regimeId) {
         // Refetch regime details
       }
     },
     onError: (error: any) => {
-      message.error(error.message || 'Failed to update task');
+      message.error(error.message || "Failed to update task");
     },
   });
 
   const handleDeleteRegime = (id: string) => {
     Modal.confirm({
-      title: 'Archive Regime?',
-      content: 'This will move the regime to archived status. Data will be preserved.',
-      okText: 'Archive',
-      cancelText: 'Cancel',
+      title: "Archive Regime?",
+      content:
+        "This will move the regime to archived status. Data will be preserved.",
+      okText: "Archive",
+      cancelText: "Cancel",
       onOk() {
         deleteMutation.mutate(id);
       },
@@ -153,39 +158,39 @@ export default function RegimesPage() {
 
   const handleExportRegime = (id: string) => {
     regimeService
-      .exportRegime(id, 'pdf')
+      .exportRegime(id, "pdf")
       .then((response) => {
         const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
+        const link = document.createElement("a");
         link.href = url;
-        link.setAttribute('download', `regime-${id}.pdf`);
+        link.setAttribute("download", `regime-${id}.pdf`);
         document.body.appendChild(link);
         link.click();
         link.parentElement?.removeChild(link);
       })
       .catch((error) => {
-        message.error(error.message || 'Failed to export regime');
+        message.error(error.message || "Failed to export regime");
       });
   };
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      active: 'green',
-      completed: 'blue',
-      archived: 'default',
+      active: "green",
+      completed: "blue",
+      archived: "default",
     };
-    return colors[status] || 'default';
+    return colors[status] || "default";
   };
 
   const getTaskStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      pending: 'default',
-      in_progress: 'processing',
-      completed: 'success',
-      skipped: 'warning',
-      failed: 'error',
+      pending: "default",
+      in_progress: "processing",
+      completed: "success",
+      skipped: "warning",
+      failed: "error",
     };
-    return colors[status] || 'default';
+    return colors[status] || "default";
   };
 
   if (listLoading) {
@@ -223,7 +228,7 @@ export default function RegimesPage() {
             <Card>
               <Statistic
                 title="Active Regimes"
-                value={regimes.filter((r) => r.status === 'active').length}
+                value={regimes.filter((r) => r.status === "active").length}
                 prefix={<ClockCircleOutlined />}
               />
             </Card>
@@ -232,7 +237,7 @@ export default function RegimesPage() {
             <Card>
               <Statistic
                 title="Completed"
-                value={regimes.filter((r) => r.status === 'completed').length}
+                value={regimes.filter((r) => r.status === "completed").length}
                 prefix={<CheckOutlined />}
               />
             </Card>
@@ -264,7 +269,7 @@ export default function RegimesPage() {
           description="No regimes yet. Start by getting AI recommendations!"
           style={{ marginTop: 48, marginBottom: 48 }}
         >
-          <Button type="primary" onClick={() => navigate('/recommendations')}>
+          <Button type="primary" onClick={() => navigate("/recommendations")}>
             Get AI Recommendations
           </Button>
         </Empty>
@@ -273,7 +278,7 @@ export default function RegimesPage() {
           defaultActiveKey="calendar"
           items={[
             {
-              key: 'calendar',
+              key: "calendar",
               label: (
                 <span>
                   <CalendarOutlined /> Calendar View
@@ -283,8 +288,8 @@ export default function RegimesPage() {
                 <RegimeCalendarView
                   tasks={regimes.flatMap((r) => r.tasks || [])}
                   onTaskClick={(task) => {
-                    const regime = regimes.find((r) => 
-                      r.tasks?.some((t) => t.task_id === task.task_id)
+                    const regime = regimes.find((r) =>
+                      r.tasks?.some((t) => t.task_id === task.task_id),
                     );
                     if (regime) {
                       setSelectedRegime(regime);
@@ -292,13 +297,13 @@ export default function RegimesPage() {
                     }
                   }}
                   onDateClick={(date) => {
-                    message.info(`Add task for ${date.format('MMMM D, YYYY')}`);
+                    message.info(`Add task for ${date.format("MMMM D, YYYY")}`);
                   }}
                 />
               ),
             },
             {
-              key: 'list',
+              key: "list",
               label: (
                 <span>
                   <BugOutlined /> List View
@@ -322,19 +327,27 @@ export default function RegimesPage() {
                             <h3 className="text-lg font-semibold text-gray-900">
                               {regime.name}
                             </h3>
-                            <Badge color={getStatusColor(regime.status)} text={regime.status} />
+                            <Badge
+                              color={getStatusColor(regime.status)}
+                              text={regime.status}
+                            />
                             <Badge
                               count={`v${regime.version}`}
-                              style={{ backgroundColor: '#108ee9' }}
+                              style={{ backgroundColor: "#108ee9" }}
                             />
                           </div>
-                          <p className="text-gray-600 mb-3">{regime.description}</p>
+                          <p className="text-gray-600 mb-3">
+                            {regime.description}
+                          </p>
                           <div className="flex gap-6 text-sm text-gray-500">
                             <span>
                               <CalendarOutlined /> {regime.task_count} tasks
                             </span>
                             <span>
-                              Valid until {new Date(regime.valid_until).toLocaleDateString()}
+                              Valid until{" "}
+                              {new Date(
+                                regime.valid_until,
+                              ).toLocaleDateString()}
                             </span>
                           </div>
                         </div>

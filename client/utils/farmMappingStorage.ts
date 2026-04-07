@@ -6,19 +6,29 @@
 export interface WaterSource {
   id: string;
   name: string;
-  type: 'river' | 'lake' | 'pond' | 'reservoir' | 'canal' | 'stream' | 'well' | 'water_tower' | 'spring' | 'waterway';
+  type:
+    | "river"
+    | "lake"
+    | "pond"
+    | "reservoir"
+    | "canal"
+    | "stream"
+    | "well"
+    | "water_tower"
+    | "spring"
+    | "waterway";
   coordinates: [number, number]; // [lat, lng]
-  source: 'osm' | 'manual';
+  source: "osm" | "manual";
   osmId?: string;
   capacity?: number; // liters per hour (for manual sources)
-  quality?: 'good' | 'average' | 'poor';
+  quality?: "good" | "average" | "poor";
 }
 
 export interface SectionData {
   id: string;
   name: string;
   geometry: {
-    type: 'Polygon';
+    type: "Polygon";
     coordinates: number[][][];
   };
   area: number;
@@ -36,7 +46,7 @@ export interface SectionData {
 export interface FarmMappingData {
   farmId: string;
   farmBoundary: {
-    type: 'Polygon';
+    type: "Polygon";
     coordinates: number[][][];
     area: number;
     center: [number, number];
@@ -47,18 +57,18 @@ export interface FarmMappingData {
   lastUpdated: string;
 }
 
-const STORAGE_KEY = 'farm_field_mapping';
+const STORAGE_KEY = "farm_field_mapping";
 
 // Color palette for sections
 const SECTION_COLORS = [
-  '#10b981', // Green
-  '#3b82f6', // Blue
-  '#f59e0b', // Orange
-  '#ef4444', // Red
-  '#8b5cf6', // Purple
-  '#ec4899', // Pink
-  '#14b8a6', // Teal
-  '#f97316', // Deep Orange
+  "#10b981", // Green
+  "#3b82f6", // Blue
+  "#f59e0b", // Orange
+  "#ef4444", // Red
+  "#8b5cf6", // Purple
+  "#ec4899", // Pink
+  "#14b8a6", // Teal
+  "#f97316", // Deep Orange
 ];
 
 /**
@@ -73,7 +83,7 @@ export const getSectionColor = (index: number): string => {
  */
 const isLocalStorageAvailable = (): boolean => {
   try {
-    const test = '__localStorage_test__';
+    const test = "__localStorage_test__";
     localStorage.setItem(test, test);
     localStorage.removeItem(test);
     return true;
@@ -87,7 +97,7 @@ const isLocalStorageAvailable = (): boolean => {
  */
 export const getFarmMapping = (): FarmMappingData | null => {
   if (!isLocalStorageAvailable()) {
-    console.error('localStorage is not available');
+    console.error("localStorage is not available");
     return null;
   }
 
@@ -98,16 +108,16 @@ export const getFarmMapping = (): FarmMappingData | null => {
     }
 
     const parsed = JSON.parse(data);
-    
+
     // Validate structure
-    if (!parsed || typeof parsed !== 'object') {
-      console.error('Invalid farm mapping data structure');
+    if (!parsed || typeof parsed !== "object") {
+      console.error("Invalid farm mapping data structure");
       return null;
     }
 
     return parsed as FarmMappingData;
   } catch (error) {
-    console.error('Error reading farm mapping from localStorage:', error);
+    console.error("Error reading farm mapping from localStorage:", error);
     return null;
   }
 };
@@ -117,7 +127,7 @@ export const getFarmMapping = (): FarmMappingData | null => {
  */
 export const saveFarmMapping = (data: FarmMappingData): boolean => {
   if (!isLocalStorageAvailable()) {
-    console.error('localStorage is not available');
+    console.error("localStorage is not available");
     return false;
   }
 
@@ -130,13 +140,13 @@ export const saveFarmMapping = (data: FarmMappingData): boolean => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
     return true;
   } catch (error) {
-    console.error('Error saving farm mapping to localStorage:', error);
-    
+    console.error("Error saving farm mapping to localStorage:", error);
+
     // Check if quota exceeded
-    if (error instanceof DOMException && error.name === 'QuotaExceededError') {
-      console.error('localStorage quota exceeded');
+    if (error instanceof DOMException && error.name === "QuotaExceededError") {
+      console.error("localStorage quota exceeded");
     }
-    
+
     return false;
   }
 };
@@ -164,12 +174,12 @@ export const saveFarmBoundary = (
   farmId: string,
   coordinates: number[][][],
   area: number,
-  center: [number, number]
+  center: [number, number],
 ): boolean => {
   const currentData = getFarmMapping() || initializeFarmMapping(farmId);
 
   currentData.farmBoundary = {
-    type: 'Polygon',
+    type: "Polygon",
     coordinates,
     area,
     center,
@@ -184,7 +194,9 @@ export const saveFarmBoundary = (
 export const saveSection = (farmId: string, section: SectionData): boolean => {
   const currentData = getFarmMapping() || initializeFarmMapping(farmId);
 
-  const existingIndex = currentData.sections.findIndex(s => s.id === section.id);
+  const existingIndex = currentData.sections.findIndex(
+    (s) => s.id === section.id,
+  );
 
   if (existingIndex >= 0) {
     // Update existing section
@@ -208,12 +220,12 @@ export const saveSection = (farmId: string, section: SectionData): boolean => {
  */
 export const deleteSection = (sectionId: string): boolean => {
   const currentData = getFarmMapping();
-  
+
   if (!currentData) {
     return false;
   }
 
-  currentData.sections = currentData.sections.filter(s => s.id !== sectionId);
+  currentData.sections = currentData.sections.filter((s) => s.id !== sectionId);
   return saveFarmMapping(currentData);
 };
 
@@ -222,12 +234,12 @@ export const deleteSection = (sectionId: string): boolean => {
  */
 export const getSection = (sectionId: string): SectionData | null => {
   const currentData = getFarmMapping();
-  
+
   if (!currentData) {
     return null;
   }
 
-  return currentData.sections.find(s => s.id === sectionId) || null;
+  return currentData.sections.find((s) => s.id === sectionId) || null;
 };
 
 /**
@@ -250,7 +262,7 @@ export const clearFarmMapping = (): boolean => {
     localStorage.removeItem(STORAGE_KEY);
     return true;
   } catch (error) {
-    console.error('Error clearing farm mapping from localStorage:', error);
+    console.error("Error clearing farm mapping from localStorage:", error);
     return false;
   }
 };
@@ -260,7 +272,7 @@ export const clearFarmMapping = (): boolean => {
  */
 export const getFarmMappingStats = () => {
   const data = getFarmMapping();
-  
+
   if (!data) {
     return {
       totalArea: 0,
@@ -272,9 +284,9 @@ export const getFarmMappingStats = () => {
 
   const cropDistribution: Record<string, number> = {};
   let totalSectionArea = 0;
-  
-  data.sections.forEach(section => {
-    const crop = section.cropType || 'Unknown';
+
+  data.sections.forEach((section) => {
+    const crop = section.cropType || "Unknown";
     cropDistribution[crop] = (cropDistribution[crop] || 0) + 1;
     totalSectionArea += section.area;
   });
@@ -293,17 +305,19 @@ export const getFarmMappingStats = () => {
  */
 export const exportFarmMappingData = (): void => {
   const data = getFarmMapping();
-  
+
   if (!data) {
-    console.error('No farm mapping data to export');
+    console.error("No farm mapping data to export");
     return;
   }
 
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: "application/json",
+  });
   const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
+  const link = document.createElement("a");
   link.href = url;
-  link.download = `farm-mapping-${new Date().toISOString().split('T')[0]}.json`;
+  link.download = `farm-mapping-${new Date().toISOString().split("T")[0]}.json`;
   link.click();
   URL.revokeObjectURL(url);
 };
@@ -316,7 +330,7 @@ export const importFarmMappingData = (jsonData: string): boolean => {
     const data = JSON.parse(jsonData) as FarmMappingData;
     return saveFarmMapping(data);
   } catch (error) {
-    console.error('Error importing farm mapping data:', error);
+    console.error("Error importing farm mapping data:", error);
     return false;
   }
 };
@@ -330,7 +344,7 @@ export const saveWaterSources = (waterSources: WaterSource[]): boolean => {
 
   currentData.waterSources = waterSources;
   currentData.waterSourcesLastFetched = new Date().toISOString();
-  
+
   return saveFarmMapping(currentData);
 };
 
@@ -341,7 +355,7 @@ export const calculateDistance = (
   lat1: number,
   lon1: number,
   lat2: number,
-  lon2: number
+  lon2: number,
 ): number => {
   const R = 6371e3; // Earth's radius in meters
   const φ1 = (lat1 * Math.PI) / 180;
@@ -364,14 +378,14 @@ export const updateSectionWaterSource = (sectionId: string): boolean => {
   const currentData = getFarmMapping();
   if (!currentData) return false;
 
-  const section = currentData.sections.find(s => s.id === sectionId);
+  const section = currentData.sections.find((s) => s.id === sectionId);
   if (!section || currentData.waterSources.length === 0) return false;
 
   // Calculate section center
   let totalLat = 0;
   let totalLng = 0;
   const coords = section.geometry.coordinates[0];
-  coords.forEach(coord => {
+  coords.forEach((coord) => {
     totalLng += coord[0];
     totalLat += coord[1];
   });
@@ -382,12 +396,12 @@ export const updateSectionWaterSource = (sectionId: string): boolean => {
   let nearestSource: { id: string; distance: number } | undefined;
   let minDistance = Infinity;
 
-  currentData.waterSources.forEach(source => {
+  currentData.waterSources.forEach((source) => {
     const distance = calculateDistance(
       sectionLat,
       sectionLng,
       source.coordinates[0],
-      source.coordinates[1]
+      source.coordinates[1],
     );
     if (distance < minDistance) {
       minDistance = distance;
@@ -410,7 +424,7 @@ export const updateAllSectionsWaterSources = (): boolean => {
   const currentData = getFarmMapping();
   if (!currentData) return false;
 
-  currentData.sections.forEach(section => {
+  currentData.sections.forEach((section) => {
     updateSectionWaterSource(section.id);
   });
 
@@ -421,7 +435,7 @@ export const updateAllSectionsWaterSources = (): boolean => {
 // IRRIGATION PLANS STORAGE
 // ============================================
 
-const IRRIGATION_PLANS_KEY = 'farm_irrigation_plans';
+const IRRIGATION_PLANS_KEY = "farm_irrigation_plans";
 
 export interface StoredIrrigationPlan {
   id: string;
@@ -451,7 +465,7 @@ export interface StoredIrrigationPlan {
   suitabilityScore: number;
   implementationTime: string;
   waterRequirement: number;
-  status: 'draft' | 'approved' | 'in-progress' | 'completed';
+  status: "draft" | "approved" | "in-progress" | "completed";
   createdAt: string;
 }
 
@@ -473,14 +487,14 @@ export const getIrrigationPlans = (): StoredIrrigationPlan[] => {
 export const saveIrrigationPlan = (plan: StoredIrrigationPlan): boolean => {
   try {
     const plans = getIrrigationPlans();
-    const existingIndex = plans.findIndex(p => p.id === plan.id);
-    
+    const existingIndex = plans.findIndex((p) => p.id === plan.id);
+
     if (existingIndex >= 0) {
       plans[existingIndex] = plan;
     } else {
       plans.push(plan);
     }
-    
+
     localStorage.setItem(IRRIGATION_PLANS_KEY, JSON.stringify(plans));
     return true;
   } catch {
@@ -494,7 +508,7 @@ export const saveIrrigationPlan = (plan: StoredIrrigationPlan): boolean => {
 export const deleteIrrigationPlan = (planId: string): boolean => {
   try {
     const plans = getIrrigationPlans();
-    const filtered = plans.filter(p => p.id !== planId);
+    const filtered = plans.filter((p) => p.id !== planId);
     localStorage.setItem(IRRIGATION_PLANS_KEY, JSON.stringify(filtered));
     return true;
   } catch {
@@ -507,11 +521,11 @@ export const deleteIrrigationPlan = (planId: string): boolean => {
  */
 export const updateIrrigationPlanStatus = (
   planId: string,
-  status: StoredIrrigationPlan['status']
+  status: StoredIrrigationPlan["status"],
 ): boolean => {
   try {
     const plans = getIrrigationPlans();
-    const plan = plans.find(p => p.id === planId);
+    const plan = plans.find((p) => p.id === planId);
     if (plan) {
       plan.status = status;
       localStorage.setItem(IRRIGATION_PLANS_KEY, JSON.stringify(plans));
@@ -526,7 +540,9 @@ export const updateIrrigationPlanStatus = (
 /**
  * Get irrigation plan by section ID
  */
-export const getIrrigationPlanBySection = (sectionId: string): StoredIrrigationPlan | null => {
+export const getIrrigationPlanBySection = (
+  sectionId: string,
+): StoredIrrigationPlan | null => {
   const plans = getIrrigationPlans();
-  return plans.find(p => p.sectionId === sectionId) || null;
+  return plans.find((p) => p.sectionId === sectionId) || null;
 };

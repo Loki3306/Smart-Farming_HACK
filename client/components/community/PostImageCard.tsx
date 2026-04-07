@@ -1,6 +1,6 @@
-import React from 'react';
-import { Post } from '@/services/communityApi';
-import { POST_TYPE_CONFIG } from '@/constants/community';
+import React from "react";
+import { Post } from "@/services/communityApi";
+import { POST_TYPE_CONFIG } from "@/constants/community";
 
 interface PostImageCardProps {
   post: Post;
@@ -10,23 +10,25 @@ export const PostImageCard: React.FC<PostImageCardProps> = ({ post }) => {
   const config = POST_TYPE_CONFIG[post.post_type];
 
   return (
-    <div 
+    <div
       id="post-image-card"
       className="w-[600px] bg-gradient-to-br from-green-50 to-emerald-50 p-8 rounded-2xl shadow-xl"
-      style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
+      style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
     >
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
         <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-white text-2xl font-bold">
-          {post.author?.name?.charAt(0) || '?'}
+          {post.author?.name?.charAt(0) || "?"}
         </div>
         <div className="flex-1">
-          <h3 className="font-bold text-xl text-gray-900">{post.author?.name || 'Anonymous'}</h3>
-          <p className="text-gray-600 text-sm">{post.author?.location || 'Unknown location'}</p>
+          <h3 className="font-bold text-xl text-gray-900">
+            {post.author?.name || "Anonymous"}
+          </h3>
+          <p className="text-gray-600 text-sm">
+            {post.author?.location || "Unknown location"}
+          </p>
         </div>
-        {config && (
-          <div className="text-4xl">{config.emoji}</div>
-        )}
+        {config && <div className="text-4xl">{config.emoji}</div>}
       </div>
 
       {/* Post Type Badge */}
@@ -41,7 +43,9 @@ export const PostImageCard: React.FC<PostImageCardProps> = ({ post }) => {
       {/* Content */}
       <div className="mb-6">
         <p className="text-gray-800 text-lg leading-relaxed">
-          {post.content.length > 300 ? post.content.slice(0, 300) + '...' : post.content}
+          {post.content.length > 300
+            ? post.content.slice(0, 300) + "..."
+            : post.content}
         </p>
       </div>
 
@@ -72,7 +76,9 @@ export const PostImageCard: React.FC<PostImageCardProps> = ({ post }) => {
             </div>
           </div>
           <div className="text-right">
-            <p className="text-sm font-semibold text-primary">Join the Community</p>
+            <p className="text-sm font-semibold text-primary">
+              Join the Community
+            </p>
             <p className="text-xs text-gray-500">Smart Farming Platform</p>
           </div>
         </div>

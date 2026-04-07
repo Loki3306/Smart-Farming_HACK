@@ -1,6 +1,12 @@
 import { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useInView,
+  AnimatePresence,
+} from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -261,7 +267,13 @@ const StickyFarmCycle = ({ onComplete }: { onComplete: () => void }) => {
                       style={{ transition: "stroke-dasharray 0.15s ease" }}
                     />
                     <defs>
-                      <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <linearGradient
+                        id="progressGradient"
+                        x1="0%"
+                        y1="0%"
+                        x2="100%"
+                        y2="0%"
+                      >
                         <stop offset="0%" stopColor="hsl(var(--primary))" />
                         <stop offset="100%" stopColor="#10b981" />
                       </linearGradient>
@@ -291,10 +303,16 @@ const StickyFarmCycle = ({ onComplete }: { onComplete: () => void }) => {
                   {phases.map((phase, index) => (
                     <motion.div
                       key={phase.label}
-                      className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${currentPhase >= index ? phase.color : "bg-muted"
-                        }`}
-                      animate={currentPhase === index ? { scale: [1, 1.3, 1] } : {}}
-                      transition={{ duration: 0.5, repeat: currentPhase === index ? Infinity : 0 }}
+                      className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                        currentPhase >= index ? phase.color : "bg-muted"
+                      }`}
+                      animate={
+                        currentPhase === index ? { scale: [1, 1.3, 1] } : {}
+                      }
+                      transition={{
+                        duration: 0.5,
+                        repeat: currentPhase === index ? Infinity : 0,
+                      }}
                     />
                   ))}
                 </div>
@@ -443,10 +461,15 @@ const Navbar = ({
   const navLinks = [
     { label: "Home", href: "#home", requiresAuth: false },
     { label: "How It Works", href: "#how-it-works", requiresAuth: false },
-    { label: "Marketplace", href: "/marketplace", requiresAuth: true, isRoute: true },
+    {
+      label: "Marketplace",
+      href: "/marketplace",
+      requiresAuth: true,
+      isRoute: true,
+    },
   ];
 
-  const handleNavClick = (link: typeof navLinks[0]) => {
+  const handleNavClick = (link: (typeof navLinks)[0]) => {
     if (link.requiresAuth && !isAuthenticated) {
       onLogin();
       return;
@@ -468,40 +491,57 @@ const Navbar = ({
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6 }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-          ? "bg-background/90 backdrop-blur-lg border-b border-border shadow-sm py-1"
-          : "bg-transparent py-4"
-          }`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          isScrolled
+            ? "bg-background/90 backdrop-blur-lg border-b border-border shadow-sm py-1"
+            : "bg-transparent py-4"
+        }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className={`flex items-center justify-between transition-all duration-300 ${isScrolled ? "h-10 md:h-11" : "h-16 md:h-20"
-            }`}>
+          <div
+            className={`flex items-center justify-between transition-all duration-300 ${
+              isScrolled ? "h-10 md:h-11" : "h-16 md:h-20"
+            }`}
+          >
             {/* Logo */}
             <motion.div
               className="flex items-center gap-2 cursor-pointer"
               whileHover={{ scale: 1.02 }}
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             >
-              <div className={`rounded-xl bg-primary flex items-center justify-center transition-all duration-300 ${isScrolled ? "w-7 h-7 rounded-lg" : "w-10 h-10"
-                }`}>
-                <Leaf className={`text-primary-foreground transition-all duration-300 ${isScrolled ? "w-4 h-4" : "w-6 h-6"
-                  }`} />
+              <div
+                className={`rounded-xl bg-primary flex items-center justify-center transition-all duration-300 ${
+                  isScrolled ? "w-7 h-7 rounded-lg" : "w-10 h-10"
+                }`}
+              >
+                <Leaf
+                  className={`text-primary-foreground transition-all duration-300 ${
+                    isScrolled ? "w-4 h-4" : "w-6 h-6"
+                  }`}
+                />
               </div>
-              <span className={`font-bold text-foreground hidden sm:block transition-all duration-300 ${isScrolled ? "text-base" : "text-xl"
-                }`}>
+              <span
+                className={`font-bold text-foreground hidden sm:block transition-all duration-300 ${
+                  isScrolled ? "text-base" : "text-xl"
+                }`}
+              >
                 Krushi Unnati
               </span>
             </motion.div>
 
             {/* Desktop Nav Links */}
-            <div className={`hidden md:flex items-center transition-all duration-300 ${isScrolled ? "gap-6" : "gap-8"
-              }`}>
+            <div
+              className={`hidden md:flex items-center transition-all duration-300 ${
+                isScrolled ? "gap-6" : "gap-8"
+              }`}
+            >
               {navLinks.map((link) => (
                 <button
                   key={link.label}
                   onClick={() => handleNavClick(link)}
-                  className={`text-muted-foreground hover:text-foreground transition-all font-medium flex items-center gap-1 ${isScrolled ? "text-xs" : "text-sm"
-                    }`}
+                  className={`text-muted-foreground hover:text-foreground transition-all font-medium flex items-center gap-1 ${
+                    isScrolled ? "text-xs" : "text-sm"
+                  }`}
                 >
                   {link.label}
                   {link.requiresAuth && !isAuthenticated && (
@@ -512,22 +552,40 @@ const Navbar = ({
             </div>
 
             {/* Desktop CTA */}
-            <div className={`hidden md:flex items-center transition-all duration-300 ${isScrolled ? "gap-2" : "gap-3"
-              }`}>
+            <div
+              className={`hidden md:flex items-center transition-all duration-300 ${
+                isScrolled ? "gap-2" : "gap-3"
+              }`}
+            >
               {isAuthenticated ? (
-                <Button onClick={onDashboard} className={`rounded-full transition-all duration-300 ${isScrolled ? "h-7 text-xs px-3" : ""
-                  }`}>
+                <Button
+                  onClick={onDashboard}
+                  className={`rounded-full transition-all duration-300 ${
+                    isScrolled ? "h-7 text-xs px-3" : ""
+                  }`}
+                >
                   Dashboard
-                  <ArrowRight className={`ml-1 transition-all duration-300 ${isScrolled ? "w-3 h-3" : "w-4 h-4"}`} />
+                  <ArrowRight
+                    className={`ml-1 transition-all duration-300 ${isScrolled ? "w-3 h-3" : "w-4 h-4"}`}
+                  />
                 </Button>
               ) : (
                 <>
-                  <Button variant="ghost" onClick={onLogin} className={`rounded-full transition-all duration-300 ${isScrolled ? "h-7 text-xs px-3" : ""
-                    }`}>
+                  <Button
+                    variant="ghost"
+                    onClick={onLogin}
+                    className={`rounded-full transition-all duration-300 ${
+                      isScrolled ? "h-7 text-xs px-3" : ""
+                    }`}
+                  >
                     Login
                   </Button>
-                  <Button onClick={onSignup} className={`rounded-full transition-all duration-300 ${isScrolled ? "h-7 text-xs px-3" : ""
-                    }`}>
+                  <Button
+                    onClick={onSignup}
+                    className={`rounded-full transition-all duration-300 ${
+                      isScrolled ? "h-7 text-xs px-3" : ""
+                    }`}
+                  >
                     Get Started
                   </Button>
                 </>
@@ -539,7 +597,11 @@ const Navbar = ({
               className="md:hidden p-2 text-foreground"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
-              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isMobileMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
             </button>
           </div>
         </div>
@@ -574,7 +636,11 @@ const Navbar = ({
                   </Button>
                 ) : (
                   <>
-                    <Button variant="outline" onClick={onLogin} className="w-full rounded-full">
+                    <Button
+                      variant="outline"
+                      onClick={onLogin}
+                      className="w-full rounded-full"
+                    >
                       Login
                     </Button>
                     <Button onClick={onSignup} className="w-full rounded-full">
@@ -884,7 +950,7 @@ export const Landing = () => {
       <LandingIntroDialog isAuthenticated={isAuthenticated} />
 
       {/* Sticky Farm Cycle Indicator */}
-      <StickyFarmCycle onComplete={() => { }} />
+      <StickyFarmCycle onComplete={() => {}} />
 
       {/* Floating Agriculture Icons */}
       <FloatingIcons />
@@ -938,9 +1004,9 @@ export const Landing = () => {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="text-lg md:text-xl text-muted-foreground max-w-xl mb-10"
               >
-                AI-powered autonomous irrigation that saves water, reduces costs,
-                and increases yields—built specifically for Indian crops, seasons,
-                and conditions.
+                AI-powered autonomous irrigation that saves water, reduces
+                costs, and increases yields—built specifically for Indian crops,
+                seasons, and conditions.
               </motion.p>
 
               {/* CTA Buttons */}
@@ -972,7 +1038,7 @@ export const Landing = () => {
                 <Button
                   size="lg"
                   variant="outline"
-                  onClick={() => navigate('/login')}
+                  onClick={() => navigate("/login")}
                   className="rounded-full px-8 py-6 text-lg"
                 >
                   Login
@@ -1011,7 +1077,11 @@ export const Landing = () => {
               {/* Floating animated icons around video - hidden on mobile */}
               <motion.div
                 animate={{ y: [0, -15, 0], rotate: [0, 5, 0] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
                 className="hidden lg:flex absolute -top-8 -left-4 w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl shadow-lg items-center justify-center z-10"
               >
                 <Wheat className="w-7 h-7 text-white" />
@@ -1019,7 +1089,12 @@ export const Landing = () => {
 
               <motion.div
                 animate={{ y: [0, 12, 0], rotate: [0, -5, 0] }}
-                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
+                transition={{
+                  duration: 2.5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 0.2,
+                }}
                 className="hidden lg:flex absolute -top-6 -right-6 w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl shadow-lg items-center justify-center z-10"
               >
                 <Droplets className="w-6 h-6 text-white" />
@@ -1027,7 +1102,12 @@ export const Landing = () => {
 
               <motion.div
                 animate={{ y: [0, -10, 0], x: [0, 5, 0] }}
-                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
+                transition={{
+                  duration: 3.5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 0.4,
+                }}
                 className="hidden lg:flex absolute -bottom-6 -left-6 w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl shadow-lg items-center justify-center z-10"
               >
                 <Tractor className="w-6 h-6 text-white" />
@@ -1035,7 +1115,12 @@ export const Landing = () => {
 
               <motion.div
                 animate={{ y: [0, 15, 0], rotate: [0, 8, 0] }}
-                transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
+                transition={{
+                  duration: 2.8,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 0.6,
+                }}
                 className="hidden lg:flex absolute -bottom-8 -right-4 w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl shadow-lg items-center justify-center z-10"
               >
                 <TreeDeciduous className="w-7 h-7 text-white" />
@@ -1051,7 +1136,12 @@ export const Landing = () => {
 
               <motion.div
                 animate={{ y: [0, -8, 0], scale: [1, 1.05, 1] }}
-                transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
+                transition={{
+                  duration: 3.2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 0.8,
+                }}
                 className="hidden lg:flex absolute top-1/2 -translate-y-1/2 -right-2 w-11 h-11 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full shadow-lg items-center justify-center z-10"
               >
                 <Sprout className="w-5 h-5 text-white" />
@@ -1067,7 +1157,10 @@ export const Landing = () => {
                     preload="none"
                     poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 450'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%230f766e'/%3E%3Cstop offset='100%25' stop-color='%2310b981'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='800' height='450' fill='url(%23g)'/%3E%3Cg opacity='0.8'%3E%3Ctext x='400' y='200' text-anchor='middle' fill='white' font-size='60' font-weight='bold' font-family='system-ui'%3EKrushi Unnati%3C/text%3E%3Ctext x='400' y='260' text-anchor='middle' fill='white' font-size='24' font-family='system-ui'%3ESmart Farming Demo%3C/text%3E%3Ccircle cx='400' cy='300' r='30' fill='white' opacity='0.9'/%3E%3Cpolygon points='390,285 390,315 415,300' fill='%230f766e'/%3E%3C/g%3E%3C/svg%3E"
                   >
-                    <source src="/assets/The_Self-Running_Farm.mp4" type="video/mp4" />
+                    <source
+                      src="/assets/The_Self-Running_Farm.mp4"
+                      type="video/mp4"
+                    />
                     Your browser does not support the video tag.
                   </video>
 
@@ -1080,7 +1173,6 @@ export const Landing = () => {
               </div>
             </motion.div>
           </div>
-
         </div>
 
         {/* Scroll indicator */}
@@ -1118,8 +1210,8 @@ export const Landing = () => {
               Why Indian Farms Need Smart Irrigation
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Traditional irrigation methods are failing our farmers.
-              Here's what's at stake.
+              Traditional irrigation methods are failing our farmers. Here's
+              what's at stake.
             </p>
           </div>
 
@@ -1149,7 +1241,9 @@ export const Landing = () => {
                           </p>
                         </div>
                       </div>
-                      <p className="text-muted-foreground">{problem.description}</p>
+                      <p className="text-muted-foreground">
+                        {problem.description}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -1194,7 +1288,9 @@ export const Landing = () => {
                   <h3 className="text-xl font-semibold text-foreground mb-2">
                     {step.title}
                   </h3>
-                  <p className="text-muted-foreground text-sm">{step.description}</p>
+                  <p className="text-muted-foreground text-sm">
+                    {step.description}
+                  </p>
 
                   {/* Connector arrow (except last) */}
                   {index < solutionSteps.length - 1 && (
@@ -1212,7 +1308,10 @@ export const Landing = () => {
       {/* ============================================
           SECTION 4: HOW IT WORKS (SYSTEM FLOW)
           ============================================ */}
-      <ScrollSection id="how-it-works" className="py-24 px-4 bg-gradient-to-b from-muted/30 to-background">
+      <ScrollSection
+        id="how-it-works"
+        className="py-24 px-4 bg-gradient-to-b from-muted/30 to-background"
+      >
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <span className="text-primary font-medium text-sm uppercase tracking-wider">
@@ -1442,8 +1541,8 @@ export const Landing = () => {
                   <span className="text-emerald-200">Your Farm?</span>
                 </h2>
                 <p className="text-white/80 text-lg md:text-xl mb-10">
-                  Join thousands of Indian farmers embracing precision agriculture.
-                  Save water, reduce costs, and grow sustainably.
+                  Join thousands of Indian farmers embracing precision
+                  agriculture. Save water, reduce costs, and grow sustainably.
                 </p>
 
                 {/* CTA Buttons */}
@@ -1524,7 +1623,8 @@ export const Landing = () => {
                 </span>
               </div>
               <p className="text-muted-foreground text-sm mb-6">
-                Precision irrigation for Bharat's farms. Empowering Indian farmers with AI-driven smart agriculture solutions.
+                Precision irrigation for Bharat's farms. Empowering Indian
+                farmers with AI-driven smart agriculture solutions.
               </p>
               {/* Social Links */}
               <div className="flex items-center gap-3">
@@ -1547,7 +1647,9 @@ export const Landing = () => {
 
             {/* Quick Links */}
             <div>
-              <h3 className="font-semibold text-foreground mb-4">Quick Links</h3>
+              <h3 className="font-semibold text-foreground mb-4">
+                Quick Links
+              </h3>
               <ul className="space-y-3">
                 {[
                   { label: "Home", href: "#home" },
@@ -1599,13 +1701,19 @@ export const Landing = () => {
                 </li>
                 <li className="flex items-center gap-3 text-sm text-muted-foreground">
                   <Mail className="w-4 h-4 flex-shrink-0" />
-                  <a href="mailto:hello@krushimitra.in" className="hover:text-primary transition-colors">
+                  <a
+                    href="mailto:hello@krushimitra.in"
+                    className="hover:text-primary transition-colors"
+                  >
                     hello@krushimitra.in
                   </a>
                 </li>
                 <li className="flex items-center gap-3 text-sm text-muted-foreground">
                   <Phone className="w-4 h-4 flex-shrink-0" />
-                  <a href="tel:+919876543210" className="hover:text-primary transition-colors">
+                  <a
+                    href="tel:+919876543210"
+                    className="hover:text-primary transition-colors"
+                  >
                     +91 98765 43210
                   </a>
                 </li>
@@ -1619,12 +1727,28 @@ export const Landing = () => {
           <div className="max-w-7xl mx-auto px-4 py-6">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
               <p className="text-muted-foreground text-sm text-center md:text-left">
-                © {new Date().getFullYear()} Krushi Mitra. All rights reserved. Made with 🇮🇳 in India.
+                © {new Date().getFullYear()} Krushi Mitra. All rights reserved.
+                Made with 🇮🇳 in India.
               </p>
               <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                <a href="/terms" className="hover:text-primary transition-colors">Terms</a>
-                <a href="/privacy" className="hover:text-primary transition-colors">Privacy</a>
-                <a href="/support" className="hover:text-primary transition-colors">Support</a>
+                <a
+                  href="/terms"
+                  className="hover:text-primary transition-colors"
+                >
+                  Terms
+                </a>
+                <a
+                  href="/privacy"
+                  className="hover:text-primary transition-colors"
+                >
+                  Privacy
+                </a>
+                <a
+                  href="/support"
+                  className="hover:text-primary transition-colors"
+                >
+                  Support
+                </a>
               </div>
             </div>
           </div>

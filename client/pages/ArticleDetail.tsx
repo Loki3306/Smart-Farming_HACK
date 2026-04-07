@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Clock, Calendar, Heart, Eye, Share2, Loader2, AlertCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  Clock,
+  Calendar,
+  Heart,
+  Eye,
+  Share2,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -67,8 +76,12 @@ export const ArticleDetail: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-6">
         <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
-        <h2 className="text-2xl font-bold text-foreground mb-2">Article Not Found</h2>
-        <p className="text-muted-foreground mb-6">{error || "The article you're looking for doesn't exist."}</p>
+        <h2 className="text-2xl font-bold text-foreground mb-2">
+          Article Not Found
+        </h2>
+        <p className="text-muted-foreground mb-6">
+          {error || "The article you're looking for doesn't exist."}
+        </p>
         <Button onClick={() => navigate("/learn")}>
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Learn
@@ -170,7 +183,9 @@ export const ArticleDetail: React.FC = () => {
 
           {/* Related Articles Section (Optional - can be implemented later) */}
           <div className="mt-8">
-            <h2 className="text-2xl font-bold text-foreground mb-4">Related Articles</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-4">
+              Related Articles
+            </h2>
             <p className="text-muted-foreground">Coming soon...</p>
           </div>
         </motion.div>

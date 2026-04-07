@@ -1,8 +1,8 @@
-import { useState, useRef, KeyboardEvent } from 'react';
-import { Send, Paperclip, Smile } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { cn } from '@/lib/utils';
+import { useState, useRef, KeyboardEvent } from "react";
+import { Send, Paperclip, Smile } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 interface MessageInputProps {
   onSend: (content: string, imageUrl?: string) => void;
@@ -12,28 +12,28 @@ interface MessageInputProps {
   placeholder?: string;
 }
 
-export function MessageInput({ 
-  onSend, 
-  onTyping, 
+export function MessageInput({
+  onSend,
+  onTyping,
   onStopTyping,
   disabled = false,
-  placeholder = 'Type a message...' 
+  placeholder = "Type a message...",
 }: MessageInputProps) {
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(e.target.value);
-    
+
     // Trigger typing indicator
     onTyping();
-    
+
     // Clear existing timeout
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
-    
+
     // Stop typing after 1 second of no input
     typingTimeoutRef.current = setTimeout(() => {
       onStopTyping();
@@ -45,7 +45,7 @@ export function MessageInput({
     if (!trimmed || disabled) return;
 
     onSend(trimmed);
-    setMessage('');
+    setMessage("");
     onStopTyping();
 
     // Clear timeout
@@ -55,12 +55,12 @@ export function MessageInput({
 
     // Reset textarea height
     if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = "auto";
     }
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
@@ -87,14 +87,14 @@ export function MessageInput({
             placeholder={placeholder}
             disabled={disabled}
             className={cn(
-              'min-h-[44px] max-h-[200px] resize-none pr-10',
-              'focus-visible:ring-1'
+              "min-h-[44px] max-h-[200px] resize-none pr-10",
+              "focus-visible:ring-1",
             )}
             rows={1}
             onInput={(e) => {
               const target = e.target as HTMLTextAreaElement;
-              target.style.height = 'auto';
-              target.style.height = target.scrollHeight + 'px';
+              target.style.height = "auto";
+              target.style.height = target.scrollHeight + "px";
             }}
           />
           <Button

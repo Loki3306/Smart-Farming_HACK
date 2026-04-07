@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -6,14 +6,19 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Loader2, Flag, AlertTriangle } from 'lucide-react';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Loader2, Flag, AlertTriangle } from "lucide-react";
 
-export type ReportReason = 'spam' | 'inappropriate' | 'misinformation' | 'harassment' | 'other';
+export type ReportReason =
+  | "spam"
+  | "inappropriate"
+  | "misinformation"
+  | "harassment"
+  | "other";
 
 interface ReportPostDialogProps {
   open: boolean;
@@ -22,31 +27,35 @@ interface ReportPostDialogProps {
   postContent: string;
 }
 
-const REPORT_REASONS: { value: ReportReason; label: string; description: string }[] = [
+const REPORT_REASONS: {
+  value: ReportReason;
+  label: string;
+  description: string;
+}[] = [
   {
-    value: 'spam',
-    label: 'Spam or Advertising',
-    description: 'Unwanted promotional content or repetitive posts',
+    value: "spam",
+    label: "Spam or Advertising",
+    description: "Unwanted promotional content or repetitive posts",
   },
   {
-    value: 'inappropriate',
-    label: 'Inappropriate Content',
-    description: 'Offensive, vulgar, or unsuitable material',
+    value: "inappropriate",
+    label: "Inappropriate Content",
+    description: "Offensive, vulgar, or unsuitable material",
   },
   {
-    value: 'misinformation',
-    label: 'False Information',
-    description: 'Misleading or incorrect farming advice',
+    value: "misinformation",
+    label: "False Information",
+    description: "Misleading or incorrect farming advice",
   },
   {
-    value: 'harassment',
-    label: 'Harassment or Bullying',
-    description: 'Targeting or attacking other users',
+    value: "harassment",
+    label: "Harassment or Bullying",
+    description: "Targeting or attacking other users",
   },
   {
-    value: 'other',
-    label: 'Other',
-    description: 'Something else that violates community guidelines',
+    value: "other",
+    label: "Other",
+    description: "Something else that violates community guidelines",
   },
 ];
 
@@ -56,8 +65,8 @@ export const ReportPostDialog: React.FC<ReportPostDialogProps> = ({
   onSubmit,
   postContent,
 }) => {
-  const [reason, setReason] = useState<ReportReason>('spam');
-  const [details, setDetails] = useState('');
+  const [reason, setReason] = useState<ReportReason>("spam");
+  const [details, setDetails] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
@@ -68,10 +77,10 @@ export const ReportPostDialog: React.FC<ReportPostDialogProps> = ({
       await onSubmit(reason, details.trim());
       onOpenChange(false);
       // Reset form
-      setReason('spam');
-      setDetails('');
+      setReason("spam");
+      setDetails("");
     } catch (error) {
-      console.error('Failed to submit report:', error);
+      console.error("Failed to submit report:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -86,7 +95,8 @@ export const ReportPostDialog: React.FC<ReportPostDialogProps> = ({
             Report Post
           </DialogTitle>
           <DialogDescription>
-            Help us maintain a safe and helpful community. Your report will be reviewed by moderators.
+            Help us maintain a safe and helpful community. Your report will be
+            reviewed by moderators.
           </DialogDescription>
         </DialogHeader>
 
@@ -95,18 +105,31 @@ export const ReportPostDialog: React.FC<ReportPostDialogProps> = ({
           <div className="bg-muted p-3 rounded-lg border-l-4 border-orange-400">
             <p className="text-xs text-muted-foreground mb-1">Reporting:</p>
             <p className="text-sm line-clamp-3">
-              "{postContent.length > 100 ? postContent.slice(0, 100) + '...' : postContent}"
+              "
+              {postContent.length > 100
+                ? postContent.slice(0, 100) + "..."
+                : postContent}
+              "
             </p>
           </div>
 
           {/* Report Reason */}
           <div className="space-y-3">
             <Label>Why are you reporting this post?</Label>
-            <RadioGroup value={reason} onValueChange={(value) => setReason(value as ReportReason)}>
+            <RadioGroup
+              value={reason}
+              onValueChange={(value) => setReason(value as ReportReason)}
+            >
               {REPORT_REASONS.map((option) => (
-                <div key={option.value} className="flex items-start space-x-3 space-y-0">
+                <div
+                  key={option.value}
+                  className="flex items-start space-x-3 space-y-0"
+                >
                   <RadioGroupItem value={option.value} id={option.value} />
-                  <div className="flex-1 cursor-pointer" onClick={() => setReason(option.value)}>
+                  <div
+                    className="flex-1 cursor-pointer"
+                    onClick={() => setReason(option.value)}
+                  >
                     <Label
                       htmlFor={option.value}
                       className="font-medium cursor-pointer"
@@ -146,7 +169,9 @@ export const ReportPostDialog: React.FC<ReportPostDialogProps> = ({
               <ul className="list-disc list-inside space-y-1">
                 <li>False reports may result in account restrictions</li>
                 <li>Reports are anonymous to the post author</li>
-                <li>Posts with 3+ reports will be auto-hidden pending review</li>
+                <li>
+                  Posts with 3+ reports will be auto-hidden pending review
+                </li>
               </ul>
             </div>
           </div>

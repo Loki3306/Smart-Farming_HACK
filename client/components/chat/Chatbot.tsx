@@ -1,5 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+import React, { useEffect, useRef, useState } from "react";
+import {
+  motion,
+  AnimatePresence,
+  useMotionValue,
+  useTransform,
+} from "framer-motion";
 import {
   MessageCircle,
   Send,
@@ -10,17 +15,17 @@ import {
   Maximize2,
   RotateCcw,
   Zap,
-} from 'lucide-react';
+} from "lucide-react";
 
 // Markdown rendering for AI messages
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import rehypeSanitize from 'rehype-sanitize';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
-import { useChatbot } from '@/hooks/useChatbot';
-import { cn } from '@/lib/utils';
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeSanitize from "rehype-sanitize";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { useChatbot } from "@/hooks/useChatbot";
+import { cn } from "@/lib/utils";
 
 interface ChatbotProps {
   compact?: boolean;
@@ -51,11 +56,14 @@ export const Chatbot: React.FC<ChatbotProps> = ({
   } = useChatbot();
 
   const [isOpen, setIsOpen] = useState(!floating);
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const [isMinimized, setIsMinimized] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   // Offset from bottom/left in px
-  const [offset, setOffset] = useState<{ bottom: number; left: number }>({ bottom: 24, left: 24 });
+  const [offset, setOffset] = useState<{ bottom: number; left: number }>({
+    bottom: 24,
+    left: 24,
+  });
   const dragStartPos = useRef<{ x: number; y: number } | null>(null);
   const dragStartOffset = useRef<{ bottom: number; left: number } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -65,7 +73,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({
 
   // Auto-scroll to bottom
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -76,7 +84,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({
     }
 
     const message = inputValue;
-    setInputValue('');
+    setInputValue("");
 
     // Use streaming for typing effect
     await sendMessageStream(message);
@@ -94,26 +102,27 @@ export const Chatbot: React.FC<ChatbotProps> = ({
         dragMomentum={false}
         onDragStart={() => setIsDragging(true)}
         onDragEnd={() => setIsDragging(false)}
-        onPointerDown={e => {
+        onPointerDown={(e) => {
           dragStartPos.current = { x: e.clientX, y: e.clientY };
         }}
-        onPointerUp={e => {
+        onPointerUp={(e) => {
           if (!dragStartPos.current) return;
           const dx = Math.abs(e.clientX - dragStartPos.current.x);
           const dy = Math.abs(e.clientY - dragStartPos.current.y);
-          const moved = Math.sqrt(dx*dx + dy*dy);
+          const moved = Math.sqrt(dx * dx + dy * dy);
           dragStartPos.current = null;
-          if (moved < 8) { // threshold in pixels
+          if (moved < 8) {
+            // threshold in pixels
             setIsOpen(true);
           }
         }}
         className={cn(
           "fixed bottom-6 left-6 z-50 h-14 w-14 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow",
           isDragging && "shadow-2xl cursor-grabbing",
-          !isDragging && "cursor-grab"
+          !isDragging && "cursor-grab",
         )}
         title="Open AI Chatbot"
-        style={{ touchAction: 'none' }}
+        style={{ touchAction: "none" }}
       >
         <MessageCircle size={24} />
       </motion.button>
@@ -133,11 +142,13 @@ export const Chatbot: React.FC<ChatbotProps> = ({
           onDragStart={() => setIsDragging(true)}
           onDragEnd={() => setIsDragging(false)}
           className={cn(
-            'flex flex-col border border-green-100 rounded-2xl shadow-xl overflow-hidden',
-            'bg-[#f9f9f6]',
-            floating ? 'fixed bottom-6 left-6 z-50 cursor-grab active:cursor-grabbing' : 'h-full',
-            compact ? 'w-96 h-[500px]' : 'w-full max-w-md h-[600px]',
-            isDragging && 'shadow-2xl'
+            "flex flex-col border border-green-100 rounded-2xl shadow-xl overflow-hidden",
+            "bg-[#f9f9f6]",
+            floating
+              ? "fixed bottom-6 left-6 z-50 cursor-grab active:cursor-grabbing"
+              : "h-full",
+            compact ? "w-96 h-[500px]" : "w-full max-w-md h-[600px]",
+            isDragging && "shadow-2xl",
           )}
         >
           {/* Header */}
@@ -145,17 +156,56 @@ export const Chatbot: React.FC<ChatbotProps> = ({
             <div className="flex items-center gap-3">
               {/* Farmer avatar icon (SVG) */}
               <span className="inline-flex items-center justify-center rounded-full bg-white/20 border border-white/30 w-10 h-10">
-                <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <ellipse cx="16" cy="24" rx="10" ry="6" fill="#F4D29C"/>
-                  <circle cx="16" cy="13" r="6" fill="#F9E4B7" stroke="#B8860B" strokeWidth="1.5"/>
-                  <ellipse cx="16" cy="11" rx="6" ry="3" fill="#B8860B" fillOpacity=".15"/>
-                  <rect x="10" y="7" width="12" height="4" rx="2" fill="#B8860B"/>
-                  <rect x="13" y="3" width="6" height="4" rx="2" fill="#E2B007"/>
+                <svg
+                  width="28"
+                  height="28"
+                  viewBox="0 0 32 32"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <ellipse cx="16" cy="24" rx="10" ry="6" fill="#F4D29C" />
+                  <circle
+                    cx="16"
+                    cy="13"
+                    r="6"
+                    fill="#F9E4B7"
+                    stroke="#B8860B"
+                    strokeWidth="1.5"
+                  />
+                  <ellipse
+                    cx="16"
+                    cy="11"
+                    rx="6"
+                    ry="3"
+                    fill="#B8860B"
+                    fillOpacity=".15"
+                  />
+                  <rect
+                    x="10"
+                    y="7"
+                    width="12"
+                    height="4"
+                    rx="2"
+                    fill="#B8860B"
+                  />
+                  <rect
+                    x="13"
+                    y="3"
+                    width="6"
+                    height="4"
+                    rx="2"
+                    fill="#E2B007"
+                  />
                 </svg>
               </span>
               <div>
-                <h3 className="font-bold text-lg leading-tight">किसान मित्र <span className="font-normal text-base">| Kisaan Mitra</span></h3>
-                <div className="text-xs text-white/90 -mt-0.5">आपका खेती सलाहकार</div>
+                <h3 className="font-bold text-lg leading-tight">
+                  किसान मित्र{" "}
+                  <span className="font-normal text-base">| Kisaan Mitra</span>
+                </h3>
+                <div className="text-xs text-white/90 -mt-0.5">
+                  आपका खेती सलाहकार
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -163,9 +213,13 @@ export const Chatbot: React.FC<ChatbotProps> = ({
                 <button
                   onClick={() => setIsMinimized(!isMinimized)}
                   className="p-1 hover:bg-white/20 rounded transition-colors"
-                  title={isMinimized ? 'Maximize' : 'Minimize'}
+                  title={isMinimized ? "Maximize" : "Minimize"}
                 >
-                  {isMinimized ? <Maximize2 size={18} /> : <Minimize2 size={18} />}
+                  {isMinimized ? (
+                    <Maximize2 size={18} />
+                  ) : (
+                    <Minimize2 size={18} />
+                  )}
                 </button>
               )}
               {floating && (
@@ -195,13 +249,18 @@ export const Chatbot: React.FC<ChatbotProps> = ({
                 {messages.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-center py-8">
                     <Zap size={40} className="text-green-400 mb-3" />
-                    <h4 className="font-bold text-green-700 mb-2">नमस्ते किसान मित्र! | Hello Farmer!</h4>
+                    <h4 className="font-bold text-green-700 mb-2">
+                      नमस्ते किसान मित्र! | Hello Farmer!
+                    </h4>
                     <p className="text-sm text-gray-700 mb-3">
-                      खेती या फसल से जुड़ा सवाल पूछें।<br/>
+                      खेती या फसल से जुड़ा सवाल पूछें।
+                      <br />
                       Ask your farming or crop question.
                     </p>
                     <div className="mt-4 space-y-1 text-left w-full max-w-xs mx-auto">
-                      <p className="text-xs text-green-600 font-bold">झटपट सुझाव / Quick Tips:</p>
+                      <p className="text-xs text-green-600 font-bold">
+                        झटपट सुझाव / Quick Tips:
+                      </p>
                       <ul className="text-xs text-gray-700 space-y-0.5 list-disc list-inside">
                         <li>🌱 फसल का नाम लिखें (Crop name)</li>
                         <li>🐛 समस्या बताएं (Problem)</li>
@@ -218,16 +277,18 @@ export const Chatbot: React.FC<ChatbotProps> = ({
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         className={cn(
-                          'flex gap-2',
-                          message.role === 'user' ? 'justify-end' : 'justify-start'
+                          "flex gap-2",
+                          message.role === "user"
+                            ? "justify-end"
+                            : "justify-start",
                         )}
                       >
                         <div
                           className={cn(
-                            'max-w-xs px-4 py-2 rounded-lg text-sm leading-relaxed',
-                            message.role === 'user'
-                              ? 'bg-green-500 text-white rounded-br-none'
-                              : 'bg-white text-gray-800 border border-gray-200 rounded-bl-none'
+                            "max-w-xs px-4 py-2 rounded-lg text-sm leading-relaxed",
+                            message.role === "user"
+                              ? "bg-green-500 text-white rounded-br-none"
+                              : "bg-white text-gray-800 border border-gray-200 rounded-bl-none",
                           )}
                         >
                           <div className="prose max-w-none whitespace-pre-wrap text-sm">
@@ -286,7 +347,10 @@ export const Chatbot: React.FC<ChatbotProps> = ({
                   <Button
                     type="submit"
                     disabled={
-                      isLoading || isStreaming || !isHealthy || !inputValue.trim()
+                      isLoading ||
+                      isStreaming ||
+                      !isHealthy ||
+                      !inputValue.trim()
                     }
                     size="sm"
                     className="bg-green-500 hover:bg-green-600 text-white"

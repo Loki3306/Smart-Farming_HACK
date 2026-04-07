@@ -47,7 +47,9 @@ export async function sendOtp(req: Request, res: Response) {
 
     // Check if Twilio is configured
     if (!accountSid || !authToken || !verifySid) {
-      console.log(`[OTP] [MOCK MODE] Twilio not configured, sending mock OTP to ${phoneNumber}`);
+      console.log(
+        `[OTP] [MOCK MODE] Twilio not configured, sending mock OTP to ${phoneNumber}`,
+      );
       await new Promise((resolve) => setTimeout(resolve, 500));
       console.log(`[OTP] [MOCK MODE] OTP is 123456`);
       return res.status(200).json({
@@ -128,9 +130,11 @@ export async function verifyOtp(req: Request, res: Response) {
 
     // Check if Twilio is configured
     if (!accountSid || !authToken || !verifySid) {
-      console.log(`[OTP] [MOCK MODE] Twilio not configured, verifying mock OTP for ${phoneNumber}`);
+      console.log(
+        `[OTP] [MOCK MODE] Twilio not configured, verifying mock OTP for ${phoneNumber}`,
+      );
       await new Promise((resolve) => setTimeout(resolve, 300));
-      
+
       if (code === "123456") {
         console.log(`[OTP] [MOCK MODE] OTP verified successfully`);
         return res.status(200).json({
@@ -167,7 +171,9 @@ export async function verifyOtp(req: Request, res: Response) {
         verified: true,
       });
     } else {
-      console.log(`[OTP] OTP verification failed. Status: ${verificationCheck.status}`);
+      console.log(
+        `[OTP] OTP verification failed. Status: ${verificationCheck.status}`,
+      );
       return res.status(400).json({
         success: false,
         error: "Invalid or expired code. Please try again.",

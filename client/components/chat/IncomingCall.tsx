@@ -1,7 +1,7 @@
-import { Phone, PhoneOff, Video } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { CallType } from '@/services/callService';
-import { motion } from 'framer-motion';
+import { Phone, PhoneOff, Video } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CallType } from "@/services/callService";
+import { motion } from "framer-motion";
 
 interface IncomingCallProps {
   callerName: string;
@@ -22,39 +22,47 @@ export function IncomingCall({
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm"
-      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "20px",
+      }}
     >
-      <div 
+      <div
         className="bg-background rounded-xl shadow-2xl"
-        style={{ 
-          width: '85%',
-          maxWidth: '300px',
-          padding: '16px',
-          marginLeft: '400px'
+        style={{
+          width: "85%",
+          maxWidth: "300px",
+          padding: "16px",
+          marginLeft: "400px",
         }}
       >
         {/* Caller Info */}
-        <div className="text-center" style={{ marginBottom: '16px' }}>
-          <div 
+        <div className="text-center" style={{ marginBottom: "16px" }}>
+          <div
             className="rounded-full bg-primary/20 animate-pulse"
             style={{
-              width: '60px',
-              height: '60px',
-              margin: '0 auto 12px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
+              width: "60px",
+              height: "60px",
+              margin: "0 auto 12px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             <span className="text-2xl font-bold text-primary">
               {callerName.charAt(0).toUpperCase()}
             </span>
           </div>
-          <h2 className="text-base font-bold truncate" style={{ marginBottom: '4px' }}>
+          <h2
+            className="text-base font-bold truncate"
+            style={{ marginBottom: "4px" }}
+          >
             {callerName}
           </h2>
           <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
-            {callType === 'video' ? (
+            {callType === "video" ? (
               <>
                 <Video className="h-3 w-3" />
                 <span>Video Call</span>
@@ -73,7 +81,7 @@ export function IncomingCall({
           <Button
             variant="destructive"
             className="flex-1 rounded-full"
-            style={{ height: '40px', fontSize: '12px' }}
+            style={{ height: "40px", fontSize: "12px" }}
             onClick={onReject}
           >
             <PhoneOff className="h-4 w-4 mr-1" />
@@ -81,7 +89,7 @@ export function IncomingCall({
           </Button>
           <Button
             className="flex-1 rounded-full bg-green-500 hover:bg-green-600"
-            style={{ height: '40px', fontSize: '12px' }}
+            style={{ height: "40px", fontSize: "12px" }}
             onClick={onAccept}
           >
             <Phone className="h-4 w-4 mr-1" />

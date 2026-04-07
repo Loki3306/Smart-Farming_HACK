@@ -1,4 +1,4 @@
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -8,7 +8,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from "@/components/ui/alert-dialog";
 
 interface WhatsAppDialogProps {
   open: boolean;
@@ -32,14 +32,16 @@ export function WhatsAppDialog({
             Continue on WhatsApp?
           </AlertDialogTitle>
           <AlertDialogDescription>
-            Would you like to continue your conversation with <strong>{otherUserName}</strong> on WhatsApp?
-            <br /><br />
+            Would you like to continue your conversation with{" "}
+            <strong>{otherUserName}</strong> on WhatsApp?
+            <br />
+            <br />
             This will open WhatsApp and start a chat with them.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction 
+          <AlertDialogAction
             onClick={onConfirm}
             className="bg-green-500 hover:bg-green-600"
           >

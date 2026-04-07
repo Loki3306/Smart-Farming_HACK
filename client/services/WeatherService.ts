@@ -96,9 +96,13 @@ const mockHourlyForecast = [
 ];
 
 class WeatherServiceClass {
-  private cachedLocation: { latitude: number; longitude: number; timestamp: number } | null = null;
+  private cachedLocation: {
+    latitude: number;
+    longitude: number;
+    timestamp: number;
+  } | null = null;
   private readonly LOCATION_CACHE_DURATION = 5 * 60 * 1000; // Cache for 5 minutes
-  
+
   // Request caching to prevent duplicate API calls
   private weatherCache: { data: WeatherData; timestamp: number } | null = null;
   private forecastCache: { data: any; timestamp: number } | null = null;
@@ -108,53 +112,69 @@ class WeatherServiceClass {
   private readonly FORECAST_CACHE_DURATION = 300000; // 5 minute cache
 
   // Get user's current GPS location from browser
-  private async getUserLocation(): Promise<{ latitude: number; longitude: number } | null> {
+  private async getUserLocation(): Promise<{
+    latitude: number;
+    longitude: number;
+  } | null> {
     // Check if we have a recent cached location
     if (this.cachedLocation) {
       const age = Date.now() - this.cachedLocation.timestamp;
       if (age < this.LOCATION_CACHE_DURATION) {
-        console.log(`[Weather] Using cached GPS location: ${this.cachedLocation.latitude}, ${this.cachedLocation.longitude}`);
-        return { latitude: this.cachedLocation.latitude, longitude: this.cachedLocation.longitude };
+        console.log(
+          `[Weather] Using cached GPS location: ${this.cachedLocation.latitude}, ${this.cachedLocation.longitude}`,
+        );
+        return {
+          latitude: this.cachedLocation.latitude,
+          longitude: this.cachedLocation.longitude,
+        };
       }
     }
 
     return new Promise((resolve) => {
       if (!navigator.geolocation) {
-        console.warn('[Weather] Geolocation not supported by browser');
+        console.warn("[Weather] Geolocation not supported by browser");
         resolve(null);
         return;
       }
 
-      console.log('[Weather] Requesting GPS location...');
-      
+      console.log("[Weather] Requesting GPS location...");
+
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          console.log(`[Weather] ✅ GPS Location detected: ${position.coords.latitude}, ${position.coords.longitude}`);
-          
+          console.log(
+            `[Weather] ✅ GPS Location detected: ${position.coords.latitude}, ${position.coords.longitude}`,
+          );
+
           // Cache the location
           this.cachedLocation = {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
             timestamp: Date.now(),
           };
-          
+
           resolve({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
           });
         },
         (error) => {
-          console.warn(`[Weather] ⚠️  Could not get GPS location: ${error.message}`);
-          console.warn('[Weather] Falling back to farm location. To enable GPS:');
-          console.warn('[Weather]   1. Check browser location permissions');
-          console.warn('[Weather]   2. Enable location services on your device');
+          console.warn(
+            `[Weather] ⚠️  Could not get GPS location: ${error.message}`,
+          );
+          console.warn(
+            "[Weather] Falling back to farm location. To enable GPS:",
+          );
+          console.warn("[Weather]   1. Check browser location permissions");
+          console.warn(
+            "[Weather]   2. Enable location services on your device",
+          );
           resolve(null);
         },
-        { 
+        {
           timeout: 15000, // Increased to 15 seconds
           enableHighAccuracy: false, // Use network location (faster)
-          maximumAge: 300000 // Accept cached location up to 5 minutes old
-        }
+          maximumAge: 300000, // Accept cached location up to 5 minutes old
+        },
       );
     });
   }
@@ -179,49 +199,54 @@ class WeatherServiceClass {
         timestamp: new Date(),
       };
     }
-    
+
     // Check cache first
-    if (this.weatherCache && (Date.now() - this.weatherCache.timestamp) < this.WEATHER_CACHE_DURATION) {
+    if (
+      this.weatherCache &&
+      Date.now() - this.weatherCache.timestamp < this.WEATHER_CACHE_DURATION
+    ) {
       return this.weatherCache.data;
     }
-    
+
     // Return pending request if exists (deduplication)
     if (this.pendingWeatherRequest) {
       return this.pendingWeatherRequest;
     }
-    
+
     // Try to get user's current GPS location first
     const gpsLocation = await this.getUserLocation();
-    
+
     let url: string;
     if (gpsLocation) {
       // Use real GPS coordinates from browser
       url = `${CONFIG.API_BASE_URL}/weather/current?lat=${gpsLocation.latitude}&lon=${gpsLocation.longitude}`;
-      console.log(`[Weather] Using GPS coordinates: ${gpsLocation.latitude}, ${gpsLocation.longitude}`);
+      console.log(
+        `[Weather] Using GPS coordinates: ${gpsLocation.latitude}, ${gpsLocation.longitude}`,
+      );
     } else {
       // Fall back to farm location
-      const farmId = localStorage.getItem('current_farm_id');
-      url = farmId 
+      const farmId = localStorage.getItem("current_farm_id");
+      url = farmId
         ? `${CONFIG.API_BASE_URL}/weather/current?farmId=${encodeURIComponent(farmId)}`
         : `${CONFIG.API_BASE_URL}/weather/current`;
-      console.log('[Weather] Using farm location (GPS not available)');
+      console.log("[Weather] Using farm location (GPS not available)");
     }
-    
+
     this.pendingWeatherRequest = fetch(url)
-      .then(response => {
+      .then((response) => {
         if (!response.ok) throw new Error("Failed to fetch weather data");
         return response.json();
       })
-      .then(data => {
+      .then((data) => {
         this.weatherCache = { data, timestamp: Date.now() };
         this.pendingWeatherRequest = null;
         return data;
       })
-      .catch(err => {
+      .catch((err) => {
         this.pendingWeatherRequest = null;
         throw err;
       });
-    
+
     return this.pendingWeatherRequest;
   }
 
@@ -230,48 +255,51 @@ class WeatherServiceClass {
       await this.simulateDelay();
       return { forecast: mockForecast, hourly: mockHourlyForecast };
     }
-    
+
     // Check cache first
-    if (this.forecastCache && (Date.now() - this.forecastCache.timestamp) < this.FORECAST_CACHE_DURATION) {
+    if (
+      this.forecastCache &&
+      Date.now() - this.forecastCache.timestamp < this.FORECAST_CACHE_DURATION
+    ) {
       return this.forecastCache.data;
     }
-    
+
     // Return pending request if exists (deduplication)
     if (this.pendingForecastRequest) {
       return this.pendingForecastRequest;
     }
-    
+
     // Try to get user's current GPS location first
     const gpsLocation = await this.getUserLocation();
-    
+
     let url: string;
     if (gpsLocation) {
       // Use real GPS coordinates from browser
       url = `${CONFIG.API_BASE_URL}/weather/forecast?lat=${gpsLocation.latitude}&lon=${gpsLocation.longitude}`;
     } else {
       // Fall back to farm location
-      const farmId = localStorage.getItem('current_farm_id');
-      url = farmId 
+      const farmId = localStorage.getItem("current_farm_id");
+      url = farmId
         ? `${CONFIG.API_BASE_URL}/weather/forecast?farmId=${encodeURIComponent(farmId)}`
         : `${CONFIG.API_BASE_URL}/weather/forecast`;
     }
-    
+
     this.pendingForecastRequest = fetch(url)
-      .then(response => {
+      .then((response) => {
         if (!response.ok) throw new Error("Failed to fetch forecast");
         return response.json();
       })
-      .then(data => {
+      .then((data) => {
         const result = data.forecast || data;
         this.forecastCache = { data: result, timestamp: Date.now() };
         this.pendingForecastRequest = null;
         return result;
       })
-      .catch(err => {
+      .catch((err) => {
         this.pendingForecastRequest = null;
         throw err;
       });
-    
+
     return this.pendingForecastRequest;
   }
 
@@ -289,13 +317,13 @@ class WeatherServiceClass {
       }
       return data;
     }
-    
+
     // Get current farm ID from localStorage
-    const farmId = localStorage.getItem('current_farm_id');
-    const url = farmId 
+    const farmId = localStorage.getItem("current_farm_id");
+    const url = farmId
       ? `${CONFIG.API_BASE_URL}/weather/historical?days=${days}&farmId=${encodeURIComponent(farmId)}`
       : `${CONFIG.API_BASE_URL}/weather/historical?days=${days}`;
-    
+
     const response = await fetch(url);
     if (!response.ok) throw new Error("Failed to fetch historical weather");
     const responseData = await response.json();

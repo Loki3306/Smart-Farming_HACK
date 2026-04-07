@@ -72,15 +72,17 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ userId }) => {
     if (!notification.read) {
       await markAsRead(notification.id);
     }
-    
+
     // Navigate based on notification type
-    if (notification.type === 'message') {
+    if (notification.type === "message") {
       // Open messages dialog with URL params
       const searchParams = new URLSearchParams(location.search);
-      searchParams.set('openMessages', 'true');
-      navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
+      searchParams.set("openMessages", "true");
+      navigate(`${location.pathname}?${searchParams.toString()}`, {
+        replace: true,
+      });
     }
-    
+
     // Close the popover
     setOpen(false);
   };
@@ -110,11 +112,7 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ userId }) => {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent
-        className="w-96 p-0"
-        align="end"
-        sideOffset={8}
-      >
+      <PopoverContent className="w-96 p-0" align="end" sideOffset={8}>
         <div className="flex flex-col h-[500px]">
           {/* Header */}
           <div className="p-4 border-b">
@@ -145,7 +143,9 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ userId }) => {
                 <div className="p-4 rounded-full bg-muted mb-3">
                   <Bell className="h-8 w-8 text-muted-foreground" />
                 </div>
-                <p className="text-sm font-medium text-foreground">No notifications yet</p>
+                <p className="text-sm font-medium text-foreground">
+                  No notifications yet
+                </p>
                 <p className="text-xs text-muted-foreground text-center mt-1">
                   We'll notify you when something happens
                 </p>
@@ -194,11 +194,15 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ userId }) => {
                             <span className="text-base">
                               {getNotificationIcon(notification.type)}
                             </span>
-                            <span className="capitalize">{notification.type}</span>
+                            <span className="capitalize">
+                              {notification.type}
+                            </span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Clock className="h-3 w-3" />
-                            <span>{formatTimeAgo(notification.created_at)}</span>
+                            <span>
+                              {formatTimeAgo(notification.created_at)}
+                            </span>
                           </div>
                         </div>
                       </div>

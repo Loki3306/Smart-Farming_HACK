@@ -1,9 +1,9 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from "fs";
+import * as path from "path";
 
-export type SensorCommandType = 'water_pump' | 'fertilizer';
+export type SensorCommandType = "water_pump" | "fertilizer";
 
-const COMMAND_FILE = path.join(process.cwd(), 'sensor_commands.json');
+const COMMAND_FILE = path.join(process.cwd(), "sensor_commands.json");
 let commandIdCounter = Date.now();
 
 export function writeSensorCommand(type: SensorCommandType, farmId: string) {
@@ -13,7 +13,7 @@ export function writeSensorCommand(type: SensorCommandType, farmId: string) {
     // Read existing commands
     if (fs.existsSync(COMMAND_FILE)) {
       try {
-        const data = fs.readFileSync(COMMAND_FILE, 'utf-8');
+        const data = fs.readFileSync(COMMAND_FILE, "utf-8");
         const parsed = JSON.parse(data);
         commands = parsed.commands || [];
       } catch {
@@ -38,6 +38,6 @@ export function writeSensorCommand(type: SensorCommandType, farmId: string) {
     fs.writeFileSync(COMMAND_FILE, JSON.stringify({ commands }, null, 2));
     console.log(`[Sensors] Command written: ${type} for farm ${farmId}`);
   } catch (error) {
-    console.error('[Sensors] Error writing command file:', error);
+    console.error("[Sensors] Error writing command file:", error);
   }
 }

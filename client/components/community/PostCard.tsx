@@ -1,13 +1,10 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Flame,
   BadgeCheck,
@@ -20,17 +17,21 @@ import {
   Bookmark,
   Send,
   Loader2,
-} from 'lucide-react';
-import type { Post as ApiPost, PostType, ShareMethod } from '@/services/communityApi';
-import { usePostReactions, usePostComments } from '@/hooks/useCommunity';
-import { POST_TYPE_CONFIG, REACTION_CONFIG } from '@/constants/community';
-import { useAuth } from '@/context/AuthContext';
-import { ShareDialog } from './ShareDialog';
-import { PostMenu } from './PostMenu';
-import { EditPostDialog } from './EditPostDialog';
-import { DeletePostDialog } from './DeletePostDialog';
-import { ReportPostDialog } from './ReportPostDialog';
-import type { ReportReason } from './ReportPostDialog';
+} from "lucide-react";
+import type {
+  Post as ApiPost,
+  PostType,
+  ShareMethod,
+} from "@/services/communityApi";
+import { usePostReactions, usePostComments } from "@/hooks/useCommunity";
+import { POST_TYPE_CONFIG, REACTION_CONFIG } from "@/constants/community";
+import { useAuth } from "@/context/AuthContext";
+import { ShareDialog } from "./ShareDialog";
+import { PostMenu } from "./PostMenu";
+import { EditPostDialog } from "./EditPostDialog";
+import { DeletePostDialog } from "./DeletePostDialog";
+import { ReportPostDialog } from "./ReportPostDialog";
+import type { ReportReason } from "./ReportPostDialog";
 
 interface PostCardProps {
   post: ApiPost;
@@ -43,7 +44,11 @@ interface PostCardProps {
   shareCount?: number;
   onEdit?: (postId: string, updates: Partial<ApiPost>) => Promise<void>;
   onDelete?: (postId: string) => Promise<void>;
-  onReport?: (postId: string, reason: ReportReason, details: string) => Promise<void>;
+  onReport?: (
+    postId: string,
+    reason: ReportReason,
+    details: string,
+  ) => Promise<void>;
   hasReported?: boolean;
 }
 
@@ -62,7 +67,7 @@ export const PostCard: React.FC<PostCardProps> = ({
   hasReported = false,
 }) => {
   const [showComments, setShowComments] = useState(false);
-  const [commentInput, setCommentInput] = useState('');
+  const [commentInput, setCommentInput] = useState("");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [showAllComments, setShowAllComments] = useState(false);
   const [isTogglingBookmark, setIsTogglingBookmark] = useState(false);
@@ -73,9 +78,9 @@ export const PostCard: React.FC<PostCardProps> = ({
   const [localShareCount, setLocalShareCount] = useState(shareCount);
 
   const auth = useAuth();
-  const userId = auth?.user?.id || 'demo-user';
+  const userId = auth?.user?.id || "demo-user";
   const config = POST_TYPE_CONFIG[post.post_type as PostType];
-  
+
   const { reactionCounts, userReactions, toggleReaction } = usePostReactions(
     post.id,
     userId,
@@ -84,36 +89,43 @@ export const PostCard: React.FC<PostCardProps> = ({
       tried: post.reaction_counts?.tried || 0,
       didnt_work: post.reaction_counts?.didnt_work || 0,
       new_idea: post.reaction_counts?.new_idea || 0,
-    }
+    },
   );
 
-  const { comments, loading: commentsLoading, addComment } = usePostComments(post.id, userId);
+  const {
+    comments,
+    loading: commentsLoading,
+    addComment,
+  } = usePostComments(post.id, userId);
 
   const topReactions = Object.entries(reactionCounts)
     .filter(([_, count]) => count > 0)
-    .map(([type, count]) => ({ type: type as keyof typeof REACTION_CONFIG, count }))
+    .map(([type, count]) => ({
+      type: type as keyof typeof REACTION_CONFIG,
+      count,
+    }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 2);
 
   const handleAddComment = async () => {
     if (!commentInput.trim()) return;
-    
+
     setIsSubmittingComment(true);
     const success = await addComment(commentInput);
     if (success) {
-      setCommentInput('');
+      setCommentInput("");
     }
     setIsSubmittingComment(false);
   };
 
   const handleToggleBookmark = async () => {
     if (!onToggleSave) return;
-    
+
     setIsTogglingBookmark(true);
     try {
       await onToggleSave(post.id);
     } catch (error) {
-      console.error('Failed to toggle bookmark:', error);
+      console.error("Failed to toggle bookmark:", error);
     } finally {
       setIsTogglingBookmark(false);
     }
@@ -121,12 +133,12 @@ export const PostCard: React.FC<PostCardProps> = ({
 
   const handleShare = async (method: ShareMethod) => {
     if (!onShare) return;
-    
+
     try {
       await onShare(post.id, method);
-      setLocalShareCount(prev => prev + 1);
+      setLocalShareCount((prev) => prev + 1);
     } catch (error) {
-      console.error('Failed to track share:', error);
+      console.error("Failed to track share:", error);
     }
   };
 
@@ -179,24 +191,29 @@ export const PostCard: React.FC<PostCardProps> = ({
             <Avatar className="w-11 h-11 border-2 border-primary/20">
               <AvatarImage src={post.author?.avatar} />
               <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                {post.author?.name?.charAt(0) || '?'}
+                {post.author?.name?.charAt(0) || "?"}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-semibold text-foreground">
-                  {post.author?.name || 'Anonymous'}
+                  {post.author?.name || "Anonymous"}
                 </span>
                 {post.author?.isVerified && (
                   <BadgeCheck className="w-4 h-4 text-primary flex-shrink-0" />
                 )}
-                <Badge variant="secondary" className={`text-xs ${config?.color || 'bg-gray-100'}`}>
+                <Badge
+                  variant="secondary"
+                  className={`text-xs ${config?.color || "bg-gray-100"}`}
+                >
                   {config?.emoji} {config?.label}
                 </Badge>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground mt-0.5">
                 <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
-                <span className="truncate">{post.author?.location || 'Unknown location'}</span>
+                <span className="truncate">
+                  {post.author?.location || "Unknown location"}
+                </span>
                 <span className="text-muted-foreground/50">•</span>
                 <Clock className="w-3.5 h-3.5 flex-shrink-0" />
                 <span>{formatTimeAgo(new Date(post.created_at))}</span>
@@ -230,12 +247,18 @@ export const PostCard: React.FC<PostCardProps> = ({
           {/* Tags */}
           <div className="flex flex-wrap gap-2 mb-4">
             {post.crop && (
-              <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+              <Badge
+                variant="outline"
+                className="text-xs bg-green-50 text-green-700 border-green-200"
+              >
                 🌾 {post.crop}
               </Badge>
             )}
             {post.method && (
-              <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+              <Badge
+                variant="outline"
+                className="text-xs bg-blue-50 text-blue-700 border-blue-200"
+              >
                 ⚙️ {post.method}
               </Badge>
             )}
@@ -264,7 +287,8 @@ export const PostCard: React.FC<PostCardProps> = ({
                 ))}
               </div>
               <span>
-                {topReactions[0].count} farmers {REACTION_CONFIG[topReactions[0].type]?.countText}
+                {topReactions[0].count} farmers{" "}
+                {REACTION_CONFIG[topReactions[0].type]?.countText}
               </span>
             </div>
           )}
@@ -273,58 +297,62 @@ export const PostCard: React.FC<PostCardProps> = ({
           <div className="flex items-center justify-between pt-3 border-t">
             {/* Reactions */}
             <div className="flex items-center gap-1">
-              {Object.entries(REACTION_CONFIG).slice(0, 4).map(([type]) => {
-                const reactionType = type as keyof typeof REACTION_CONFIG;
-                const count = reactionCounts[reactionType] || 0;
-                const hasReacted = userReactions.has(reactionType);
-                
-                return (
-                  <motion.button
-                    key={reactionType}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => toggleReaction(reactionType)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-all ${
-                      hasReacted
-                        ? 'bg-primary/20 text-primary'
-                        : 'hover:bg-muted text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    <span>{REACTION_CONFIG[reactionType]?.emoji}</span>
-                    <span className="font-medium">{count}</span>
-                  </motion.button>
-                );
-              })}
+              {Object.entries(REACTION_CONFIG)
+                .slice(0, 4)
+                .map(([type]) => {
+                  const reactionType = type as keyof typeof REACTION_CONFIG;
+                  const count = reactionCounts[reactionType] || 0;
+                  const hasReacted = userReactions.has(reactionType);
+
+                  return (
+                    <motion.button
+                      key={reactionType}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => toggleReaction(reactionType)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-all ${
+                        hasReacted
+                          ? "bg-primary/20 text-primary"
+                          : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <span>{REACTION_CONFIG[reactionType]?.emoji}</span>
+                      <span className="font-medium">{count}</span>
+                    </motion.button>
+                  );
+                })}
             </div>
 
             {/* Comment & Share */}
             <div className="flex items-center gap-2">
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 className="text-muted-foreground hover:text-primary"
                 onClick={() => setShowComments(!showComments)}
               >
                 <MessageSquare className="w-4 h-4 mr-1.5" />
                 {post.comment_count || 0}
               </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 className="text-muted-foreground hover:text-primary"
                 onClick={() => setShowShareDialog(true)}
               >
                 <Share2 className="w-4 h-4 mr-1.5" />
                 {localShareCount}
               </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className={`${isSaved ? 'text-primary' : 'text-muted-foreground'} hover:text-primary`}
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`${isSaved ? "text-primary" : "text-muted-foreground"} hover:text-primary`}
                 onClick={handleToggleBookmark}
                 disabled={isTogglingBookmark || !onToggleSave}
               >
-                <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
+                <Bookmark
+                  className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`}
+                />
               </Button>
             </div>
           </div>
@@ -341,7 +369,7 @@ export const PostCard: React.FC<PostCardProps> = ({
           {showComments && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
+              animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               className="mt-4 pt-4 border-t space-y-4"
             >
@@ -350,7 +378,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                 <div className="flex gap-3">
                   <Avatar className="w-8 h-8 flex-shrink-0">
                     <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                      {auth?.user?.fullName?.charAt(0) || '?'}
+                      {auth?.user?.fullName?.charAt(0) || "?"}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 space-y-2">
@@ -390,31 +418,40 @@ export const PostCard: React.FC<PostCardProps> = ({
                 <>
                   <div className="space-y-3 max-h-[240px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
                     {comments
-                      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                      .sort(
+                        (a, b) =>
+                          new Date(b.created_at).getTime() -
+                          new Date(a.created_at).getTime(),
+                      )
                       .slice(0, showAllComments ? comments.length : 3)
                       .map((comment) => (
-                      <div key={comment.id} className="flex gap-3">
-                        <Avatar className="w-8 h-8 flex-shrink-0">
-                          <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                            {comment.author?.name?.charAt(0)?.toUpperCase() || '?'}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <p className="font-medium text-sm">{comment.author?.name}</p>
-                            {comment.is_expert_reply && (
-                              <BadgeCheck className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                            )}
+                        <div key={comment.id} className="flex gap-3">
+                          <Avatar className="w-8 h-8 flex-shrink-0">
+                            <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                              {comment.author?.name?.charAt(0)?.toUpperCase() ||
+                                "?"}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium text-sm">
+                                {comment.author?.name}
+                              </p>
+                              {comment.is_expert_reply && (
+                                <BadgeCheck className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                              )}
+                            </div>
+                            <p className="text-sm text-foreground mt-1 break-words">
+                              {comment.content}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {comment.created_at
+                                ? formatTimeAgo(new Date(comment.created_at))
+                                : "Just now"}
+                            </p>
                           </div>
-                          <p className="text-sm text-foreground mt-1 break-words">
-                            {comment.content}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {comment.created_at ? formatTimeAgo(new Date(comment.created_at)) : 'Just now'}
-                          </p>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                   {comments.length > 3 && !showAllComments && (
                     <Button

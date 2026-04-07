@@ -96,7 +96,11 @@ export const Signup: React.FC = () => {
   return (
     <>
       {/* Auth Guide */}
-      <AuthGuide mode="signup" currentField={currentField} fieldValues={formData} />
+      <AuthGuide
+        mode="signup"
+        currentField={currentField}
+        fieldValues={formData}
+      />
 
       <motion.div
         initial={{ opacity: 0, y: 40 }}
@@ -138,7 +142,11 @@ export const Signup: React.FC = () => {
                   value={formData.fullName}
                   onChange={handleChange}
                   onFocus={() => handleFocus("fullName")}
-                  placeholder={INDIAN_FARMER_NAMES[Math.floor(Math.random() * INDIAN_FARMER_NAMES.length)]}
+                  placeholder={
+                    INDIAN_FARMER_NAMES[
+                      Math.floor(Math.random() * INDIAN_FARMER_NAMES.length)
+                    ]
+                  }
                   className="w-full px-4 py-2 rounded-lg border border-border bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                   disabled={isLoading}
                 />
@@ -165,7 +173,9 @@ export const Signup: React.FC = () => {
                     disabled={isLoading}
                   />
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">Enter 10-digit mobile number</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Enter 10-digit mobile number
+                </p>
               </div>
 
               {/* Password */}

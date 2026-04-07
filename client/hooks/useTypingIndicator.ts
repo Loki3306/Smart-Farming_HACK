@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { chatService } from '@/services/chatService';
-import { useAuth } from '@/context/AuthContext';
+import { useState, useEffect, useCallback, useRef } from "react";
+import { chatService } from "@/services/chatService";
+import { useAuth } from "@/context/AuthContext";
 
 export function useTypingIndicator(conversationId: string | null) {
   const { user } = useAuth();
@@ -13,20 +13,23 @@ export function useTypingIndicator(conversationId: string | null) {
   useEffect(() => {
     if (!conversationId || !user?.id) return;
 
-    const unsubscribe = chatService.subscribeToTyping(conversationId, (isTyping, typingUserId) => {
-      // Ignore own typing events
-      if (typingUserId === user.id) return;
+    const unsubscribe = chatService.subscribeToTyping(
+      conversationId,
+      (isTyping, typingUserId) => {
+        // Ignore own typing events
+        if (typingUserId === user.id) return;
 
-      setTypingUsers((prev) => {
-        if (isTyping) {
-          // Add user to typing list
-          return prev.includes(typingUserId) ? prev : [...prev, typingUserId];
-        } else {
-          // Remove user from typing list
-          return prev.filter((id) => id !== typingUserId);
-        }
-      });
-    });
+        setTypingUsers((prev) => {
+          if (isTyping) {
+            // Add user to typing list
+            return prev.includes(typingUserId) ? prev : [...prev, typingUserId];
+          } else {
+            // Remove user from typing list
+            return prev.filter((id) => id !== typingUserId);
+          }
+        });
+      },
+    );
 
     return unsubscribe;
   }, [conversationId, user?.id]);
@@ -41,7 +44,9 @@ export function useTypingIndicator(conversationId: string | null) {
 
     // Send typing = true
     if (!lastTypingStatusRef.current) {
-      chatService.updateTypingStatus(conversationId, user.id, true).catch(console.error);
+      chatService
+        .updateTypingStatus(conversationId, user.id, true)
+        .catch(console.error);
       lastTypingStatusRef.current = true;
     }
 
@@ -61,7 +66,9 @@ export function useTypingIndicator(conversationId: string | null) {
 
     // Send typing = false
     if (lastTypingStatusRef.current) {
-      chatService.updateTypingStatus(conversationId, user.id, false).catch(console.error);
+      chatService
+        .updateTypingStatus(conversationId, user.id, false)
+        .catch(console.error);
       lastTypingStatusRef.current = false;
     }
 

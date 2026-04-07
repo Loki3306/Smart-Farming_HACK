@@ -1,11 +1,17 @@
-import { Search, Loader2, MessageSquarePlus, Users, MessageCircle } from 'lucide-react';
-import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { ConversationItem } from './ConversationItem';
-import { ActiveFarmers } from './ActiveFarmers';
-import { Conversation, OnlineFarmer } from '@/services/chatService';
-import { cn } from '@/lib/utils';
+import {
+  Search,
+  Loader2,
+  MessageSquarePlus,
+  Users,
+  MessageCircle,
+} from "lucide-react";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ConversationItem } from "./ConversationItem";
+import { ActiveFarmers } from "./ActiveFarmers";
+import { Conversation, OnlineFarmer } from "@/services/chatService";
+import { cn } from "@/lib/utils";
 
 interface ConversationListProps {
   conversations: Conversation[];
@@ -24,11 +30,13 @@ export function ConversationList({
   onSelectConversation,
   onStartNewChat,
 }: ConversationListProps) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'conversations' | 'farmers'>('conversations');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState<"conversations" | "farmers">(
+    "conversations",
+  );
 
   const filteredConversations = conversations.filter((conv) =>
-    conv.other_user?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+    conv.other_user?.name?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const handleFarmerSelect = (farmer: OnlineFarmer) => {
@@ -46,18 +54,18 @@ export function ConversationList({
         {/* Tabs */}
         <div className="flex gap-2 mb-4">
           <Button
-            variant={activeTab === 'conversations' ? 'default' : 'ghost'}
+            variant={activeTab === "conversations" ? "default" : "ghost"}
             size="sm"
-            onClick={() => setActiveTab('conversations')}
+            onClick={() => setActiveTab("conversations")}
             className="flex-1"
           >
             <MessageCircle className="h-4 w-4 mr-2" />
             Chats
           </Button>
           <Button
-            variant={activeTab === 'farmers' ? 'default' : 'ghost'}
+            variant={activeTab === "farmers" ? "default" : "ghost"}
             size="sm"
-            onClick={() => setActiveTab('farmers')}
+            onClick={() => setActiveTab("farmers")}
             className="flex-1"
           >
             <Users className="h-4 w-4 mr-2" />
@@ -66,7 +74,7 @@ export function ConversationList({
         </div>
 
         {/* Search - only for conversations */}
-        {activeTab === 'conversations' && (
+        {activeTab === "conversations" && (
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -81,7 +89,7 @@ export function ConversationList({
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
-        {activeTab === 'conversations' ? (
+        {activeTab === "conversations" ? (
           <>
             {isLoading ? (
               <div className="flex items-center justify-center h-32">
@@ -90,14 +98,16 @@ export function ConversationList({
             ) : filteredConversations.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full p-8 text-center">
                 <MessageSquarePlus className="h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="font-semibold text-lg mb-2">No conversations yet</h3>
+                <h3 className="font-semibold text-lg mb-2">
+                  No conversations yet
+                </h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  {searchQuery 
-                    ? 'No conversations match your search'
-                    : 'Start a conversation with a farmer'}
+                  {searchQuery
+                    ? "No conversations match your search"
+                    : "Start a conversation with a farmer"}
                 </p>
                 {!searchQuery && (
-                  <Button onClick={() => setActiveTab('farmers')}>
+                  <Button onClick={() => setActiveTab("farmers")}>
                     <Users className="h-4 w-4 mr-2" />
                     Find Farmers
                   </Button>

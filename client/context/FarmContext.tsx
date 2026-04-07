@@ -24,7 +24,10 @@ import {
   type SensorAlert,
 } from "../hooks/useSensorAlerts";
 import { useTranslation } from "react-i18next";
-import { getLocalizedDescription, getLocalizedAction } from "../lib/logTranslator";
+import {
+  getLocalizedDescription,
+  getLocalizedAction,
+} from "../lib/logTranslator";
 
 export interface ActionLogEntry {
   id: string;
@@ -78,7 +81,7 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
     user = auth.user;
   } catch (error) {
     // Auth context not ready yet (e.g., during HMR)
-    console.warn('[FarmContext] Auth context not available yet');
+    console.warn("[FarmContext] Auth context not available yet");
   }
 
   const [sensorData, setSensorData] = useState<SensorData | null>(null);
@@ -90,28 +93,28 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
   const [actionLog, setActionLog] = useState<ActionLogEntry[]>(
     CONFIG.USE_MOCK_DATA
       ? [
-        {
-          id: "log_001",
-          timestamp: new Date(Date.now() - 7200000),
-          action: "Irrigation Cycle",
-          description: "Irrigation triggered – 15L dispensed to sector A",
-          type: "irrigation",
-        },
-        {
-          id: "log_002",
-          timestamp: new Date(Date.now() - 10800000),
-          action: "Fertilization Skipped",
-          description: "Fertilization skipped – rain expected within 24h",
-          type: "info",
-        },
-        {
-          id: "log_003",
-          timestamp: new Date(Date.now() - 14400000),
-          action: "Fertilization Applied",
-          description: "NPK boost applied – 2.5kg phosphorus blend",
-          type: "fertilization",
-        },
-      ]
+          {
+            id: "log_001",
+            timestamp: new Date(Date.now() - 7200000),
+            action: "Irrigation Cycle",
+            description: "Irrigation triggered – 15L dispensed to sector A",
+            type: "irrigation",
+          },
+          {
+            id: "log_002",
+            timestamp: new Date(Date.now() - 10800000),
+            action: "Fertilization Skipped",
+            description: "Fertilization skipped – rain expected within 24h",
+            type: "info",
+          },
+          {
+            id: "log_003",
+            timestamp: new Date(Date.now() - 14400000),
+            action: "Fertilization Applied",
+            description: "NPK boost applied – 2.5kg phosphorus blend",
+            type: "fertilization",
+          },
+        ]
       : [],
   );
   const [loading, setLoading] = useState(false);
@@ -216,8 +219,8 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
           .map((log) => {
             const type: ActionLogEntry["type"] =
               log.action_type === "irrigation" ||
-                log.action_type === "fertilization" ||
-                log.action_type === "info"
+              log.action_type === "fertilization" ||
+              log.action_type === "info"
                 ? log.action_type
                 : "info";
 
@@ -231,9 +234,15 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
             const desc = String(log.description || "");
             const isAutonomous = /\bautonomous\b/i.test(desc);
             const isManual = /\bmanual(ly)?\b/i.test(desc);
-            const originLabel = isAutonomous ? "Autonomous" : isManual ? "Manual" : "";
+            const originLabel = isAutonomous
+              ? "Autonomous"
+              : isManual
+                ? "Manual"
+                : "";
 
-            const action = originLabel ? `${originLabel} ${baseAction}` : baseAction;
+            const action = originLabel
+              ? `${originLabel} ${baseAction}`
+              : baseAction;
 
             return {
               id: log.id,
@@ -269,7 +278,11 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
 
               for (const entry of newEntries.reverse()) {
                 const alertType: SensorAlert["type"] =
-                  entry.type === "irrigation" ? "irrigation" : entry.type === "fertilization" ? "crop" : "alert";
+                  entry.type === "irrigation"
+                    ? "irrigation"
+                    : entry.type === "fertilization"
+                      ? "crop"
+                      : "alert";
 
                 const title =
                   entry.type === "irrigation"
@@ -280,7 +293,10 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
 
                 // Localize content for notification
                 const localizedTitle = getLocalizedAction(title, t);
-                const localizedMessage = getLocalizedDescription(entry.description, t);
+                const localizedMessage = getLocalizedDescription(
+                  entry.description,
+                  t,
+                );
 
                 const alert: SensorAlert = {
                   id: `action_${entry.id}`,
@@ -289,7 +305,11 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
                   message: localizedMessage,
                   timestamp: new Date(entry.timestamp),
                   priority:
-                    entry.type === "irrigation" ? "medium" : entry.type === "fertilization" ? "low" : "low",
+                    entry.type === "irrigation"
+                      ? "medium"
+                      : entry.type === "fertilization"
+                        ? "low"
+                        : "low",
                   read: false,
                 };
 
@@ -305,7 +325,10 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
                 });
               }
             } catch (e) {
-              console.warn("[FarmContext] Failed to generate action notifications", e);
+              console.warn(
+                "[FarmContext] Failed to generate action notifications",
+                e,
+              );
             }
           }
 

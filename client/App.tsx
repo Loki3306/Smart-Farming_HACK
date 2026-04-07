@@ -2,7 +2,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
 import { Suspense, lazy } from "react";
 import { AnimatePresence } from "framer-motion";
 import { AuthContextProvider } from "./context/AuthContext";
@@ -20,33 +26,72 @@ import { Home } from "./pages/Home";
 import NotFound from "./pages/NotFound";
 
 // Lazy load heavy components to reduce initial bundle size
-const Landing = lazy(() => import("./pages/Landing").then(m => ({ default: m.Landing })));
+const Landing = lazy(() =>
+  import("./pages/Landing").then((m) => ({ default: m.Landing })),
+);
 const Disease = lazy(() => import("./pages/Disease"));
 const StressDetection = lazy(() => import("./pages/StressDetection"));
-const AuditTrail = lazy(() => import("./pages/AuditTrail").then(m => ({ default: m.AuditTrail })));
-const Profile = lazy(() => import("./pages/Profile").then(m => ({ default: m.Profile })));
-const FarmOnboarding = lazy(() => import("./pages/FarmOnboarding").then(m => ({ default: m.FarmOnboarding })));
-const Farm = lazy(() => import("./pages/Farm").then(m => ({ default: m.Farm })));
-const Weather = lazy(() => import("./pages/Weather").then(m => ({ default: m.Weather })));
-const Recommendations = lazy(() => import("./pages/Recommendations").then(m => ({ default: m.Recommendations })));
-const Marketplace = lazy(() => import("./pages/Marketplace").then(m => ({ default: m.Marketplace })));
-const Learn = lazy(() => import("./pages/Learn").then(m => ({ default: m.Learn })));
-const ArticleDetail = lazy(() => import("./pages/ArticleDetail").then(m => ({ default: m.ArticleDetail })));
-const CourseDetail = lazy(() => import("./pages/CourseDetail").then(m => ({ default: m.CourseDetail })));
-const CoursePlayer = lazy(() => import("./pages/CoursePlayer").then(m => ({ default: m.CoursePlayer })));
+const AuditTrail = lazy(() =>
+  import("./pages/AuditTrail").then((m) => ({ default: m.AuditTrail })),
+);
+const Profile = lazy(() =>
+  import("./pages/Profile").then((m) => ({ default: m.Profile })),
+);
+const FarmOnboarding = lazy(() =>
+  import("./pages/FarmOnboarding").then((m) => ({ default: m.FarmOnboarding })),
+);
+const Farm = lazy(() =>
+  import("./pages/Farm").then((m) => ({ default: m.Farm })),
+);
+const Weather = lazy(() =>
+  import("./pages/Weather").then((m) => ({ default: m.Weather })),
+);
+const Recommendations = lazy(() =>
+  import("./pages/Recommendations").then((m) => ({
+    default: m.Recommendations,
+  })),
+);
+const Marketplace = lazy(() =>
+  import("./pages/Marketplace").then((m) => ({ default: m.Marketplace })),
+);
+const Learn = lazy(() =>
+  import("./pages/Learn").then((m) => ({ default: m.Learn })),
+);
+const ArticleDetail = lazy(() =>
+  import("./pages/ArticleDetail").then((m) => ({ default: m.ArticleDetail })),
+);
+const CourseDetail = lazy(() =>
+  import("./pages/CourseDetail").then((m) => ({ default: m.CourseDetail })),
+);
+const CoursePlayer = lazy(() =>
+  import("./pages/CoursePlayer").then((m) => ({ default: m.CoursePlayer })),
+);
 const QuizPlayer = lazy(() => import("./pages/QuizPlayer"));
-const Community = lazy(() => import("./pages/Community").then(m => ({ default: m.Community })));
-const Notifications = lazy(() => import("./pages/Notifications").then(m => ({ default: m.Notifications })));
-const Settings = lazy(() => import("./pages/Settings").then(m => ({ default: m.Settings })));
+const Community = lazy(() =>
+  import("./pages/Community").then((m) => ({ default: m.Community })),
+);
+const Notifications = lazy(() =>
+  import("./pages/Notifications").then((m) => ({ default: m.Notifications })),
+);
+const Settings = lazy(() =>
+  import("./pages/Settings").then((m) => ({ default: m.Settings })),
+);
 const Messages = lazy(() => import("./pages/Messages"));
-const FAQ = lazy(() => import("./pages/FAQ").then(m => ({ default: m.FAQ })));
-const Regimes = lazy(() => import("./pages/Regimes").then(m => ({ default: m.default })));
-const FarmMapping = lazy(() => import("./pages/FarmMappingPage").then(m => ({ default: m.default })));
-const YieldTracker = lazy(() => import("./pages/YieldTracker").then(m => ({ default: m.YieldTracker })));
-const Planner = lazy(() => import("./pages/Planner").then(m => ({ default: m.Planner })));
+const FAQ = lazy(() => import("./pages/FAQ").then((m) => ({ default: m.FAQ })));
+const Regimes = lazy(() =>
+  import("./pages/Regimes").then((m) => ({ default: m.default })),
+);
+const FarmMapping = lazy(() =>
+  import("./pages/FarmMappingPage").then((m) => ({ default: m.default })),
+);
+const YieldTracker = lazy(() =>
+  import("./pages/YieldTracker").then((m) => ({ default: m.YieldTracker })),
+);
+const Planner = lazy(() =>
+  import("./pages/Planner").then((m) => ({ default: m.Planner })),
+);
 const FarmOverview = lazy(() => import("./pages/FarmOverviewPage"));
 const IrrigationPlanner = lazy(() => import("./pages/IrrigationPlannerPage"));
-
 
 // Loading fallback component
 const PageLoader = () => (
@@ -365,9 +410,9 @@ function AnimatedRoutes() {
 
           {/* 404 */}
           <Route path="*" element={<NotFound />} />
-        </Routes >
-      </Suspense >
-    </AnimatePresence >
+        </Routes>
+      </Suspense>
+    </AnimatePresence>
   );
 }
 

@@ -1,5 +1,9 @@
-import * as db from '../db/learn';
-import { UserLearningStats, CourseEnrollment, Badge } from '../types/learn.types';
+import * as db from "../db/learn";
+import {
+  UserLearningStats,
+  CourseEnrollment,
+  Badge,
+} from "../types/learn.types";
 
 /**
  * LearnService - Business logic layer for Learn platform
@@ -14,7 +18,10 @@ import { UserLearningStats, CourseEnrollment, Badge } from '../types/learn.types
  * Calculate course progress percentage
  * Returns: { completed: number, total: number, percentage: number }
  */
-export async function calculateCourseProgress(userId: string, courseId: string) {
+export async function calculateCourseProgress(
+  userId: string,
+  courseId: string,
+) {
   try {
     const result = await db.getCourseProgress(userId, courseId);
     return {
@@ -23,7 +30,7 @@ export async function calculateCourseProgress(userId: string, courseId: string) 
       progressPercent: result.progressPercent,
     };
   } catch (error) {
-    console.error('Error calculating course progress:', error);
+    console.error("Error calculating course progress:", error);
     throw error;
   }
 }
@@ -34,15 +41,15 @@ export async function calculateCourseProgress(userId: string, courseId: string) 
 export async function updateEnrollmentProgress(
   enrollmentId: string,
   userId: string,
-  courseId: string
+  courseId: string,
 ) {
   try {
     const progress = await calculateCourseProgress(userId, courseId);
 
     // Determine enrollment status
-    let status: string = 'in_progress';
+    let status: string = "in_progress";
     if (progress.progressPercent === 100) {
-      status = 'completed';
+      status = "completed";
     }
 
     // Update enrollment
@@ -50,12 +57,12 @@ export async function updateEnrollmentProgress(
       progress_percent: progress.progressPercent,
       lessons_completed: progress.completedLessons,
       status: status as any,
-      completion_date: status === 'completed' ? new Date() : null,
+      completion_date: status === "completed" ? new Date() : null,
     });
 
     return progress;
   } catch (error) {
-    console.error('Error updating enrollment progress:', error);
+    console.error("Error updating enrollment progress:", error);
     throw error;
   }
 }
@@ -66,7 +73,7 @@ export async function updateEnrollmentProgress(
 export async function completeLessonAndUpdateProgress(
   userId: string,
   lessonId: string,
-  courseId: string
+  courseId: string,
 ) {
   try {
     // Get or create lesson progress
@@ -76,13 +83,13 @@ export async function completeLessonAndUpdateProgress(
       progress = await db.createLessonProgress({
         user_id: userId,
         lesson_id: lessonId,
-        status: 'completed',
+        status: "completed",
         completion_date: new Date(),
         time_spent_seconds: 0,
       });
     } else {
       progress = await db.updateLessonProgress(progress.id, {
-        status: 'completed',
+        status: "completed",
         completion_date: new Date(),
       });
     }
@@ -98,7 +105,7 @@ export async function completeLessonAndUpdateProgress(
 
     return progress;
   } catch (error) {
-    console.error('Error completing lesson:', error);
+    console.error("Error completing lesson:", error);
     throw error;
   }
 }
@@ -116,10 +123,10 @@ export async function getEnrollmentCompletion(enrollmentId: string) {
       progress: enrollment.progress_percent,
       lessonsCompleted: enrollment.lessons_completed,
       status: enrollment.status,
-      isCompleted: enrollment.status === 'completed',
+      isCompleted: enrollment.status === "completed",
     };
   } catch (error) {
-    console.error('Error getting enrollment completion:', error);
+    console.error("Error getting enrollment completion:", error);
     throw error;
   }
 }
@@ -131,10 +138,18 @@ export async function getEnrollmentCompletion(enrollmentId: string) {
 /**
  * Badge criteria checkers
  */
-const badgeCriteria: Record<string, (userId: string, badgeValue: number) => Promise<boolean>> = {
+const badgeCriteria: Record<
+  string,
+  (userId: string, badgeValue: number) => Promise<boolean>
+> = {
   courses_completed: async (userId: string, requiredCount: number) => {
     try {
-      const { data: enrollments } = await db.getEnrollments(userId, 1000, 0, 'completed');
+      const { data: enrollments } = await db.getEnrollments(
+        userId,
+        1000,
+        0,
+        "completed",
+      );
       return enrollments.length >= requiredCount;
     } catch {
       return false;
@@ -144,10 +159,10 @@ const badgeCriteria: Record<string, (userId: string, badgeValue: number) => Prom
   quizzes_passed: async (userId: string, requiredCount: number) => {
     try {
       const { data: attempts } = await db.supabase
-        .from('quiz_attempts')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('passed', true);
+        .from("quiz_attempts")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("passed", true);
       return (attempts?.length || 0) >= requiredCount;
     } catch {
       return false;
@@ -175,10 +190,10 @@ const badgeCriteria: Record<string, (userId: string, badgeValue: number) => Prom
   articles_read: async (userId: string, requiredCount: number) => {
     try {
       const { data: progress } = await db.supabase
-        .from('lesson_progress')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('status', 'completed');
+        .from("lesson_progress")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("status", "completed");
       return (progress?.length || 0) >= requiredCount;
     } catch {
       return false;
@@ -191,7 +206,7 @@ const badgeCriteria: Record<string, (userId: string, badgeValue: number) => Prom
  */
 export async function checkAndAwardBadges(userId: string) {
   try {
-    const { data: allBadges } = await db.supabase.from('badges').select('*');
+    const { data: allBadges } = await db.supabase.from("badges").select("*");
 
     if (!allBadges) return [];
 
@@ -220,13 +235,14 @@ export async function checkAndAwardBadges(userId: string) {
     if (awardedBadges.length > 0) {
       const stats = await db.getUserStats(userId);
       await db.updateUserStats(userId, {
-        total_badges_earned: (stats.total_badges_earned || 0) + awardedBadges.length,
+        total_badges_earned:
+          (stats.total_badges_earned || 0) + awardedBadges.length,
       });
     }
 
     return awardedBadges;
   } catch (error) {
-    console.error('Error checking badges:', error);
+    console.error("Error checking badges:", error);
     return [];
   }
 }
@@ -238,7 +254,7 @@ export async function awardBadge(userId: string, badgeId: string) {
   try {
     return await db.awardBadge(userId, badgeId);
   } catch (error) {
-    console.error('Error awarding badge:', error);
+    console.error("Error awarding badge:", error);
     return null;
   }
 }
@@ -246,7 +262,11 @@ export async function awardBadge(userId: string, badgeId: string) {
 /**
  * Get user's earned badges with details
  */
-export async function getUserBadgesWithDetails(userId: string, limit: number = 50, offset: number = 0) {
+export async function getUserBadgesWithDetails(
+  userId: string,
+  limit: number = 50,
+  offset: number = 0,
+) {
   try {
     const { data, total } = await db.getUserBadges(userId, limit, offset);
     return {
@@ -262,7 +282,7 @@ export async function getUserBadgesWithDetails(userId: string, limit: number = 5
       total,
     };
   } catch (error) {
-    console.error('Error getting user badges:', error);
+    console.error("Error getting user badges:", error);
     throw error;
   }
 }
@@ -280,11 +300,13 @@ export async function calculateUserStats(userId: string) {
     const { data: enrollments, total: totalEnrolled } = await db.getEnrollments(
       userId,
       1000,
-      0
+      0,
     );
 
     // Count completed
-    const completedCount = enrollments.filter((e) => e.status === 'completed').length;
+    const completedCount = enrollments.filter(
+      (e) => e.status === "completed",
+    ).length;
 
     // Calculate total hours (estimate from courses)
     let totalHours = 0;
@@ -299,9 +321,9 @@ export async function calculateUserStats(userId: string) {
 
     // Get quiz stats
     const { data: quizzes } = await db.supabase
-      .from('quiz_attempts')
-      .select('passed')
-      .eq('user_id', userId);
+      .from("quiz_attempts")
+      .select("passed")
+      .eq("user_id", userId);
 
     const quizzesPassed = quizzes?.filter((q) => q.passed).length || 0;
 
@@ -319,7 +341,7 @@ export async function calculateUserStats(userId: string) {
 
     return stats as UserLearningStats;
   } catch (error) {
-    console.error('Error calculating user stats:', error);
+    console.error("Error calculating user stats:", error);
     throw error;
   }
 }
@@ -333,14 +355,19 @@ export async function getUserLearningDashboard(userId: string) {
     const stats = await db.getUserStats(userId);
 
     // Get active courses
-    const { data: activeEnrollments } = await db.getEnrollments(userId, 10, 0, 'in_progress');
+    const { data: activeEnrollments } = await db.getEnrollments(
+      userId,
+      10,
+      0,
+      "in_progress",
+    );
 
     // Get recent quizzes
     const { data: recentQuizzes } = await db.supabase
-      .from('quiz_attempts')
-      .select('*, quizzes(*)')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
+      .from("quiz_attempts")
+      .select("*, quizzes(*)")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
       .limit(5);
 
     // Get recent badges
@@ -348,10 +375,10 @@ export async function getUserLearningDashboard(userId: string) {
 
     // Get roadmap progress
     const { data: roadmapProgress } = await db.supabase
-      .from('user_roadmap_progress')
-      .select('*, learning_roadmaps(*)')
-      .eq('user_id', userId)
-      .order('started_at', { ascending: false });
+      .from("user_roadmap_progress")
+      .select("*, learning_roadmaps(*)")
+      .eq("user_id", userId)
+      .order("started_at", { ascending: false });
 
     return {
       stats: {
@@ -370,7 +397,7 @@ export async function getUserLearningDashboard(userId: string) {
         status: e.status,
       })),
       recentActivity: recentQuizzes?.map((q) => ({
-        type: 'quiz',
+        type: "quiz",
         name: q.quizzes?.title,
         score: q.percentage,
         passed: q.passed,
@@ -389,7 +416,7 @@ export async function getUserLearningDashboard(userId: string) {
       })),
     };
   } catch (error) {
-    console.error('Error getting learning dashboard:', error);
+    console.error("Error getting learning dashboard:", error);
     throw error;
   }
 }
@@ -404,12 +431,12 @@ export async function getUserLearningDashboard(userId: string) {
 export async function submitQuizAnswers(
   userId: string,
   quizId: string,
-  answers: Array<{ questionId: string; answer: string }>
+  answers: Array<{ questionId: string; answer: string }>,
 ) {
   try {
     // Get quiz with questions
     const quiz = await db.getQuizWithQuestions(quizId);
-    if (!quiz) throw new Error('Quiz not found');
+    if (!quiz) throw new Error("Quiz not found");
 
     // Create attempt record
     const attempt = await db.createQuizAttempt({
@@ -425,7 +452,12 @@ export async function submitQuizAnswers(
     // Grade answers
     let totalPoints = 0;
     let earnedPoints = 0;
-    const gradedAnswers: Array<{ questionId: string; answer: string; isCorrect: boolean; pointsEarned: number }> = [];
+    const gradedAnswers: Array<{
+      questionId: string;
+      answer: string;
+      isCorrect: boolean;
+      pointsEarned: number;
+    }> = [];
 
     for (const question of quiz.questions || []) {
       const userAnswer = answers.find((a) => a.questionId === question.id);
@@ -435,7 +467,7 @@ export async function submitQuizAnswers(
       if (!userAnswer) {
         gradedAnswers.push({
           questionId: question.id,
-          answer: '',
+          answer: "",
           isCorrect: false,
           pointsEarned: 0,
         });
@@ -445,14 +477,20 @@ export async function submitQuizAnswers(
       // Check answer
       let isCorrect = false;
 
-      if (question.question_type === 'true_false') {
-        isCorrect = userAnswer.answer.toLowerCase() === question.options?.[0]?.is_correct?.toString();
-      } else if (question.question_type === 'multiple_choice') {
-        const correctOption = (question.options as any[])?.find((opt) => opt.is_correct);
+      if (question.question_type === "true_false") {
+        isCorrect =
+          userAnswer.answer.toLowerCase() ===
+          question.options?.[0]?.is_correct?.toString();
+      } else if (question.question_type === "multiple_choice") {
+        const correctOption = (question.options as any[])?.find(
+          (opt) => opt.is_correct,
+        );
         isCorrect = userAnswer.answer === correctOption?.text;
-      } else if (question.question_type === 'short_answer') {
+      } else if (question.question_type === "short_answer") {
         // Simple string matching (could be enhanced with fuzzy matching)
-        isCorrect = userAnswer.answer.toLowerCase().includes(question.question_text.toLowerCase());
+        isCorrect = userAnswer.answer
+          .toLowerCase()
+          .includes(question.question_text.toLowerCase());
       }
 
       const questionPoints = isCorrect ? points : 0;
@@ -467,7 +505,8 @@ export async function submitQuizAnswers(
     }
 
     // Calculate percentage
-    const percentage = totalPoints === 0 ? 0 : Math.round((earnedPoints / totalPoints) * 100);
+    const percentage =
+      totalPoints === 0 ? 0 : Math.round((earnedPoints / totalPoints) * 100);
     const passed = percentage >= (quiz.passing_score || 70);
 
     // Store answers
@@ -478,7 +517,7 @@ export async function submitQuizAnswers(
         user_answer: ga.answer,
         is_correct: ga.isCorrect,
         points_earned: ga.pointsEarned,
-      }))
+      })),
     );
 
     // Update attempt with score
@@ -502,7 +541,7 @@ export async function submitQuizAnswers(
       answers: gradedAnswers,
     };
   } catch (error) {
-    console.error('Error submitting quiz:', error);
+    console.error("Error submitting quiz:", error);
     throw error;
   }
 }
@@ -513,9 +552,9 @@ export async function submitQuizAnswers(
 export async function getQuizAttemptWithFeedback(attemptId: string) {
   try {
     const attempt = await db.supabase
-      .from('quiz_attempts')
-      .select('*, quizzes(*)')
-      .eq('id', attemptId)
+      .from("quiz_attempts")
+      .select("*, quizzes(*)")
+      .eq("id", attemptId)
       .single();
 
     if (attempt.error) throw attempt.error;
@@ -530,9 +569,11 @@ export async function getQuizAttemptWithFeedback(attemptId: string) {
           ...answer,
           questionText: question.question_text,
           explanation: question.explanation,
-          correctAnswer: (question.options as any)?.find((opt: any) => opt.is_correct)?.text,
+          correctAnswer: (question.options as any)?.find(
+            (opt: any) => opt.is_correct,
+          )?.text,
         };
-      })
+      }),
     );
 
     return {
@@ -540,7 +581,7 @@ export async function getQuizAttemptWithFeedback(attemptId: string) {
       answers: detailedAnswers,
     };
   } catch (error) {
-    console.error('Error getting quiz feedback:', error);
+    console.error("Error getting quiz feedback:", error);
     throw error;
   }
 }
@@ -552,16 +593,26 @@ export async function getQuizAttemptWithFeedback(attemptId: string) {
 /**
  * Get recommended courses for user
  */
-export async function getRecommendedCourses(userId: string, limit: number = 10) {
+export async function getRecommendedCourses(
+  userId: string,
+  limit: number = 10,
+) {
   try {
     // Get user's completed courses
-    const { data: enrollments } = await db.getEnrollments(userId, 1000, 0, 'completed');
+    const { data: enrollments } = await db.getEnrollments(
+      userId,
+      1000,
+      0,
+      "completed",
+    );
     const completedCategories = new Set(
-      enrollments.map((e) => e.courses?.category).filter(Boolean)
+      enrollments.map((e) => e.courses?.category).filter(Boolean),
     );
 
     // Get all published courses
-    const { data: courses } = await db.getCourses(1000, 0, { isPublished: true });
+    const { data: courses } = await db.getCourses(1000, 0, {
+      isPublished: true,
+    });
 
     // Filter recommendations
     const recommended = courses
@@ -578,7 +629,7 @@ export async function getRecommendedCourses(userId: string, limit: number = 10) 
 
     return recommended;
   } catch (error) {
-    console.error('Error getting recommendations:', error);
+    console.error("Error getting recommendations:", error);
     return [];
   }
 }
@@ -589,20 +640,24 @@ export async function getRecommendedCourses(userId: string, limit: number = 10) 
 export async function enrollUserInCourse(
   userId: string,
   courseId: string,
-  enrollmentType: 'free' | 'paid' | 'promotional' | 'gifted' = 'free'
+  enrollmentType: "free" | "paid" | "promotional" | "gifted" = "free",
 ) {
   try {
     // Check for existing enrollment
     const existing = await db.getEnrollment(userId, courseId);
     if (existing) {
-      return { success: false, message: 'Already enrolled', enrollment: existing };
+      return {
+        success: false,
+        message: "Already enrolled",
+        enrollment: existing,
+      };
     }
 
     // Create enrollment
     const enrollment = await db.createEnrollment({
       user_id: userId,
       course_id: courseId,
-      status: 'enrolled',
+      status: "enrolled",
       enrollment_type: enrollmentType,
       progress_percent: 0,
       lessons_completed: 0,
@@ -614,9 +669,9 @@ export async function enrollUserInCourse(
       enrolled_count: (course.enrolled_count || 0) + 1,
     });
 
-    return { success: true, message: 'Enrolled successfully', enrollment };
+    return { success: true, message: "Enrolled successfully", enrollment };
   } catch (error) {
-    console.error('Error enrolling user:', error);
+    console.error("Error enrolling user:", error);
     throw error;
   }
 }
@@ -627,7 +682,7 @@ export async function enrollUserInCourse(
 export async function dropCourse(userId: string, courseId: string) {
   try {
     const enrollment = await db.getEnrollment(userId, courseId);
-    if (!enrollment) throw new Error('Enrollment not found');
+    if (!enrollment) throw new Error("Enrollment not found");
 
     // Delete enrollment
     await db.deleteEnrollment(enrollment.id);
@@ -637,9 +692,9 @@ export async function dropCourse(userId: string, courseId: string) {
     const newCount = Math.max(0, (course.enrolled_count || 1) - 1);
     await db.updateCourse(courseId, { enrolled_count: newCount });
 
-    return { success: true, message: 'Course dropped' };
+    return { success: true, message: "Course dropped" };
   } catch (error) {
-    console.error('Error dropping course:', error);
+    console.error("Error dropping course:", error);
     throw error;
   }
 }
@@ -651,7 +706,11 @@ export async function dropCourse(userId: string, courseId: string) {
 /**
  * Search courses, articles, and videos with ranking
  */
-export async function searchContent(query: string, limit: number = 20, offset: number = 0) {
+export async function searchContent(
+  query: string,
+  limit: number = 20,
+  offset: number = 0,
+) {
   try {
     const results = await db.searchContent(query, limit * 2, offset);
 
@@ -660,7 +719,7 @@ export async function searchContent(query: string, limit: number = 20, offset: n
       return items
         .map((item) => {
           let score = 0;
-          const title = (item.title || '').toLowerCase();
+          const title = (item.title || "").toLowerCase();
           const queryLower = query.toLowerCase();
 
           if (title === queryLower) score += 100;
@@ -674,13 +733,16 @@ export async function searchContent(query: string, limit: number = 20, offset: n
     };
 
     return {
-      courses: rankContent(results.courses, 'course'),
-      articles: rankContent(results.articles, 'article'),
-      videos: rankContent(results.videos, 'video'),
-      total: (results.courses?.length || 0) + (results.articles?.length || 0) + (results.videos?.length || 0),
+      courses: rankContent(results.courses, "course"),
+      articles: rankContent(results.articles, "article"),
+      videos: rankContent(results.videos, "video"),
+      total:
+        (results.courses?.length || 0) +
+        (results.articles?.length || 0) +
+        (results.videos?.length || 0),
     };
   } catch (error) {
-    console.error('Error searching content:', error);
+    console.error("Error searching content:", error);
     throw error;
   }
 }
@@ -697,14 +759,14 @@ export async function startRoadmapForUser(userId: string, roadmapId: string) {
     // Check if already started
     const existing = await db.getUserRoadmapProgress(userId, roadmapId);
     if (existing) {
-      return { success: false, message: 'Already started', progress: existing };
+      return { success: false, message: "Already started", progress: existing };
     }
 
     // Start roadmap
     const progress = await db.startRoadmap(userId, roadmapId);
-    return { success: true, message: 'Roadmap started', progress };
+    return { success: true, message: "Roadmap started", progress };
   } catch (error) {
-    console.error('Error starting roadmap:', error);
+    console.error("Error starting roadmap:", error);
     throw error;
   }
 }
@@ -712,7 +774,10 @@ export async function startRoadmapForUser(userId: string, roadmapId: string) {
 /**
  * Get roadmap with user's progress
  */
-export async function getRoadmapWithUserProgress(userId: string, roadmapId: string) {
+export async function getRoadmapWithUserProgress(
+  userId: string,
+  roadmapId: string,
+) {
   try {
     const roadmap = await db.getRoadmapWithMilestones(roadmapId);
     const userProgress = await db.getUserRoadmapProgress(userId, roadmapId);
@@ -721,15 +786,18 @@ export async function getRoadmapWithUserProgress(userId: string, roadmapId: stri
     const milestonesWithProgress = await Promise.all(
       (roadmap.milestones || []).map(async (milestone) => {
         if (milestone.courses) {
-          const enrollment = await db.getEnrollment(userId, milestone.courses.id);
+          const enrollment = await db.getEnrollment(
+            userId,
+            milestone.courses.id,
+          );
           return {
             ...milestone,
-            userStatus: enrollment?.status || 'not_started',
+            userStatus: enrollment?.status || "not_started",
             userProgress: enrollment?.progress_percent || 0,
           };
         }
         return milestone;
-      })
+      }),
     );
 
     return {
@@ -740,7 +808,7 @@ export async function getRoadmapWithUserProgress(userId: string, roadmapId: stri
       userProgress,
     };
   } catch (error) {
-    console.error('Error getting roadmap with progress:', error);
+    console.error("Error getting roadmap with progress:", error);
     throw error;
   }
 }
@@ -756,7 +824,7 @@ export async function syncUserStats(userId: string) {
   try {
     return await calculateUserStats(userId);
   } catch (error) {
-    console.error('Error syncing stats:', error);
+    console.error("Error syncing stats:", error);
     throw error;
   }
 }
@@ -770,10 +838,10 @@ export async function updateLearningStreak(userId: string) {
 
     // Get last activity date
     const { data: lastActivity } = await db.supabase
-      .from('lesson_progress')
-      .select('updated_at')
-      .eq('user_id', userId)
-      .order('updated_at', { ascending: false })
+      .from("lesson_progress")
+      .select("updated_at")
+      .eq("user_id", userId)
+      .order("updated_at", { ascending: false })
       .limit(1);
 
     if (!lastActivity || lastActivity.length === 0) {
@@ -782,7 +850,9 @@ export async function updateLearningStreak(userId: string) {
 
     const lastDate = new Date(lastActivity[0].updated_at);
     const today = new Date();
-    const daysDiff = Math.floor((today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+    const daysDiff = Math.floor(
+      (today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24),
+    );
 
     let newStreak = stats.current_streak_days || 1;
     if (daysDiff === 1) {
@@ -804,7 +874,7 @@ export async function updateLearningStreak(userId: string) {
 
     return updated;
   } catch (error) {
-    console.error('Error updating streak:', error);
+    console.error("Error updating streak:", error);
     throw error;
   }
 }

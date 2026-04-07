@@ -53,7 +53,11 @@ export const Login: React.FC = () => {
   return (
     <>
       {/* Auth Guide */}
-      <AuthGuide mode="login" currentField={currentField} fieldValues={{ phone, password }} />
+      <AuthGuide
+        mode="login"
+        currentField={currentField}
+        fieldValues={{ phone, password }}
+      />
 
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-emerald-50/80 to-sage-50 flex items-center justify-center px-4">
         <Card className="w-full max-w-md p-8">

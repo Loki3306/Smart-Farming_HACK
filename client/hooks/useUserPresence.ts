@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { supabase } from '@/lib/supabase';
-import { useAuth } from '@/context/AuthContext';
+import { useState, useEffect, useCallback, useRef } from "react";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/context/AuthContext";
 
-export type PresenceStatus = 'online' | 'offline' | 'away';
+export type PresenceStatus = "online" | "offline" | "away";
 
 interface UserPresence {
   user_id: string;
@@ -22,55 +22,59 @@ export function useUserPresence(targetUserId?: string) {
     try {
       setIsLoading(true);
       const { data, error } = await supabase
-        .from('user_presence')
-        .select('*')
-        .eq('user_id', userId)
+        .from("user_presence")
+        .select("*")
+        .eq("user_id", userId)
         .maybeSingle();
 
       if (error) {
-        console.error('Failed to fetch presence:', error);
+        console.error("Failed to fetch presence:", error);
       } else if (data) {
         setPresence(data as UserPresence);
       }
     } catch (error) {
-      console.error('Failed to fetch presence:', error);
+      console.error("Failed to fetch presence:", error);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
   // Update own presence status
-  const updatePresence = useCallback(async (status: PresenceStatus) => {
-    if (!user?.id) return;
+  const updatePresence = useCallback(
+    async (status: PresenceStatus) => {
+      if (!user?.id) return;
 
-    try {
-      // Use Supabase directly for immediate update
-      const { error } = await supabase
-        .from('user_presence')
-        .upsert({
-          user_id: user.id,
-          status,
-          last_seen: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }, {
-          onConflict: 'user_id'
-        });
+      try {
+        // Use Supabase directly for immediate update
+        const { error } = await supabase.from("user_presence").upsert(
+          {
+            user_id: user.id,
+            status,
+            last_seen: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+          {
+            onConflict: "user_id",
+          },
+        );
 
-      if (error) {
-        console.error('Failed to update presence:', error);
-      } else {
-        // Update local state
-        setPresence({
-          user_id: user.id,
-          status,
-          last_seen: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        });
+        if (error) {
+          console.error("Failed to update presence:", error);
+        } else {
+          // Update local state
+          setPresence({
+            user_id: user.id,
+            status,
+            last_seen: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          });
+        }
+      } catch (error) {
+        console.error("Failed to update presence:", error);
       }
-    } catch (error) {
-      console.error('Failed to update presence:', error);
-    }
-  }, [user?.id]);
+    },
+    [user?.id],
+  );
 
   // Send heartbeat to maintain online status
   const sendHeartbeat = useCallback(async () => {
@@ -78,24 +82,25 @@ export function useUserPresence(targetUserId?: string) {
 
     try {
       // Use Supabase directly
-      await supabase
-        .from('user_presence')
-        .upsert({
+      await supabase.from("user_presence").upsert(
+        {
           user_id: user.id,
-          status: 'online',
+          status: "online",
           updated_at: new Date().toISOString(),
-        }, {
-          onConflict: 'user_id'
-        });
+        },
+        {
+          onConflict: "user_id",
+        },
+      );
     } catch (error) {
-      console.error('Failed to send heartbeat:', error);
+      console.error("Failed to send heartbeat:", error);
     }
   }, [user?.id]);
 
   // Set user online when component mounts
   useEffect(() => {
     if (user?.id && !targetUserId) {
-      updatePresence('online');
+      updatePresence("online");
 
       // Start heartbeat interval (every 30 seconds for better responsiveness)
       heartbeatIntervalRef.current = setInterval(() => {
@@ -104,52 +109,58 @@ export function useUserPresence(targetUserId?: string) {
 
       // Set offline on unmount or page unload
       const handleBeforeUnload = () => {
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as
+          | string
+          | undefined;
+        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as
+          | string
+          | undefined;
         if (!supabaseUrl || !supabaseAnonKey) {
           return;
         }
 
         // Use navigator.sendBeacon for reliable cleanup
         const blob = new Blob(
-          [JSON.stringify({
-            user_id: user.id,
-            status: 'offline',
-            last_seen: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          })],
-          { type: 'application/json' }
+          [
+            JSON.stringify({
+              user_id: user.id,
+              status: "offline",
+              last_seen: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            }),
+          ],
+          { type: "application/json" },
         );
-        
+
         // Synchronous update using fetch with keepalive
         fetch(`${supabaseUrl}/rest/v1/user_presence?user_id=eq.${user.id}`, {
-          method: 'PATCH',
+          method: "PATCH",
           headers: {
-            'apikey': supabaseAnonKey,
-            'Authorization': `Bearer ${supabaseAnonKey}`,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
+            apikey: supabaseAnonKey,
+            Authorization: `Bearer ${supabaseAnonKey}`,
+            "Content-Type": "application/json",
+            Prefer: "return=minimal",
           },
           body: JSON.stringify({
-            status: 'offline',
+            status: "offline",
             last_seen: new Date().toISOString(),
-            updated_at: new Date().toISOString()
+            updated_at: new Date().toISOString(),
           }),
-          keepalive: true
+          keepalive: true,
         }).catch(console.error);
       };
 
-      window.addEventListener('beforeunload', handleBeforeUnload);
-      window.addEventListener('pagehide', handleBeforeUnload);
+      window.addEventListener("beforeunload", handleBeforeUnload);
+      window.addEventListener("pagehide", handleBeforeUnload);
 
       return () => {
         // Try to set offline on unmount
-        updatePresence('offline');
+        updatePresence("offline");
         if (heartbeatIntervalRef.current) {
           clearInterval(heartbeatIntervalRef.current);
         }
-        window.removeEventListener('beforeunload', handleBeforeUnload);
-        window.removeEventListener('pagehide', handleBeforeUnload);
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+        window.removeEventListener("pagehide", handleBeforeUnload);
       };
     }
   }, [user?.id, targetUserId, updatePresence, sendHeartbeat]);
@@ -168,16 +179,16 @@ export function useUserPresence(targetUserId?: string) {
     const channel = supabase
       .channel(`presence:${targetUserId}`)
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*',
-          schema: 'public',
-          table: 'user_presence',
+          event: "*",
+          schema: "public",
+          table: "user_presence",
           filter: `user_id=eq.${targetUserId}`,
         },
         (payload) => {
           setPresence(payload.new as UserPresence);
-        }
+        },
       )
       .subscribe();
 
@@ -192,16 +203,16 @@ export function useUserPresence(targetUserId?: string) {
 
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        updatePresence('away');
+        updatePresence("away");
       } else {
-        updatePresence('online');
+        updatePresence("online");
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [user?.id, targetUserId, updatePresence]);
 
@@ -210,22 +221,24 @@ export function useUserPresence(targetUserId?: string) {
     isLoading,
     updatePresence,
     // Consider offline if status is offline OR if last update was more than 2 minutes ago
-    isOnline: presence ? (
-      presence.status === 'online' && 
-      (new Date().getTime() - new Date(presence.updated_at).getTime()) < 120000 // 2 minutes
-    ) : false,
-    isAway: presence?.status === 'away',
-    isOffline: presence ? (
-      presence.status === 'offline' || 
-      (new Date().getTime() - new Date(presence.updated_at).getTime()) >= 120000
-    ) : true,
+    isOnline: presence
+      ? presence.status === "online" &&
+        new Date().getTime() - new Date(presence.updated_at).getTime() < 120000 // 2 minutes
+      : false,
+    isAway: presence?.status === "away",
+    isOffline: presence
+      ? presence.status === "offline" ||
+        new Date().getTime() - new Date(presence.updated_at).getTime() >= 120000
+      : true,
     lastSeen: presence?.last_seen,
   };
 }
 
 // Hook for bulk presence fetching (for conversation list)
 export function useBulkPresence(userIds: string[]) {
-  const [presenceMap, setPresenceMap] = useState<Map<string, UserPresence>>(new Map());
+  const [presenceMap, setPresenceMap] = useState<Map<string, UserPresence>>(
+    new Map(),
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -235,12 +248,12 @@ export function useBulkPresence(userIds: string[]) {
       try {
         setIsLoading(true);
         const { data, error } = await supabase
-          .from('user_presence')
-          .select('*')
-          .in('user_id', userIds);
-        
+          .from("user_presence")
+          .select("*")
+          .in("user_id", userIds);
+
         if (error) {
-          console.error('Failed to fetch bulk presence:', error);
+          console.error("Failed to fetch bulk presence:", error);
         } else if (data) {
           const map = new Map<string, UserPresence>();
           data.forEach((p: UserPresence) => {
@@ -249,33 +262,34 @@ export function useBulkPresence(userIds: string[]) {
           setPresenceMap(map);
         }
       } catch (error) {
-        console.error('Failed to fetch bulk presence:', error);
+        console.error("Failed to fetch bulk presence:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchBulkPresence();
-  }, [userIds.join(',')]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [userIds.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Subscribe to updates for all users - OPTIMIZED: Single channel instead of one per user
   useEffect(() => {
     if (userIds.length === 0) return;
 
     // Create a single channel for all presence updates instead of one per user
-    const channelId = `bulk-presence:${userIds.slice(0, 5).join('-')}-${userIds.length}`;
+    const channelId = `bulk-presence:${userIds.slice(0, 5).join("-")}-${userIds.length}`;
     const channel = supabase
       .channel(channelId)
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*',
-          schema: 'public',
-          table: 'user_presence',
+          event: "*",
+          schema: "public",
+          table: "user_presence",
           // Filter for any of the userIds we care about
-          filter: userIds.length <= 10 
-            ? `user_id=in.(${userIds.join(',')})` 
-            : undefined, // For large lists, filter client-side
+          filter:
+            userIds.length <= 10
+              ? `user_id=in.(${userIds.join(",")})`
+              : undefined, // For large lists, filter client-side
         },
         (payload) => {
           const newPresence = payload.new as UserPresence;
@@ -287,18 +301,28 @@ export function useBulkPresence(userIds: string[]) {
               return newMap;
             });
           }
-        }
+        },
       )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userIds.join(',')]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [userIds.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const getPresence = useCallback((userId: string) => {
-    return presenceMap.get(userId) || { user_id: userId, status: 'offline' as PresenceStatus, last_seen: null, updated_at: new Date().toISOString() };
-  }, [presenceMap]);
+  const getPresence = useCallback(
+    (userId: string) => {
+      return (
+        presenceMap.get(userId) || {
+          user_id: userId,
+          status: "offline" as PresenceStatus,
+          last_seen: null,
+          updated_at: new Date().toISOString(),
+        }
+      );
+    },
+    [presenceMap],
+  );
 
   return {
     presenceMap,

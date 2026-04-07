@@ -1,6 +1,9 @@
-import React from 'react';
-import { getFarmMappingStats, getFarmMapping } from '../../utils/farmMappingStorage';
-import { Map, Grid3x3, Sprout, Calendar, Droplets } from 'lucide-react';
+import React from "react";
+import {
+  getFarmMappingStats,
+  getFarmMapping,
+} from "../../utils/farmMappingStorage";
+import { Map, Grid3x3, Sprout, Calendar, Droplets } from "lucide-react";
 
 interface FarmStatsProps {
   onEditClick: () => void;
@@ -13,10 +16,10 @@ const FarmStats: React.FC<FarmStatsProps> = ({ onEditClick }) => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-IN', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
+    return date.toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
     });
   };
 
@@ -31,9 +34,7 @@ const FarmStats: React.FC<FarmStatsProps> = ({ onEditClick }) => {
             </div>
             <div>
               <p className="text-sm opacity-90">Total Farm Area</p>
-              <p className="text-2xl font-bold">
-                {stats.totalArea.toFixed(2)}
-              </p>
+              <p className="text-2xl font-bold">{stats.totalArea.toFixed(2)}</p>
               <p className="text-xs opacity-80">acres</p>
             </div>
           </div>
@@ -48,7 +49,7 @@ const FarmStats: React.FC<FarmStatsProps> = ({ onEditClick }) => {
               <p className="text-sm opacity-90">Total Sections</p>
               <p className="text-2xl font-bold">{stats.sectionsCount}</p>
               <p className="text-xs opacity-80">
-                {stats.sectionsCount === 1 ? 'section' : 'sections'}
+                {stats.sectionsCount === 1 ? "section" : "sections"}
               </p>
             </div>
           </div>
@@ -77,7 +78,7 @@ const FarmStats: React.FC<FarmStatsProps> = ({ onEditClick }) => {
             <Sprout className="w-5 h-5 text-green-600" />
             <h3 className="font-semibold">Crop Distribution</h3>
           </div>
-          
+
           <div className="space-y-2">
             {Object.entries(stats.cropDistribution).map(([crop, count]) => (
               <div key={crop} className="flex items-center justify-between">

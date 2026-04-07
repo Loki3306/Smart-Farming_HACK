@@ -1,180 +1,180 @@
 {
-    "header": {
-        "title": "शेतकरी समुदाय",
-        "subtitle": "सहकारी शेतकरी आणि तज्ञांकडून शिका",
-        "live": "लाइव्ह",
-        "createPost": "पोस्ट तयार करा"
+  "header": {
+    "title": "शेतकरी समुदाय",
+    "subtitle": "सहकारी शेतकरी आणि तज्ञांकडून शिका",
+    "live": "लाइव्ह",
+    "createPost": "पोस्ट तयार करा"
+  },
+  "offline": {
+    "message": "तुम्ही ऑफलाइन आहात। काही वैशिष्ट्ये कार्य करू शकत नाहीत।"
+  },
+  "search": {
+    "placeholder": "पोस्ट, पिके, विषय, शेतकरी शोधा...",
+    "filterByCrop": "पिकानुसार फिल्टर करा",
+    "allCrops": "सर्व पिके"
+  },
+  "tabs": {
+    "posts": "पोस्ट",
+    "experts": "तज्ञ",
+    "saved": "जतन केलेले",
+    "myReports": "माझे अहवाल"
+  },
+  "crops": {
+    "rice": "तांदूळ",
+    "wheat": "गहू",
+    "cotton": "कापूस",
+    "sugarcane": "ऊस",
+    "tomato": "टोमॅटो",
+    "potato": "बटाटा",
+    "onion": "कांदा",
+    "maize": "मका",
+    "soybean": "सोयाबीन",
+    "groundnut": "भुईमूग",
+    "mustard": "मोहरी",
+    "chilli": "मिरची",
+    "banana": "केळी",
+    "mango": "आंबा"
+  },
+  "postTypes": {
+    "success": {
+      "label": "यशाची गोष्ट",
+      "description": "तुमची शेती यश सामायिक करा",
+      "cropPrompt": "कोणत्या पिकात यश मिळाले?",
+      "contentPrompt": "तुम्ही काय साध्य केले? तुमची गोष्ट सांगा...",
+      "methodPrompt": "कोणती पद्धत किंवा तंत्र काम केले?"
     },
-    "offline": {
-        "message": "तुम्ही ऑफलाइन आहात। काही वैशिष्ट्ये कार्य करू शकत नाहीत।"
+    "question": {
+      "label": "प्रश्न",
+      "description": "समुदायाकडून मदत मागा",
+      "cropPrompt": "हे कोणत्या पिकाबद्दल आहे?",
+      "contentPrompt": "तुम्हाला काय जाणून घ्यायचे आहे? विशिष्ट रहा...",
+      "methodPrompt": "तुम्ही आधीच काय प्रयत्न केले आहे?"
     },
-    "search": {
-        "placeholder": "पोस्ट, पिके, विषय, शेतकरी शोधा...",
-        "filterByCrop": "पिकानुसार फिल्टर करा",
-        "allCrops": "सर्व पिके"
+    "problem": {
+      "label": "समस्या",
+      "description": "तुमची समस्या नोंदवा",
+      "cropPrompt": "कोणते पीक प्रभावित आहे?",
+      "contentPrompt": "समस्येचे तपशीलवार वर्णन करा...",
+      "methodPrompt": "तुम्ही काय पाहिले आहे?"
     },
-    "tabs": {
-        "posts": "पोस्ट",
-        "experts": "तज्ञ",
-        "saved": "जतन केलेले",
-        "myReports": "माझे अहवाल"
-    },
-    "crops": {
-        "rice": "तांदूळ",
-        "wheat": "गहू",
-        "cotton": "कापूस",
-        "sugarcane": "ऊस",
-        "tomato": "टोमॅटो",
-        "potato": "बटाटा",
-        "onion": "कांदा",
-        "maize": "मका",
-        "soybean": "सोयाबीन",
-        "groundnut": "भुईमूग",
-        "mustard": "मोहरी",
-        "chilli": "मिरची",
-        "banana": "केळी",
-        "mango": "आंबा"
-    },
-    "postTypes": {
-        "success": {
-            "label": "यशाची गोष्ट",
-            "description": "तुमची शेती यश सामायिक करा",
-            "cropPrompt": "कोणत्या पिकात यश मिळाले?",
-            "contentPrompt": "तुम्ही काय साध्य केले? तुमची गोष्ट सांगा...",
-            "methodPrompt": "कोणती पद्धत किंवा तंत्र काम केले?"
-        },
-        "question": {
-            "label": "प्रश्न",
-            "description": "समुदायाकडून मदत मागा",
-            "cropPrompt": "हे कोणत्या पिकाबद्दल आहे?",
-            "contentPrompt": "तुम्हाला काय जाणून घ्यायचे आहे? विशिष्ट रहा...",
-            "methodPrompt": "तुम्ही आधीच काय प्रयत्न केले आहे?"
-        },
-        "problem": {
-            "label": "समस्या",
-            "description": "तुमची समस्या नोंदवा",
-            "cropPrompt": "कोणते पीक प्रभावित आहे?",
-            "contentPrompt": "समस्येचे तपशीलवार वर्णन करा...",
-            "methodPrompt": "तुम्ही काय पाहिले आहे?"
-        },
-        "update": {
-            "label": "शेत अपडेट",
-            "description": "तुमच्या शेतात काय चालले आहे ते सामायिक करा",
-            "cropPrompt": "तुम्ही कोणते पीक दाखवत आहात?",
-            "contentPrompt": "सध्याची परिस्थिती काय आहे?",
-            "methodPrompt": "कोणतेही विशेष तंत्र वापरले जात आहे?"
-        }
-    },
-    "reactions": {
-        "helpful": {
-            "label": "उपयुक्त",
-            "countText": "उपयुक्त आढळले"
-        },
-        "tried": {
-            "label": "हे वापरले",
-            "countText": "हे वापरले"
-        },
-        "didntWork": {
-            "label": "काम केले नाही",
-            "countText": "काम केले नाही"
-        },
-        "newIdea": {
-            "label": "नवीन कल्पना",
-            "countText": "नवीन कल्पना मिळाल्या"
-        }
-    },
-    "time": {
-        "justNow": "आत्ताच",
-        "minutesAgo": "{{count}} मिनिटांपूर्वी",
-        "hoursAgo": "{{count}} तासांपूर्वी",
-        "daysAgo": "{{count}} दिवसांपूर्वी"
-    },
-    "stats": {
-        "totalPosts": "एकूण पोस्ट",
-        "activeExperts": "सक्रिय तज्ञ",
-        "helpfulAnswers": "उपयुक्त उत्तरे",
-        "trending": "ट्रेंडिंग विषय"
-    },
-    "experts": {
-        "verified": "सत्यापित तज्ञ",
-        "activeThisWeek": "या आठवड्यात सक्रिय",
-        "follow": "फॉलो करा",
-        "following": "फॉलो करत आहे",
-        "askExpert": "तज्ञाला विचारा",
-        "noExperts": "कोणतेही तज्ञ आढळले नाहीत"
-    },
-    "posts": {
-        "loadingPosts": "पोस्ट लोड होत आहेत...",
-        "noPosts": "अद्याप कोणतीही पोस्ट नाही",
-        "noPostsDescription": "तुमचा शेती अनुभव सामायिक करणारे पहिले व्यक्ती व्हा!",
-        "failedToLoad": "पोस्ट लोड करण्यात अयशस्वी",
-        "loadMore": "अधिक लोड करा",
-        "trending": "ट्रेंडिंग",
-        "expertReply": "तज्ञ उत्तर"
-    },
-    "createPost": {
-        "title": "पोस्ट तयार करा",
-        "selectType": "तुम्ही काय सामायिक करू इच्छिता?",
-        "missingInfo": "माहिती गहाळ आहे",
-        "missingInfoDesc": "कृपया सर्व आवश्यक फील्ड भरा।",
-        "postShared": "पोस्ट सामायिक केली! 🎉",
-        "postSharedDesc": "तुमचा अनुभव आता समुदायाला दिसत आहे।",
-        "failedToCreate": "पोस्ट तयार करण्यात अयशस्वी",
-        "tryAgainLater": "कृपया नंतर पुन्हा प्रयत्न करा।",
-        "cancel": "रद्द करा",
-        "post": "पोस्ट करा",
-        "posting": "पोस्ट होत आहे..."
-    },
-    "actions": {
-        "save": "जतन करा",
-        "saved": "📌 जतन केले!",
-        "savedDesc": "पोस्ट तुमच्या संग्रहात जतन केली.",
-        "removed": "काढले",
-        "removedDesc": "पोस्ट जतन केलेल्या वस्तूंमधून काढली.",
-        "share": "सामायिक करा",
-        "sharedVia": "{{method}} द्वारे सामायिक केले",
-        "thankYou": "ज्ञान पसरवण्यासाठी धन्यवाद!",
-        "edit": "संपादित करा",
-        "updated": "✅ अपडेट केले!",
-        "updatedDesc": "तुमची पोस्ट यशस्वीरित्या अपडेट केली आहे।",
-        "delete": "हटवा",
-        "deleted": "🗑️ हटवले!",
-        "deletedDesc": "तुमची पोस्ट काढली आहे।",
-        "report": "अहवाल द्या",
-        "reportSubmitted": "🚩 अहवाल सबमिट केला",
-        "reportSubmittedDesc": "आमच्या समुदायाला सुरक्षित ठेवण्यात मदत केल्याबद्दल धन्यवाद। आम्ही या अहवालाचे पुनरावलोकन करू.",
-        "alreadyReported": "आधीच अहवाल दिला",
-        "alreadyReportedDesc": "तुम्ही आधीच या पोस्टचा अहवाल दिला आहे. आमची टीम त्याचे पुनरावलोकन करत आहे।",
-        "failedToSave": "पोस्ट जतन करण्यात अयशस्वी",
-        "failedToShare": "सामायिक करण्यात अयशस्वी",
-        "failedToUpdate": "पोस्ट अपडेट करण्यात अयशस्वी",
-        "failedToDelete": "पोस्ट हटवण्यात अयशस्वी",
-        "failedToReport": "अहवाल सबमिट करण्यात अयशस्वी",
-        "tryAgain": "कृपया पुन्हा प्रयत्न करा।"
-    },
-    "follow": {
-        "following": "फॉलो करत आहे!",
-        "followingDesc": "तुम्हाला या तज्ञाकडून अपडेट मिळतील।",
-        "unfollowed": "अनफॉलो केले",
-        "unfollowedDesc": "तुम्हाला आता अपडेट मिळणार नाहीत।",
-        "failedToFollow": "फॉलो अपडेट करण्यात अयशस्वी"
-    },
-    "reaction": {
-        "yourFeedback": "तुमचा अभिप्राय समुदायाला मदत करतो!",
-        "failedToReact": "प्रतिक्रिया अपडेट करण्यात अयशस्वी"
-    },
-    "shareMethod": {
-        "whatsapp": "📱 WhatsApp",
-        "copyLink": "📋 लिंक",
-        "nativeShare": "📤 सामायिक करा",
-        "download": "💾 डाउनलोड"
-    },
-    "saved": {
-        "noSaved": "कोणतीही जतन केलेली पोस्ट नाही",
-        "noSavedDesc": "तुम्ही जतन केलेल्या पोस्ट येथे दिसतील"
-    },
-    "reports": {
-        "noReports": "कोणतीही अहवाल दिलेली पोस्ट नाही",
-        "noReportsDesc": "तुम्ही अहवाल दिलेल्या पोस्ट येथे दिसतील"
+    "update": {
+      "label": "शेत अपडेट",
+      "description": "तुमच्या शेतात काय चालले आहे ते सामायिक करा",
+      "cropPrompt": "तुम्ही कोणते पीक दाखवत आहात?",
+      "contentPrompt": "सध्याची परिस्थिती काय आहे?",
+      "methodPrompt": "कोणतेही विशेष तंत्र वापरले जात आहे?"
     }
+  },
+  "reactions": {
+    "helpful": {
+      "label": "उपयुक्त",
+      "countText": "उपयुक्त आढळले"
+    },
+    "tried": {
+      "label": "हे वापरले",
+      "countText": "हे वापरले"
+    },
+    "didntWork": {
+      "label": "काम केले नाही",
+      "countText": "काम केले नाही"
+    },
+    "newIdea": {
+      "label": "नवीन कल्पना",
+      "countText": "नवीन कल्पना मिळाल्या"
+    }
+  },
+  "time": {
+    "justNow": "आत्ताच",
+    "minutesAgo": "{{count}} मिनिटांपूर्वी",
+    "hoursAgo": "{{count}} तासांपूर्वी",
+    "daysAgo": "{{count}} दिवसांपूर्वी"
+  },
+  "stats": {
+    "totalPosts": "एकूण पोस्ट",
+    "activeExperts": "सक्रिय तज्ञ",
+    "helpfulAnswers": "उपयुक्त उत्तरे",
+    "trending": "ट्रेंडिंग विषय"
+  },
+  "experts": {
+    "verified": "सत्यापित तज्ञ",
+    "activeThisWeek": "या आठवड्यात सक्रिय",
+    "follow": "फॉलो करा",
+    "following": "फॉलो करत आहे",
+    "askExpert": "तज्ञाला विचारा",
+    "noExperts": "कोणतेही तज्ञ आढळले नाहीत"
+  },
+  "posts": {
+    "loadingPosts": "पोस्ट लोड होत आहेत...",
+    "noPosts": "अद्याप कोणतीही पोस्ट नाही",
+    "noPostsDescription": "तुमचा शेती अनुभव सामायिक करणारे पहिले व्यक्ती व्हा!",
+    "failedToLoad": "पोस्ट लोड करण्यात अयशस्वी",
+    "loadMore": "अधिक लोड करा",
+    "trending": "ट्रेंडिंग",
+    "expertReply": "तज्ञ उत्तर"
+  },
+  "createPost": {
+    "title": "पोस्ट तयार करा",
+    "selectType": "तुम्ही काय सामायिक करू इच्छिता?",
+    "missingInfo": "माहिती गहाळ आहे",
+    "missingInfoDesc": "कृपया सर्व आवश्यक फील्ड भरा।",
+    "postShared": "पोस्ट सामायिक केली! 🎉",
+    "postSharedDesc": "तुमचा अनुभव आता समुदायाला दिसत आहे।",
+    "failedToCreate": "पोस्ट तयार करण्यात अयशस्वी",
+    "tryAgainLater": "कृपया नंतर पुन्हा प्रयत्न करा।",
+    "cancel": "रद्द करा",
+    "post": "पोस्ट करा",
+    "posting": "पोस्ट होत आहे..."
+  },
+  "actions": {
+    "save": "जतन करा",
+    "saved": "📌 जतन केले!",
+    "savedDesc": "पोस्ट तुमच्या संग्रहात जतन केली.",
+    "removed": "काढले",
+    "removedDesc": "पोस्ट जतन केलेल्या वस्तूंमधून काढली.",
+    "share": "सामायिक करा",
+    "sharedVia": "{{method}} द्वारे सामायिक केले",
+    "thankYou": "ज्ञान पसरवण्यासाठी धन्यवाद!",
+    "edit": "संपादित करा",
+    "updated": "✅ अपडेट केले!",
+    "updatedDesc": "तुमची पोस्ट यशस्वीरित्या अपडेट केली आहे।",
+    "delete": "हटवा",
+    "deleted": "🗑️ हटवले!",
+    "deletedDesc": "तुमची पोस्ट काढली आहे।",
+    "report": "अहवाल द्या",
+    "reportSubmitted": "🚩 अहवाल सबमिट केला",
+    "reportSubmittedDesc": "आमच्या समुदायाला सुरक्षित ठेवण्यात मदत केल्याबद्दल धन्यवाद। आम्ही या अहवालाचे पुनरावलोकन करू.",
+    "alreadyReported": "आधीच अहवाल दिला",
+    "alreadyReportedDesc": "तुम्ही आधीच या पोस्टचा अहवाल दिला आहे. आमची टीम त्याचे पुनरावलोकन करत आहे।",
+    "failedToSave": "पोस्ट जतन करण्यात अयशस्वी",
+    "failedToShare": "सामायिक करण्यात अयशस्वी",
+    "failedToUpdate": "पोस्ट अपडेट करण्यात अयशस्वी",
+    "failedToDelete": "पोस्ट हटवण्यात अयशस्वी",
+    "failedToReport": "अहवाल सबमिट करण्यात अयशस्वी",
+    "tryAgain": "कृपया पुन्हा प्रयत्न करा।"
+  },
+  "follow": {
+    "following": "फॉलो करत आहे!",
+    "followingDesc": "तुम्हाला या तज्ञाकडून अपडेट मिळतील।",
+    "unfollowed": "अनफॉलो केले",
+    "unfollowedDesc": "तुम्हाला आता अपडेट मिळणार नाहीत।",
+    "failedToFollow": "फॉलो अपडेट करण्यात अयशस्वी"
+  },
+  "reaction": {
+    "yourFeedback": "तुमचा अभिप्राय समुदायाला मदत करतो!",
+    "failedToReact": "प्रतिक्रिया अपडेट करण्यात अयशस्वी"
+  },
+  "shareMethod": {
+    "whatsapp": "📱 WhatsApp",
+    "copyLink": "📋 लिंक",
+    "nativeShare": "📤 सामायिक करा",
+    "download": "💾 डाउनलोड"
+  },
+  "saved": {
+    "noSaved": "कोणतीही जतन केलेली पोस्ट नाही",
+    "noSavedDesc": "तुम्ही जतन केलेल्या पोस्ट येथे दिसतील"
+  },
+  "reports": {
+    "noReports": "कोणतीही अहवाल दिलेली पोस्ट नाही",
+    "noReportsDesc": "तुम्ही अहवाल दिलेल्या पोस्ट येथे दिसतील"
+  }
 }

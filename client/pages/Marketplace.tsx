@@ -60,14 +60,18 @@ interface Listing {
 }
 
 export const Marketplace: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"buy" | "sell" | "insurance">("buy");
+  const [activeTab, setActiveTab] = useState<"buy" | "sell" | "insurance">(
+    "buy",
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [crops, setCrops] = useState<CropData[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCrop, setSelectedCrop] = useState<CropData | null>(null);
   const [imageError, setImageError] = useState<Set<string>>(new Set());
-  const [imageAttempts, setImageAttempts] = useState<Map<string, number>>(new Map());
+  const [imageAttempts, setImageAttempts] = useState<Map<string, number>>(
+    new Map(),
+  );
   const [fertilizerProducts, setFertilizerProducts] = useState<any[]>([]);
   const [loadingFertilizers, setLoadingFertilizers] = useState(false);
 
@@ -83,7 +87,7 @@ export const Marketplace: React.FC = () => {
       const cropData = await cropPriceService.getCropDataForMarketplace();
       setCrops(cropData);
     } catch (error) {
-      console.error('Failed to load crop data:', error);
+      console.error("Failed to load crop data:", error);
     } finally {
       setLoading(false);
     }
@@ -92,14 +96,19 @@ export const Marketplace: React.FC = () => {
   const loadFertilizerProducts = async () => {
     setLoadingFertilizers(true);
     try {
-      const response = await fetch('http://localhost:8000/api/recommendations/products/fertilizers');
+      const response = await fetch(
+        "http://localhost:8000/api/recommendations/products/fertilizers",
+      );
       if (response.ok) {
         const products = await response.json();
         setFertilizerProducts(products);
-        console.log('[Marketplace] Loaded fertilizer products:', products.length);
+        console.log(
+          "[Marketplace] Loaded fertilizer products:",
+          products.length,
+        );
       }
     } catch (error) {
-      console.error('[Marketplace] Failed to load fertilizer products:', error);
+      console.error("[Marketplace] Failed to load fertilizer products:", error);
     } finally {
       setLoadingFertilizers(false);
     }
@@ -225,8 +234,11 @@ export const Marketplace: React.FC = () => {
   ];
 
   const filteredProducts = products.filter((p) => {
-    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === "all" || p.category === selectedCategory;
+    const matchesSearch = p.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "all" || p.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -237,7 +249,8 @@ export const Marketplace: React.FC = () => {
       crop.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
       crop.brand?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       crop.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === "all" || crop.category === selectedCategory;
+    const matchesCategory =
+      selectedCategory === "all" || crop.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -247,25 +260,29 @@ export const Marketplace: React.FC = () => {
 
     if (attempts < maxAttempts) {
       // Try next extension
-      setImageAttempts(prev => new Map(prev).set(cropId, attempts + 1));
+      setImageAttempts((prev) => new Map(prev).set(cropId, attempts + 1));
     } else {
       // All attempts failed, mark as error
-      setImageError(prev => new Set(prev).add(cropId));
+      setImageError((prev) => new Set(prev).add(cropId));
     }
   };
 
   const getImageSrc = (crop: CropData): string => {
     const attempts = imageAttempts.get(crop.id) || 0;
-    const extensions = ['jpg', 'jpeg', 'png'];
-    const currentExt = extensions[attempts] || 'jpg';
+    const extensions = ["jpg", "jpeg", "png"];
+    const currentExt = extensions[attempts] || "jpg";
 
     // Extract the base path and replace extension
-    const basePath = crop.image.replace(/\.(jpg|jpeg|png)$/i, '');
+    const basePath = crop.image.replace(/\.(jpg|jpeg|png)$/i, "");
     return `${basePath}.${currentExt}`;
   };
 
-  const getPriceChange = (crop: CropData): { change: number; isPositive: boolean } => {
-    const change = Math.round(((crop.price - crop.minPrice) / crop.minPrice) * 100);
+  const getPriceChange = (
+    crop: CropData,
+  ): { change: number; isPositive: boolean } => {
+    const change = Math.round(
+      ((crop.price - crop.minPrice) / crop.minPrice) * 100,
+    );
     return { change: Math.abs(change), isPositive: change >= 0 };
   };
 
@@ -320,7 +337,8 @@ export const Marketplace: React.FC = () => {
                 Protect Your Crops with Insurance
               </h2>
               <p className="text-muted-foreground">
-                Compare and choose from trusted insurance providers. Get coverage for crop damage, weather risks, and more.
+                Compare and choose from trusted insurance providers. Get
+                coverage for crop damage, weather risks, and more.
               </p>
             </Card>
 
@@ -342,12 +360,15 @@ export const Marketplace: React.FC = () => {
                       </div>
                       <div>
                         <h3 className="font-bold text-xl">GramCover</h3>
-                        <p className="text-sm text-green-600 font-medium">For Rural Farmers</p>
+                        <p className="text-sm text-green-600 font-medium">
+                          For Rural Farmers
+                        </p>
                       </div>
                     </div>
 
                     <p className="text-sm text-muted-foreground">
-                      Specialized insurance for farmers with mobile enrollment, crop insurance, livestock protection, and life coverage.
+                      Specialized insurance for farmers with mobile enrollment,
+                      crop insurance, livestock protection, and life coverage.
                     </p>
 
                     <div className="space-y-2">
@@ -407,22 +428,29 @@ export const Marketplace: React.FC = () => {
                       </div>
                       <div>
                         <h3 className="font-bold text-xl">PMFBY</h3>
-                        <p className="text-sm text-orange-600 font-medium">Government Scheme</p>
+                        <p className="text-sm text-orange-600 font-medium">
+                          Government Scheme
+                        </p>
                       </div>
                     </div>
 
                     <p className="text-sm text-muted-foreground">
-                      Pradhan Mantri Fasal Bima Yojana - India's flagship crop insurance with heavy government subsidies.
+                      Pradhan Mantri Fasal Bima Yojana - India's flagship crop
+                      insurance with heavy government subsidies.
                     </p>
 
                     <div className="space-y-2">
                       <div className="flex items-start gap-2">
                         <Check className="w-4 h-4 text-orange-600 mt-0.5 flex-shrink-0" />
-                        <span className="text-sm">Low premium (2% for Kharif)</span>
+                        <span className="text-sm">
+                          Low premium (2% for Kharif)
+                        </span>
                       </div>
                       <div className="flex items-start gap-2">
                         <Check className="w-4 h-4 text-orange-600 mt-0.5 flex-shrink-0" />
-                        <span className="text-sm">Covers all risks (drought, flood)</span>
+                        <span className="text-sm">
+                          Covers all risks (drought, flood)
+                        </span>
                       </div>
                       <div className="flex items-start gap-2">
                         <Check className="w-4 h-4 text-orange-600 mt-0.5 flex-shrink-0" />
@@ -472,18 +500,23 @@ export const Marketplace: React.FC = () => {
                       </div>
                       <div>
                         <h3 className="font-bold text-xl">1Silverbullet</h3>
-                        <p className="text-sm text-blue-600 font-medium">Compare Multiple Plans</p>
+                        <p className="text-sm text-blue-600 font-medium">
+                          Compare Multiple Plans
+                        </p>
                       </div>
                     </div>
 
                     <p className="text-sm text-muted-foreground">
-                      Single API gateway to compare insurance plans from multiple providers. One integration, many options.
+                      Single API gateway to compare insurance plans from
+                      multiple providers. One integration, many options.
                     </p>
 
                     <div className="space-y-2">
                       <div className="flex items-start gap-2">
                         <Check className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                        <span className="text-sm">Multi-provider comparison</span>
+                        <span className="text-sm">
+                          Multi-provider comparison
+                        </span>
                       </div>
                       <div className="flex items-start gap-2">
                         <Check className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
@@ -530,19 +563,31 @@ export const Marketplace: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div className="space-y-2">
                   <p className="font-medium">🌧️ Weather Protection</p>
-                  <p className="text-muted-foreground">Coverage against drought, flood, cyclone, and unseasonal rainfall.</p>
+                  <p className="text-muted-foreground">
+                    Coverage against drought, flood, cyclone, and unseasonal
+                    rainfall.
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <p className="font-medium">💰 Financial Security</p>
-                  <p className="text-muted-foreground">Protect your investment and ensure stable income even in bad seasons.</p>
+                  <p className="text-muted-foreground">
+                    Protect your investment and ensure stable income even in bad
+                    seasons.
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <p className="font-medium">🏛️ Government Support</p>
-                  <p className="text-muted-foreground">PMFBY subsidizes 95% of premium for small farmers (up to 2 hectares).</p>
+                  <p className="text-muted-foreground">
+                    PMFBY subsidizes 95% of premium for small farmers (up to 2
+                    hectares).
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <p className="font-medium">🚀 Fast Claims</p>
-                  <p className="text-muted-foreground">Satellite and AI-based assessment ensures quick claim settlement.</p>
+                  <p className="text-muted-foreground">
+                    Satellite and AI-based assessment ensures quick claim
+                    settlement.
+                  </p>
                 </div>
               </div>
             </Card>
@@ -555,41 +600,73 @@ export const Marketplace: React.FC = () => {
                   <thead>
                     <tr className="border-b">
                       <th className="text-left py-3 font-semibold">Feature</th>
-                      <th className="text-center py-3 font-semibold text-green-600">GramCover</th>
-                      <th className="text-center py-3 font-semibold text-orange-600">PMFBY</th>
-                      <th className="text-center py-3 font-semibold text-blue-600">1Silverbullet</th>
+                      <th className="text-center py-3 font-semibold text-green-600">
+                        GramCover
+                      </th>
+                      <th className="text-center py-3 font-semibold text-orange-600">
+                        PMFBY
+                      </th>
+                      <th className="text-center py-3 font-semibold text-blue-600">
+                        1Silverbullet
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr className="border-b">
                       <td className="py-3">Crop Coverage</td>
-                      <td className="text-center"><Check className="w-5 h-5 text-green-600 mx-auto" /></td>
-                      <td className="text-center"><Check className="w-5 h-5 text-orange-600 mx-auto" /></td>
-                      <td className="text-center"><Check className="w-5 h-5 text-blue-600 mx-auto" /></td>
+                      <td className="text-center">
+                        <Check className="w-5 h-5 text-green-600 mx-auto" />
+                      </td>
+                      <td className="text-center">
+                        <Check className="w-5 h-5 text-orange-600 mx-auto" />
+                      </td>
+                      <td className="text-center">
+                        <Check className="w-5 h-5 text-blue-600 mx-auto" />
+                      </td>
                     </tr>
                     <tr className="border-b">
                       <td className="py-3">Livestock Insurance</td>
-                      <td className="text-center"><Check className="w-5 h-5 text-green-600 mx-auto" /></td>
+                      <td className="text-center">
+                        <Check className="w-5 h-5 text-green-600 mx-auto" />
+                      </td>
                       <td className="text-center text-muted-foreground">-</td>
-                      <td className="text-center"><Check className="w-5 h-5 text-blue-600 mx-auto" /></td>
+                      <td className="text-center">
+                        <Check className="w-5 h-5 text-blue-600 mx-auto" />
+                      </td>
                     </tr>
                     <tr className="border-b">
                       <td className="py-3">Mobile Enrollment</td>
-                      <td className="text-center"><Check className="w-5 h-5 text-green-600 mx-auto" /></td>
-                      <td className="text-center"><Check className="w-5 h-5 text-orange-600 mx-auto" /></td>
-                      <td className="text-center"><Check className="w-5 h-5 text-blue-600 mx-auto" /></td>
+                      <td className="text-center">
+                        <Check className="w-5 h-5 text-green-600 mx-auto" />
+                      </td>
+                      <td className="text-center">
+                        <Check className="w-5 h-5 text-orange-600 mx-auto" />
+                      </td>
+                      <td className="text-center">
+                        <Check className="w-5 h-5 text-blue-600 mx-auto" />
+                      </td>
                     </tr>
                     <tr className="border-b">
                       <td className="py-3">Govt Subsidy</td>
-                      <td className="text-center text-muted-foreground">Partial</td>
-                      <td className="text-center font-semibold text-orange-600">Up to 95%</td>
-                      <td className="text-center text-muted-foreground">Varies</td>
+                      <td className="text-center text-muted-foreground">
+                        Partial
+                      </td>
+                      <td className="text-center font-semibold text-orange-600">
+                        Up to 95%
+                      </td>
+                      <td className="text-center text-muted-foreground">
+                        Varies
+                      </td>
                     </tr>
                     <tr>
                       <td className="py-3 font-medium">Best For</td>
-                      <td className="text-center text-xs px-2">Rural farmers</td>
+                      <td className="text-center text-xs px-2">
+                        Rural farmers
+                      </td>
                       <td className="text-center text-xs px-2">Low premium</td>
-                      <td className="text-center text-xs px-2">Choice seekers</td>
+                      <td className="text-center text-xs px-2">
+                        Choice seekers
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -600,7 +677,10 @@ export const Marketplace: React.FC = () => {
       ) : activeTab === "buy" ? (
         <>
           {/* Search and Filters */}
-          <div className="flex flex-col md:flex-row gap-4" data-tour-id="market-search">
+          <div
+            className="flex flex-col md:flex-row gap-4"
+            data-tour-id="market-search"
+          >
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
@@ -614,7 +694,10 @@ export const Marketplace: React.FC = () => {
           </div>
 
           {/* Categories */}
-          <div className="flex gap-2 overflow-x-auto pb-2" data-tour-id="market-categories">
+          <div
+            className="flex gap-2 overflow-x-auto pb-2"
+            data-tour-id="market-categories"
+          >
             {categories.map((cat) => (
               <Button
                 key={cat.id}
@@ -629,19 +712,26 @@ export const Marketplace: React.FC = () => {
           </div>
 
           {/* Products Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-tour-id="market-products">
+          <div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            data-tour-id="market-products"
+          >
             {loading ? (
               // Loading State
               <div className="col-span-full flex flex-col items-center justify-center py-16">
                 <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
-                <p className="text-muted-foreground">Loading fresh crop prices...</p>
+                <p className="text-muted-foreground">
+                  Loading fresh crop prices...
+                </p>
               </div>
             ) : filteredCrops.length === 0 ? (
               // Empty State
               <div className="col-span-full flex flex-col items-center justify-center py-16">
                 <Package className="w-16 h-16 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-semibold mb-2">No crops found</h3>
-                <p className="text-muted-foreground">Try adjusting your search or filters</p>
+                <p className="text-muted-foreground">
+                  Try adjusting your search or filters
+                </p>
               </div>
             ) : (
               // Crop Cards
@@ -677,10 +767,13 @@ export const Marketplace: React.FC = () => {
                         )}
 
                         {/* Price Change Badge */}
-                        <div className={`absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${priceChange.isPositive
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-red-100 text-red-700'
-                          }`}>
+                        <div
+                          className={`absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${
+                            priceChange.isPositive
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
+                        >
                           {priceChange.isPositive ? (
                             <TrendingUp className="w-3 h-3" />
                           ) : (
@@ -718,17 +811,23 @@ export const Marketplace: React.FC = () => {
                           <div className="flex items-center gap-2 mb-3">
                             <div className="flex items-center gap-1">
                               <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                              <span className="font-medium text-sm">{crop.rating.toFixed(1)}</span>
+                              <span className="font-medium text-sm">
+                                {crop.rating.toFixed(1)}
+                              </span>
                             </div>
                             {crop.reviews && (
-                              <span className="text-xs text-muted-foreground">({crop.reviews} reviews)</span>
+                              <span className="text-xs text-muted-foreground">
+                                ({crop.reviews} reviews)
+                              </span>
                             )}
                           </div>
                         )}
 
                         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
                           <MapPin className="w-4 h-4 flex-shrink-0" />
-                          <span className="line-clamp-1">{crop.district}, {crop.state}</span>
+                          <span className="line-clamp-1">
+                            {crop.district}, {crop.state}
+                          </span>
                         </div>
 
                         {/* Price Range */}
@@ -741,7 +840,7 @@ export const Marketplace: React.FC = () => {
                             <div
                               className="h-full bg-primary rounded-full"
                               style={{
-                                width: `${((crop.price - crop.minPrice) / (crop.maxPrice - crop.minPrice)) * 100}%`
+                                width: `${((crop.price - crop.minPrice) / (crop.maxPrice - crop.minPrice)) * 100}%`,
                               }}
                             />
                           </div>
@@ -753,7 +852,9 @@ export const Marketplace: React.FC = () => {
                             <span className="text-2xl font-bold text-primary">
                               ₹{crop.price}
                             </span>
-                            <span className="text-sm text-muted-foreground">/{crop.unit}</span>
+                            <span className="text-sm text-muted-foreground">
+                              /{crop.unit}
+                            </span>
                           </div>
                           <Button
                             size="sm"
@@ -797,12 +898,25 @@ export const Marketplace: React.FC = () => {
                           {listing.quantity} • ₹{listing.price}/kg
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
-                          Posted {Math.floor((Date.now() - listing.postedDate.getTime()) / 86400000)} days ago
+                          Posted{" "}
+                          {Math.floor(
+                            (Date.now() - listing.postedDate.getTime()) /
+                              86400000,
+                          )}{" "}
+                          days ago
                         </p>
                       </div>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm">Edit</Button>
-                        <Button variant="outline" size="sm" className="text-red-600">Remove</Button>
+                        <Button variant="outline" size="sm">
+                          Edit
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600"
+                        >
+                          Remove
+                        </Button>
                       </div>
                     </div>
                   </Card>
@@ -839,7 +953,9 @@ export const Marketplace: React.FC = () => {
           {selectedCrop && (
             <>
               <DialogHeader>
-                <DialogTitle className="text-2xl">{selectedCrop.name}</DialogTitle>
+                <DialogTitle className="text-2xl">
+                  {selectedCrop.name}
+                </DialogTitle>
                 <DialogDescription>{selectedCrop.variety}</DialogDescription>
               </DialogHeader>
 
@@ -866,16 +982,28 @@ export const Marketplace: React.FC = () => {
                   <h3 className="font-semibold mb-3">Price Details</h3>
                   <div className="grid grid-cols-3 gap-4 text-center">
                     <div>
-                      <p className="text-sm text-muted-foreground mb-1">Minimum</p>
-                      <p className="text-lg font-bold text-red-600">₹{selectedCrop.minPrice}</p>
+                      <p className="text-sm text-muted-foreground mb-1">
+                        Minimum
+                      </p>
+                      <p className="text-lg font-bold text-red-600">
+                        ₹{selectedCrop.minPrice}
+                      </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground mb-1">Modal Price</p>
-                      <p className="text-2xl font-bold text-primary">₹{selectedCrop.price}</p>
+                      <p className="text-sm text-muted-foreground mb-1">
+                        Modal Price
+                      </p>
+                      <p className="text-2xl font-bold text-primary">
+                        ₹{selectedCrop.price}
+                      </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground mb-1">Maximum</p>
-                      <p className="text-lg font-bold text-green-600">₹{selectedCrop.maxPrice}</p>
+                      <p className="text-sm text-muted-foreground mb-1">
+                        Maximum
+                      </p>
+                      <p className="text-lg font-bold text-green-600">
+                        ₹{selectedCrop.maxPrice}
+                      </p>
                     </div>
                   </div>
                   <p className="text-center text-sm text-muted-foreground mt-3">
@@ -884,32 +1012,48 @@ export const Marketplace: React.FC = () => {
                 </Card>
 
                 {/* Product Details */}
-                {(selectedCrop.brand || selectedCrop.description || selectedCrop.rating) && (
+                {(selectedCrop.brand ||
+                  selectedCrop.description ||
+                  selectedCrop.rating) && (
                   <Card className="p-4">
                     <h3 className="font-semibold mb-3">Product Details</h3>
                     <div className="space-y-2">
                       {selectedCrop.brand && (
                         <div className="flex items-center gap-2">
-                          <span className="text-sm text-muted-foreground">Brand:</span>
-                          <span className="font-medium">{selectedCrop.brand}</span>
+                          <span className="text-sm text-muted-foreground">
+                            Brand:
+                          </span>
+                          <span className="font-medium">
+                            {selectedCrop.brand}
+                          </span>
                         </div>
                       )}
                       {selectedCrop.rating && (
                         <div className="flex items-center gap-2">
-                          <span className="text-sm text-muted-foreground">Rating:</span>
+                          <span className="text-sm text-muted-foreground">
+                            Rating:
+                          </span>
                           <div className="flex items-center gap-1">
                             <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                            <span className="font-medium">{selectedCrop.rating.toFixed(1)}</span>
+                            <span className="font-medium">
+                              {selectedCrop.rating.toFixed(1)}
+                            </span>
                             {selectedCrop.reviews && (
-                              <span className="text-sm text-muted-foreground">({selectedCrop.reviews} reviews)</span>
+                              <span className="text-sm text-muted-foreground">
+                                ({selectedCrop.reviews} reviews)
+                              </span>
                             )}
                           </div>
                         </div>
                       )}
                       {selectedCrop.description && (
                         <div>
-                          <span className="text-sm text-muted-foreground">Description:</span>
-                          <p className="text-sm mt-1">{selectedCrop.description}</p>
+                          <span className="text-sm text-muted-foreground">
+                            Description:
+                          </span>
+                          <p className="text-sm mt-1">
+                            {selectedCrop.description}
+                          </p>
                         </div>
                       )}
                       {selectedCrop.organic && (
@@ -942,11 +1086,14 @@ export const Marketplace: React.FC = () => {
                     <div>
                       <p className="font-medium">Arrival Date</p>
                       <p className="text-sm text-muted-foreground">
-                        {new Date(selectedCrop.arrivalDate).toLocaleDateString('en-IN', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}
+                        {new Date(selectedCrop.arrivalDate).toLocaleDateString(
+                          "en-IN",
+                          {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          },
+                        )}
                       </p>
                     </div>
                   </div>
@@ -979,7 +1126,9 @@ export const Marketplace: React.FC = () => {
                   <ul className="space-y-1 text-sm text-muted-foreground">
                     <li>• Price data sourced from Government of India API</li>
                     <li>• Prices are updated daily based on market arrivals</li>
-                    <li>• Modal price represents the most common trading price</li>
+                    <li>
+                      • Modal price represents the most common trading price
+                    </li>
                     <li>• Contact local mandis for bulk purchases</li>
                   </ul>
                 </Card>

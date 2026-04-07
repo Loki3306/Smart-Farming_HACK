@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useCallback } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
   Clock,
@@ -17,14 +17,14 @@ import {
   Sparkles,
   HelpCircle,
   Flag,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,7 +34,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from "@/components/ui/alert-dialog";
 import {
   getQuizById,
   startQuizAttempt,
@@ -45,13 +45,16 @@ import {
   QuizAnswer,
   QuizSubmitResponse,
   QuizAttempt,
-} from '@/services/LearnService';
+} from "@/services/LearnService";
 
 export default function QuizPlayer() {
-  const { quizId, lessonId } = useParams<{ quizId: string; lessonId?: string }>();
+  const { quizId, lessonId } = useParams<{
+    quizId: string;
+    lessonId?: string;
+  }>();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // State
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
@@ -66,7 +69,9 @@ export default function QuizPlayer() {
   const [showTimeWarning, setShowTimeWarning] = useState(false);
   const [results, setResults] = useState<QuizSubmitResponse | null>(null);
   const [startTime] = useState(Date.now());
-  const [flaggedQuestions, setFlaggedQuestions] = useState<Set<string>>(new Set());
+  const [flaggedQuestions, setFlaggedQuestions] = useState<Set<string>>(
+    new Set(),
+  );
 
   // Get course info from location state
   const courseId = location.state?.courseId;
@@ -84,7 +89,7 @@ export default function QuizPlayer() {
         // Fetch quiz
         const quizResponse = await getQuizById(quizId);
         if (!quizResponse.success || !quizResponse.data) {
-          throw new Error('Failed to load quiz');
+          throw new Error("Failed to load quiz");
         }
 
         setQuiz(quizResponse.data);
@@ -93,14 +98,16 @@ export default function QuizPlayer() {
         // Check for previous attempts
         const attemptsResponse = await getQuizAttempts(quizId);
         if (attemptsResponse.data?.attempts_remaining === 0) {
-          setError('You have reached the maximum number of attempts for this quiz.');
+          setError(
+            "You have reached the maximum number of attempts for this quiz.",
+          );
           return;
         }
 
         // Start new attempt
         const startResponse = await startQuizAttempt(quizId);
         if (!startResponse.success || !startResponse.data) {
-          throw new Error('Failed to start quiz attempt');
+          throw new Error("Failed to start quiz attempt");
         }
 
         setAttempt(startResponse.data.attempt);
@@ -110,7 +117,7 @@ export default function QuizPlayer() {
           setTimeRemaining(startResponse.data.time_limit_minutes * 60);
         }
       } catch (err: any) {
-        setError(err.message || 'Failed to load quiz');
+        setError(err.message || "Failed to load quiz");
       } finally {
         setIsLoading(false);
       }
@@ -198,15 +205,20 @@ export default function QuizPlayer() {
       const timeSpent = Math.floor((Date.now() - startTime) / 1000);
       const answerArray: QuizAnswer[] = Array.from(answers.values());
 
-      const response = await submitQuizAnswers(quiz.id, attempt.id, answerArray, timeSpent);
+      const response = await submitQuizAnswers(
+        quiz.id,
+        attempt.id,
+        answerArray,
+        timeSpent,
+      );
 
       if (response.success && response.data) {
         setResults(response.data);
       } else {
-        throw new Error('Failed to submit quiz');
+        throw new Error("Failed to submit quiz");
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to submit quiz');
+      setError(err.message || "Failed to submit quiz");
     } finally {
       setIsSubmitting(false);
     }
@@ -216,7 +228,7 @@ export default function QuizPlayer() {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   // Calculate progress
@@ -280,7 +292,9 @@ export default function QuizPlayer() {
                 <h1 className="text-3xl font-bold text-orange-700 mb-2">
                   Keep Learning!
                 </h1>
-                <p className="text-muted-foreground">You need {results.passing_score}% to pass. Try again!</p>
+                <p className="text-muted-foreground">
+                  You need {results.passing_score}% to pass. Try again!
+                </p>
               </>
             )}
           </motion.div>
@@ -290,7 +304,9 @@ export default function QuizPlayer() {
             <CardContent className="pt-6">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                 <div>
-                  <div className="text-3xl font-bold text-foreground">{results.percentage}%</div>
+                  <div className="text-3xl font-bold text-foreground">
+                    {results.percentage}%
+                  </div>
                   <div className="text-sm text-muted-foreground">Score</div>
                 </div>
                 <div>
@@ -325,9 +341,13 @@ export default function QuizPlayer() {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {results.badges_earned.map((badge) => (
-                    <Badge key={badge} variant="secondary" className="bg-yellow-100">
+                    <Badge
+                      key={badge}
+                      variant="secondary"
+                      className="bg-yellow-100"
+                    >
                       <Sparkles className="w-3 h-3 mr-1" />
-                      {badge.replace(/-/g, ' ')}
+                      {badge.replace(/-/g, " ")}
                     </Badge>
                   ))}
                 </div>
@@ -346,8 +366,8 @@ export default function QuizPlayer() {
                   key={result.question_id}
                   className={`p-4 rounded-lg border ${
                     result.is_correct
-                      ? 'bg-green-50 border-green-200'
-                      : 'bg-red-50 border-red-200'
+                      ? "bg-green-50 border-green-200"
+                      : "bg-red-50 border-red-200"
                   }`}
                 >
                   <div className="flex items-start gap-3">
@@ -371,7 +391,9 @@ export default function QuizPlayer() {
                         </p>
                       )}
                     </div>
-                    <Badge variant={result.is_correct ? 'default' : 'destructive'}>
+                    <Badge
+                      variant={result.is_correct ? "default" : "destructive"}
+                    >
                       {result.points_earned}/{result.max_points}
                     </Badge>
                   </div>
@@ -429,12 +451,14 @@ export default function QuizPlayer() {
               <div
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${
                   timeRemaining <= 120
-                    ? 'bg-red-100 text-red-700'
-                    : 'bg-muted text-foreground'
+                    ? "bg-red-100 text-red-700"
+                    : "bg-muted text-foreground"
                 }`}
               >
                 <Timer className="w-4 h-4" />
-                <span className="font-mono font-semibold">{formatTime(timeRemaining)}</span>
+                <span className="font-mono font-semibold">
+                  {formatTime(timeRemaining)}
+                </span>
               </div>
             )}
           </div>
@@ -470,7 +494,8 @@ export default function QuizPlayer() {
                           {currentQuestion.difficulty}
                         </Badge>
                         <Badge variant="secondary">
-                          {currentQuestion.points} point{currentQuestion.points > 1 ? 's' : ''}
+                          {currentQuestion.points} point
+                          {currentQuestion.points > 1 ? "s" : ""}
                         </Badge>
                       </div>
                       <h2 className="text-xl font-semibold text-foreground">
@@ -481,7 +506,11 @@ export default function QuizPlayer() {
                       variant="ghost"
                       size="icon"
                       onClick={() => toggleFlag(currentQuestion.id)}
-                      className={flaggedQuestions.has(currentQuestion.id) ? 'text-orange-500' : ''}
+                      className={
+                        flaggedQuestions.has(currentQuestion.id)
+                          ? "text-orange-500"
+                          : ""
+                      }
                     >
                       <Flag className="w-5 h-5" />
                     </Button>
@@ -497,10 +526,13 @@ export default function QuizPlayer() {
                   )}
 
                   {/* Options */}
-                  {(currentQuestion.question_type === 'multiple_choice' ||
-                    currentQuestion.question_type === 'true_false') && (
+                  {(currentQuestion.question_type === "multiple_choice" ||
+                    currentQuestion.question_type === "true_false") && (
                     <RadioGroup
-                      value={answers.get(currentQuestion.id)?.selected_option_id || ''}
+                      value={
+                        answers.get(currentQuestion.id)?.selected_option_id ||
+                        ""
+                      }
                       onValueChange={(value) =>
                         handleAnswer(currentQuestion.id, {
                           question_id: currentQuestion.id,
@@ -514,9 +546,10 @@ export default function QuizPlayer() {
                           key={option.id}
                           htmlFor={option.id}
                           className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all ${
-                            answers.get(currentQuestion.id)?.selected_option_id === option.id
-                              ? 'border-green-500 bg-green-50'
-                              : 'border-border hover:border-border hover:bg-muted/50'
+                            answers.get(currentQuestion.id)
+                              ?.selected_option_id === option.id
+                              ? "border-green-500 bg-green-50"
+                              : "border-border hover:border-border hover:bg-muted/50"
                           }`}
                         >
                           <RadioGroupItem value={option.id} id={option.id} />
@@ -527,10 +560,10 @@ export default function QuizPlayer() {
                   )}
 
                   {/* Short Answer */}
-                  {currentQuestion.question_type === 'short_answer' && (
+                  {currentQuestion.question_type === "short_answer" && (
                     <Input
                       placeholder="Type your answer here..."
-                      value={answers.get(currentQuestion.id)?.user_answer || ''}
+                      value={answers.get(currentQuestion.id)?.user_answer || ""}
                       onChange={(e) =>
                         handleAnswer(currentQuestion.id, {
                           question_id: currentQuestion.id,
@@ -545,7 +578,9 @@ export default function QuizPlayer() {
                   {currentQuestion.hint && (
                     <div className="mt-4 p-3 bg-blue-50 rounded-lg flex items-start gap-2">
                       <HelpCircle className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
-                      <p className="text-sm text-blue-700">{currentQuestion.hint}</p>
+                      <p className="text-sm text-blue-700">
+                        {currentQuestion.hint}
+                      </p>
                     </div>
                   )}
                 </CardContent>
@@ -597,7 +632,9 @@ export default function QuizPlayer() {
         {/* Question Navigator */}
         <Card className="mt-6">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Question Navigator</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Question Navigator
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
@@ -612,10 +649,10 @@ export default function QuizPlayer() {
                     onClick={() => goToQuestion(idx)}
                     className={`w-10 h-10 rounded-lg font-medium text-sm transition-all relative ${
                       isCurrent
-                        ? 'bg-green-600 text-white ring-2 ring-green-600 ring-offset-2'
+                        ? "bg-green-600 text-white ring-2 ring-green-600 ring-offset-2"
                         : isAnswered
-                        ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                        : 'bg-muted text-muted-foreground hover:bg-muted'
+                          ? "bg-green-100 text-green-700 hover:bg-green-200"
+                          : "bg-muted text-muted-foreground hover:bg-muted"
                     }`}
                   >
                     {idx + 1}
@@ -650,8 +687,8 @@ export default function QuizPlayer() {
           <AlertDialogHeader>
             <AlertDialogTitle>Submit Quiz?</AlertDialogTitle>
             <AlertDialogDescription>
-              You have {questions.length - answeredCount} unanswered question(s). 
-              Are you sure you want to submit?
+              You have {questions.length - answeredCount} unanswered
+              question(s). Are you sure you want to submit?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -672,8 +709,8 @@ export default function QuizPlayer() {
               Time Running Out!
             </AlertDialogTitle>
             <AlertDialogDescription>
-              You have less than 2 minutes remaining. The quiz will be automatically 
-              submitted when time runs out.
+              You have less than 2 minutes remaining. The quiz will be
+              automatically submitted when time runs out.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

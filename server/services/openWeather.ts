@@ -1,5 +1,5 @@
-const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY || '';
-const OPENWEATHER_BASE_URL = 'https://api.openweathermap.org/data/2.5';
+const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY || "";
+const OPENWEATHER_BASE_URL = "https://api.openweathermap.org/data/2.5";
 
 export type RainSignal = {
   rainLikelyNext6h: boolean;
@@ -7,7 +7,10 @@ export type RainSignal = {
   rainMm: number;
 };
 
-export async function getRainSignal(lat?: number, lon?: number): Promise<RainSignal | null> {
+export async function getRainSignal(
+  lat?: number,
+  lon?: number,
+): Promise<RainSignal | null> {
   if (!OPENWEATHER_API_KEY) return null;
   if (!lat || !lon) return null;
 
@@ -26,11 +29,11 @@ export async function getRainSignal(lat?: number, lon?: number): Promise<RainSig
     const t = (item.dt ?? 0) * 1000;
     if (t < now || t > cutoff) continue;
 
-    const pop = typeof item.pop === 'number' ? item.pop : 0;
+    const pop = typeof item.pop === "number" ? item.pop : 0;
     maxPop = Math.max(maxPop, pop);
 
-    const r3 = item.rain?.['3h'];
-    if (typeof r3 === 'number') rainMm += r3;
+    const r3 = item.rain?.["3h"];
+    if (typeof r3 === "number") rainMm += r3;
   }
 
   const rainLikelyNext6h = rainMm >= 1.0 || maxPop >= 0.6;

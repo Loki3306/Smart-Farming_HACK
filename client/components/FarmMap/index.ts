@@ -1,2 +1,2 @@
-export { FarmMapEditor } from './FarmMapEditor';
-export { SectionDetailsPanel } from './SectionDetailsPanel';
+export { FarmMapEditor } from "./FarmMapEditor";
+export { SectionDetailsPanel } from "./SectionDetailsPanel";

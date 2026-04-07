@@ -74,15 +74,15 @@ export const OtpInput: React.FC<OtpInputProps> = ({
 
     try {
       // Call actual Twilio API
-      const response = await fetch('/api/otp/verify', {
-        method: 'POST',
+      const response = await fetch("/api/otp/verify", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           phoneNumber: phoneNumber,
-          code: otpCode
-        })
+          code: otpCode,
+        }),
       });
 
       const data = await response.json();
@@ -116,14 +116,14 @@ export const OtpInput: React.FC<OtpInputProps> = ({
 
     try {
       // Call actual Twilio API to resend OTP
-      const response = await fetch('/api/otp/send', {
-        method: 'POST',
+      const response = await fetch("/api/otp/send", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          phoneNumber: phoneNumber
-        })
+          phoneNumber: phoneNumber,
+        }),
       });
 
       const data = await response.json();

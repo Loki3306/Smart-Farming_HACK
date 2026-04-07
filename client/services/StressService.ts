@@ -7,7 +7,7 @@ export interface StressAnalysisResult {
       confidence: number;
       diseases: Array<{
         name: string;
-        type: 'disease' | 'nutrient_deficiency' | 'water_stress' | 'pest';
+        type: "disease" | "nutrient_deficiency" | "water_stress" | "pest";
         probability: number;
         treatment: string[];
         prevention: string[];
@@ -16,7 +16,7 @@ export interface StressAnalysisResult {
     satellite?: {
       ndvi: string;
       health: string;
-      severity: 'healthy' | 'moderate' | 'stressed' | 'critical' | 'unknown';
+      severity: "healthy" | "moderate" | "stressed" | "critical" | "unknown";
       stress: string[];
       lastUpdated: string;
       satelliteImage?: string;
@@ -60,15 +60,17 @@ export interface SatelliteHealthResponse {
 /**
  * Analyze crop stress using image + optional satellite data
  */
-export async function analyzeStress(formData: FormData): Promise<StressAnalysisResult> {
-  const response = await fetch('/api/stress/analyze', {
-    method: 'POST',
+export async function analyzeStress(
+  formData: FormData,
+): Promise<StressAnalysisResult> {
+  const response = await fetch("/api/stress/analyze", {
+    method: "POST",
     body: formData,
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message || 'Failed to analyze stress');
+    throw new Error(error.message || "Failed to analyze stress");
   }
 
   return response.json();
@@ -81,12 +83,12 @@ export async function createFarmPolygon(
   farmId: string,
   latitude: number,
   longitude: number,
-  areaAcres: number
+  areaAcres: number,
 ): Promise<PolygonResponse> {
-  const response = await fetch('/api/stress/polygon', {
-    method: 'POST',
+  const response = await fetch("/api/stress/polygon", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       farmId,
@@ -98,7 +100,7 @@ export async function createFarmPolygon(
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message || 'Failed to create polygon');
+    throw new Error(error.message || "Failed to create polygon");
   }
 
   return response.json();
@@ -107,12 +109,14 @@ export async function createFarmPolygon(
 /**
  * Get satellite health data for a polygon
  */
-export async function getSatelliteHealth(polygonId: string): Promise<SatelliteHealthResponse> {
+export async function getSatelliteHealth(
+  polygonId: string,
+): Promise<SatelliteHealthResponse> {
   const response = await fetch(`/api/stress/satellite/${polygonId}`);
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message || 'Failed to fetch satellite data');
+    throw new Error(error.message || "Failed to fetch satellite data");
   }
 
   return response.json();
@@ -131,10 +135,10 @@ export async function listPolygons(): Promise<{
     createdAt: string;
   }>;
 }> {
-  const response = await fetch('/api/stress/polygons');
+  const response = await fetch("/api/stress/polygons");
 
   if (!response.ok) {
-    throw new Error('Failed to list polygons');
+    throw new Error("Failed to list polygons");
   }
 
   return response.json();
@@ -145,10 +149,10 @@ export async function listPolygons(): Promise<{
  */
 export async function deletePolygon(polygonId: string): Promise<void> {
   const response = await fetch(`/api/stress/polygon/${polygonId}`, {
-    method: 'DELETE',
+    method: "DELETE",
   });
 
   if (!response.ok) {
-    throw new Error('Failed to delete polygon');
+    throw new Error("Failed to delete polygon");
   }
 }

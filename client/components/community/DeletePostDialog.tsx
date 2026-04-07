@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -7,9 +7,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { Loader2, Trash2 } from 'lucide-react';
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Loader2, Trash2 } from "lucide-react";
 
 interface DeletePostDialogProps {
   open: boolean;
@@ -32,7 +32,7 @@ export const DeletePostDialog: React.FC<DeletePostDialogProps> = ({
       await onConfirm();
       onOpenChange(false);
     } catch (error) {
-      console.error('Failed to delete post:', error);
+      console.error("Failed to delete post:", error);
     } finally {
       setIsDeleting(false);
     }
@@ -48,10 +48,17 @@ export const DeletePostDialog: React.FC<DeletePostDialogProps> = ({
           </AlertDialogTitle>
           <AlertDialogDescription asChild>
             <div className="space-y-3">
-              <p>Are you sure you want to delete this post? This action cannot be undone.</p>
+              <p>
+                Are you sure you want to delete this post? This action cannot be
+                undone.
+              </p>
               <div className="bg-muted p-3 rounded-lg text-sm">
                 <p className="text-foreground line-clamp-3">
-                  "{postContent.length > 100 ? postContent.slice(0, 100) + '...' : postContent}"
+                  "
+                  {postContent.length > 100
+                    ? postContent.slice(0, 100) + "..."
+                    : postContent}
+                  "
                 </p>
               </div>
               <p className="text-xs text-muted-foreground">

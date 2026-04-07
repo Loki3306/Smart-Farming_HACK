@@ -49,32 +49,53 @@ export const Sidebar: React.FC = () => {
   const [searchParams] = useSearchParams();
 
   const mainNavItems: NavItem[] = [
-    { label: t("navigation.dashboard"), icon: LayoutDashboard, path: "/dashboard" },
+    {
+      label: t("navigation.dashboard"),
+      icon: LayoutDashboard,
+      path: "/dashboard",
+    },
     { label: t("navigation.myFarm"), icon: Tractor, path: "/farm" },
     { label: t("navigation.farmMapping"), icon: Map, path: "/farm-mapping" },
     { label: "Farm Overview", icon: Eye, path: "/farm-overview" },
-    { label: "Irrigation Planner", icon: Droplets, path: "/irrigation-planner" },
+    {
+      label: "Irrigation Planner",
+      icon: Droplets,
+      path: "/irrigation-planner",
+    },
     { label: t("navigation.weather"), icon: CloudSun, path: "/weather" },
-    { label: t("navigation.aiRecommendations"), icon: Lightbulb, path: "/recommendations" },
+    {
+      label: t("navigation.aiRecommendations"),
+      icon: Lightbulb,
+      path: "/recommendations",
+    },
     { label: t("navigation.regimes"), icon: Leaf, path: "/regimes" },
     { label: t("navigation.diseaseDetection"), icon: Bug, path: "/disease" },
     { label: "Stress Detection", icon: Activity, path: "/stress-detection" },
-    { label: t("navigation.marketplace"), icon: ShoppingCart, path: "/marketplace" },
+    {
+      label: t("navigation.marketplace"),
+      icon: ShoppingCart,
+      path: "/marketplace",
+    },
     { label: t("navigation.learn"), icon: GraduationCap, path: "/learn" },
     { label: t("navigation.community"), icon: Users, path: "/community" },
   ];
 
   const bottomNavItems: NavItem[] = [
-    { label: t("navigation.notifications"), icon: Bell, path: "/notifications" },
+    {
+      label: t("navigation.notifications"),
+      icon: Bell,
+      path: "/notifications",
+    },
     { label: t("navigation.settings"), icon: Settings, path: "/settings" },
   ];
 
   // Check if messages should be opened from URL params
   React.useEffect(() => {
-    const shouldOpenMessages = searchParams.get('openMessages') === 'true' ||
-      searchParams.get('farmer_id') ||
-      searchParams.get('expert_id') ||
-      searchParams.get('conversation');
+    const shouldOpenMessages =
+      searchParams.get("openMessages") === "true" ||
+      searchParams.get("farmer_id") ||
+      searchParams.get("expert_id") ||
+      searchParams.get("conversation");
 
     if (shouldOpenMessages) {
       setIsChatOpen(true);
@@ -97,7 +118,7 @@ export const Sidebar: React.FC = () => {
           isActive
             ? "bg-primary text-primary-foreground shadow-sm"
             : "text-muted-foreground",
-          isCollapsed && "justify-center px-2"
+          isCollapsed && "justify-center px-2",
         )
       }
     >
@@ -122,7 +143,7 @@ export const Sidebar: React.FC = () => {
         to="/dashboard"
         className={cn(
           "flex items-center gap-3 px-4 py-6 border-b border-border cursor-pointer hover:scale-105 transition-transform",
-          isCollapsed && "justify-center px-2"
+          isCollapsed && "justify-center px-2",
         )}
       >
         <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center hover:rotate-12 transition-transform">
@@ -130,14 +151,19 @@ export const Sidebar: React.FC = () => {
         </div>
         {!isCollapsed && (
           <div>
-            <h1 className="font-bold text-lg text-foreground">{t("app.name")}</h1>
+            <h1 className="font-bold text-lg text-foreground">
+              {t("app.name")}
+            </h1>
             <p className="text-xs text-muted-foreground">{t("app.tagline")}</p>
           </div>
         )}
       </Link>
 
       {/* Main Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto" data-tour-id="sidebar-nav">
+      <nav
+        className="flex-1 px-3 py-4 space-y-1 overflow-y-auto"
+        data-tour-id="sidebar-nav"
+      >
         {mainNavItems.map((item) => (
           <NavItemComponent key={item.path} item={item} />
         ))}
@@ -147,17 +173,18 @@ export const Sidebar: React.FC = () => {
       <div className="px-3 py-2 border-t border-border space-y-1">
         {/* Messages Button */}
 
-
         {bottomNavItems.map((item) => (
           <NavItemComponent key={item.path} item={item} />
         ))}
       </div>
 
       {/* User Profile */}
-      <div className={cn(
-        "px-3 py-4 border-t border-border",
-        isCollapsed && "px-2"
-      )}>
+      <div
+        className={cn(
+          "px-3 py-4 border-t border-border",
+          isCollapsed && "px-2",
+        )}
+      >
         <NavLink
           to="/profile"
           onClick={() => setIsMobileOpen(false)}
@@ -166,7 +193,7 @@ export const Sidebar: React.FC = () => {
               "flex items-center gap-3 p-2 rounded-lg transition-all",
               "hover:bg-muted",
               isActive && "bg-muted",
-              isCollapsed && "justify-center"
+              isCollapsed && "justify-center",
             )
           }
         >
@@ -198,11 +225,13 @@ export const Sidebar: React.FC = () => {
           className={cn(
             "w-full flex items-center gap-3 px-3 py-2.5 mt-2 rounded-lg transition-all",
             "text-muted-foreground hover:bg-destructive/10 hover:text-destructive dark:hover:bg-destructive/20",
-            isCollapsed && "justify-center px-2"
+            isCollapsed && "justify-center px-2",
           )}
         >
           <LogOut className="w-5 h-5 flex-shrink-0" />
-          {!isCollapsed && <span className="font-medium text-sm">{t("auth.logout")}</span>}
+          {!isCollapsed && (
+            <span className="font-medium text-sm">{t("auth.logout")}</span>
+          )}
         </button>
       </div>
 
@@ -232,7 +261,9 @@ export const Sidebar: React.FC = () => {
           >
             <Menu className="w-6 h-6" />
           </button>
-          <span className="font-bold text-lg text-foreground">Krushi Unnati</span>
+          <span className="font-bold text-lg text-foreground">
+            Krushi Unnati
+          </span>
         </div>
       </div>
 
@@ -248,7 +279,7 @@ export const Sidebar: React.FC = () => {
       <aside
         className={cn(
           "lg:hidden fixed inset-y-0 left-0 z-50 w-72 bg-sidebar border-r border-sidebar-border transform transition-transform duration-300",
-          isMobileOpen ? "translate-x-0" : "-translate-x-full"
+          isMobileOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
         <button
@@ -266,7 +297,7 @@ export const Sidebar: React.FC = () => {
       <aside
         className={cn(
           "hidden lg:block fixed inset-y-0 left-0 z-30 bg-sidebar border-r border-sidebar-border transition-all duration-300",
-          isCollapsed ? "w-20" : "w-64"
+          isCollapsed ? "w-20" : "w-64",
         )}
       >
         <SidebarContent />

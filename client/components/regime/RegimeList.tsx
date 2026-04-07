@@ -3,9 +3,9 @@
  * Displays regimes in a filterable/sortable list or card view
  */
 
-import React, { useState } from 'react';
-import { Input, Select, Button, Space, List, Empty } from 'antd';
-import { SearchOutlined, FilterOutlined } from '@ant-design/icons';
+import React, { useState } from "react";
+import { Input, Select, Button, Space, List, Empty } from "antd";
+import { SearchOutlined, FilterOutlined } from "@ant-design/icons";
 
 interface RegimeListProps {
   regimes: any[];
@@ -20,7 +20,7 @@ export default function RegimeList({
   onCreateRegime,
   loading = false,
 }: RegimeListProps) {
-  const [searchText, setSearchText] = useState('');
+  const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
   const filtered = regimes.filter((regime) => {
@@ -49,9 +49,9 @@ export default function RegimeList({
           allowClear
           style={{ width: 150 }}
           options={[
-            { label: 'Active', value: 'active' },
-            { label: 'Completed', value: 'completed' },
-            { label: 'Archived', value: 'archived' },
+            { label: "Active", value: "active" },
+            { label: "Completed", value: "completed" },
+            { label: "Archived", value: "archived" },
           ]}
         />
         <Button type="primary" onClick={onCreateRegime}>

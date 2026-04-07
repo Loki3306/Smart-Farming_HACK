@@ -1,6 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, User, Phone, Mail, Briefcase, MapPin, Calendar } from "lucide-react";
+import {
+  ArrowLeft,
+  User,
+  Phone,
+  Mail,
+  Briefcase,
+  MapPin,
+  Calendar,
+} from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -31,15 +39,15 @@ export const Profile: React.FC = () => {
   // Format date
   const formatDate = (date: Date | string | undefined) => {
     if (!date) return "N/A";
-    
+
     try {
       const dateObj = typeof date === "string" ? new Date(date) : date;
-      
+
       // Check if date is valid
       if (isNaN(dateObj.getTime())) {
         return "N/A";
       }
-      
+
       return new Intl.DateTimeFormat("en-IN", {
         day: "numeric",
         month: "long",
@@ -91,8 +99,10 @@ export const Profile: React.FC = () => {
                   </h1>
                   <p className="text-muted-foreground mt-1">
                     {user?.experienceLevel === "beginner" && "Beginner Farmer"}
-                    {user?.experienceLevel === "intermediate" && "Intermediate Farmer"}
-                    {user?.experienceLevel === "experienced" && "Experienced Farmer"}
+                    {user?.experienceLevel === "intermediate" &&
+                      "Intermediate Farmer"}
+                    {user?.experienceLevel === "experienced" &&
+                      "Experienced Farmer"}
                   </p>
                   {user?.isDemoUser && (
                     <span className="inline-block mt-2 px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full">
@@ -104,7 +114,9 @@ export const Profile: React.FC = () => {
 
               {/* Profile Information */}
               <div className="border-t pt-6">
-                <h2 className="text-xl font-semibold mb-4">Personal Information</h2>
+                <h2 className="text-xl font-semibold mb-4">
+                  Personal Information
+                </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Phone */}
                   <div className="flex items-start gap-3">
@@ -112,7 +124,9 @@ export const Profile: React.FC = () => {
                       <Phone className="w-5 h-5 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-muted-foreground">Phone Number</p>
+                      <p className="text-sm text-muted-foreground">
+                        Phone Number
+                      </p>
                       <p className="font-medium text-foreground">
                         {user?.phone ? formatPhone(user.phone) : "Not provided"}
                       </p>
@@ -125,7 +139,9 @@ export const Profile: React.FC = () => {
                       <Mail className="w-5 h-5 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-muted-foreground">Email Address</p>
+                      <p className="text-sm text-muted-foreground">
+                        Email Address
+                      </p>
                       <p className="font-medium text-foreground break-all">
                         {user?.email || "Not provided"}
                       </p>
@@ -138,9 +154,12 @@ export const Profile: React.FC = () => {
                       <Briefcase className="w-5 h-5 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-muted-foreground">Experience Level</p>
+                      <p className="text-sm text-muted-foreground">
+                        Experience Level
+                      </p>
                       <p className="font-medium text-foreground capitalize">
-                        {user?.experienceLevel?.replace("-", " ") || "Not specified"}
+                        {user?.experienceLevel?.replace("-", " ") ||
+                          "Not specified"}
                       </p>
                     </div>
                   </div>
@@ -153,7 +172,8 @@ export const Profile: React.FC = () => {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-muted-foreground">Location</p>
                       <p className="font-medium text-foreground">
-                        {user?.state || "Not specified"}, {user?.country || "India"}
+                        {user?.state || "Not specified"},{" "}
+                        {user?.country || "India"}
                       </p>
                     </div>
                   </div>
@@ -164,7 +184,9 @@ export const Profile: React.FC = () => {
                       <Calendar className="w-5 h-5 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-muted-foreground">Member Since</p>
+                      <p className="text-sm text-muted-foreground">
+                        Member Since
+                      </p>
                       <p className="font-medium text-foreground">
                         {user?.createdAt ? formatDate(user.createdAt) : "N/A"}
                       </p>
@@ -177,12 +199,18 @@ export const Profile: React.FC = () => {
                       <User className="w-5 h-5 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-muted-foreground">Account Status</p>
+                      <p className="text-sm text-muted-foreground">
+                        Account Status
+                      </p>
                       <p className="font-medium text-foreground">
                         {user?.hasCompletedOnboarding ? (
-                          <span className="text-green-600">✓ Onboarding Complete</span>
+                          <span className="text-green-600">
+                            ✓ Onboarding Complete
+                          </span>
                         ) : (
-                          <span className="text-orange-600">⚠ Onboarding Pending</span>
+                          <span className="text-orange-600">
+                            ⚠ Onboarding Pending
+                          </span>
                         )}
                       </p>
                     </div>

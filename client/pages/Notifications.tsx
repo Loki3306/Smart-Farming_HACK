@@ -27,7 +27,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useNotifications } from "@/hooks/useNotifications";
 import { ApiNotification } from "@/services/apiNotificationService";
-import { playNotificationSound, vibrateDevice } from "@/services/NotificationService";
+import {
+  playNotificationSound,
+  vibrateDevice,
+} from "@/services/NotificationService";
 import { useSettings } from "@/context/SettingsContext";
 
 // Sample notifications for when no sensor alerts exist
@@ -36,7 +39,8 @@ const sampleNotifications = [
     id: "sample_1",
     type: "irrigation",
     title: "Irrigation System Ready",
-    message: "Your irrigation system is connected and monitoring soil moisture levels.",
+    message:
+      "Your irrigation system is connected and monitoring soil moisture levels.",
     timestamp: new Date(Date.now() - 3600000),
     read: true,
     priority: "low",
@@ -70,32 +74,48 @@ export const Notifications: React.FC = () => {
   // Helper functions for recommendation cards
   const getRecommendationTypeIcon = (type: string) => {
     switch (type) {
-      case "irrigation": return Droplets;
-      case "fertilizer": return FlaskConical;
-      case "pest": return Bug;
-      case "crop": return Leaf;
-      default: return Lightbulb;
+      case "irrigation":
+        return Droplets;
+      case "fertilizer":
+        return FlaskConical;
+      case "pest":
+        return Bug;
+      case "crop":
+        return Leaf;
+      default:
+        return Lightbulb;
     }
   };
 
   const getRecommendationTypeColor = (type: string) => {
     switch (type) {
-      case "irrigation": return "text-blue-500 bg-blue-100";
-      case "fertilizer": return "text-green-500 bg-green-100";
-      case "pest": return "text-red-500 bg-red-100";
-      case "crop": return "text-amber-500 bg-amber-100";
-      case "stress_management": return "text-orange-500 bg-orange-100";
-      case "soil_treatment": return "text-teal-500 bg-teal-100";
-      default: return "text-purple-500 bg-purple-100";
+      case "irrigation":
+        return "text-blue-500 bg-blue-100";
+      case "fertilizer":
+        return "text-green-500 bg-green-100";
+      case "pest":
+        return "text-red-500 bg-red-100";
+      case "crop":
+        return "text-amber-500 bg-amber-100";
+      case "stress_management":
+        return "text-orange-500 bg-orange-100";
+      case "soil_treatment":
+        return "text-teal-500 bg-teal-100";
+      default:
+        return "text-purple-500 bg-purple-100";
     }
   };
 
   const getRecommendationPriorityBadge = (priority: string) => {
     switch (priority) {
-      case "high": return "bg-red-100 text-red-700";
-      case "medium": return "bg-yellow-100 text-yellow-700";
-      case "low": return "bg-green-100 text-green-700";
-      default: return "bg-muted text-foreground";
+      case "high":
+        return "bg-red-100 text-red-700";
+      case "medium":
+        return "bg-yellow-100 text-yellow-700";
+      case "low":
+        return "bg-green-100 text-green-700";
+      default:
+        return "bg-muted text-foreground";
     }
   };
 
@@ -166,22 +186,22 @@ export const Notifications: React.FC = () => {
     if (notification.message) return notification.message;
 
     switch (notification.type) {
-      case 'reaction':
-        return 'reacted to your post';
-      case 'comment':
-        return 'commented on your post';
-      case 'reply':
-        return 'replied to your comment';
-      case 'mention':
-        return 'mentioned you in a post';
-      case 'share':
-        return 'shared your post';
-      case 'follow':
-        return 'started following you';
-      case 'message':
-        return 'sent you a message';
+      case "reaction":
+        return "reacted to your post";
+      case "comment":
+        return "commented on your post";
+      case "reply":
+        return "replied to your comment";
+      case "mention":
+        return "mentioned you in a post";
+      case "share":
+        return "shared your post";
+      case "follow":
+        return "started following you";
+      case "message":
+        return "sent you a message";
       default:
-        return 'interacted with you';
+        return "interacted with you";
     }
   };
 
@@ -194,7 +214,10 @@ export const Notifications: React.FC = () => {
   return (
     <div className="p-6 lg:p-8 space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4" data-tour-id="notif-header">
+      <div
+        className="flex items-center justify-between flex-wrap gap-4"
+        data-tour-id="notif-header"
+      >
         <div>
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
             <Bell className="w-8 h-8 text-primary" />
@@ -226,19 +249,21 @@ export const Notifications: React.FC = () => {
         <div className="flex gap-2 p-1 bg-muted rounded-lg">
           <button
             onClick={() => setFilter("all")}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${filter === "all"
-              ? "bg-card text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
-              }`}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              filter === "all"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
           >
             All
           </button>
           <button
             onClick={() => setFilter("unread")}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${filter === "unread"
-              ? "bg-card text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
-              }`}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              filter === "unread"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
           >
             Unread ({unreadCount})
           </button>
@@ -276,9 +301,12 @@ export const Notifications: React.FC = () => {
                   transition={{ duration: 0.2, delay: index * 0.05 }}
                 >
                   <Card
-                    className={`p-4 transition-all hover:shadow-md cursor-pointer ${!notification.read ? "bg-primary/5 border-primary/20" : ""
-                      }`}
-                    onClick={() => !notification.read && markAsRead(notification.id)}
+                    className={`p-4 transition-all hover:shadow-md cursor-pointer ${
+                      !notification.read ? "bg-primary/5 border-primary/20" : ""
+                    }`}
+                    onClick={() =>
+                      !notification.read && markAsRead(notification.id)
+                    }
                   >
                     <div className="flex items-start gap-4">
                       {/* Icon */}
@@ -293,8 +321,11 @@ export const Notifications: React.FC = () => {
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1">
                             <h3
-                              className={`font-semibold ${!notification.read ? "text-foreground" : "text-muted-foreground"
-                                }`}
+                              className={`font-semibold ${
+                                !notification.read
+                                  ? "text-foreground"
+                                  : "text-muted-foreground"
+                              }`}
                             >
                               {notification.actor_name}
                             </h3>
@@ -306,45 +337,66 @@ export const Notifications: React.FC = () => {
                             </p>
 
                             {/* Render Recommendation Cards Inline */}
-                            {notification.type === 'recommendation' &&
+                            {notification.type === "recommendation" &&
                               notification.data?.recommendations &&
-                              Array.isArray(notification.data.recommendations) && (
+                              Array.isArray(
+                                notification.data.recommendations,
+                              ) && (
                                 <div className="mt-4 space-y-3">
-                                  {notification.data.recommendations.map((rec: any, idx: number) => {
-                                    const TypeIcon = getRecommendationTypeIcon(rec.type);
-                                    const typeColor = getRecommendationTypeColor(rec.type);
+                                  {notification.data.recommendations.map(
+                                    (rec: any, idx: number) => {
+                                      const TypeIcon =
+                                        getRecommendationTypeIcon(rec.type);
+                                      const typeColor =
+                                        getRecommendationTypeColor(rec.type);
 
-                                    return (
-                                      <Card key={rec.id || idx} className="p-4 bg-background/50 border-l-4 border-l-primary">
-                                        <div className="flex items-start gap-3">
-                                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${typeColor}`}>
-                                            <TypeIcon className="w-5 h-5" />
-                                          </div>
-
-                                          <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 flex-wrap mb-1">
-                                              <h4 className="font-semibold text-foreground text-sm">{rec.title}</h4>
-                                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getRecommendationPriorityBadge(rec.priority)}`}>
-                                                {rec.priority?.toUpperCase()}
-                                              </span>
+                                      return (
+                                        <Card
+                                          key={rec.id || idx}
+                                          className="p-4 bg-background/50 border-l-4 border-l-primary"
+                                        >
+                                          <div className="flex items-start gap-3">
+                                            <div
+                                              className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${typeColor}`}
+                                            >
+                                              <TypeIcon className="w-5 h-5" />
                                             </div>
 
-                                            <p className="text-xs text-muted-foreground mb-2">{rec.description}</p>
-
-                                            <div className="flex items-center gap-4 text-xs">
-                                              <div className="flex items-center gap-1 text-muted-foreground">
-                                                <Sparkles className="w-3 h-3 text-primary" />
-                                                <span>Confidence: {rec.confidence?.toFixed(1)}%</span>
+                                            <div className="flex-1 min-w-0">
+                                              <div className="flex items-center gap-2 flex-wrap mb-1">
+                                                <h4 className="font-semibold text-foreground text-sm">
+                                                  {rec.title}
+                                                </h4>
+                                                <span
+                                                  className={`text-xs px-2 py-0.5 rounded-full font-medium ${getRecommendationPriorityBadge(rec.priority)}`}
+                                                >
+                                                  {rec.priority?.toUpperCase()}
+                                                </span>
                                               </div>
-                                              <div className="text-primary font-medium">
-                                                {rec.type?.replace('_', ' ')}
+
+                                              <p className="text-xs text-muted-foreground mb-2">
+                                                {rec.description}
+                                              </p>
+
+                                              <div className="flex items-center gap-4 text-xs">
+                                                <div className="flex items-center gap-1 text-muted-foreground">
+                                                  <Sparkles className="w-3 h-3 text-primary" />
+                                                  <span>
+                                                    Confidence:{" "}
+                                                    {rec.confidence?.toFixed(1)}
+                                                    %
+                                                  </span>
+                                                </div>
+                                                <div className="text-primary font-medium">
+                                                  {rec.type?.replace("_", " ")}
+                                                </div>
                                               </div>
                                             </div>
                                           </div>
-                                        </div>
-                                      </Card>
-                                    );
-                                  })}
+                                        </Card>
+                                      );
+                                    },
+                                  )}
                                 </div>
                               )}
                           </div>
@@ -393,17 +445,27 @@ export const Notifications: React.FC = () => {
           <div className="flex items-center gap-3">
             <Settings className="w-5 h-5 text-muted-foreground shrink-0" />
             <div>
-              <h3 className="font-semibold text-foreground">Notification Settings</h3>
+              <h3 className="font-semibold text-foreground">
+                Notification Settings
+              </h3>
               <p className="text-sm text-muted-foreground">
                 Configure which notifications you want to receive
               </p>
             </div>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
-            <Button variant="outline" onClick={testNotification} className="flex-1 sm:flex-none">
+            <Button
+              variant="outline"
+              onClick={testNotification}
+              className="flex-1 sm:flex-none"
+            >
               🔊 Test Sound
             </Button>
-            <Button variant="outline" onClick={() => navigate('/settings')} className="flex-1 sm:flex-none">
+            <Button
+              variant="outline"
+              onClick={() => navigate("/settings")}
+              className="flex-1 sm:flex-none"
+            >
               Configure
             </Button>
           </div>

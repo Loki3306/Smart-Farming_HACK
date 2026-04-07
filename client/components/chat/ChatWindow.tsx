@@ -1,19 +1,19 @@
-import { useEffect, useRef, useState } from 'react';
-import { Loader2, MessageSquare } from 'lucide-react';
-import { ChatHeader } from './ChatHeader';
-import { MessageBubble } from './MessageBubble';
-import { MessageInput } from './MessageInput';
-import { TypingIndicator } from './TypingIndicator';
-import { CallWindow } from './CallWindow';
-import { IncomingCall } from './IncomingCall';
-import { WhatsAppDialog } from './WhatsAppDialog';
-import { useMessages } from '@/hooks/useMessages';
-import { useTypingIndicator } from '@/hooks/useTypingIndicator';
-import { useCallManagement } from '@/hooks/useCallManagement';
-import { useAuth } from '@/context/AuthContext';
-import { Conversation } from '@/services/chatService';
-import { Button } from '@/components/ui/button';
-import { supabase } from '@/lib/supabase';
+import { useEffect, useRef, useState } from "react";
+import { Loader2, MessageSquare } from "lucide-react";
+import { ChatHeader } from "./ChatHeader";
+import { MessageBubble } from "./MessageBubble";
+import { MessageInput } from "./MessageInput";
+import { TypingIndicator } from "./TypingIndicator";
+import { CallWindow } from "./CallWindow";
+import { IncomingCall } from "./IncomingCall";
+import { WhatsAppDialog } from "./WhatsAppDialog";
+import { useMessages } from "@/hooks/useMessages";
+import { useTypingIndicator } from "@/hooks/useTypingIndicator";
+import { useCallManagement } from "@/hooks/useCallManagement";
+import { useAuth } from "@/context/AuthContext";
+import { Conversation } from "@/services/chatService";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/lib/supabase";
 
 interface ChatWindowProps {
   conversation: Conversation | null;
@@ -28,40 +28,43 @@ export function ChatWindow({ conversation, onBack, onClose }: ChatWindowProps) {
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const [showWhatsAppDialog, setShowWhatsAppDialog] = useState(false);
 
-  const { 
-    messages, 
-    isLoading, 
+  const {
+    messages,
+    isLoading,
     isSending,
     hasMore,
-    sendMessage, 
+    sendMessage,
     deleteMessage,
-    loadMore 
+    loadMore,
   } = useMessages(conversation?.id || null);
 
-  const { isTyping, startTyping, stopTyping } = useTypingIndicator(conversation?.id || null);
-  
-  const { 
-    activeCall, 
-    incomingCall, 
+  const { isTyping, startTyping, stopTyping } = useTypingIndicator(
+    conversation?.id || null,
+  );
+
+  const {
+    activeCall,
+    incomingCall,
     isInCall,
-    initiateCall, 
-    acceptCall, 
-    rejectCall, 
-    endCall 
+    initiateCall,
+    acceptCall,
+    rejectCall,
+    endCall,
   } = useCallManagement();
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     if (shouldAutoScroll && messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages, shouldAutoScroll]);
 
   // Detect if user has scrolled up
   const handleScroll = () => {
     if (!messagesContainerRef.current) return;
-    
-    const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+
+    const { scrollTop, scrollHeight, clientHeight } =
+      messagesContainerRef.current;
     const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
     setShouldAutoScroll(isNearBottom);
 
@@ -73,19 +76,19 @@ export function ChatWindow({ conversation, onBack, onClose }: ChatWindowProps) {
 
   const handleSendMessage = async (content: string, imageUrl?: string) => {
     if (!conversation?.other_user?.id) return;
-    
+
     await sendMessage(content, conversation.other_user.id, imageUrl);
     setShouldAutoScroll(true);
   };
 
   const handleVoiceCall = () => {
     if (!conversation?.id || !conversation?.other_user?.id) return;
-    initiateCall(conversation.id, conversation.other_user.id, 'voice');
+    initiateCall(conversation.id, conversation.other_user.id, "voice");
   };
 
   const handleVideoCall = () => {
     if (!conversation?.id || !conversation?.other_user?.id) return;
-    initiateCall(conversation.id, conversation.other_user.id, 'video');
+    initiateCall(conversation.id, conversation.other_user.id, "video");
   };
 
   const handleWhatsApp = () => {
@@ -97,39 +100,39 @@ export function ChatWindow({ conversation, onBack, onClose }: ChatWindowProps) {
 
     // Fetch other user's phone number
     const { data: otherUserData, error } = await supabase
-      .from('farmers')
-      .select('phone, name')
-      .eq('id', conversation.other_user.id)
+      .from("farmers")
+      .select("phone, name")
+      .eq("id", conversation.other_user.id)
       .single();
 
     if (error || !otherUserData?.phone) {
-      alert('Unable to get user\'s WhatsApp number. Please try again later.');
+      alert("Unable to get user's WhatsApp number. Please try again later.");
       return;
     }
 
     // Check if they have any messages in the conversation
     const hasMessages = messages.length > 0;
 
-    let whatsappMessage = '';
+    let whatsappMessage = "";
     if (!hasMessages) {
       // First time - send introduction
-      const firstName = otherUserData.name.split(' ')[0];
+      const firstName = otherUserData.name.split(" ")[0];
       whatsappMessage = `Namaste ${firstName}, myself ${user.fullName}. Greetings! We got your contact from Krushi Unnati.`;
     } else {
       // Already talked - just redirect, add system message in our app
-      await supabase.from('messages').insert({
+      await supabase.from("messages").insert({
         conversation_id: conversation.id,
         sender_id: user.id,
         receiver_id: conversation.other_user.id,
-        content: '📱 Conversation shifted to WhatsApp',
-        message_type: 'system'
+        content: "📱 Conversation shifted to WhatsApp",
+        message_type: "system",
       });
     }
 
     // Open WhatsApp
-    const phoneNumber = otherUserData.phone.replace(/[^0-9]/g, '');
-    const whatsappUrl = `https://wa.me/${phoneNumber}${whatsappMessage ? `?text=${encodeURIComponent(whatsappMessage)}` : ''}`;
-    window.open(whatsappUrl, '_blank');
+    const phoneNumber = otherUserData.phone.replace(/[^0-9]/g, "");
+    const whatsappUrl = `https://wa.me/${phoneNumber}${whatsappMessage ? `?text=${encodeURIComponent(whatsappMessage)}` : ""}`;
+    window.open(whatsappUrl, "_blank");
 
     setShowWhatsAppDialog(false);
   };
@@ -154,8 +157,8 @@ export function ChatWindow({ conversation, onBack, onClose }: ChatWindowProps) {
           callId={activeCall.id}
           callType={activeCall.call_type}
           isCaller={activeCall.caller_id === user?.id}
-          otherUserId={conversation.other_user?.id || ''}
-          otherUserName={conversation.other_user?.name || 'Unknown User'}
+          otherUserId={conversation.other_user?.id || ""}
+          otherUserName={conversation.other_user?.name || "Unknown User"}
           onEnd={endCall}
         />
       )}
@@ -163,7 +166,7 @@ export function ChatWindow({ conversation, onBack, onClose }: ChatWindowProps) {
       {/* Incoming Call Modal */}
       {incomingCall && (
         <IncomingCall
-          callerName={conversation.other_user?.name || 'Unknown User'}
+          callerName={conversation.other_user?.name || "Unknown User"}
           callType={incomingCall.call_type}
           onAccept={acceptCall}
           onReject={rejectCall}
@@ -172,8 +175,8 @@ export function ChatWindow({ conversation, onBack, onClose }: ChatWindowProps) {
 
       {/* Header */}
       <ChatHeader
-        userName={conversation.other_user?.name || 'Unknown User'}
-        userId={conversation.other_user?.id || ''}
+        userName={conversation.other_user?.name || "Unknown User"}
+        userId={conversation.other_user?.id || ""}
         conversationId={conversation.id}
         onBack={onBack}
         onClose={onClose}
@@ -183,7 +186,7 @@ export function ChatWindow({ conversation, onBack, onClose }: ChatWindowProps) {
       />
 
       {/* Messages Area */}
-      <div 
+      <div
         ref={messagesContainerRef}
         className="flex-1 overflow-y-auto overflow-x-hidden p-4"
         onScroll={handleScroll}
@@ -203,7 +206,7 @@ export function ChatWindow({ conversation, onBack, onClose }: ChatWindowProps) {
                   Loading...
                 </>
               ) : (
-                'Load More'
+                "Load More"
               )}
             </Button>
           </div>
@@ -250,14 +253,14 @@ export function ChatWindow({ conversation, onBack, onClose }: ChatWindowProps) {
         onTyping={startTyping}
         onStopTyping={stopTyping}
         disabled={isSending}
-        placeholder={`Message ${conversation.other_user?.name || 'user'}...`}
+        placeholder={`Message ${conversation.other_user?.name || "user"}...`}
       />
 
       {/* WhatsApp Dialog */}
       <WhatsAppDialog
         open={showWhatsAppDialog}
         onOpenChange={setShowWhatsAppDialog}
-        otherUserName={conversation.other_user?.name || 'user'}
+        otherUserName={conversation.other_user?.name || "user"}
         onConfirm={confirmWhatsApp}
       />
     </div>

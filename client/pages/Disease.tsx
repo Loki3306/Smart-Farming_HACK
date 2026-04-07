@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { CropSelector } from "@/components/ui/CropSelector";
-import { MODEL_CROP_MAP, SUPPORTED_DISPLAY_CROPS } from "@/services/diseaseModelConfig";
+import {
+  MODEL_CROP_MAP,
+  SUPPORTED_DISPLAY_CROPS,
+} from "@/services/diseaseModelConfig";
 import { Card } from "@/components/ui/card";
 import ImageUploader from "@/components/disease/ImageUploader";
 import AnalysisPanel from "@/components/disease/AnalysisPanel";
@@ -24,7 +27,7 @@ export const Disease: React.FC = () => {
   const isCropSupported = React.useMemo(() => {
     if (!crop) return false;
     return SUPPORTED_DISPLAY_CROPS.some(
-      (c) => c.toLowerCase() === crop.toLowerCase()
+      (c) => c.toLowerCase() === crop.toLowerCase(),
     );
   }, [crop]);
 
@@ -56,7 +59,7 @@ export const Disease: React.FC = () => {
           crop,
           diseaseName,
           res.confidence ?? res.top_prediction?.confidence,
-          i18n.language || 'en'
+          i18n.language || "en",
         );
         setDiseaseInfo(info);
       } catch (e: any) {
@@ -67,7 +70,8 @@ export const Disease: React.FC = () => {
     } catch (err: any) {
       toast({
         title: t("result.analysisFailed", "Analysis failed"),
-        description: err?.message || t("result.somethingWrong", "Something went wrong"),
+        description:
+          err?.message || t("result.somethingWrong", "Something went wrong"),
       });
       setStatus("idle");
     }
@@ -83,23 +87,16 @@ export const Disease: React.FC = () => {
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-12 space-y-10">
-
       {/* HERO */}
       <div className="space-y-4">
-        <h1 className="text-4xl font-semibold tracking-tight">
-          {t("title")}
-        </h1>
-        <p className="text-muted-foreground max-w-2xl">
-          {t("subtitle")}
-        </p>
+        <h1 className="text-4xl font-semibold tracking-tight">{t("title")}</h1>
+        <p className="text-muted-foreground max-w-2xl">{t("subtitle")}</p>
       </div>
 
       {/* WORKSPACE */}
       <Card className="p-8 space-y-8">
-
         {/* INPUT ROW */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-
           {/* Crop */}
           <div className="space-y-2">
             <label className="text-sm font-medium">{t("cropLabel")}</label>
@@ -110,9 +107,7 @@ export const Disease: React.FC = () => {
               options={SUPPORTED_DISPLAY_CROPS}
             />
             {!isCropSupported && crop && (
-              <p className="text-xs text-amber-600">
-                {t("cropNotSupported")}
-              </p>
+              <p className="text-xs text-amber-600">{t("cropNotSupported")}</p>
             )}
           </div>
 

@@ -12,31 +12,13 @@
     "watermelon": {
       "displayName": "Watermelon",
       "overall": {
-        "moistureOptimal": [
-          36.8,
-          78.2
-        ],
-        "tempOptimal": [
-          19.0,
-          34.0
-        ],
-        "phOptimal": [
-          5.9,
-          7.1
-        ],
+        "moistureOptimal": [36.8, 78.2],
+        "tempOptimal": [19.0, 34.0],
+        "phOptimal": [5.9, 7.1],
         "npkOptimal": {
-          "nitrogen": [
-            43.0,
-            77.0
-          ],
-          "phosphorus": [
-            26.0,
-            52.0
-          ],
-          "potassium": [
-            62.0,
-            96.0
-          ]
+          "nitrogen": [43.0, 77.0],
+          "phosphorus": [26.0, 52.0],
+          "potassium": [62.0, 96.0]
         },
         "stats": {
           "count": 450,
@@ -52,31 +34,13 @@
       },
       "soils": {
         "sandy": {
-          "moistureOptimal": [
-            36.8,
-            78.2
-          ],
-          "tempOptimal": [
-            19.0,
-            34.0
-          ],
-          "phOptimal": [
-            5.9,
-            7.1
-          ],
+          "moistureOptimal": [36.8, 78.2],
+          "tempOptimal": [19.0, 34.0],
+          "phOptimal": [5.9, 7.1],
           "npkOptimal": {
-            "nitrogen": [
-              43.0,
-              77.0
-            ],
-            "phosphorus": [
-              26.0,
-              52.0
-            ],
-            "potassium": [
-              62.0,
-              96.0
-            ]
+            "nitrogen": [43.0, 77.0],
+            "phosphorus": [26.0, 52.0],
+            "potassium": [62.0, 96.0]
           },
           "stats": {
             "count": 450,
@@ -95,31 +59,13 @@
     "grapes": {
       "displayName": "Grapes",
       "overall": {
-        "moistureOptimal": [
-          35.0,
-          82.0
-        ],
-        "tempOptimal": [
-          19.4,
-          33.0
-        ],
-        "phOptimal": [
-          6.0,
-          7.5
-        ],
+        "moistureOptimal": [35.0, 82.0],
+        "tempOptimal": [19.4, 33.0],
+        "phOptimal": [6.0, 7.5],
         "npkOptimal": {
-          "nitrogen": [
-            43.0,
-            77.0
-          ],
-          "phosphorus": [
-            37.0,
-            63.0
-          ],
-          "potassium": [
-            124.0,
-            155.0
-          ]
+          "nitrogen": [43.0, 77.0],
+          "phosphorus": [37.0, 63.0],
+          "potassium": [124.0, 155.0]
         },
         "stats": {
           "count": 448,
@@ -135,31 +81,13 @@
       },
       "soils": {
         "sandy_loam": {
-          "moistureOptimal": [
-            35.0,
-            82.0
-          ],
-          "tempOptimal": [
-            19.4,
-            33.0
-          ],
-          "phOptimal": [
-            6.0,
-            7.5
-          ],
+          "moistureOptimal": [35.0, 82.0],
+          "tempOptimal": [19.4, 33.0],
+          "phOptimal": [6.0, 7.5],
           "npkOptimal": {
-            "nitrogen": [
-              43.0,
-              77.0
-            ],
-            "phosphorus": [
-              37.0,
-              63.0
-            ],
-            "potassium": [
-              124.0,
-              155.0
-            ]
+            "nitrogen": [43.0, 77.0],
+            "phosphorus": [37.0, 63.0],
+            "potassium": [124.0, 155.0]
           },
           "stats": {
             "count": 448,
@@ -178,31 +106,13 @@
     "orange": {
       "displayName": "Orange",
       "overall": {
-        "moistureOptimal": [
-          34.0,
-          81.0
-        ],
-        "tempOptimal": [
-          19.0,
-          34.0
-        ],
-        "phOptimal": [
-          6.0,
-          7.6
-        ],
+        "moistureOptimal": [34.0, 81.0],
+        "tempOptimal": [19.0, 34.0],
+        "phOptimal": [6.0, 7.6],
         "npkOptimal": {
-          "nitrogen": [
-            62.0,
-            97.0
-          ],
-          "phosphorus": [
-            27.0,
-            54.0
-          ],
-          "potassium": [
-            74.0,
-            106.0
-          ]
+          "nitrogen": [62.0, 97.0],
+          "phosphorus": [27.0, 54.0],
+          "potassium": [74.0, 106.0]
         },
         "stats": {
           "count": 450,
@@ -218,31 +128,13 @@
       },
       "soils": {
         "black": {
-          "moistureOptimal": [
-            34.0,
-            81.0
-          ],
-          "tempOptimal": [
-            19.0,
-            34.0
-          ],
-          "phOptimal": [
-            6.0,
-            7.6
-          ],
+          "moistureOptimal": [34.0, 81.0],
+          "tempOptimal": [19.0, 34.0],
+          "phOptimal": [6.0, 7.6],
           "npkOptimal": {
-            "nitrogen": [
-              62.0,
-              97.0
-            ],
-            "phosphorus": [
-              27.0,
-              54.0
-            ],
-            "potassium": [
-              74.0,
-              106.0
-            ]
+            "nitrogen": [62.0, 97.0],
+            "phosphorus": [27.0, 54.0],
+            "potassium": [74.0, 106.0]
           },
           "stats": {
             "count": 450,
@@ -261,31 +153,13 @@
     "maize": {
       "displayName": "Maize",
       "overall": {
-        "moistureOptimal": [
-          35.0,
-          80.0
-        ],
-        "tempOptimal": [
-          19.0,
-          33.6
-        ],
-        "phOptimal": [
-          5.8,
-          7.1
-        ],
+        "moistureOptimal": [35.0, 80.0],
+        "tempOptimal": [19.0, 33.6],
+        "phOptimal": [5.8, 7.1],
         "npkOptimal": {
-          "nitrogen": [
-            83.0,
-            117.0
-          ],
-          "phosphorus": [
-            38.0,
-            61.0
-          ],
-          "potassium": [
-            23.0,
-            56.0
-          ]
+          "nitrogen": [83.0, 117.0],
+          "phosphorus": [38.0, 61.0],
+          "potassium": [23.0, 56.0]
         },
         "stats": {
           "count": 468,
@@ -301,31 +175,13 @@
       },
       "soils": {
         "sandy_loam": {
-          "moistureOptimal": [
-            35.0,
-            80.0
-          ],
-          "tempOptimal": [
-            19.0,
-            33.6
-          ],
-          "phOptimal": [
-            5.8,
-            7.1
-          ],
+          "moistureOptimal": [35.0, 80.0],
+          "tempOptimal": [19.0, 33.6],
+          "phOptimal": [5.8, 7.1],
           "npkOptimal": {
-            "nitrogen": [
-              83.0,
-              117.0
-            ],
-            "phosphorus": [
-              38.0,
-              61.0
-            ],
-            "potassium": [
-              23.0,
-              56.0
-            ]
+            "nitrogen": [83.0, 117.0],
+            "phosphorus": [38.0, 61.0],
+            "potassium": [23.0, 56.0]
           },
           "stats": {
             "count": 468,
@@ -344,31 +200,13 @@
     "blackgram": {
       "displayName": "Blackgram",
       "overall": {
-        "moistureOptimal": [
-          35.0,
-          78.0
-        ],
-        "tempOptimal": [
-          19.4,
-          34.0
-        ],
-        "phOptimal": [
-          6.0,
-          7.4
-        ],
+        "moistureOptimal": [35.0, 78.0],
+        "tempOptimal": [19.4, 34.0],
+        "phOptimal": [6.0, 7.4],
         "npkOptimal": {
-          "nitrogen": [
-            0.0,
-            27.0
-          ],
-          "phosphorus": [
-            28.0,
-            52.0
-          ],
-          "potassium": [
-            3.0,
-            36.6
-          ]
+          "nitrogen": [0.0, 27.0],
+          "phosphorus": [28.0, 52.0],
+          "potassium": [3.0, 36.6]
         },
         "stats": {
           "count": 438,
@@ -384,31 +222,13 @@
       },
       "soils": {
         "loamy": {
-          "moistureOptimal": [
-            35.0,
-            78.0
-          ],
-          "tempOptimal": [
-            19.4,
-            34.0
-          ],
-          "phOptimal": [
-            6.0,
-            7.4
-          ],
+          "moistureOptimal": [35.0, 78.0],
+          "tempOptimal": [19.4, 34.0],
+          "phOptimal": [6.0, 7.4],
           "npkOptimal": {
-            "nitrogen": [
-              0.0,
-              27.0
-            ],
-            "phosphorus": [
-              28.0,
-              52.0
-            ],
-            "potassium": [
-              3.0,
-              36.6
-            ]
+            "nitrogen": [0.0, 27.0],
+            "phosphorus": [28.0, 52.0],
+            "potassium": [3.0, 36.6]
           },
           "stats": {
             "count": 438,
@@ -427,31 +247,13 @@
     "kidneybeans": {
       "displayName": "Kidneybeans",
       "overall": {
-        "moistureOptimal": [
-          34.0,
-          78.0
-        ],
-        "tempOptimal": [
-          19.0,
-          34.0
-        ],
-        "phOptimal": [
-          5.6,
-          6.6
-        ],
+        "moistureOptimal": [34.0, 78.0],
+        "tempOptimal": [19.0, 34.0],
+        "phOptimal": [5.6, 6.6],
         "npkOptimal": {
-          "nitrogen": [
-            0.0,
-            27.0
-          ],
-          "phosphorus": [
-            25.4,
-            50.0
-          ],
-          "potassium": [
-            14.0,
-            46.0
-          ]
+          "nitrogen": [0.0, 27.0],
+          "phosphorus": [25.4, 50.0],
+          "potassium": [14.0, 46.0]
         },
         "stats": {
           "count": 433,
@@ -467,31 +269,13 @@
       },
       "soils": {
         "sandy_loam": {
-          "moistureOptimal": [
-            34.0,
-            78.0
-          ],
-          "tempOptimal": [
-            19.0,
-            34.0
-          ],
-          "phOptimal": [
-            5.6,
-            6.6
-          ],
+          "moistureOptimal": [34.0, 78.0],
+          "tempOptimal": [19.0, 34.0],
+          "phOptimal": [5.6, 6.6],
           "npkOptimal": {
-            "nitrogen": [
-              0.0,
-              27.0
-            ],
-            "phosphorus": [
-              25.4,
-              50.0
-            ],
-            "potassium": [
-              14.0,
-              46.0
-            ]
+            "nitrogen": [0.0, 27.0],
+            "phosphorus": [25.4, 50.0],
+            "potassium": [14.0, 46.0]
           },
           "stats": {
             "count": 433,
@@ -510,31 +294,13 @@
     "chickpea": {
       "displayName": "Chickpea",
       "overall": {
-        "moistureOptimal": [
-          35.0,
-          80.2
-        ],
-        "tempOptimal": [
-          19.0,
-          33.0
-        ],
-        "phOptimal": [
-          6.0,
-          7.5
-        ],
+        "moistureOptimal": [35.0, 80.2],
+        "tempOptimal": [19.0, 33.0],
+        "phOptimal": [6.0, 7.5],
         "npkOptimal": {
-          "nitrogen": [
-            0.0,
-            26.0
-          ],
-          "phosphorus": [
-            39.0,
-            65.0
-          ],
-          "potassium": [
-            10.0,
-            46.0
-          ]
+          "nitrogen": [0.0, 26.0],
+          "phosphorus": [39.0, 65.0],
+          "potassium": [10.0, 46.0]
         },
         "stats": {
           "count": 430,
@@ -550,31 +316,13 @@
       },
       "soils": {
         "loamy": {
-          "moistureOptimal": [
-            35.0,
-            80.2
-          ],
-          "tempOptimal": [
-            19.0,
-            33.0
-          ],
-          "phOptimal": [
-            6.0,
-            7.5
-          ],
+          "moistureOptimal": [35.0, 80.2],
+          "tempOptimal": [19.0, 33.0],
+          "phOptimal": [6.0, 7.5],
           "npkOptimal": {
-            "nitrogen": [
-              0.0,
-              26.0
-            ],
-            "phosphorus": [
-              39.0,
-              65.0
-            ],
-            "potassium": [
-              10.0,
-              46.0
-            ]
+            "nitrogen": [0.0, 26.0],
+            "phosphorus": [39.0, 65.0],
+            "potassium": [10.0, 46.0]
           },
           "stats": {
             "count": 430,
@@ -593,31 +341,13 @@
     "mango": {
       "displayName": "Mango",
       "overall": {
-        "moistureOptimal": [
-          34.6,
-          80.0
-        ],
-        "tempOptimal": [
-          19.0,
-          33.0
-        ],
-        "phOptimal": [
-          5.6,
-          7.0
-        ],
+        "moistureOptimal": [34.6, 80.0],
+        "tempOptimal": [19.0, 33.0],
+        "phOptimal": [5.6, 7.0],
         "npkOptimal": {
-          "nitrogen": [
-            63.0,
-            94.0
-          ],
-          "phosphorus": [
-            17.0,
-            43.0
-          ],
-          "potassium": [
-            73.0,
-            106.0
-          ]
+          "nitrogen": [63.0, 94.0],
+          "phosphorus": [17.0, 43.0],
+          "potassium": [73.0, 106.0]
         },
         "stats": {
           "count": 489,
@@ -633,31 +363,13 @@
       },
       "soils": {
         "loamy": {
-          "moistureOptimal": [
-            34.6,
-            80.0
-          ],
-          "tempOptimal": [
-            19.0,
-            33.0
-          ],
-          "phOptimal": [
-            5.6,
-            7.0
-          ],
+          "moistureOptimal": [34.6, 80.0],
+          "tempOptimal": [19.0, 33.0],
+          "phOptimal": [5.6, 7.0],
           "npkOptimal": {
-            "nitrogen": [
-              63.0,
-              94.0
-            ],
-            "phosphorus": [
-              17.0,
-              43.0
-            ],
-            "potassium": [
-              73.0,
-              106.0
-            ]
+            "nitrogen": [63.0, 94.0],
+            "phosphorus": [17.0, 43.0],
+            "potassium": [73.0, 106.0]
           },
           "stats": {
             "count": 489,
@@ -676,31 +388,13 @@
     "jute": {
       "displayName": "Jute",
       "overall": {
-        "moistureOptimal": [
-          34.0,
-          80.0
-        ],
-        "tempOptimal": [
-          19.0,
-          33.0
-        ],
-        "phOptimal": [
-          5.9,
-          7.1
-        ],
+        "moistureOptimal": [34.0, 80.0],
+        "tempOptimal": [19.0, 33.0],
+        "phOptimal": [5.9, 7.1],
         "npkOptimal": {
-          "nitrogen": [
-            44.0,
-            76.2
-          ],
-          "phosphorus": [
-            18.0,
-            43.0
-          ],
-          "potassium": [
-            12.0,
-            42.0
-          ]
+          "nitrogen": [44.0, 76.2],
+          "phosphorus": [18.0, 43.0],
+          "potassium": [12.0, 42.0]
         },
         "stats": {
           "count": 490,
@@ -716,31 +410,13 @@
       },
       "soils": {
         "clay": {
-          "moistureOptimal": [
-            34.0,
-            80.0
-          ],
-          "tempOptimal": [
-            19.0,
-            33.0
-          ],
-          "phOptimal": [
-            5.9,
-            7.1
-          ],
+          "moistureOptimal": [34.0, 80.0],
+          "tempOptimal": [19.0, 33.0],
+          "phOptimal": [5.9, 7.1],
           "npkOptimal": {
-            "nitrogen": [
-              44.0,
-              76.2
-            ],
-            "phosphorus": [
-              18.0,
-              43.0
-            ],
-            "potassium": [
-              12.0,
-              42.0
-            ]
+            "nitrogen": [44.0, 76.2],
+            "phosphorus": [18.0, 43.0],
+            "potassium": [12.0, 42.0]
           },
           "stats": {
             "count": 490,
@@ -759,31 +435,13 @@
     "cotton": {
       "displayName": "Cotton",
       "overall": {
-        "moistureOptimal": [
-          33.2,
-          81.0
-        ],
-        "tempOptimal": [
-          20.0,
-          34.0
-        ],
-        "phOptimal": [
-          6.1,
-          7.8
-        ],
+        "moistureOptimal": [33.2, 81.0],
+        "tempOptimal": [20.0, 34.0],
+        "phOptimal": [6.1, 7.8],
         "npkOptimal": {
-          "nitrogen": [
-            73.0,
-            105.0
-          ],
-          "phosphorus": [
-            27.0,
-            51.0
-          ],
-          "potassium": [
-            32.0,
-            67.0
-          ]
+          "nitrogen": [73.0, 105.0],
+          "phosphorus": [27.0, 51.0],
+          "potassium": [32.0, 67.0]
         },
         "stats": {
           "count": 452,
@@ -799,31 +457,13 @@
       },
       "soils": {
         "black": {
-          "moistureOptimal": [
-            33.2,
-            81.0
-          ],
-          "tempOptimal": [
-            20.0,
-            34.0
-          ],
-          "phOptimal": [
-            6.1,
-            7.8
-          ],
+          "moistureOptimal": [33.2, 81.0],
+          "tempOptimal": [20.0, 34.0],
+          "phOptimal": [6.1, 7.8],
           "npkOptimal": {
-            "nitrogen": [
-              73.0,
-              105.0
-            ],
-            "phosphorus": [
-              27.0,
-              51.0
-            ],
-            "potassium": [
-              32.0,
-              67.0
-            ]
+            "nitrogen": [73.0, 105.0],
+            "phosphorus": [27.0, 51.0],
+            "potassium": [32.0, 67.0]
           },
           "stats": {
             "count": 452,
@@ -842,31 +482,13 @@
     "lentil": {
       "displayName": "Lentil",
       "overall": {
-        "moistureOptimal": [
-          37.4,
-          80.0
-        ],
-        "tempOptimal": [
-          19.0,
-          33.0
-        ],
-        "phOptimal": [
-          5.9,
-          7.1
-        ],
+        "moistureOptimal": [37.4, 80.0],
+        "tempOptimal": [19.0, 33.0],
+        "phOptimal": [5.9, 7.1],
         "npkOptimal": {
-          "nitrogen": [
-            0.0,
-            26.0
-          ],
-          "phosphorus": [
-            25.0,
-            52.0
-          ],
-          "potassium": [
-            2.0,
-            36.0
-          ]
+          "nitrogen": [0.0, 26.0],
+          "phosphorus": [25.0, 52.0],
+          "potassium": [2.0, 36.0]
         },
         "stats": {
           "count": 453,
@@ -882,31 +504,13 @@
       },
       "soils": {
         "loamy": {
-          "moistureOptimal": [
-            37.4,
-            80.0
-          ],
-          "tempOptimal": [
-            19.0,
-            33.0
-          ],
-          "phOptimal": [
-            5.9,
-            7.1
-          ],
+          "moistureOptimal": [37.4, 80.0],
+          "tempOptimal": [19.0, 33.0],
+          "phOptimal": [5.9, 7.1],
           "npkOptimal": {
-            "nitrogen": [
-              0.0,
-              26.0
-            ],
-            "phosphorus": [
-              25.0,
-              52.0
-            ],
-            "potassium": [
-              2.0,
-              36.0
-            ]
+            "nitrogen": [0.0, 26.0],
+            "phosphorus": [25.0, 52.0],
+            "potassium": [2.0, 36.0]
           },
           "stats": {
             "count": 453,
@@ -925,31 +529,13 @@
     "pigeonpeas": {
       "displayName": "Pigeonpeas",
       "overall": {
-        "moistureOptimal": [
-          35.0,
-          80.8
-        ],
-        "tempOptimal": [
-          20.0,
-          34.0
-        ],
-        "phOptimal": [
-          6.0,
-          7.5
-        ],
+        "moistureOptimal": [35.0, 80.8],
+        "tempOptimal": [20.0, 34.0],
+        "phOptimal": [6.0, 7.5],
         "npkOptimal": {
-          "nitrogen": [
-            0.0,
-            25.0
-          ],
-          "phosphorus": [
-            37.0,
-            61.0
-          ],
-          "potassium": [
-            4.0,
-            37.0
-          ]
+          "nitrogen": [0.0, 25.0],
+          "phosphorus": [37.0, 61.0],
+          "potassium": [4.0, 37.0]
         },
         "stats": {
           "count": 477,
@@ -965,31 +551,13 @@
       },
       "soils": {
         "loamy": {
-          "moistureOptimal": [
-            35.0,
-            80.8
-          ],
-          "tempOptimal": [
-            20.0,
-            34.0
-          ],
-          "phOptimal": [
-            6.0,
-            7.5
-          ],
+          "moistureOptimal": [35.0, 80.8],
+          "tempOptimal": [20.0, 34.0],
+          "phOptimal": [6.0, 7.5],
           "npkOptimal": {
-            "nitrogen": [
-              0.0,
-              25.0
-            ],
-            "phosphorus": [
-              37.0,
-              61.0
-            ],
-            "potassium": [
-              4.0,
-              37.0
-            ]
+            "nitrogen": [0.0, 25.0],
+            "phosphorus": [37.0, 61.0],
+            "potassium": [4.0, 37.0]
           },
           "stats": {
             "count": 477,
@@ -1008,31 +576,13 @@
     "rice": {
       "displayName": "Rice",
       "overall": {
-        "moistureOptimal": [
-          35.0,
-          83.0
-        ],
-        "tempOptimal": [
-          20.0,
-          35.0
-        ],
-        "phOptimal": [
-          5.5,
-          7.0
-        ],
+        "moistureOptimal": [35.0, 83.0],
+        "tempOptimal": [20.0, 35.0],
+        "phOptimal": [5.5, 7.0],
         "npkOptimal": {
-          "nitrogen": [
-            63.0,
-            99.0
-          ],
-          "phosphorus": [
-            28.0,
-            51.0
-          ],
-          "potassium": [
-            24.0,
-            56.2
-          ]
+          "nitrogen": [63.0, 99.0],
+          "phosphorus": [28.0, 51.0],
+          "potassium": [24.0, 56.2]
         },
         "stats": {
           "count": 455,
@@ -1048,31 +598,13 @@
       },
       "soils": {
         "clay": {
-          "moistureOptimal": [
-            35.0,
-            83.0
-          ],
-          "tempOptimal": [
-            20.0,
-            35.0
-          ],
-          "phOptimal": [
-            5.5,
-            7.0
-          ],
+          "moistureOptimal": [35.0, 83.0],
+          "tempOptimal": [20.0, 35.0],
+          "phOptimal": [5.5, 7.0],
           "npkOptimal": {
-            "nitrogen": [
-              63.0,
-              99.0
-            ],
-            "phosphorus": [
-              28.0,
-              51.0
-            ],
-            "potassium": [
-              24.0,
-              56.2
-            ]
+            "nitrogen": [63.0, 99.0],
+            "phosphorus": [28.0, 51.0],
+            "potassium": [24.0, 56.2]
           },
           "stats": {
             "count": 455,
@@ -1091,31 +623,13 @@
     "mothbeans": {
       "displayName": "Mothbeans",
       "overall": {
-        "moistureOptimal": [
-          32.0,
-          80.0
-        ],
-        "tempOptimal": [
-          19.0,
-          34.0
-        ],
-        "phOptimal": [
-          6.5,
-          8.0
-        ],
+        "moistureOptimal": [32.0, 80.0],
+        "tempOptimal": [19.0, 34.0],
+        "phOptimal": [6.5, 8.0],
         "npkOptimal": {
-          "nitrogen": [
-            0.0,
-            17.0
-          ],
-          "phosphorus": [
-            19.0,
-            42.0
-          ],
-          "potassium": [
-            0.0,
-            27.0
-          ]
+          "nitrogen": [0.0, 17.0],
+          "phosphorus": [19.0, 42.0],
+          "potassium": [0.0, 27.0]
         },
         "stats": {
           "count": 448,
@@ -1131,31 +645,13 @@
       },
       "soils": {
         "sandy": {
-          "moistureOptimal": [
-            32.0,
-            80.0
-          ],
-          "tempOptimal": [
-            19.0,
-            34.0
-          ],
-          "phOptimal": [
-            6.5,
-            8.0
-          ],
+          "moistureOptimal": [32.0, 80.0],
+          "tempOptimal": [19.0, 34.0],
+          "phOptimal": [6.5, 8.0],
           "npkOptimal": {
-            "nitrogen": [
-              0.0,
-              17.0
-            ],
-            "phosphorus": [
-              19.0,
-              42.0
-            ],
-            "potassium": [
-              0.0,
-              27.0
-            ]
+            "nitrogen": [0.0, 17.0],
+            "phosphorus": [19.0, 42.0],
+            "potassium": [0.0, 27.0]
           },
           "stats": {
             "count": 448,
@@ -1174,31 +670,13 @@
     "coffee": {
       "displayName": "Coffee",
       "overall": {
-        "moistureOptimal": [
-          33.6,
-          82.0
-        ],
-        "tempOptimal": [
-          19.0,
-          33.4
-        ],
-        "phOptimal": [
-          5.0,
-          6.5
-        ],
+        "moistureOptimal": [33.6, 82.0],
+        "tempOptimal": [19.0, 33.4],
+        "phOptimal": [5.0, 6.5],
         "npkOptimal": {
-          "nitrogen": [
-            61.6,
-            95.0
-          ],
-          "phosphorus": [
-            19.0,
-            43.0
-          ],
-          "potassium": [
-            52.0,
-            85.0
-          ]
+          "nitrogen": [61.6, 95.0],
+          "phosphorus": [19.0, 43.0],
+          "potassium": [52.0, 85.0]
         },
         "stats": {
           "count": 444,
@@ -1214,31 +692,13 @@
       },
       "soils": {
         "red": {
-          "moistureOptimal": [
-            33.6,
-            82.0
-          ],
-          "tempOptimal": [
-            19.0,
-            33.4
-          ],
-          "phOptimal": [
-            5.0,
-            6.5
-          ],
+          "moistureOptimal": [33.6, 82.0],
+          "tempOptimal": [19.0, 33.4],
+          "phOptimal": [5.0, 6.5],
           "npkOptimal": {
-            "nitrogen": [
-              61.6,
-              95.0
-            ],
-            "phosphorus": [
-              19.0,
-              43.0
-            ],
-            "potassium": [
-              52.0,
-              85.0
-            ]
+            "nitrogen": [61.6, 95.0],
+            "phosphorus": [19.0, 43.0],
+            "potassium": [52.0, 85.0]
           },
           "stats": {
             "count": 444,
@@ -1257,31 +717,13 @@
     "pomegranate": {
       "displayName": "Pomegranate",
       "overall": {
-        "moistureOptimal": [
-          36.0,
-          81.0
-        ],
-        "tempOptimal": [
-          18.0,
-          33.0
-        ],
-        "phOptimal": [
-          6.4,
-          7.6
-        ],
+        "moistureOptimal": [36.0, 81.0],
+        "tempOptimal": [18.0, 33.0],
+        "phOptimal": [6.4, 7.6],
         "npkOptimal": {
-          "nitrogen": [
-            42.0,
-            75.0
-          ],
-          "phosphorus": [
-            25.0,
-            53.0
-          ],
-          "potassium": [
-            73.0,
-            104.0
-          ]
+          "nitrogen": [42.0, 75.0],
+          "phosphorus": [25.0, 53.0],
+          "potassium": [73.0, 104.0]
         },
         "stats": {
           "count": 448,
@@ -1297,31 +739,13 @@
       },
       "soils": {
         "sandy": {
-          "moistureOptimal": [
-            36.0,
-            81.0
-          ],
-          "tempOptimal": [
-            18.0,
-            33.0
-          ],
-          "phOptimal": [
-            6.4,
-            7.6
-          ],
+          "moistureOptimal": [36.0, 81.0],
+          "tempOptimal": [18.0, 33.0],
+          "phOptimal": [6.4, 7.6],
           "npkOptimal": {
-            "nitrogen": [
-              42.0,
-              75.0
-            ],
-            "phosphorus": [
-              25.0,
-              53.0
-            ],
-            "potassium": [
-              73.0,
-              104.0
-            ]
+            "nitrogen": [42.0, 75.0],
+            "phosphorus": [25.0, 53.0],
+            "potassium": [73.0, 104.0]
           },
           "stats": {
             "count": 448,
@@ -1340,31 +764,13 @@
     "muskmelon": {
       "displayName": "Muskmelon",
       "overall": {
-        "moistureOptimal": [
-          31.0,
-          79.0
-        ],
-        "tempOptimal": [
-          20.0,
-          33.0
-        ],
-        "phOptimal": [
-          6.0,
-          7.4
-        ],
+        "moistureOptimal": [31.0, 79.0],
+        "tempOptimal": [20.0, 33.0],
+        "phOptimal": [6.0, 7.4],
         "npkOptimal": {
-          "nitrogen": [
-            52.0,
-            86.0
-          ],
-          "phosphorus": [
-            27.0,
-            51.0
-          ],
-          "potassium": [
-            61.0,
-            95.0
-          ]
+          "nitrogen": [52.0, 86.0],
+          "phosphorus": [27.0, 51.0],
+          "potassium": [61.0, 95.0]
         },
         "stats": {
           "count": 427,
@@ -1380,31 +786,13 @@
       },
       "soils": {
         "sandy_loam": {
-          "moistureOptimal": [
-            31.0,
-            79.0
-          ],
-          "tempOptimal": [
-            20.0,
-            33.0
-          ],
-          "phOptimal": [
-            6.0,
-            7.4
-          ],
+          "moistureOptimal": [31.0, 79.0],
+          "tempOptimal": [20.0, 33.0],
+          "phOptimal": [6.0, 7.4],
           "npkOptimal": {
-            "nitrogen": [
-              52.0,
-              86.0
-            ],
-            "phosphorus": [
-              27.0,
-              51.0
-            ],
-            "potassium": [
-              61.0,
-              95.0
-            ]
+            "nitrogen": [52.0, 86.0],
+            "phosphorus": [27.0, 51.0],
+            "potassium": [61.0, 95.0]
           },
           "stats": {
             "count": 427,
@@ -1423,31 +811,13 @@
     "banana": {
       "displayName": "Banana",
       "overall": {
-        "moistureOptimal": [
-          34.0,
-          78.4
-        ],
-        "tempOptimal": [
-          20.0,
-          33.0
-        ],
-        "phOptimal": [
-          6.1,
-          7.5
-        ],
+        "moistureOptimal": [34.0, 78.4],
+        "tempOptimal": [20.0, 33.0],
+        "phOptimal": [6.1, 7.5],
         "npkOptimal": {
-          "nitrogen": [
-            113.0,
-            146.0
-          ],
-          "phosphorus": [
-            46.0,
-            70.0
-          ],
-          "potassium": [
-            174.0,
-            207.0
-          ]
+          "nitrogen": [113.0, 146.0],
+          "phosphorus": [46.0, 70.0],
+          "potassium": [174.0, 207.0]
         },
         "stats": {
           "count": 474,
@@ -1463,31 +833,13 @@
       },
       "soils": {
         "clay": {
-          "moistureOptimal": [
-            34.0,
-            78.4
-          ],
-          "tempOptimal": [
-            20.0,
-            33.0
-          ],
-          "phOptimal": [
-            6.1,
-            7.5
-          ],
+          "moistureOptimal": [34.0, 78.4],
+          "tempOptimal": [20.0, 33.0],
+          "phOptimal": [6.1, 7.5],
           "npkOptimal": {
-            "nitrogen": [
-              113.0,
-              146.0
-            ],
-            "phosphorus": [
-              46.0,
-              70.0
-            ],
-            "potassium": [
-              174.0,
-              207.0
-            ]
+            "nitrogen": [113.0, 146.0],
+            "phosphorus": [46.0, 70.0],
+            "potassium": [174.0, 207.0]
           },
           "stats": {
             "count": 474,
@@ -1506,31 +858,13 @@
     "coconut": {
       "displayName": "Coconut",
       "overall": {
-        "moistureOptimal": [
-          37.0,
-          79.8
-        ],
-        "tempOptimal": [
-          19.0,
-          34.0
-        ],
-        "phOptimal": [
-          5.5,
-          7.1
-        ],
+        "moistureOptimal": [37.0, 79.8],
+        "tempOptimal": [19.0, 34.0],
+        "phOptimal": [5.5, 7.1],
         "npkOptimal": {
-          "nitrogen": [
-            82.0,
-            115.0
-          ],
-          "phosphorus": [
-            26.0,
-            51.0
-          ],
-          "potassium": [
-            123.0,
-            156.8
-          ]
+          "nitrogen": [82.0, 115.0],
+          "phosphorus": [26.0, 51.0],
+          "potassium": [123.0, 156.8]
         },
         "stats": {
           "count": 437,
@@ -1546,31 +880,13 @@
       },
       "soils": {
         "red": {
-          "moistureOptimal": [
-            37.0,
-            79.8
-          ],
-          "tempOptimal": [
-            19.0,
-            34.0
-          ],
-          "phOptimal": [
-            5.5,
-            7.1
-          ],
+          "moistureOptimal": [37.0, 79.8],
+          "tempOptimal": [19.0, 34.0],
+          "phOptimal": [5.5, 7.1],
           "npkOptimal": {
-            "nitrogen": [
-              82.0,
-              115.0
-            ],
-            "phosphorus": [
-              26.0,
-              51.0
-            ],
-            "potassium": [
-              123.0,
-              156.8
-            ]
+            "nitrogen": [82.0, 115.0],
+            "phosphorus": [26.0, 51.0],
+            "potassium": [123.0, 156.8]
           },
           "stats": {
             "count": 437,
@@ -1589,31 +905,13 @@
     "mungbean": {
       "displayName": "Mungbean",
       "overall": {
-        "moistureOptimal": [
-          34.0,
-          79.0
-        ],
-        "tempOptimal": [
-          20.0,
-          34.0
-        ],
-        "phOptimal": [
-          6.1,
-          7.3
-        ],
+        "moistureOptimal": [34.0, 79.0],
+        "tempOptimal": [20.0, 34.0],
+        "phOptimal": [6.1, 7.3],
         "npkOptimal": {
-          "nitrogen": [
-            0.0,
-            27.0
-          ],
-          "phosphorus": [
-            26.0,
-            52.0
-          ],
-          "potassium": [
-            14.0,
-            46.0
-          ]
+          "nitrogen": [0.0, 27.0],
+          "phosphorus": [26.0, 52.0],
+          "potassium": [14.0, 46.0]
         },
         "stats": {
           "count": 467,
@@ -1629,31 +927,13 @@
       },
       "soils": {
         "sandy_loam": {
-          "moistureOptimal": [
-            34.0,
-            79.0
-          ],
-          "tempOptimal": [
-            20.0,
-            34.0
-          ],
-          "phOptimal": [
-            6.1,
-            7.3
-          ],
+          "moistureOptimal": [34.0, 79.0],
+          "tempOptimal": [20.0, 34.0],
+          "phOptimal": [6.1, 7.3],
           "npkOptimal": {
-            "nitrogen": [
-              0.0,
-              27.0
-            ],
-            "phosphorus": [
-              26.0,
-              52.0
-            ],
-            "potassium": [
-              14.0,
-              46.0
-            ]
+            "nitrogen": [0.0, 27.0],
+            "phosphorus": [26.0, 52.0],
+            "potassium": [14.0, 46.0]
           },
           "stats": {
             "count": 467,
@@ -1672,31 +952,13 @@
     "papaya": {
       "displayName": "Papaya",
       "overall": {
-        "moistureOptimal": [
-          35.0,
-          81.0
-        ],
-        "tempOptimal": [
-          20.0,
-          34.0
-        ],
-        "phOptimal": [
-          5.9,
-          7.1
-        ],
+        "moistureOptimal": [35.0, 81.0],
+        "tempOptimal": [20.0, 34.0],
+        "phOptimal": [5.9, 7.1],
         "npkOptimal": {
-          "nitrogen": [
-            63.0,
-            96.0
-          ],
-          "phosphorus": [
-            37.0,
-            63.0
-          ],
-          "potassium": [
-            52.0,
-            86.4
-          ]
+          "nitrogen": [63.0, 96.0],
+          "phosphorus": [37.0, 63.0],
+          "potassium": [52.0, 86.4]
         },
         "stats": {
           "count": 439,
@@ -1712,31 +974,13 @@
       },
       "soils": {
         "loamy": {
-          "moistureOptimal": [
-            35.0,
-            81.0
-          ],
-          "tempOptimal": [
-            20.0,
-            34.0
-          ],
-          "phOptimal": [
-            5.9,
-            7.1
-          ],
+          "moistureOptimal": [35.0, 81.0],
+          "tempOptimal": [20.0, 34.0],
+          "phOptimal": [5.9, 7.1],
           "npkOptimal": {
-            "nitrogen": [
-              63.0,
-              96.0
-            ],
-            "phosphorus": [
-              37.0,
-              63.0
-            ],
-            "potassium": [
-              52.0,
-              86.4
-            ]
+            "nitrogen": [63.0, 96.0],
+            "phosphorus": [37.0, 63.0],
+            "potassium": [52.0, 86.4]
           },
           "stats": {
             "count": 439,
@@ -1755,31 +999,13 @@
     "apple": {
       "displayName": "Apple",
       "overall": {
-        "moistureOptimal": [
-          35.0,
-          79.0
-        ],
-        "tempOptimal": [
-          20.0,
-          34.0
-        ],
-        "phOptimal": [
-          5.4,
-          6.8
-        ],
+        "moistureOptimal": [35.0, 79.0],
+        "tempOptimal": [20.0, 34.0],
+        "phOptimal": [5.4, 6.8],
         "npkOptimal": {
-          "nitrogen": [
-            62.0,
-            95.0
-          ],
-          "phosphorus": [
-            27.4,
-            52.0
-          ],
-          "potassium": [
-            95.4,
-            126.0
-          ]
+          "nitrogen": [62.0, 95.0],
+          "phosphorus": [27.4, 52.0],
+          "potassium": [95.4, 126.0]
         },
         "stats": {
           "count": 483,
@@ -1795,31 +1021,13 @@
       },
       "soils": {
         "clay_loam": {
-          "moistureOptimal": [
-            35.0,
-            79.0
-          ],
-          "tempOptimal": [
-            20.0,
-            34.0
-          ],
-          "phOptimal": [
-            5.4,
-            6.8
-          ],
+          "moistureOptimal": [35.0, 79.0],
+          "tempOptimal": [20.0, 34.0],
+          "phOptimal": [5.4, 6.8],
           "npkOptimal": {
-            "nitrogen": [
-              62.0,
-              95.0
-            ],
-            "phosphorus": [
-              27.4,
-              52.0
-            ],
-            "potassium": [
-              95.4,
-              126.0
-            ]
+            "nitrogen": [62.0, 95.0],
+            "phosphorus": [27.4, 52.0],
+            "potassium": [95.4, 126.0]
           },
           "stats": {
             "count": 483,

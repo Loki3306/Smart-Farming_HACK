@@ -21,7 +21,7 @@ export interface GeocodingResult {
  */
 export async function reverseGeocode(
   latitude: number,
-  longitude: number
+  longitude: number,
 ): Promise<GeocodingResult> {
   try {
     // Use OpenStreetMap Nominatim API (free, no API key)
@@ -29,10 +29,10 @@ export async function reverseGeocode(
       `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1`,
       {
         headers: {
-          'User-Agent': 'SmartFarmingApp/1.0',
-          'Accept-Language': 'en',
+          "User-Agent": "SmartFarmingApp/1.0",
+          "Accept-Language": "en",
         },
-      }
+      },
     );
 
     if (!response.ok) {
@@ -44,11 +44,11 @@ export async function reverseGeocode(
     if (data.error) {
       return {
         success: false,
-        city: '',
-        district: '',
-        state: '',
-        village: '',
-        fullAddress: '',
+        city: "",
+        district: "",
+        state: "",
+        village: "",
+        fullAddress: "",
         error: data.error,
       };
     }
@@ -56,33 +56,27 @@ export async function reverseGeocode(
     const address = data.address || {};
 
     // Extract location components (Nominatim uses different keys)
-    const city = 
-      address.city || 
-      address.town || 
-      address.municipality ||
-      '';
+    const city = address.city || address.town || address.municipality || "";
 
-    const district = 
-      address.state_district || 
-      address.county || 
+    const district =
+      address.state_district ||
+      address.county ||
       address.district ||
       address.city_district ||
-      '';
+      "";
 
-    const state = 
-      address.state || 
-      '';
+    const state = address.state || "";
 
-    const village = 
-      address.village || 
-      address.hamlet || 
+    const village =
+      address.village ||
+      address.hamlet ||
       address.suburb ||
       address.neighbourhood ||
-      '';
+      "";
 
-    const fullAddress = data.display_name || '';
+    const fullAddress = data.display_name || "";
 
-    console.log('[Geocoding] Result:', { city, district, state, village });
+    console.log("[Geocoding] Result:", { city, district, state, village });
 
     return {
       success: true,
@@ -93,15 +87,15 @@ export async function reverseGeocode(
       fullAddress,
     };
   } catch (error) {
-    console.error('[Geocoding] Error:', error);
+    console.error("[Geocoding] Error:", error);
     return {
       success: false,
-      city: '',
-      district: '',
-      state: '',
-      village: '',
-      fullAddress: '',
-      error: error instanceof Error ? error.message : 'Geocoding failed',
+      city: "",
+      district: "",
+      state: "",
+      village: "",
+      fullAddress: "",
+      error: error instanceof Error ? error.message : "Geocoding failed",
     };
   }
 }
@@ -110,37 +104,37 @@ export async function reverseGeocode(
  * Normalize state names to match our database format
  */
 export function normalizeStateName(state: string): string {
-  if (!state) return '';
-  
+  if (!state) return "";
+
   // Map of common variations to standard names
   const stateMap: Record<string, string> = {
-    'maharashtra': 'Maharashtra',
-    'karnataka': 'Karnataka',
-    'tamil nadu': 'Tamil Nadu',
-    'tamilnadu': 'Tamil Nadu',
-    'andhra pradesh': 'Andhra Pradesh',
-    'andhrapradesh': 'Andhra Pradesh',
-    'telangana': 'Telangana',
-    'kerala': 'Kerala',
-    'gujarat': 'Gujarat',
-    'rajasthan': 'Rajasthan',
-    'madhya pradesh': 'Madhya Pradesh',
-    'madhyapradesh': 'Madhya Pradesh',
-    'uttar pradesh': 'Uttar Pradesh',
-    'uttarpradesh': 'Uttar Pradesh',
-    'bihar': 'Bihar',
-    'west bengal': 'West Bengal',
-    'westbengal': 'West Bengal',
-    'punjab': 'Punjab',
-    'haryana': 'Haryana',
-    'odisha': 'Odisha',
-    'orissa': 'Odisha',
-    'chhattisgarh': 'Chhattisgarh',
-    'jharkhand': 'Jharkhand',
-    'assam': 'Assam',
-    'himachal pradesh': 'Himachal Pradesh',
-    'uttarakhand': 'Uttarakhand',
-    'goa': 'Goa',
+    maharashtra: "Maharashtra",
+    karnataka: "Karnataka",
+    "tamil nadu": "Tamil Nadu",
+    tamilnadu: "Tamil Nadu",
+    "andhra pradesh": "Andhra Pradesh",
+    andhrapradesh: "Andhra Pradesh",
+    telangana: "Telangana",
+    kerala: "Kerala",
+    gujarat: "Gujarat",
+    rajasthan: "Rajasthan",
+    "madhya pradesh": "Madhya Pradesh",
+    madhyapradesh: "Madhya Pradesh",
+    "uttar pradesh": "Uttar Pradesh",
+    uttarpradesh: "Uttar Pradesh",
+    bihar: "Bihar",
+    "west bengal": "West Bengal",
+    westbengal: "West Bengal",
+    punjab: "Punjab",
+    haryana: "Haryana",
+    odisha: "Odisha",
+    orissa: "Odisha",
+    chhattisgarh: "Chhattisgarh",
+    jharkhand: "Jharkhand",
+    assam: "Assam",
+    "himachal pradesh": "Himachal Pradesh",
+    uttarakhand: "Uttarakhand",
+    goa: "Goa",
   };
 
   const normalized = state.toLowerCase().trim();

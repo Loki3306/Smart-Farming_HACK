@@ -15,14 +15,20 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Debug: Log session status
   React.useEffect(() => {
-    console.log('=== PROTECTED ROUTE DEBUG ===');
-    console.log('isAuthenticated:', isAuthenticated);
-    console.log('user:', user ? `${user.fullName} (${user.id})` : 'null');
-    console.log('requireOnboarding:', requireOnboarding);
-    console.log('user?.hasCompletedOnboarding:', user?.hasCompletedOnboarding);
-    console.log('localStorage.current_user:', localStorage.getItem('current_user') ? 'EXISTS' : 'MISSING');
-    console.log('localStorage.onboarding_completed:', localStorage.getItem('onboarding_completed'));
-    console.log('=============================');
+    console.log("=== PROTECTED ROUTE DEBUG ===");
+    console.log("isAuthenticated:", isAuthenticated);
+    console.log("user:", user ? `${user.fullName} (${user.id})` : "null");
+    console.log("requireOnboarding:", requireOnboarding);
+    console.log("user?.hasCompletedOnboarding:", user?.hasCompletedOnboarding);
+    console.log(
+      "localStorage.current_user:",
+      localStorage.getItem("current_user") ? "EXISTS" : "MISSING",
+    );
+    console.log(
+      "localStorage.onboarding_completed:",
+      localStorage.getItem("onboarding_completed"),
+    );
+    console.log("=============================");
   }, [isAuthenticated, user, requireOnboarding]);
 
   // Show loading state
@@ -39,13 +45,15 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Not authenticated - redirect to login
   if (!isAuthenticated) {
-    console.log('[ProtectedRoute] Not authenticated, redirecting to login');
+    console.log("[ProtectedRoute] Not authenticated, redirecting to login");
     return <Navigate to="/login" replace />;
   }
 
   // Check onboarding requirement
   if (requireOnboarding && !user?.hasCompletedOnboarding) {
-    console.log('[ProtectedRoute] Onboarding required but not complete, redirecting to onboarding');
+    console.log(
+      "[ProtectedRoute] Onboarding required but not complete, redirecting to onboarding",
+    );
     return <Navigate to="/onboarding" replace />;
   }
 

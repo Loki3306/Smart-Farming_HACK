@@ -13,12 +13,12 @@ import {
   triggerWaterPump,
   triggerFertilizer,
   setAutonomous,
-  getAutonomous
+  getAutonomous,
 } from "./routes/sensors";
 import {
   getCurrentWeather,
   getForecast,
-  getHistoricalWeather
+  getHistoricalWeather,
 } from "./routes/weather";
 import learnRouter from "./routes/learn";
 import communityRouter from "./routes/community";
@@ -176,20 +176,29 @@ export function createServer() {
 
   app.post("/api/recommendations/predict", async (req, res) => {
     try {
-      console.log("📤 Forwarding recommendation request to Python AI backend...");
+      console.log(
+        "📤 Forwarding recommendation request to Python AI backend...",
+      );
 
       // Forward request to Python FastAPI
-      const response = await fetch(`${PYTHON_AI_URL}/api/recommendations/predict`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${PYTHON_AI_URL}/api/recommendations/predict`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(req.body),
         },
-        body: JSON.stringify(req.body),
-      });
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("❌ Python AI backend error:", response.status, errorText);
+        console.error(
+          "❌ Python AI backend error:",
+          response.status,
+          errorText,
+        );
         return res.status(response.status).json({
           error: "AI recommendation service error",
           details: errorText,
@@ -197,7 +206,9 @@ export function createServer() {
       }
 
       const data = await response.json();
-      console.log(`✅ Received ${data.recommendations?.length || 0} recommendations from AI`);
+      console.log(
+        `✅ Received ${data.recommendations?.length || 0} recommendations from AI`,
+      );
 
       res.json(data);
     } catch (error) {

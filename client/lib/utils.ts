@@ -101,7 +101,10 @@ export function validateEmail(email: string): {
  * Validates if coordinates are within India's boundaries
  * Approximate bounds: Lat 8°N to 37°N, Lon 68°E to 97°E
  */
-export function validateIndianLocation(lat: number, lng: number): {
+export function validateIndianLocation(
+  lat: number,
+  lng: number,
+): {
   isValid: boolean;
   error?: string;
 } {

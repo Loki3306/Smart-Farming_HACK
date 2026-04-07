@@ -37,10 +37,7 @@ export default function Index() {
       <div className="relative z-10 text-center">
         {/* TODO: FUSION_GENERATION_APP_PLACEHOLDER replace everything here with the actual app! */}
         <h1 className="text-2xl font-semibold text-white flex items-center justify-center gap-3">
-          <svg
-            className="animate-spin h-8 w-8 text-white"
-            viewBox="0 0 50 50"
-          >
+          <svg className="animate-spin h-8 w-8 text-white" viewBox="0 0 50 50">
             <circle
               className="opacity-30"
               cx="25"

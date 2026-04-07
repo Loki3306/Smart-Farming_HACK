@@ -1,5 +1,5 @@
-import { Router, Request, Response } from 'express';
-import { supabase } from '../db/supabase';
+import { Router, Request, Response } from "express";
+import { supabase } from "../db/supabase";
 
 const router = Router();
 
@@ -50,50 +50,55 @@ interface SendMessageRequest {
  * POST /api/chat/conversations/start
  * Start a new conversation or get existing one
  */
-router.post('/conversations/start', async (req: Request, res: Response) => {
+router.post("/conversations/start", async (req: Request, res: Response) => {
   try {
     const { farmer_id, expert_id }: CreateConversationRequest = req.body;
 
     if (!farmer_id || !expert_id) {
-      return res.status(400).json({ 
-        error: 'farmer_id and expert_id are required' 
+      return res.status(400).json({
+        error: "farmer_id and expert_id are required",
       });
     }
 
     if (farmer_id === expert_id) {
-      return res.status(400).json({ 
-        error: 'Cannot create conversation with yourself' 
+      return res.status(400).json({
+        error: "Cannot create conversation with yourself",
       });
     }
 
     // Try to find existing conversation
     const { data: existingConv, error: findError } = await supabase
-      .from('conversations')
-      .select('*')
-      .or(`and(farmer_id.eq.${farmer_id},expert_id.eq.${expert_id}),and(farmer_id.eq.${expert_id},expert_id.eq.${farmer_id})`)
+      .from("conversations")
+      .select("*")
+      .or(
+        `and(farmer_id.eq.${farmer_id},expert_id.eq.${expert_id}),and(farmer_id.eq.${expert_id},expert_id.eq.${farmer_id})`,
+      )
       .single();
 
     if (existingConv) {
       // Get other user's details
-      const otherUserId = existingConv.farmer_id === farmer_id ? existingConv.expert_id : existingConv.farmer_id;
+      const otherUserId =
+        existingConv.farmer_id === farmer_id
+          ? existingConv.expert_id
+          : existingConv.farmer_id;
       const { data: otherUser } = await supabase
-        .from('farmers')
-        .select('id, name, phone, email')
-        .eq('id', otherUserId)
+        .from("farmers")
+        .select("id, name, phone, email")
+        .eq("id", otherUserId)
         .single();
 
-      return res.json({ 
+      return res.json({
         conversation: {
           ...existingConv,
           other_user: otherUser,
         },
-        is_new: false 
+        is_new: false,
       });
     }
 
     // Create new conversation
     const { data: newConv, error: createError } = await supabase
-      .from('conversations')
+      .from("conversations")
       .insert([{ farmer_id, expert_id }])
       .select()
       .single();
@@ -101,23 +106,26 @@ router.post('/conversations/start', async (req: Request, res: Response) => {
     if (createError) throw createError;
 
     // Get other user's details for the new conversation
-    const otherUserId = newConv.farmer_id === farmer_id ? newConv.expert_id : newConv.farmer_id;
+    const otherUserId =
+      newConv.farmer_id === farmer_id ? newConv.expert_id : newConv.farmer_id;
     const { data: otherUser } = await supabase
-      .from('farmers')
-      .select('id, name, phone, email')
-      .eq('id', otherUserId)
+      .from("farmers")
+      .select("id, name, phone, email")
+      .eq("id", otherUserId)
       .single();
 
-    res.status(201).json({ 
+    res.status(201).json({
       conversation: {
         ...newConv,
         other_user: otherUser,
       },
-      is_new: true 
+      is_new: true,
     });
   } catch (error: any) {
-    console.error('Error starting conversation:', error);
-    res.status(500).json({ error: error.message || 'Failed to start conversation' });
+    console.error("Error starting conversation:", error);
+    res
+      .status(500)
+      .json({ error: error.message || "Failed to start conversation" });
   }
 });
 
@@ -125,20 +133,20 @@ router.post('/conversations/start', async (req: Request, res: Response) => {
  * GET /api/chat/conversations
  * Get all conversations for a user
  */
-router.get('/conversations', async (req: Request, res: Response) => {
+router.get("/conversations", async (req: Request, res: Response) => {
   try {
     const { user_id } = req.query;
 
     if (!user_id) {
-      return res.status(400).json({ error: 'user_id is required' });
+      return res.status(400).json({ error: "user_id is required" });
     }
 
     // Get conversations where user is participant
     const { data: conversations, error: convError } = await supabase
-      .from('conversations')
-      .select('*')
+      .from("conversations")
+      .select("*")
       .or(`farmer_id.eq.${user_id},expert_id.eq.${user_id}`)
-      .order('last_message_at', { ascending: false });
+      .order("last_message_at", { ascending: false });
 
     if (convError) throw convError;
 
@@ -146,36 +154,39 @@ router.get('/conversations', async (req: Request, res: Response) => {
     const conversationsWithDetails = await Promise.all(
       (conversations || []).map(async (conv) => {
         // Determine the other participant
-        const otherUserId = conv.farmer_id === user_id ? conv.expert_id : conv.farmer_id;
+        const otherUserId =
+          conv.farmer_id === user_id ? conv.expert_id : conv.farmer_id;
 
         // Get other user's details
         const { data: otherUser } = await supabase
-          .from('farmers')
-          .select('id, name, phone, email')
-          .eq('id', otherUserId)
+          .from("farmers")
+          .select("id, name, phone, email")
+          .eq("id", otherUserId)
           .single();
 
         // Get unread count
         const { count: unreadCount } = await supabase
-          .from('messages')
-          .select('*', { count: 'exact', head: true })
-          .eq('conversation_id', conv.id)
-          .eq('receiver_id', user_id)
-          .eq('read', false)
-          .eq('deleted_by_receiver', false);
+          .from("messages")
+          .select("*", { count: "exact", head: true })
+          .eq("conversation_id", conv.id)
+          .eq("receiver_id", user_id)
+          .eq("read", false)
+          .eq("deleted_by_receiver", false);
 
         return {
           ...conv,
           other_user: otherUser,
           unread_count: unreadCount || 0,
         };
-      })
+      }),
     );
 
     res.json({ conversations: conversationsWithDetails });
   } catch (error: any) {
-    console.error('Error fetching conversations:', error);
-    res.status(500).json({ error: error.message || 'Failed to fetch conversations' });
+    console.error("Error fetching conversations:", error);
+    res
+      .status(500)
+      .json({ error: error.message || "Failed to fetch conversations" });
   }
 });
 
@@ -183,50 +194,58 @@ router.get('/conversations', async (req: Request, res: Response) => {
  * GET /api/chat/conversations/:id
  * Get conversation details by ID
  */
-router.get('/conversations/:id', async (req: Request, res: Response) => {
+router.get("/conversations/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { user_id } = req.query;
 
     if (!user_id) {
-      return res.status(400).json({ error: 'user_id is required' });
+      return res.status(400).json({ error: "user_id is required" });
     }
 
     // Get conversation
     const { data: conversation, error: convError } = await supabase
-      .from('conversations')
-      .select('*')
-      .eq('id', id)
+      .from("conversations")
+      .select("*")
+      .eq("id", id)
       .single();
 
     if (convError) throw convError;
 
     if (!conversation) {
-      return res.status(404).json({ error: 'Conversation not found' });
+      return res.status(404).json({ error: "Conversation not found" });
     }
 
     // Verify user is a participant
-    if (conversation.farmer_id !== user_id && conversation.expert_id !== user_id) {
-      return res.status(403).json({ error: 'Access denied' });
+    if (
+      conversation.farmer_id !== user_id &&
+      conversation.expert_id !== user_id
+    ) {
+      return res.status(403).json({ error: "Access denied" });
     }
 
     // Get other participant details
-    const otherUserId = conversation.farmer_id === user_id ? conversation.expert_id : conversation.farmer_id;
+    const otherUserId =
+      conversation.farmer_id === user_id
+        ? conversation.expert_id
+        : conversation.farmer_id;
     const { data: otherUser } = await supabase
-      .from('farmers')
-      .select('id, name, phone, email')
-      .eq('id', otherUserId)
+      .from("farmers")
+      .select("id, name, phone, email")
+      .eq("id", otherUserId)
       .single();
 
-    res.json({ 
+    res.json({
       conversation: {
         ...conversation,
         other_user: otherUser,
-      }
+      },
     });
   } catch (error: any) {
-    console.error('Error fetching conversation:', error);
-    res.status(500).json({ error: error.message || 'Failed to fetch conversation' });
+    console.error("Error fetching conversation:", error);
+    res
+      .status(500)
+      .json({ error: error.message || "Failed to fetch conversation" });
   }
 });
 
@@ -238,94 +257,116 @@ router.get('/conversations/:id', async (req: Request, res: Response) => {
  * GET /api/chat/conversations/:id/messages
  * Get messages in a conversation (with pagination)
  */
-router.get('/conversations/:id/messages', async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const { user_id, limit = '50', offset = '0' } = req.query;
+router.get(
+  "/conversations/:id/messages",
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { user_id, limit = "50", offset = "0" } = req.query;
 
-    if (!user_id) {
-      return res.status(400).json({ error: 'user_id is required' });
+      if (!user_id) {
+        return res.status(400).json({ error: "user_id is required" });
+      }
+
+      // Verify user is a participant
+      const { data: conversation } = await supabase
+        .from("conversations")
+        .select("farmer_id, expert_id")
+        .eq("id", id)
+        .single();
+
+      if (!conversation) {
+        return res.status(404).json({ error: "Conversation not found" });
+      }
+
+      if (
+        conversation.farmer_id !== user_id &&
+        conversation.expert_id !== user_id
+      ) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      // Get messages
+      const { data: messages, error: messagesError } = await supabase
+        .from("messages")
+        .select("*")
+        .eq("conversation_id", id)
+        .not("deleted_by_sender", "eq", true)
+        .not("deleted_by_receiver", "eq", true)
+        .order("created_at", { ascending: false })
+        .range(
+          parseInt(offset as string),
+          parseInt(offset as string) + parseInt(limit as string) - 1,
+        );
+
+      if (messagesError) throw messagesError;
+
+      res.json({ messages: messages || [] });
+    } catch (error: any) {
+      console.error("Error fetching messages:", error);
+      res
+        .status(500)
+        .json({ error: error.message || "Failed to fetch messages" });
     }
-
-    // Verify user is a participant
-    const { data: conversation } = await supabase
-      .from('conversations')
-      .select('farmer_id, expert_id')
-      .eq('id', id)
-      .single();
-
-    if (!conversation) {
-      return res.status(404).json({ error: 'Conversation not found' });
-    }
-
-    if (conversation.farmer_id !== user_id && conversation.expert_id !== user_id) {
-      return res.status(403).json({ error: 'Access denied' });
-    }
-
-    // Get messages
-    const { data: messages, error: messagesError } = await supabase
-      .from('messages')
-      .select('*')
-      .eq('conversation_id', id)
-      .not('deleted_by_sender', 'eq', true)
-      .not('deleted_by_receiver', 'eq', true)
-      .order('created_at', { ascending: false })
-      .range(parseInt(offset as string), parseInt(offset as string) + parseInt(limit as string) - 1);
-
-    if (messagesError) throw messagesError;
-
-    res.json({ messages: messages || [] });
-  } catch (error: any) {
-    console.error('Error fetching messages:', error);
-    res.status(500).json({ error: error.message || 'Failed to fetch messages' });
-  }
-});
+  },
+);
 
 /**
  * POST /api/chat/messages/send
  * Send a new message
  */
-router.post('/messages/send', async (req: Request, res: Response) => {
+router.post("/messages/send", async (req: Request, res: Response) => {
   try {
-    const { conversation_id, sender_id, receiver_id, content, image_url }: SendMessageRequest = req.body;
+    const {
+      conversation_id,
+      sender_id,
+      receiver_id,
+      content,
+      image_url,
+    }: SendMessageRequest = req.body;
 
     if (!conversation_id || !sender_id || !receiver_id) {
-      return res.status(400).json({ 
-        error: 'conversation_id, sender_id, and receiver_id are required' 
+      return res.status(400).json({
+        error: "conversation_id, sender_id, and receiver_id are required",
       });
     }
 
     if (!content?.trim() && !image_url) {
-      return res.status(400).json({ 
-        error: 'Either content or image_url is required' 
+      return res.status(400).json({
+        error: "Either content or image_url is required",
       });
     }
 
     // Verify conversation exists and sender is a participant
     const { data: conversation } = await supabase
-      .from('conversations')
-      .select('farmer_id, expert_id')
-      .eq('id', conversation_id)
+      .from("conversations")
+      .select("farmer_id, expert_id")
+      .eq("id", conversation_id)
       .single();
 
     if (!conversation) {
-      return res.status(404).json({ error: 'Conversation not found' });
+      return res.status(404).json({ error: "Conversation not found" });
     }
 
-    if (conversation.farmer_id !== sender_id && conversation.expert_id !== sender_id) {
-      return res.status(403).json({ error: 'Access denied' });
+    if (
+      conversation.farmer_id !== sender_id &&
+      conversation.expert_id !== sender_id
+    ) {
+      return res.status(403).json({ error: "Access denied" });
     }
 
     // Create message
     const { data: message, error: messageError } = await supabase
-      .from('messages')
-      .insert([{ 
-        conversation_id, 
-        sender_id, 
-        receiver_id, 
-        content: content?.trim() || '',
-        image_url 
-      }])
+      .from("messages")
+      .insert([
+        {
+          conversation_id,
+          sender_id,
+          receiver_id,
+          content: content?.trim() || "",
+          image_url,
+        },
+      ])
       .select()
       .single();
 
@@ -333,23 +374,23 @@ router.post('/messages/send', async (req: Request, res: Response) => {
 
     // Create notification for receiver
     try {
-      await supabase
-        .from('notifications')
-        .insert([{
+      await supabase.from("notifications").insert([
+        {
           user_id: receiver_id,
           actor_id: sender_id,
-          type: 'message',
-          message: `sent you a message: ${content?.substring(0, 50) || '[Image]'}`,
-        }]);
+          type: "message",
+          message: `sent you a message: ${content?.substring(0, 50) || "[Image]"}`,
+        },
+      ]);
     } catch (notifError) {
-      console.warn('Failed to create notification:', notifError);
+      console.warn("Failed to create notification:", notifError);
       // Don't fail the message send if notification fails
     }
 
     res.status(201).json({ message });
   } catch (error: any) {
-    console.error('Error sending message:', error);
-    res.status(500).json({ error: error.message || 'Failed to send message' });
+    console.error("Error sending message:", error);
+    res.status(500).json({ error: error.message || "Failed to send message" });
   }
 });
 
@@ -357,42 +398,44 @@ router.post('/messages/send', async (req: Request, res: Response) => {
  * PUT /api/chat/messages/:id/read
  * Mark a message as read
  */
-router.put('/messages/:id/read', async (req: Request, res: Response) => {
+router.put("/messages/:id/read", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { user_id } = req.body;
 
     if (!user_id) {
-      return res.status(400).json({ error: 'user_id is required' });
+      return res.status(400).json({ error: "user_id is required" });
     }
 
     // Verify user is the receiver
     const { data: message } = await supabase
-      .from('messages')
-      .select('receiver_id')
-      .eq('id', id)
+      .from("messages")
+      .select("receiver_id")
+      .eq("id", id)
       .single();
 
     if (!message) {
-      return res.status(404).json({ error: 'Message not found' });
+      return res.status(404).json({ error: "Message not found" });
     }
 
     if (message.receiver_id !== user_id) {
-      return res.status(403).json({ error: 'Access denied' });
+      return res.status(403).json({ error: "Access denied" });
     }
 
     // Mark as read
     const { error: updateError } = await supabase
-      .from('messages')
+      .from("messages")
       .update({ read: true, read_at: new Date().toISOString() })
-      .eq('id', id);
+      .eq("id", id);
 
     if (updateError) throw updateError;
 
     res.json({ success: true });
   } catch (error: any) {
-    console.error('Error marking message as read:', error);
-    res.status(500).json({ error: error.message || 'Failed to mark message as read' });
+    console.error("Error marking message as read:", error);
+    res
+      .status(500)
+      .json({ error: error.message || "Failed to mark message as read" });
   }
 });
 
@@ -400,78 +443,87 @@ router.put('/messages/:id/read', async (req: Request, res: Response) => {
  * POST /api/chat/conversations/:id/mark-read
  * Mark all messages in conversation as read
  */
-router.post('/conversations/:id/mark-read', async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const { user_id } = req.body;
+router.post(
+  "/conversations/:id/mark-read",
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { user_id } = req.body;
 
-    if (!user_id) {
-      return res.status(400).json({ error: 'user_id is required' });
-    }
+      if (!user_id) {
+        return res.status(400).json({ error: "user_id is required" });
+      }
 
-    // Call database function
-    const { data, error } = await supabase
-      .rpc('mark_conversation_read', {
+      // Call database function
+      const { data, error } = await supabase.rpc("mark_conversation_read", {
         p_conversation_id: id,
         p_user_id: user_id,
       });
 
-    if (error) throw error;
+      if (error) throw error;
 
-    res.json({ success: true, updated_count: data });
-  } catch (error: any) {
-    console.error('Error marking conversation as read:', error);
-    res.status(500).json({ error: error.message || 'Failed to mark conversation as read' });
-  }
-});
+      res.json({ success: true, updated_count: data });
+    } catch (error: any) {
+      console.error("Error marking conversation as read:", error);
+      res
+        .status(500)
+        .json({
+          error: error.message || "Failed to mark conversation as read",
+        });
+    }
+  },
+);
 
 /**
  * DELETE /api/chat/messages/:id
  * Soft delete a message
  */
-router.delete('/messages/:id', async (req: Request, res: Response) => {
+router.delete("/messages/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { user_id } = req.body;
 
     if (!user_id) {
-      return res.status(400).json({ error: 'user_id is required' });
+      return res.status(400).json({ error: "user_id is required" });
     }
 
     // Get message
     const { data: message } = await supabase
-      .from('messages')
-      .select('sender_id, receiver_id')
-      .eq('id', id)
+      .from("messages")
+      .select("sender_id, receiver_id")
+      .eq("id", id)
       .single();
 
     if (!message) {
-      return res.status(404).json({ error: 'Message not found' });
+      return res.status(404).json({ error: "Message not found" });
     }
 
     // Determine which field to update
-    const updateField = message.sender_id === user_id 
-      ? 'deleted_by_sender' 
-      : message.receiver_id === user_id 
-        ? 'deleted_by_receiver' 
-        : null;
+    const updateField =
+      message.sender_id === user_id
+        ? "deleted_by_sender"
+        : message.receiver_id === user_id
+          ? "deleted_by_receiver"
+          : null;
 
     if (!updateField) {
-      return res.status(403).json({ error: 'Access denied' });
+      return res.status(403).json({ error: "Access denied" });
     }
 
     // Soft delete
     const { error: deleteError } = await supabase
-      .from('messages')
+      .from("messages")
       .update({ [updateField]: true })
-      .eq('id', id);
+      .eq("id", id);
 
     if (deleteError) throw deleteError;
 
     res.json({ success: true });
   } catch (error: any) {
-    console.error('Error deleting message:', error);
-    res.status(500).json({ error: error.message || 'Failed to delete message' });
+    console.error("Error deleting message:", error);
+    res
+      .status(500)
+      .json({ error: error.message || "Failed to delete message" });
   }
 });
 
@@ -483,82 +535,95 @@ router.delete('/messages/:id', async (req: Request, res: Response) => {
  * POST /api/chat/conversations/:id/typing
  * Update typing status
  */
-router.post('/conversations/:id/typing', async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const { user_id, is_typing } = req.body;
+router.post(
+  "/conversations/:id/typing",
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { user_id, is_typing } = req.body;
 
-    if (!user_id) {
-      return res.status(400).json({ error: 'user_id is required' });
+      if (!user_id) {
+        return res.status(400).json({ error: "user_id is required" });
+      }
+
+      // Verify user is a participant
+      const { data: conversation } = await supabase
+        .from("conversations")
+        .select("farmer_id, expert_id")
+        .eq("id", id)
+        .single();
+
+      if (!conversation) {
+        return res.status(404).json({ error: "Conversation not found" });
+      }
+
+      if (
+        conversation.farmer_id !== user_id &&
+        conversation.expert_id !== user_id
+      ) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      // Update typing indicator
+      const { error: typingError } = await supabase
+        .from("typing_indicators")
+        .upsert(
+          {
+            conversation_id: id,
+            user_id,
+            is_typing: is_typing ?? true,
+            updated_at: new Date().toISOString(),
+          },
+          {
+            onConflict: "conversation_id,user_id",
+          },
+        );
+
+      if (typingError) throw typingError;
+
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error updating typing status:", error);
+      res
+        .status(500)
+        .json({ error: error.message || "Failed to update typing status" });
     }
-
-    // Verify user is a participant
-    const { data: conversation } = await supabase
-      .from('conversations')
-      .select('farmer_id, expert_id')
-      .eq('id', id)
-      .single();
-
-    if (!conversation) {
-      return res.status(404).json({ error: 'Conversation not found' });
-    }
-
-    if (conversation.farmer_id !== user_id && conversation.expert_id !== user_id) {
-      return res.status(403).json({ error: 'Access denied' });
-    }
-
-    // Update typing indicator
-    const { error: typingError } = await supabase
-      .from('typing_indicators')
-      .upsert({
-        conversation_id: id,
-        user_id,
-        is_typing: is_typing ?? true,
-        updated_at: new Date().toISOString(),
-      }, {
-        onConflict: 'conversation_id,user_id'
-      });
-
-    if (typingError) throw typingError;
-
-    res.json({ success: true });
-  } catch (error: any) {
-    console.error('Error updating typing status:', error);
-    res.status(500).json({ error: error.message || 'Failed to update typing status' });
-  }
-});
+  },
+);
 
 /**
  * GET /api/chat/conversations/:id/typing
  * Get typing status for conversation
  */
-router.get('/conversations/:id/typing', async (req: Request, res: Response) => {
+router.get("/conversations/:id/typing", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { user_id } = req.query;
 
     if (!user_id) {
-      return res.status(400).json({ error: 'user_id is required' });
+      return res.status(400).json({ error: "user_id is required" });
     }
 
     // Get typing indicators (exclude current user, only active ones)
     const { data: indicators, error } = await supabase
-      .from('typing_indicators')
-      .select('user_id, is_typing, updated_at')
-      .eq('conversation_id', id)
-      .neq('user_id', user_id)
-      .eq('is_typing', true)
-      .gte('updated_at', new Date(Date.now() - 10000).toISOString()); // Last 10 seconds
+      .from("typing_indicators")
+      .select("user_id, is_typing, updated_at")
+      .eq("conversation_id", id)
+      .neq("user_id", user_id)
+      .eq("is_typing", true)
+      .gte("updated_at", new Date(Date.now() - 10000).toISOString()); // Last 10 seconds
 
     if (error) throw error;
 
-    res.json({ 
+    res.json({
       is_typing: (indicators || []).length > 0,
-      typing_users: indicators || []
+      typing_users: indicators || [],
     });
   } catch (error: any) {
-    console.error('Error fetching typing status:', error);
-    res.status(500).json({ error: error.message || 'Failed to fetch typing status' });
+    console.error("Error fetching typing status:", error);
+    res
+      .status(500)
+      .json({ error: error.message || "Failed to fetch typing status" });
   }
 });
 
@@ -570,24 +635,26 @@ router.get('/conversations/:id/typing', async (req: Request, res: Response) => {
  * GET /api/chat/stats
  * Get chat statistics for a user
  */
-router.get('/stats', async (req: Request, res: Response) => {
+router.get("/stats", async (req: Request, res: Response) => {
   try {
     const { user_id } = req.query;
 
     if (!user_id) {
-      return res.status(400).json({ error: 'user_id is required' });
+      return res.status(400).json({ error: "user_id is required" });
     }
 
     // Get total unread count
-    const { data: unreadCount, error: unreadError } = await supabase
-      .rpc('get_unread_message_count', { p_user_id: user_id });
+    const { data: unreadCount, error: unreadError } = await supabase.rpc(
+      "get_unread_message_count",
+      { p_user_id: user_id },
+    );
 
     if (unreadError) throw unreadError;
 
     // Get total conversations
     const { count: conversationCount } = await supabase
-      .from('conversations')
-      .select('*', { count: 'exact', head: true })
+      .from("conversations")
+      .select("*", { count: "exact", head: true })
       .or(`farmer_id.eq.${user_id},expert_id.eq.${user_id}`);
 
     res.json({
@@ -595,8 +662,10 @@ router.get('/stats', async (req: Request, res: Response) => {
       conversation_count: conversationCount || 0,
     });
   } catch (error: any) {
-    console.error('Error fetching chat stats:', error);
-    res.status(500).json({ error: error.message || 'Failed to fetch chat stats' });
+    console.error("Error fetching chat stats:", error);
+    res
+      .status(500)
+      .json({ error: error.message || "Failed to fetch chat stats" });
   }
 });
 

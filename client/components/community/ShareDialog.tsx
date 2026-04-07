@@ -1,28 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import {
-  Copy,
-  Check,
-  Share2,
-  Download,
-  MessageCircle,
-} from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
-import { motion } from 'framer-motion';
-import type { Post } from '@/services/communityApi';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Copy, Check, Share2, Download, MessageCircle } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { motion } from "framer-motion";
+import type { Post } from "@/services/communityApi";
 
 interface ShareDialogProps {
   post: Post;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onShare: (method: 'whatsapp' | 'copy_link' | 'native_share' | 'download') => Promise<void>;
+  onShare: (
+    method: "whatsapp" | "copy_link" | "native_share" | "download",
+  ) => Promise<void>;
 }
 
 export const ShareDialog: React.FC<ShareDialogProps> = ({
@@ -37,27 +33,27 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
 
   // Generate share URL
   const shareUrl = `${window.location.origin}/community/post/${post.id}`;
-  const shareText = `Check out this farming post by ${post.author?.name}:\n\n"${post.content.slice(0, 100)}${post.content.length > 100 ? '...' : ''}"\n\n`;
+  const shareText = `Check out this farming post by ${post.author?.name}:\n\n"${post.content.slice(0, 100)}${post.content.length > 100 ? "..." : ""}"\n\n`;
 
   // Copy link to clipboard
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
-      await onShare('copy_link');
-      
+      await onShare("copy_link");
+
       toast({
-        title: '✓ Link copied!',
-        description: 'Share link copied to clipboard',
+        title: "✓ Link copied!",
+        description: "Share link copied to clipboard",
         duration: 2000,
       });
 
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       toast({
-        title: 'Failed to copy',
-        description: 'Please try again',
-        variant: 'destructive',
+        title: "Failed to copy",
+        description: "Please try again",
+        variant: "destructive",
       });
     }
   };
@@ -67,19 +63,19 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
     try {
       setSharing(true);
       const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + shareUrl)}`;
-      window.open(whatsappUrl, '_blank');
-      await onShare('whatsapp');
-      
+      window.open(whatsappUrl, "_blank");
+      await onShare("whatsapp");
+
       toast({
-        title: '📱 Opening WhatsApp',
-        description: 'Share this post with your contacts',
+        title: "📱 Opening WhatsApp",
+        description: "Share this post with your contacts",
         duration: 2000,
       });
     } catch (error) {
       toast({
-        title: 'Failed to share',
-        description: 'Please try again',
-        variant: 'destructive',
+        title: "Failed to share",
+        description: "Please try again",
+        variant: "destructive",
       });
     } finally {
       setSharing(false);
@@ -90,9 +86,9 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
   const handleNativeShare = async () => {
     if (!navigator.share) {
       toast({
-        title: 'Share not supported',
-        description: 'Use other share options',
-        variant: 'destructive',
+        title: "Share not supported",
+        description: "Use other share options",
+        variant: "destructive",
       });
       return;
     }
@@ -104,20 +100,20 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
         text: shareText,
         url: shareUrl,
       });
-      await onShare('native_share');
-      
+      await onShare("native_share");
+
       toast({
-        title: '✓ Shared successfully',
-        description: 'Post shared via native share',
+        title: "✓ Shared successfully",
+        description: "Post shared via native share",
         duration: 2000,
       });
     } catch (error: any) {
       // User cancelled share - not an error
-      if (error.name !== 'AbortError') {
+      if (error.name !== "AbortError") {
         toast({
-          title: 'Failed to share',
-          description: 'Please try again',
-          variant: 'destructive',
+          title: "Failed to share",
+          description: "Please try again",
+          variant: "destructive",
         });
       }
     } finally {
@@ -129,37 +125,38 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
   const handleDownload = async () => {
     try {
       setSharing(true);
-      
+
       // Try to use html2canvas first
       try {
-        const { downloadPostAsImage } = await import('@/utils/downloadPost');
+        const { downloadPostAsImage } = await import("@/utils/downloadPost");
         await downloadPostAsImage(post);
-        await onShare('download');
-        
+        await onShare("download");
+
         toast({
-          title: '✅ Downloaded!',
-          description: 'Post saved as image to your device',
+          title: "✅ Downloaded!",
+          description: "Post saved as image to your device",
           duration: 2000,
         });
       } catch (canvasError) {
         // Fallback to simple canvas method
-        console.warn('html2canvas failed, using fallback:', canvasError);
-        const { downloadPostAsImageFallback } = await import('@/utils/downloadPost');
+        console.warn("html2canvas failed, using fallback:", canvasError);
+        const { downloadPostAsImageFallback } =
+          await import("@/utils/downloadPost");
         await downloadPostAsImageFallback(post);
-        await onShare('download');
-        
+        await onShare("download");
+
         toast({
-          title: '✅ Downloaded!',
-          description: 'Post saved as image to your device',
+          title: "✅ Downloaded!",
+          description: "Post saved as image to your device",
           duration: 2000,
         });
       }
     } catch (error) {
-      console.error('Failed to download post:', error);
+      console.error("Failed to download post:", error);
       toast({
-        title: 'Download failed',
-        description: 'Please try again or use other share options',
-        variant: 'destructive',
+        title: "Download failed",
+        description: "Please try again or use other share options",
+        variant: "destructive",
       });
     } finally {
       setSharing(false);
@@ -192,8 +189,12 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
               <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div className="flex-1 text-left min-w-0">
-              <p className="font-semibold text-foreground text-xs sm:text-sm">WhatsApp</p>
-              <p className="text-[10px] sm:text-xs text-muted-foreground">Share with contacts</p>
+              <p className="font-semibold text-foreground text-xs sm:text-sm">
+                WhatsApp
+              </p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">
+                Share with contacts
+              </p>
             </div>
           </motion.button>
 
@@ -205,11 +206,15 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
             className="w-full flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg border-2 hover:border-primary hover:bg-primary/5 transition-all"
           >
             <div className="w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-              {copied ? <Check className="w-4 h-4 sm:w-5 sm:h-5" /> : <Copy className="w-4 h-4 sm:w-5 sm:h-5" />}
+              {copied ? (
+                <Check className="w-4 h-4 sm:w-5 sm:h-5" />
+              ) : (
+                <Copy className="w-4 h-4 sm:w-5 sm:h-5" />
+              )}
             </div>
             <div className="flex-1 text-left min-w-0">
               <p className="font-semibold text-foreground text-xs sm:text-sm">
-                {copied ? 'Copied!' : 'Copy Link'}
+                {copied ? "Copied!" : "Copy Link"}
               </p>
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
                 localhost:5000/...
@@ -230,8 +235,12 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
                 <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div className="flex-1 text-left min-w-0">
-                <p className="font-semibold text-foreground text-xs sm:text-sm">More Options</p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground">Share via apps</p>
+                <p className="font-semibold text-foreground text-xs sm:text-sm">
+                  More Options
+                </p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">
+                  Share via apps
+                </p>
               </div>
             </motion.button>
           )}
@@ -253,10 +262,10 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
             </div>
             <div className="flex-1 text-left min-w-0">
               <p className="font-semibold text-foreground text-xs sm:text-sm">
-                {sharing ? 'Generating...' : 'Download Image'}
+                {sharing ? "Generating..." : "Download Image"}
               </p>
               <p className="text-[10px] sm:text-xs text-muted-foreground">
-                {sharing ? 'Please wait' : 'Save as PNG'}
+                {sharing ? "Please wait" : "Save as PNG"}
               </p>
             </div>
           </motion.button>

@@ -1,6 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from "react";
+import {
+  motion,
+  AnimatePresence,
+  useScroll,
+  useTransform,
+} from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import {
   Lock,
   CheckCircle,
@@ -13,13 +18,13 @@ import {
   ChevronRight,
   Globe,
   BookOpen,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { KisaanMitra, MascotContext } from './KisaanMitra';
-import { useLanguage } from '@/context/LanguageContext';
-import { useSettings } from '@/context/SettingsContext';
-import { useTranslation } from 'react-i18next';
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { KisaanMitra, MascotContext } from "./KisaanMitra";
+import { useLanguage } from "@/context/LanguageContext";
+import { useSettings } from "@/context/SettingsContext";
+import { useTranslation } from "react-i18next";
 
 interface Lesson {
   id: string;
@@ -27,7 +32,7 @@ interface Lesson {
   description?: string;
   order_index: number;
   duration?: string;
-  content_type: 'video' | 'text' | 'quiz' | 'assignment';
+  content_type: "video" | "text" | "quiz" | "assignment";
   content_url?: string;
   is_preview: boolean;
 }
@@ -50,23 +55,58 @@ interface LearningRoadmapProps {
 
 // Level themes mapping - using translation keys
 const getLevelThemes = (t: any) => [
-  { emoji: '🌱', key: 'seedSowing', color: 'from-green-400 to-green-600', bgColor: 'bg-green-50' },
-  { emoji: '💧', key: 'irrigation', color: 'from-blue-400 to-blue-600', bgColor: 'bg-blue-50' },
-  { emoji: '🌦️', key: 'weather', color: 'from-sky-400 to-indigo-500', bgColor: 'bg-sky-50' },
-  { emoji: '🌾', key: 'cropGrowth', color: 'from-yellow-400 to-amber-500', bgColor: 'bg-amber-50' },
-  { emoji: '🧪', key: 'fertilization', color: 'from-purple-400 to-purple-600', bgColor: 'bg-purple-50' },
-  { emoji: '🤖', key: 'smartFarming', color: 'from-emerald-400 to-teal-600', bgColor: 'bg-teal-50' },
-  { emoji: '🏆', key: 'master', color: 'from-orange-400 to-red-500', bgColor: 'bg-orange-50' },
+  {
+    emoji: "🌱",
+    key: "seedSowing",
+    color: "from-green-400 to-green-600",
+    bgColor: "bg-green-50",
+  },
+  {
+    emoji: "💧",
+    key: "irrigation",
+    color: "from-blue-400 to-blue-600",
+    bgColor: "bg-blue-50",
+  },
+  {
+    emoji: "🌦️",
+    key: "weather",
+    color: "from-sky-400 to-indigo-500",
+    bgColor: "bg-sky-50",
+  },
+  {
+    emoji: "🌾",
+    key: "cropGrowth",
+    color: "from-yellow-400 to-amber-500",
+    bgColor: "bg-amber-50",
+  },
+  {
+    emoji: "🧪",
+    key: "fertilization",
+    color: "from-purple-400 to-purple-600",
+    bgColor: "bg-purple-50",
+  },
+  {
+    emoji: "🤖",
+    key: "smartFarming",
+    color: "from-emerald-400 to-teal-600",
+    bgColor: "bg-teal-50",
+  },
+  {
+    emoji: "🏆",
+    key: "master",
+    color: "from-orange-400 to-red-500",
+    bgColor: "bg-orange-50",
+  },
 ];
 
 // Badges that can be earned - using translation keys
 const getBadges = (t: any) => [
-  { id: 'first_step', key: 'firstStep', emoji: '👣', requirement: 1 },
-  { id: 'water_wise', key: 'waterWise', emoji: '💧', requirement: 2 },
-  { id: 'soil_expert', key: 'soilExpert', emoji: '🌍', requirement: 3 },
-  { id: 'weather_watcher', key: 'weatherWatcher', emoji: '🌦️', requirement: 4 },
-  { id: 'smart_farmer', key: 'smartFarmer', emoji: '🌟', requirement: 5 },
-  { id: 'master_farmer', key: 'masterFarmer', emoji: '🏆', requirement: 'all' },
+  { id: "first_step", key: "firstStep", emoji: "👣", requirement: 1 },
+  { id: "water_wise", key: "waterWise", emoji: "💧", requirement: 2 },
+  { id: "soil_expert", key: "soilExpert", emoji: "🌍", requirement: 3 },
+  { id: "weather_watcher", key: "weatherWatcher", emoji: "🌦️", requirement: 4 },
+  { id: "smart_farmer", key: "smartFarmer", emoji: "🌟", requirement: 5 },
+  { id: "master_farmer", key: "masterFarmer", emoji: "🏆", requirement: "all" },
 ];
 
 export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
@@ -88,7 +128,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const { language, setLanguage } = useLanguage();
   const { t } = useTranslation("learn");
-  const isHindi = language === 'hi';
+  const isHindi = language === "hi";
 
   // Handle window resize for mobile detection
   const [isMobile, setIsMobile] = useState(false);
@@ -96,8 +136,8 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   // Dynamic coordinates based on screen size
@@ -107,11 +147,20 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
 
   // Debug: Log language changes
   useEffect(() => {
-    console.log('[LearningRoadmap] Language changed to:', language, 'isHindi:', isHindi);
+    console.log(
+      "[LearningRoadmap] Language changed to:",
+      language,
+      "isHindi:",
+      isHindi,
+    );
   }, [language, isHindi]);
 
-  const [mascotContext, setMascotContext] = useState<MascotContext | undefined>(undefined);
-  const [mascotMessage, setMascotMessage] = useState<string | undefined>(undefined);
+  const [mascotContext, setMascotContext] = useState<MascotContext | undefined>(
+    undefined,
+  );
+  const [mascotMessage, setMascotMessage] = useState<string | undefined>(
+    undefined,
+  );
   const [showMascot, setShowMascot] = useState(true);
   const [activeNodeIndex, setActiveNodeIndex] = useState<number | null>(null);
   const [justCompleted, setJustCompleted] = useState<string | null>(null);
@@ -119,27 +168,37 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
 
   // Handle language toggle
   const handleLanguageToggle = () => {
-    const newLanguage = isHindi ? 'en' : 'hi';
+    const newLanguage = isHindi ? "en" : "hi";
     setLanguage(newLanguage);
   };
 
   // Calculate progress
-  const completedCount = Object.values(lessonProgress).filter(s => s === 'completed').length;
-  const progressPercent = lessons.length > 0 ? Math.round((completedCount / lessons.length) * 100) : 0;
+  const completedCount = Object.values(lessonProgress).filter(
+    (s) => s === "completed",
+  ).length;
+  const progressPercent =
+    lessons.length > 0
+      ? Math.round((completedCount / lessons.length) * 100)
+      : 0;
   const currentLevelIndex = completedCount;
 
   // Find first incomplete lesson
   const firstIncompleteIndex = lessons.findIndex(
-    lesson => lessonProgress[lesson.id] !== 'completed'
+    (lesson) => lessonProgress[lesson.id] !== "completed",
   );
-  const currentLesson = firstIncompleteIndex >= 0 ? lessons[firstIncompleteIndex] : null;
+  const currentLesson =
+    firstIncompleteIndex >= 0 ? lessons[firstIncompleteIndex] : null;
 
   // Calculate path progress based on actual completed lessons
   // The path should fill up to the first incomplete lesson (or 100% if all complete)
-  const pathProgressValue = lessons.length === 0 ? 0 :
-    firstIncompleteIndex === -1 ? 1 : // All lessons completed
-      firstIncompleteIndex === 0 ? 0 : // No lessons completed
-        firstIncompleteIndex / lessons.length; // Fill up to first incomplete lesson
+  const pathProgressValue =
+    lessons.length === 0
+      ? 0
+      : firstIncompleteIndex === -1
+        ? 1 // All lessons completed
+        : firstIncompleteIndex === 0
+          ? 0 // No lessons completed
+          : firstIncompleteIndex / lessons.length; // Fill up to first incomplete lesson
 
   // Scroll-based animations
   const { scrollYProgress } = useScroll({ container: containerRef });
@@ -148,11 +207,11 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
   // Show welcome message on mount
   useEffect(() => {
     if (completedCount === 0 && isEnrolled) {
-      setMascotContext('new_level');
+      setMascotContext("new_level");
     } else if (completedCount > 0 && completedCount < lessons.length) {
-      setMascotContext('during_lesson');
+      setMascotContext("during_lesson");
     } else if (completedCount === lessons.length && lessons.length > 0) {
-      setMascotContext('course_complete');
+      setMascotContext("course_complete");
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 3000);
     }
@@ -167,18 +226,20 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
   // Handle lesson click
   const handleLessonClick = (lesson: Lesson, index: number) => {
     const isLocked = !isEnrolled && !lesson.is_preview;
-    const isPreviousCompleted = index === 0 || lessonProgress[lessons[index - 1]?.id] === 'completed';
-    const isCurrentOrPrevious = index <= firstIncompleteIndex || firstIncompleteIndex === -1;
+    const isPreviousCompleted =
+      index === 0 || lessonProgress[lessons[index - 1]?.id] === "completed";
+    const isCurrentOrPrevious =
+      index <= firstIncompleteIndex || firstIncompleteIndex === -1;
 
     if (isLocked) {
-      setMascotContext('locked_level');
+      setMascotContext("locked_level");
       setMascotMessage(undefined);
       setTimeout(() => setMascotContext(undefined), 4000);
       return;
     }
 
     if (!isPreviousCompleted && !lesson.is_preview && index !== 0) {
-      setMascotContext('locked_level');
+      setMascotContext("locked_level");
       setMascotMessage(undefined);
       setTimeout(() => setMascotContext(undefined), 4000);
       return;
@@ -189,18 +250,20 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
 
   // Get lesson status
   const getLessonStatus = (lesson: Lesson, index: number) => {
-    if (lessonProgress[lesson.id] === 'completed') return 'completed';
-    if (!isEnrolled && !lesson.is_preview) return 'locked';
-    if (index === 0) return 'current';
-    if (lessonProgress[lessons[index - 1]?.id] === 'completed') return 'current';
-    return 'locked';
+    if (lessonProgress[lesson.id] === "completed") return "completed";
+    if (!isEnrolled && !lesson.is_preview) return "locked";
+    if (index === 0) return "current";
+    if (lessonProgress[lessons[index - 1]?.id] === "completed")
+      return "current";
+    return "locked";
   };
 
   // Get earned badges
   const LEVEL_THEMES = getLevelThemes(t);
   const BADGES = getBadges(t);
-  const earnedBadges = BADGES.filter(badge => {
-    if (badge.requirement === 'all') return completedCount === lessons.length && lessons.length > 0;
+  const earnedBadges = BADGES.filter((badge) => {
+    if (badge.requirement === "all")
+      return completedCount === lessons.length && lessons.length > 0;
     return completedCount >= (badge.requirement as number);
   });
 
@@ -226,7 +289,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                 exit={{ opacity: 0 }}
                 transition={{
                   duration: Math.random() * 2 + 2,
-                  ease: 'linear',
+                  ease: "linear",
                   delay: Math.random() * 0.5,
                 }}
                 className="absolute text-2xl"
@@ -234,7 +297,11 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                   left: `${Math.random() * 100}%`,
                 }}
               >
-                {['🌾', '🌻', '⭐', '🎉', '✨', '🌱', '💚'][Math.floor(Math.random() * 7)]}
+                {
+                  ["🌾", "🌻", "⭐", "🎉", "✨", "🌱", "💚"][
+                    Math.floor(Math.random() * 7)
+                  ]
+                }
               </motion.div>
             ))}
           </div>
@@ -252,14 +319,14 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
         {/* Clouds */}
         <motion.div
           animate={{ x: [0, 50, 0] }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
           className="absolute top-20 left-20 text-6xl opacity-30"
         >
           ☁️
         </motion.div>
         <motion.div
           animate={{ x: [0, -30, 0] }}
-          transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
           className="absolute top-32 right-40 text-4xl opacity-20"
         >
           ☁️
@@ -271,7 +338,6 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
       {/* Header with progress */}
       <div className="sticky top-0 z-20 bg-card/80 dark:bg-card/80 backdrop-blur-md border-b border-green-100 shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-2 md:py-4">
-
           {/* Mobile Header Layout (Stacked) */}
           <div className="lg:hidden flex flex-col gap-2">
             {/* Top Row: Back, Title (Truncated), Controls */}
@@ -279,7 +345,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => navigate('/learn')}
+                onClick={() => navigate("/learn")}
                 className="h-8 w-8 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 shrink-0"
               >
                 <ChevronRight className="w-5 h-5 rotate-180" />
@@ -290,14 +356,16 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                   type="button"
                   onClick={handleLanguageToggle}
                   className="flex items-center justify-center w-8 h-8 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full transition-colors border border-blue-200 dark:border-blue-700"
-                  title={isHindi ? 'Switch to English' : 'हिंदी में बदलें'}
-                  aria-label={isHindi ? 'Switch to English' : 'Switch to Hindi'}
+                  title={isHindi ? "Switch to English" : "हिंदी में बदलें"}
+                  aria-label={isHindi ? "Switch to English" : "Switch to Hindi"}
                 >
                   <Globe className="w-4 h-4" />
                 </button>
                 <div className="flex items-center gap-1.5 bg-amber-100 dark:bg-amber-900/40 rounded-full px-2 py-1">
                   <Zap className="w-3.5 h-3.5 text-amber-600" />
-                  <span className="font-bold text-xs text-amber-700 dark:text-amber-300">{earnedXP} XP</span>
+                  <span className="font-bold text-xs text-amber-700 dark:text-amber-300">
+                    {earnedXP} XP
+                  </span>
                 </div>
               </div>
             </div>
@@ -305,13 +373,17 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
             {/* Bottom Row: Title & Progress Stats */}
             <div className="flex flex-col gap-1 px-1">
               <div className="flex items-center justify-between gap-2">
-                <h1 className="text-lg font-bold text-green-900 dark:text-green-100 leading-tight line-clamp-1">{courseTitle}</h1>
+                <h1 className="text-lg font-bold text-green-900 dark:text-green-100 leading-tight line-clamp-1">
+                  {courseTitle}
+                </h1>
                 <span className="text-xs font-medium text-green-600 dark:text-green-400 whitespace-nowrap shrink-0">
                   {Math.round(progressPercent)}%
                 </span>
               </div>
               <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>{completedCount}/{lessons.length} {t("roadmap.steps")}</span>
+                <span>
+                  {completedCount}/{lessons.length} {t("roadmap.steps")}
+                </span>
                 {level && <span className="capitalize">{level}</span>}
               </div>
             </div>
@@ -323,13 +395,15 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => navigate('/learn')}
+                onClick={() => navigate("/learn")}
                 className="text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30"
               >
                 {t("roadmap.back")}
               </Button>
               <div>
-                <h1 className="text-lg font-bold text-green-900 dark:text-green-100">{courseTitle}</h1>
+                <h1 className="text-lg font-bold text-green-900 dark:text-green-100">
+                  {courseTitle}
+                </h1>
                 <p className="text-sm text-green-600 dark:text-green-400">
                   {completedCount}/{lessons.length} {t("roadmap.stepsComplete")}
                 </p>
@@ -341,23 +415,34 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
               <button
                 onClick={handleLanguageToggle}
                 className="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full px-3 py-2 transition-colors border border-blue-200 dark:border-blue-700"
-                title={isHindi ? t("roadmap.switchToEnglish") : t("roadmap.switchToHindi")}
+                title={
+                  isHindi
+                    ? t("roadmap.switchToEnglish")
+                    : t("roadmap.switchToHindi")
+                }
               >
                 <Globe className="w-4 h-4" />
-                <span className="text-sm font-medium">{isHindi ? 'EN' : 'हिं'}</span>
+                <span className="text-sm font-medium">
+                  {isHindi ? "EN" : "हिं"}
+                </span>
               </button>
 
               {/* XP Display */}
               <div className="flex items-center gap-2 bg-amber-100 dark:bg-amber-900/40 rounded-full px-4 py-2">
                 <Zap className="w-5 h-5 text-amber-600" />
-                <span className="font-bold text-amber-700 dark:text-amber-300">{earnedXP} XP</span>
+                <span className="font-bold text-amber-700 dark:text-amber-300">
+                  {earnedXP} XP
+                </span>
               </div>
             </div>
           </div>
 
           {/* Progress bar */}
           <div className="relative">
-            <Progress value={progressPercent} className="h-3 bg-green-100 dark:bg-green-900/50" />
+            <Progress
+              value={progressPercent}
+              className="h-3 bg-green-100 dark:bg-green-900/50"
+            />
             <motion.div
               className="absolute top-1/2 -translate-y-1/2 text-lg"
               style={{ left: `${Math.min(progressPercent, 95)}%` }}
@@ -371,7 +456,9 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
           {/* Badges row */}
           {earnedBadges.length > 0 && (
             <div className="flex items-center gap-2 mt-3 overflow-x-auto pb-1">
-              <span className="text-xs text-green-600 dark:text-green-400 whitespace-nowrap">{t("roadmap.badges")}</span>
+              <span className="text-xs text-green-600 dark:text-green-400 whitespace-nowrap">
+                {t("roadmap.badges")}
+              </span>
               {earnedBadges.map((badge) => (
                 <motion.div
                   key={badge.id}
@@ -393,7 +480,6 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
       {/* Three Column Layout */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
           {/* Left Sidebar - Course Info */}
           <div className="lg:col-span-3 space-y-4">
             <div className="lg:sticky lg:top-24 space-y-4">
@@ -410,33 +496,45 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
 
                 {courseDescription && (
                   <div className="mb-3">
-                    <p className="text-sm text-muted-foreground line-clamp-4">{courseDescription}</p>
+                    <p className="text-sm text-muted-foreground line-clamp-4">
+                      {courseDescription}
+                    </p>
                   </div>
                 )}
 
                 <div className="space-y-2 text-sm">
                   {level && (
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">{t("course.level")}:</span>
-                      <span className="font-medium text-green-700 dark:text-green-400 capitalize">{level}</span>
+                      <span className="text-muted-foreground">
+                        {t("course.level")}:
+                      </span>
+                      <span className="font-medium text-green-700 dark:text-green-400 capitalize">
+                        {level}
+                      </span>
                     </div>
                   )}
 
                   {duration && (
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">{t("course.duration")}:</span>
+                      <span className="text-muted-foreground">
+                        {t("course.duration")}:
+                      </span>
                       <span className="font-medium">{duration}</span>
                     </div>
                   )}
 
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">{t("roadmap.lessons")}:</span>
+                    <span className="text-muted-foreground">
+                      {t("roadmap.lessons")}:
+                    </span>
                     <span className="font-medium">{lessons.length}</span>
                   </div>
 
                   {instructor && (
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">{t("course.instructor")}:</span>
+                      <span className="text-muted-foreground">
+                        {t("course.instructor")}:
+                      </span>
                       <span className="font-medium">{instructor}</span>
                     </div>
                   )}
@@ -502,7 +600,10 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                   enableIdleAnimations
                   lessonContext={{
                     lessonTitle: currentLesson?.title,
-                    lessonNumber: firstIncompleteIndex >= 0 ? firstIncompleteIndex + 1 : lessons.length,
+                    lessonNumber:
+                      firstIncompleteIndex >= 0
+                        ? firstIncompleteIndex + 1
+                        : lessons.length,
                     totalLessons: lessons.length,
                     topic: courseTitle,
                   }}
@@ -529,8 +630,10 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
 
             {/* Roadmap path with nodes */}
             {lessons && lessons.length > 0 && (
-              <div className="relative" style={{ minHeight: `${lessons.length * 180 + 100}px` }}>
-
+              <div
+                className="relative"
+                style={{ minHeight: `${lessons.length * 180 + 100}px` }}
+              >
                 {/* SVG Path */}
                 <svg
                   className="absolute top-0 left-0 w-full h-full pointer-events-none"
@@ -539,7 +642,13 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                   style={{ height: `${lessons.length * 180 + 100}px` }}
                 >
                   <defs>
-                    <linearGradient id="pathGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <linearGradient
+                      id="pathGradient"
+                      x1="0%"
+                      y1="0%"
+                      x2="0%"
+                      y2="100%"
+                    >
                       <stop offset="0%" stopColor="#4CAF50" />
                       <stop offset="50%" stopColor="#8BC34A" />
                       <stop offset="100%" stopColor="#CDDC39" />
@@ -560,9 +669,19 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                     strokeLinecap="round"
                     strokeDasharray="2 1.5"
                   />
-                  {generateProgressPath(lessons || [], lessonProgress || {}, LEFT_X, RIGHT_X) && (
+                  {generateProgressPath(
+                    lessons || [],
+                    lessonProgress || {},
+                    LEFT_X,
+                    RIGHT_X,
+                  ) && (
                     <motion.path
-                      d={generateProgressPath(lessons || [], lessonProgress || {}, LEFT_X, RIGHT_X)}
+                      d={generateProgressPath(
+                        lessons || [],
+                        lessonProgress || {},
+                        LEFT_X,
+                        RIGHT_X,
+                      )}
                       fill="none"
                       stroke="url(#pathGradient)"
                       strokeWidth="0.8"
@@ -594,7 +713,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                         style={{
                           top: `${yPosition}px`,
                           left: `${xPercent}%`,
-                          transform: 'translateX(-50%)',
+                          transform: "translateX(-50%)",
                         }}
                       >
                         <LessonNode
@@ -626,8 +745,12 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                   <div className="flex items-center gap-3">
                     <Trophy className="w-8 h-8" />
                     <div>
-                      <p className="font-bold text-lg">{t("roadmap.congratulations")} 🎉</p>
-                      <p className="text-sm opacity-90">{t("roadmap.courseComplete")}</p>
+                      <p className="font-bold text-lg">
+                        {t("roadmap.congratulations")} 🎉
+                      </p>
+                      <p className="text-sm opacity-90">
+                        {t("roadmap.courseComplete")}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -675,8 +798,12 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                   {/* Completion Stats */}
                   <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-3">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-muted-foreground">{t("roadmap.completed")}</span>
-                      <span className="text-sm font-bold text-green-700 dark:text-green-400">{progressPercent}%</span>
+                      <span className="text-xs text-muted-foreground">
+                        {t("roadmap.completed")}
+                      </span>
+                      <span className="text-sm font-bold text-green-700 dark:text-green-400">
+                        {progressPercent}%
+                      </span>
                     </div>
                     <Progress value={progressPercent} className="h-2" />
                     <p className="text-xs text-muted-foreground mt-1">
@@ -689,9 +816,13 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Zap className="w-4 h-4 text-amber-600" />
-                        <span className="text-xs text-muted-foreground">{t("roadmap.experience")}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {t("roadmap.experience")}
+                        </span>
                       </div>
-                      <span className="text-sm font-bold text-amber-700 dark:text-amber-400">{earnedXP} XP</span>
+                      <span className="text-sm font-bold text-amber-700 dark:text-amber-400">
+                        {earnedXP} XP
+                      </span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
                       {totalXP - earnedXP} XP {t("roadmap.remaining")}
@@ -702,11 +833,19 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                   <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-3">
                     <div className="flex items-center gap-2 mb-1">
                       <Award className="w-4 h-4 text-blue-600" />
-                      <span className="text-xs text-muted-foreground">{t("roadmap.currentLevel")}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {t("roadmap.currentLevel")}
+                      </span>
                     </div>
                     <p className="text-sm font-bold text-blue-700 dark:text-blue-400">
-                      {LEVEL_THEMES[Math.min(currentLevelIndex, LEVEL_THEMES.length - 1)].emoji}{' '}
-                      {t(`roadmap.levelThemes.${LEVEL_THEMES[Math.min(currentLevelIndex, LEVEL_THEMES.length - 1)].key}`)}
+                      {
+                        LEVEL_THEMES[
+                          Math.min(currentLevelIndex, LEVEL_THEMES.length - 1)
+                        ].emoji
+                      }{" "}
+                      {t(
+                        `roadmap.levelThemes.${LEVEL_THEMES[Math.min(currentLevelIndex, LEVEL_THEMES.length - 1)].key}`,
+                      )}
                     </p>
                   </div>
                 </div>
@@ -764,7 +903,9 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                     <ChevronRight className="w-4 h-4" />
                     {t("roadmap.nextUp")}
                   </h3>
-                  <p className="text-sm opacity-90 mb-3">{currentLesson.title}</p>
+                  <p className="text-sm opacity-90 mb-3">
+                    {currentLesson.title}
+                  </p>
                   <Button
                     size="sm"
                     variant="secondary"
@@ -788,8 +929,8 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
 interface LessonNodeProps {
   lesson: Lesson;
   index: number;
-  status: 'completed' | 'current' | 'locked';
-  theme: typeof LEVEL_THEMES[0];
+  status: "completed" | "current" | "locked";
+  theme: (typeof LEVEL_THEMES)[0];
   isActive: boolean;
   isHindi: boolean;
   onClick: () => void;
@@ -808,9 +949,9 @@ const LessonNode: React.FC<LessonNodeProps> = ({
   onHover,
   onLeave,
 }) => {
-  const isCompleted = status === 'completed';
-  const isCurrent = status === 'current';
-  const isLocked = status === 'locked';
+  const isCompleted = status === "completed";
+  const isCurrent = status === "current";
+  const isLocked = status === "locked";
 
   return (
     <motion.button
@@ -819,8 +960,9 @@ const LessonNode: React.FC<LessonNodeProps> = ({
       onMouseLeave={onLeave}
       whileHover={{ scale: isLocked ? 1 : 1.05 }}
       whileTap={{ scale: isLocked ? 1 : 0.95 }}
-      className={`relative flex flex-col items-center transition-all duration-300 ${isLocked ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
-        }`}
+      className={`relative flex flex-col items-center transition-all duration-300 ${
+        isLocked ? "cursor-not-allowed opacity-60" : "cursor-pointer"
+      }`}
     >
       {/* Glow effect for current */}
       {isCurrent && (
@@ -836,12 +978,13 @@ const LessonNode: React.FC<LessonNodeProps> = ({
 
       {/* Main node */}
       <div
-        className={`relative w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${isCompleted
-          ? 'bg-gradient-to-br from-green-400 to-green-600 ring-4 ring-green-200'
-          : isCurrent
-            ? `bg-gradient-to-br ${theme.color} ring-4 ring-offset-2 ring-green-400 animate-pulse`
-            : 'bg-muted ring-2 ring-gray-300'
-          }`}
+        className={`relative w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${
+          isCompleted
+            ? "bg-gradient-to-br from-green-400 to-green-600 ring-4 ring-green-200"
+            : isCurrent
+              ? `bg-gradient-to-br ${theme.color} ring-4 ring-offset-2 ring-green-400 animate-pulse`
+              : "bg-muted ring-2 ring-gray-300"
+        }`}
       >
         {isCompleted ? (
           <CheckCircle className="w-10 h-10 text-white" />
@@ -853,12 +996,13 @@ const LessonNode: React.FC<LessonNodeProps> = ({
 
         {/* Level number badge */}
         <div
-          className={`absolute -top-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ${isCompleted
-            ? 'bg-amber-400 text-amber-900'
-            : isCurrent
-              ? 'bg-green-500 text-white'
-              : 'bg-muted text-muted-foreground'
-            }`}
+          className={`absolute -top-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ${
+            isCompleted
+              ? "bg-amber-400 text-amber-900"
+              : isCurrent
+                ? "bg-green-500 text-white"
+                : "bg-muted text-muted-foreground"
+          }`}
         >
           {index + 1}
         </div>
@@ -876,13 +1020,19 @@ const LessonNode: React.FC<LessonNodeProps> = ({
       </div>
 
       {/* Label */}
-      <div className={`mt-3 text-center ${isLocked ? 'opacity-50' : ''}`}>
-        <p className={`font-semibold text-sm ${isCompleted ? 'text-green-700' : isCurrent ? 'text-green-600' : 'text-muted-foreground'}`}>
+      <div className={`mt-3 text-center ${isLocked ? "opacity-50" : ""}`}>
+        <p
+          className={`font-semibold text-sm ${isCompleted ? "text-green-700" : isCurrent ? "text-green-600" : "text-muted-foreground"}`}
+        >
           {isHindi ? theme.name : theme.nameEn}
         </p>
-        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{lesson.title}</p>
+        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+          {lesson.title}
+        </p>
         {lesson.duration && (
-          <p className="text-xs text-muted-foreground mt-1">⏱️ {lesson.duration}</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            ⏱️ {lesson.duration}
+          </p>
         )}
       </div>
 
@@ -895,17 +1045,27 @@ const LessonNode: React.FC<LessonNodeProps> = ({
             exit={{ opacity: 0, y: 10, scale: 0.9 }}
             className="absolute top-full mt-2 bg-card rounded-xl shadow-xl p-3 w-48 z-10 border border-green-200"
           >
-            <p className="font-medium text-green-800 text-sm mb-1">{lesson.title}</p>
+            <p className="font-medium text-green-800 text-sm mb-1">
+              {lesson.title}
+            </p>
             {lesson.description && (
-              <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{lesson.description}</p>
+              <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
+                {lesson.description}
+              </p>
             )}
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">
-                {lesson.content_type === 'video'
-                  ? (isHindi ? '🎥 वीडियो' : '🎥 Video')
-                  : lesson.content_type === 'quiz'
-                    ? (isHindi ? '📝 प्रश्नोत्तरी' : '📝 Quiz')
-                    : (isHindi ? '📖 पाठ' : '📖 Lesson')}
+                {lesson.content_type === "video"
+                  ? isHindi
+                    ? "🎥 वीडियो"
+                    : "🎥 Video"
+                  : lesson.content_type === "quiz"
+                    ? isHindi
+                      ? "📝 प्रश्नोत्तरी"
+                      : "📝 Quiz"
+                    : isHindi
+                      ? "📖 पाठ"
+                      : "📖 Lesson"}
               </span>
               <ChevronRight className="w-4 h-4 text-green-500" />
             </div>
@@ -922,10 +1082,14 @@ const RIGHT_X = 70;
 const NODE_CENTER_OFFSET = 40; // Half the node height to hit center
 
 // Generate SVG path for roadmap - connects through center of each node
-const generatePath = (nodeCount: number, leftX: number, rightX: number): string => {
-  if (nodeCount === 0) return '';
+const generatePath = (
+  nodeCount: number,
+  leftX: number,
+  rightX: number,
+): string => {
+  if (nodeCount === 0) return "";
 
-  let d = '';
+  let d = "";
 
   for (let i = 0; i < nodeCount; i++) {
     const isEven = i % 2 === 0;
@@ -951,22 +1115,27 @@ const generatePath = (nodeCount: number, leftX: number, rightX: number): string 
 };
 
 // Generate progress path - only draws up to last completed node
-const generateProgressPath = (lessons: Lesson[], lessonProgress: Record<string, string>, leftX: number, rightX: number): string => {
-  if (lessons.length === 0) return '';
+const generateProgressPath = (
+  lessons: Lesson[],
+  lessonProgress: Record<string, string>,
+  leftX: number,
+  rightX: number,
+): string => {
+  if (lessons.length === 0) return "";
 
   // Find the last completed lesson index
   let lastCompletedIndex = -1;
   for (let i = 0; i < lessons.length; i++) {
-    if (lessonProgress[lessons[i].id] === 'completed') {
+    if (lessonProgress[lessons[i].id] === "completed") {
       lastCompletedIndex = i;
     } else {
       break;
     }
   }
 
-  if (lastCompletedIndex === -1) return '';
+  if (lastCompletedIndex === -1) return "";
 
-  let d = '';
+  let d = "";
 
   for (let i = 0; i <= lastCompletedIndex; i++) {
     const isEven = i % 2 === 0;

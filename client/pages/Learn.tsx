@@ -33,7 +33,9 @@ import { useTranslation } from "react-i18next";
 export const Learn: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation("learn");
-  const [activeTab, setActiveTab] = useState<"courses" | "articles" | "videos">("courses");
+  const [activeTab, setActiveTab] = useState<"courses" | "articles" | "videos">(
+    "courses",
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -93,76 +95,91 @@ export const Learn: React.FC = () => {
   }, []);
 
   // Fetch courses
-  const fetchCourses = useCallback(async (page: number, reset: boolean = false) => {
-    if (coursesLoading) return;
-    setCoursesLoading(true);
-    setError(null);
+  const fetchCourses = useCallback(
+    async (page: number, reset: boolean = false) => {
+      if (coursesLoading) return;
+      setCoursesLoading(true);
+      setError(null);
 
-    try {
-      const response = await LearnService.getCourses(page, 20, {
-        category: selectedCategory || undefined,
-        search: searchQuery || undefined,
-      });
+      try {
+        const response = await LearnService.getCourses(page, 20, {
+          category: selectedCategory || undefined,
+          search: searchQuery || undefined,
+        });
 
-      if (response.success) {
-        setCourses((prev) => (reset ? response.data : [...prev, ...response.data]));
-        setCoursesHasMore(page < response.pagination.total_pages);
-        setCoursesPage(page);
+        if (response.success) {
+          setCourses((prev) =>
+            reset ? response.data : [...prev, ...response.data],
+          );
+          setCoursesHasMore(page < response.pagination.total_pages);
+          setCoursesPage(page);
+        }
+      } catch (err: any) {
+        setError(err.message || "Failed to load courses");
+      } finally {
+        setCoursesLoading(false);
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to load courses");
-    } finally {
-      setCoursesLoading(false);
-    }
-  }, [coursesLoading, selectedCategory, searchQuery]);
+    },
+    [coursesLoading, selectedCategory, searchQuery],
+  );
 
   // Fetch articles
-  const fetchArticles = useCallback(async (page: number, reset: boolean = false) => {
-    if (articlesLoading) return;
-    setArticlesLoading(true);
-    setError(null);
+  const fetchArticles = useCallback(
+    async (page: number, reset: boolean = false) => {
+      if (articlesLoading) return;
+      setArticlesLoading(true);
+      setError(null);
 
-    try {
-      const response = await LearnService.getArticles(page, 20, {
-        category: selectedCategory || undefined,
-        search: searchQuery || undefined,
-      });
+      try {
+        const response = await LearnService.getArticles(page, 20, {
+          category: selectedCategory || undefined,
+          search: searchQuery || undefined,
+        });
 
-      if (response.success) {
-        setArticles((prev) => (reset ? response.data : [...prev, ...response.data]));
-        setArticlesHasMore(page < response.pagination.total_pages);
-        setArticlesPage(page);
+        if (response.success) {
+          setArticles((prev) =>
+            reset ? response.data : [...prev, ...response.data],
+          );
+          setArticlesHasMore(page < response.pagination.total_pages);
+          setArticlesPage(page);
+        }
+      } catch (err: any) {
+        setError(err.message || "Failed to load articles");
+      } finally {
+        setArticlesLoading(false);
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to load articles");
-    } finally {
-      setArticlesLoading(false);
-    }
-  }, [articlesLoading, selectedCategory, searchQuery]);
+    },
+    [articlesLoading, selectedCategory, searchQuery],
+  );
 
   // Fetch videos
-  const fetchVideos = useCallback(async (page: number, reset: boolean = false) => {
-    if (videosLoading) return;
-    setVideosLoading(true);
-    setError(null);
+  const fetchVideos = useCallback(
+    async (page: number, reset: boolean = false) => {
+      if (videosLoading) return;
+      setVideosLoading(true);
+      setError(null);
 
-    try {
-      const response = await LearnService.getVideos(page, 20, {
-        category: selectedCategory || undefined,
-        search: searchQuery || undefined,
-      });
+      try {
+        const response = await LearnService.getVideos(page, 20, {
+          category: selectedCategory || undefined,
+          search: searchQuery || undefined,
+        });
 
-      if (response.success) {
-        setVideos((prev) => (reset ? response.data : [...prev, ...response.data]));
-        setVideosHasMore(page < response.pagination.total_pages);
-        setVideosPage(page);
+        if (response.success) {
+          setVideos((prev) =>
+            reset ? response.data : [...prev, ...response.data],
+          );
+          setVideosHasMore(page < response.pagination.total_pages);
+          setVideosPage(page);
+        }
+      } catch (err: any) {
+        setError(err.message || "Failed to load videos");
+      } finally {
+        setVideosLoading(false);
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to load videos");
-    } finally {
-      setVideosLoading(false);
-    }
-  }, [videosLoading, selectedCategory, searchQuery]);
+    },
+    [videosLoading, selectedCategory, searchQuery],
+  );
 
   // Initial fetch based on active tab
   useEffect(() => {
@@ -206,15 +223,23 @@ export const Learn: React.FC = () => {
           timeoutId = setTimeout(() => {
             if (activeTab === "courses" && coursesHasMore && !coursesLoading) {
               fetchCourses(coursesPage + 1, false);
-            } else if (activeTab === "articles" && articlesHasMore && !articlesLoading) {
+            } else if (
+              activeTab === "articles" &&
+              articlesHasMore &&
+              !articlesLoading
+            ) {
               fetchArticles(articlesPage + 1, false);
-            } else if (activeTab === "videos" && videosHasMore && !videosLoading) {
+            } else if (
+              activeTab === "videos" &&
+              videosHasMore &&
+              !videosLoading
+            ) {
               fetchVideos(videosPage + 1, false);
             }
           }, 500); // Wait 500ms before triggering next page load
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     if (loadMoreRef.current) {
@@ -227,7 +252,18 @@ export const Learn: React.FC = () => {
         observerRef.current.disconnect();
       }
     };
-  }, [activeTab, coursesHasMore, articlesHasMore, videosHasMore, coursesPage, articlesPage, videosPage, coursesLoading, articlesLoading, videosLoading]);
+  }, [
+    activeTab,
+    coursesHasMore,
+    articlesHasMore,
+    videosHasMore,
+    coursesPage,
+    articlesPage,
+    videosPage,
+    coursesLoading,
+    articlesLoading,
+    videosLoading,
+  ]);
 
   // Like handlers
   const handleLikeArticle = async (id: string, e: React.MouseEvent) => {
@@ -235,7 +271,9 @@ export const Learn: React.FC = () => {
     try {
       await LearnService.likeArticle(id);
       setArticles((prev) =>
-        prev.map((a) => (a.id === id ? { ...a, like_count: a.like_count + 1 } : a))
+        prev.map((a) =>
+          a.id === id ? { ...a, like_count: a.like_count + 1 } : a,
+        ),
       );
     } catch (err) {
       console.error("Failed to like article:", err);
@@ -247,7 +285,9 @@ export const Learn: React.FC = () => {
     try {
       await LearnService.likeVideo(id);
       setVideos((prev) =>
-        prev.map((v) => (v.id === id ? { ...v, like_count: v.like_count + 1 } : v))
+        prev.map((v) =>
+          v.id === id ? { ...v, like_count: v.like_count + 1 } : v,
+        ),
       );
     } catch (err) {
       console.error("Failed to like video:", err);
@@ -270,12 +310,15 @@ export const Learn: React.FC = () => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+    const diffDays = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24),
+    );
 
     if (diffDays === 0) return t("date.today");
     if (diffDays === 1) return t("date.yesterday");
     if (diffDays < 7) return t("date.daysAgo", { count: diffDays });
-    if (diffDays < 30) return t("date.weeksAgo", { count: Math.floor(diffDays / 7) });
+    if (diffDays < 30)
+      return t("date.weeksAgo", { count: Math.floor(diffDays / 7) });
     return t("date.monthsAgo", { count: Math.floor(diffDays / 30) });
   };
 
@@ -292,13 +335,14 @@ export const Learn: React.FC = () => {
           <GraduationCap className="w-8 h-8 text-primary" />
           {t("header.title")}
         </h1>
-        <p className="text-muted-foreground mt-1">
-          {t("header.description")}
-        </p>
+        <p className="text-muted-foreground mt-1">{t("header.description")}</p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4" data-tour-id="learn-stats">
+      <div
+        className="grid grid-cols-2 md:grid-cols-4 gap-4"
+        data-tour-id="learn-stats"
+      >
         <Card className="p-4 text-center">
           <div className="flex items-center justify-center mb-2">
             <BookMarked className="w-5 h-5 text-primary" />
@@ -307,8 +351,12 @@ export const Learn: React.FC = () => {
             <Loader2 className="w-5 h-5 animate-spin mx-auto" />
           ) : (
             <>
-              <p className="text-3xl font-bold text-primary">{stats?.totalCoursesEnrolled || 0}</p>
-              <p className="text-sm text-muted-foreground">{t("stats.coursesEnrolled")}</p>
+              <p className="text-3xl font-bold text-primary">
+                {stats?.totalCoursesEnrolled || 0}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {t("stats.coursesEnrolled")}
+              </p>
             </>
           )}
         </Card>
@@ -320,8 +368,12 @@ export const Learn: React.FC = () => {
             <Loader2 className="w-5 h-5 animate-spin mx-auto" />
           ) : (
             <>
-              <p className="text-3xl font-bold text-primary">{stats?.totalCoursesCompleted || 0}</p>
-              <p className="text-sm text-muted-foreground">{t("stats.completed")}</p>
+              <p className="text-3xl font-bold text-primary">
+                {stats?.totalCoursesCompleted || 0}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {t("stats.completed")}
+              </p>
             </>
           )}
         </Card>
@@ -333,8 +385,12 @@ export const Learn: React.FC = () => {
             <Loader2 className="w-5 h-5 animate-spin mx-auto" />
           ) : (
             <>
-              <p className="text-3xl font-bold text-primary">{stats?.totalLearningHours || 0}h</p>
-              <p className="text-sm text-muted-foreground">{t("stats.learningHours")}</p>
+              <p className="text-3xl font-bold text-primary">
+                {stats?.totalLearningHours || 0}h
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {t("stats.learningHours")}
+              </p>
             </>
           )}
         </Card>
@@ -346,8 +402,12 @@ export const Learn: React.FC = () => {
             <Loader2 className="w-5 h-5 animate-spin mx-auto" />
           ) : (
             <>
-              <p className="text-3xl font-bold text-primary">{stats?.currentStreak || 0}</p>
-              <p className="text-sm text-muted-foreground">{t("stats.dayStreak")}</p>
+              <p className="text-3xl font-bold text-primary">
+                {stats?.currentStreak || 0}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {t("stats.dayStreak")}
+              </p>
             </>
           )}
         </Card>
@@ -358,7 +418,9 @@ export const Learn: React.FC = () => {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
         <input
           type="text"
-          placeholder={t("search.placeholder", { type: t(`tabs.${activeTab}`) })}
+          placeholder={t("search.placeholder", {
+            type: t(`tabs.${activeTab}`),
+          })}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full pl-10 pr-12 py-3 rounded-lg border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary transition-all"
@@ -369,15 +431,28 @@ export const Learn: React.FC = () => {
             className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-full transition-colors"
             aria-label={t("search.clear")}
           >
-            <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-4 h-4 text-muted-foreground"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         )}
       </div>
 
       {/* Categories */}
-      <div className="flex gap-3 overflow-x-auto pb-2" data-tour-id="learn-categories">
+      <div
+        className="flex gap-3 overflow-x-auto pb-2"
+        data-tour-id="learn-categories"
+      >
         <Button
           variant={selectedCategory === null ? "default" : "outline"}
           size="sm"
@@ -401,33 +476,39 @@ export const Learn: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-border" data-tour-id="learn-tabs">
+      <div
+        className="flex gap-2 border-b border-border"
+        data-tour-id="learn-tabs"
+      >
         <button
           onClick={() => setActiveTab("courses")}
-          className={`px-4 py-2 font-medium text-sm transition-colors ${activeTab === "courses"
-            ? "text-primary border-b-2 border-primary"
-            : "text-muted-foreground hover:text-foreground"
-            }`}
+          className={`px-4 py-2 font-medium text-sm transition-colors ${
+            activeTab === "courses"
+              ? "text-primary border-b-2 border-primary"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
         >
           <BookOpen className="w-4 h-4 inline-block mr-2" />
           {t("tabs.courses")}
         </button>
         <button
           onClick={() => setActiveTab("articles")}
-          className={`px-4 py-2 font-medium text-sm transition-colors ${activeTab === "articles"
-            ? "text-primary border-b-2 border-primary"
-            : "text-muted-foreground hover:text-foreground"
-            }`}
+          className={`px-4 py-2 font-medium text-sm transition-colors ${
+            activeTab === "articles"
+              ? "text-primary border-b-2 border-primary"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
         >
           <FileText className="w-4 h-4 inline-block mr-2" />
           {t("tabs.articles")}
         </button>
         <button
           onClick={() => setActiveTab("videos")}
-          className={`px-4 py-2 font-medium text-sm transition-colors ${activeTab === "videos"
-            ? "text-primary border-b-2 border-primary"
-            : "text-muted-foreground hover:text-foreground"
-            }`}
+          className={`px-4 py-2 font-medium text-sm transition-colors ${
+            activeTab === "videos"
+              ? "text-primary border-b-2 border-primary"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
         >
           <Video className="w-4 h-4 inline-block mr-2" />
           {t("tabs.videos")}
@@ -456,7 +537,10 @@ export const Learn: React.FC = () => {
 
       {/* Content */}
       {activeTab === "courses" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6" data-tour-id="learn-content">
+        <div
+          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+          data-tour-id="learn-content"
+        >
           {courses.length === 0 && !coursesLoading && (
             <div className="col-span-2 text-center py-12">
               <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
@@ -476,21 +560,31 @@ export const Learn: React.FC = () => {
               >
                 <div className="p-6">
                   <div className="flex items-start gap-4">
-                    <div className="text-5xl">{course.thumbnail_emoji || "📚"}</div>
+                    <div className="text-5xl">
+                      {course.thumbnail_emoji || "📚"}
+                    </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${getLevelBadge(course.level)}`}>
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded-full ${getLevelBadge(course.level)}`}
+                        >
                           {course.level}
                         </span>
-                        <span className="text-xs text-muted-foreground">{course.language}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {course.language}
+                        </span>
                         {course.price === 0 && (
                           <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">
                             {t("course.free")}
                           </span>
                         )}
                       </div>
-                      <h3 className="font-semibold text-foreground mb-1">{course.title}</h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2">{course.description}</p>
+                      <h3 className="font-semibold text-foreground mb-1">
+                        {course.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {course.description}
+                      </p>
                     </div>
                   </div>
 
@@ -507,7 +601,8 @@ export const Learn: React.FC = () => {
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-sm text-muted-foreground">
-                        {course.enrolled_count.toLocaleString()} {t("course.enrolled")}
+                        {course.enrolled_count.toLocaleString()}{" "}
+                        {t("course.enrolled")}
                       </span>
                       <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
@@ -553,12 +648,18 @@ export const Learn: React.FC = () => {
                         {article.category}
                       </span>
                     </div>
-                    <h3 className="font-semibold text-foreground mb-2">{article.title}</h3>
-                    <p className="text-sm text-muted-foreground mb-3">{article.excerpt}</p>
+                    <h3 className="font-semibold text-foreground mb-2">
+                      {article.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      {article.excerpt}
+                    </p>
                     <div className="flex items-center gap-4 text-xs text-muted-foreground">
                       <span>{article.author_name || "Unknown"}</span>
                       <span>•</span>
-                      <span>{article.read_time_minutes || 5} {t("article.minRead")}</span>
+                      <span>
+                        {article.read_time_minutes || 5} {t("article.minRead")}
+                      </span>
                       <span>•</span>
                       <span>{formatDate(article.created_at)}</span>
                     </div>
@@ -571,7 +672,9 @@ export const Learn: React.FC = () => {
                     >
                       <Heart className="w-5 h-5 text-muted-foreground hover:text-red-500" />
                     </button>
-                    <span className="text-xs text-muted-foreground">{article.like_count}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {article.like_count}
+                    </span>
                   </div>
                 </div>
               </Card>
@@ -597,7 +700,9 @@ export const Learn: React.FC = () => {
             >
               <Card
                 className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => video.video_url && window.open(video.video_url, '_blank')}
+                onClick={() =>
+                  video.video_url && window.open(video.video_url, "_blank")
+                }
               >
                 <div className="relative bg-gradient-to-br from-gray-800 to-gray-900 aspect-video flex items-center justify-center">
                   {video.thumbnail_url ? (
@@ -607,7 +712,9 @@ export const Learn: React.FC = () => {
                       className="absolute inset-0 w-full h-full object-cover"
                     />
                   ) : (
-                    <span className="text-6xl">{video.thumbnail_emoji || "🎬"}</span>
+                    <span className="text-6xl">
+                      {video.thumbnail_emoji || "🎬"}
+                    </span>
                   )}
                   <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 hover:opacity-100 transition-opacity">
                     <div className="w-16 h-16 rounded-full bg-card/90 dark:bg-card/90 flex items-center justify-center">
@@ -626,7 +733,9 @@ export const Learn: React.FC = () => {
                   )}
                 </div>
                 <div className="p-4">
-                  <h3 className="font-semibold text-foreground mb-1 line-clamp-2">{video.title}</h3>
+                  <h3 className="font-semibold text-foreground mb-1 line-clamp-2">
+                    {video.title}
+                  </h3>
                   <div className="flex items-center justify-between mt-2">
                     <p className="text-sm text-muted-foreground flex items-center gap-1">
                       <Eye className="w-4 h-4" />
@@ -661,10 +770,10 @@ export const Learn: React.FC = () => {
       {((activeTab === "courses" && !coursesHasMore && courses.length > 0) ||
         (activeTab === "articles" && !articlesHasMore && articles.length > 0) ||
         (activeTab === "videos" && !videosHasMore && videos.length > 0)) && (
-          <p className="text-center text-muted-foreground py-4">
-            {t("endMessage")}
-          </p>
-        )}
+        <p className="text-center text-muted-foreground py-4">
+          {t("endMessage")}
+        </p>
+      )}
     </div>
   );
 };

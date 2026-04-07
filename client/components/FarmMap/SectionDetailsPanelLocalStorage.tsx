@@ -1,7 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { getSection, saveSection, deleteSection, getFarmMapping, type SectionData } from '../../utils/farmMappingStorage';
-import { toast } from 'react-hot-toast';
-import { X, Save, Trash2, MapPin, Droplets } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import {
+  getSection,
+  saveSection,
+  deleteSection,
+  getFarmMapping,
+  type SectionData,
+} from "../../utils/farmMappingStorage";
+import { toast } from "react-hot-toast";
+import { X, Save, Trash2, MapPin, Droplets } from "lucide-react";
 
 interface SectionDetailsPanelProps {
   farmId: string;
@@ -11,13 +17,9 @@ interface SectionDetailsPanelProps {
   onDelete: (sectionId: string) => void;
 }
 
-export const SectionDetailsPanelLocalStorage: React.FC<SectionDetailsPanelProps> = ({
-  farmId,
-  sectionId,
-  onClose,
-  onUpdate,
-  onDelete,
-}) => {
+export const SectionDetailsPanelLocalStorage: React.FC<
+  SectionDetailsPanelProps
+> = ({ farmId, sectionId, onClose, onUpdate, onDelete }) => {
   const [section, setSection] = useState<SectionData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<Partial<SectionData>>({});
@@ -30,7 +32,7 @@ export const SectionDetailsPanelLocalStorage: React.FC<SectionDetailsPanelProps>
 
   const loadSection = () => {
     if (!sectionId) return;
-    
+
     const data = getSection(sectionId);
     if (data) {
       setSection(data);
@@ -42,13 +44,13 @@ export const SectionDetailsPanelLocalStorage: React.FC<SectionDetailsPanelProps>
         color: data.color,
       });
     } else {
-      toast.error('Section not found');
+      toast.error("Section not found");
     }
   };
 
   const handleSave = () => {
     if (!sectionId || !section) return;
-    
+
     const updatedSection: SectionData = {
       ...section,
       name: formData.name || section.name,
@@ -59,37 +61,39 @@ export const SectionDetailsPanelLocalStorage: React.FC<SectionDetailsPanelProps>
     };
 
     const success = saveSection(farmId, updatedSection);
-    
+
     if (success) {
       setSection(updatedSection);
       onUpdate();
       setIsEditing(false);
-      toast.success('Section updated successfully');
-      
+      toast.success("Section updated successfully");
+
       // Reload the page to refresh the map
       window.location.reload();
     } else {
-      toast.error('Failed to update section');
+      toast.error("Failed to update section");
     }
   };
 
   const handleDelete = () => {
     if (!sectionId) return;
-    
-    const confirmed = window.confirm('Are you sure you want to delete this section? This action cannot be undone.');
+
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this section? This action cannot be undone.",
+    );
     if (!confirmed) return;
-    
+
     const success = deleteSection(sectionId);
-    
+
     if (success) {
       onDelete(sectionId);
       onClose();
-      toast.success('Section deleted successfully');
-      
+      toast.success("Section deleted successfully");
+
       // Reload the page to refresh the map
       window.location.reload();
     } else {
-      toast.error('Failed to delete section');
+      toast.error("Failed to delete section");
     }
   };
 
@@ -105,7 +109,9 @@ export const SectionDetailsPanelLocalStorage: React.FC<SectionDetailsPanelProps>
           <MapPin className="w-6 h-6" />
           <div>
             <h2 className="text-xl font-bold">Section Details</h2>
-            <p className="text-sm opacity-90">{section.area.toFixed(2)} acres</p>
+            <p className="text-sm opacity-90">
+              {section.area.toFixed(2)} acres
+            </p>
           </div>
         </div>
         <button
@@ -126,8 +132,10 @@ export const SectionDetailsPanelLocalStorage: React.FC<SectionDetailsPanelProps>
           {isEditing ? (
             <input
               type="text"
-              value={formData.name || ''}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              value={formData.name || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
               placeholder="e.g., North Field"
             />
@@ -143,8 +151,10 @@ export const SectionDetailsPanelLocalStorage: React.FC<SectionDetailsPanelProps>
           </label>
           {isEditing ? (
             <select
-              value={formData.cropType || ''}
-              onChange={(e) => setFormData({ ...formData, cropType: e.target.value })}
+              value={formData.cropType || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, cropType: e.target.value })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
             >
               <option value="">Select crop type</option>
@@ -160,7 +170,7 @@ export const SectionDetailsPanelLocalStorage: React.FC<SectionDetailsPanelProps>
               <option value="Other">Other</option>
             </select>
           ) : (
-            <p className="text-gray-900">{section.cropType || 'Not set'}</p>
+            <p className="text-gray-900">{section.cropType || "Not set"}</p>
           )}
         </div>
 
@@ -171,8 +181,10 @@ export const SectionDetailsPanelLocalStorage: React.FC<SectionDetailsPanelProps>
           </label>
           {isEditing ? (
             <select
-              value={formData.soilType || ''}
-              onChange={(e) => setFormData({ ...formData, soilType: e.target.value })}
+              value={formData.soilType || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, soilType: e.target.value })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
             >
               <option value="">Select soil type</option>
@@ -184,7 +196,7 @@ export const SectionDetailsPanelLocalStorage: React.FC<SectionDetailsPanelProps>
               <option value="Chalky">Chalky</option>
             </select>
           ) : (
-            <p className="text-gray-900">{section.soilType || 'Not set'}</p>
+            <p className="text-gray-900">{section.soilType || "Not set"}</p>
           )}
         </div>
 
@@ -195,8 +207,10 @@ export const SectionDetailsPanelLocalStorage: React.FC<SectionDetailsPanelProps>
           </label>
           {isEditing ? (
             <select
-              value={formData.irrigationType || ''}
-              onChange={(e) => setFormData({ ...formData, irrigationType: e.target.value })}
+              value={formData.irrigationType || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, irrigationType: e.target.value })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
             >
               <option value="">Select irrigation type</option>
@@ -208,7 +222,9 @@ export const SectionDetailsPanelLocalStorage: React.FC<SectionDetailsPanelProps>
               <option value="Rainfed">Rainfed</option>
             </select>
           ) : (
-            <p className="text-gray-900">{section.irrigationType || 'Not set'}</p>
+            <p className="text-gray-900">
+              {section.irrigationType || "Not set"}
+            </p>
           )}
         </div>
 
@@ -232,75 +248,89 @@ export const SectionDetailsPanelLocalStorage: React.FC<SectionDetailsPanelProps>
             Created On
           </label>
           <p className="text-gray-900">
-            {new Date(section.createdAt).toLocaleDateString('en-IN', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
+            {new Date(section.createdAt).toLocaleDateString("en-IN", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
             })}
           </p>
         </div>
 
         {/* Water Source Information */}
-        {section.nearestWaterSource && (() => {
-          const farmData = getFarmMapping();
-          const waterSource = farmData?.waterSources?.find(ws => ws.id === section.nearestWaterSource?.id);
-          
-          if (waterSource) {
-            const distanceKm = (section.nearestWaterSource.distance / 1000).toFixed(2);
-            const distanceM = section.nearestWaterSource.distance.toFixed(0);
-            
-            const typeLabels: Record<string, string> = {
-              river: 'River',
-              lake: 'Lake',
-              pond: 'Pond',
-              reservoir: 'Reservoir',
-              canal: 'Canal',
-              stream: 'Stream',
-              well: 'Well',
-              water_tower: 'Water Tower',
-              spring: 'Spring',
-              waterway: 'Waterway',
-            };
-
-            const getIrrigationRecommendation = (distance: number): string => {
-              if (distance < 500) return 'Drip or Sprinkler recommended';
-              if (distance < 1000) return 'Sprinkler irrigation suitable';
-              if (distance < 2000) return 'Consider pumping system';
-              return 'Long distance - assess feasibility';
-            };
-
-            return (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Droplets className="w-5 h-5 text-blue-600" />
-                  <label className="text-sm font-medium text-blue-900">
-                    Nearest Water Source
-                  </label>
-                </div>
-                
-                <div className="space-y-2 text-sm">
-                  <div>
-                    <span className="text-blue-700 font-medium">{waterSource.name}</span>
-                    <span className="text-blue-600 ml-2">({typeLabels[waterSource.type]})</span>
-                  </div>
-                  
-                  <div className="text-blue-800">
-                    <strong>Distance:</strong> {distanceM}m ({distanceKm}km)
-                  </div>
-                  
-                  <div className="text-blue-800">
-                    <strong>Suggestion:</strong> {getIrrigationRecommendation(section.nearestWaterSource.distance)}
-                  </div>
-
-                  <div className="text-xs text-blue-600 mt-2 pt-2 border-t border-blue-200">
-                    Source: OpenStreetMap
-                  </div>
-                </div>
-              </div>
+        {section.nearestWaterSource &&
+          (() => {
+            const farmData = getFarmMapping();
+            const waterSource = farmData?.waterSources?.find(
+              (ws) => ws.id === section.nearestWaterSource?.id,
             );
-          }
-          return null;
-        })()}
+
+            if (waterSource) {
+              const distanceKm = (
+                section.nearestWaterSource.distance / 1000
+              ).toFixed(2);
+              const distanceM = section.nearestWaterSource.distance.toFixed(0);
+
+              const typeLabels: Record<string, string> = {
+                river: "River",
+                lake: "Lake",
+                pond: "Pond",
+                reservoir: "Reservoir",
+                canal: "Canal",
+                stream: "Stream",
+                well: "Well",
+                water_tower: "Water Tower",
+                spring: "Spring",
+                waterway: "Waterway",
+              };
+
+              const getIrrigationRecommendation = (
+                distance: number,
+              ): string => {
+                if (distance < 500) return "Drip or Sprinkler recommended";
+                if (distance < 1000) return "Sprinkler irrigation suitable";
+                if (distance < 2000) return "Consider pumping system";
+                return "Long distance - assess feasibility";
+              };
+
+              return (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Droplets className="w-5 h-5 text-blue-600" />
+                    <label className="text-sm font-medium text-blue-900">
+                      Nearest Water Source
+                    </label>
+                  </div>
+
+                  <div className="space-y-2 text-sm">
+                    <div>
+                      <span className="text-blue-700 font-medium">
+                        {waterSource.name}
+                      </span>
+                      <span className="text-blue-600 ml-2">
+                        ({typeLabels[waterSource.type]})
+                      </span>
+                    </div>
+
+                    <div className="text-blue-800">
+                      <strong>Distance:</strong> {distanceM}m ({distanceKm}km)
+                    </div>
+
+                    <div className="text-blue-800">
+                      <strong>Suggestion:</strong>{" "}
+                      {getIrrigationRecommendation(
+                        section.nearestWaterSource.distance,
+                      )}
+                    </div>
+
+                    <div className="text-xs text-blue-600 mt-2 pt-2 border-t border-blue-200">
+                      Source: OpenStreetMap
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+            return null;
+          })()}
       </div>
 
       {/* Footer Actions */}

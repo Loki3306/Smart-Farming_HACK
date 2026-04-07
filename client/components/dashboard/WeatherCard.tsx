@@ -1,5 +1,12 @@
 import React from "react";
-import { Cloud, CloudRain, Wind, Droplets, Sun, Thermometer } from "lucide-react";
+import {
+  Cloud,
+  CloudRain,
+  Wind,
+  Droplets,
+  Sun,
+  Thermometer,
+} from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useFarmContext } from "../../context/FarmContext";
 import { SunIcon, CloudIcon, WaterDropIcon } from "./FarmIllustrations";
@@ -32,7 +39,9 @@ export const WeatherCard: React.FC = () => {
   return (
     <Card className="overflow-hidden">
       {/* Sky-themed Header */}
-      <div className={`relative px-6 pt-6 pb-8 bg-gradient-to-r ${getWeatherGradient(weatherData?.condition ?? "Sunny")}`}>
+      <div
+        className={`relative px-6 pt-6 pb-8 bg-gradient-to-r ${getWeatherGradient(weatherData?.condition ?? "Sunny")}`}
+      >
         {/* Decorative Clouds */}
         <div className="absolute top-2 right-8 opacity-30">
           <CloudIcon size={40} />
@@ -43,7 +52,10 @@ export const WeatherCard: React.FC = () => {
 
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-xl font-bold text-white" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <h3
+              className="text-xl font-bold text-white"
+              style={{ fontFamily: "'Playfair Display', serif" }}
+            >
               Weather
             </h3>
             <div className="flex items-center gap-2 mt-2">
@@ -73,7 +85,9 @@ export const WeatherCard: React.FC = () => {
               <div className="w-8 h-8 rounded-full bg-[hsl(200,70%,55%)]/20 flex items-center justify-center">
                 <Droplets className="w-4 h-4 text-[hsl(200,70%,45%)]" />
               </div>
-              <span className="text-xs text-muted-foreground font-medium">Humidity</span>
+              <span className="text-xs text-muted-foreground font-medium">
+                Humidity
+              </span>
             </div>
             <div className="text-2xl font-bold text-foreground">
               {Math.round(weatherData?.humidity ?? 0)}%
@@ -85,7 +99,9 @@ export const WeatherCard: React.FC = () => {
               <div className="w-8 h-8 rounded-full bg-[hsl(200,60%,55%)]/20 flex items-center justify-center">
                 <CloudRain className="w-4 h-4 text-[hsl(200,60%,45%)]" />
               </div>
-              <span className="text-xs text-muted-foreground font-medium">Rain Chance</span>
+              <span className="text-xs text-muted-foreground font-medium">
+                Rain Chance
+              </span>
             </div>
             <div className="text-2xl font-bold text-foreground">
               {Math.round(weatherData?.rainProbability ?? 0)}%
@@ -97,10 +113,15 @@ export const WeatherCard: React.FC = () => {
               <div className="w-8 h-8 rounded-full bg-[hsl(180,60%,50%)]/20 flex items-center justify-center">
                 <Wind className="w-4 h-4 text-[hsl(180,60%,40%)]" />
               </div>
-              <span className="text-xs text-muted-foreground font-medium">Wind Speed</span>
+              <span className="text-xs text-muted-foreground font-medium">
+                Wind Speed
+              </span>
             </div>
             <div className="text-2xl font-bold text-foreground">
-              {weatherData?.windSpeed ?? 0} <span className="text-sm font-normal text-muted-foreground">km/h</span>
+              {weatherData?.windSpeed ?? 0}{" "}
+              <span className="text-sm font-normal text-muted-foreground">
+                km/h
+              </span>
             </div>
           </div>
 
@@ -109,7 +130,9 @@ export const WeatherCard: React.FC = () => {
               <div className="w-8 h-8 rounded-full bg-[hsl(42,85%,55%)]/20 flex items-center justify-center">
                 <Sun className="w-4 h-4 text-[hsl(42,85%,45%)]" />
               </div>
-              <span className="text-xs text-muted-foreground font-medium">UV Index</span>
+              <span className="text-xs text-muted-foreground font-medium">
+                UV Index
+              </span>
             </div>
             <div className="text-2xl font-bold text-foreground">
               {weatherData?.uvIndex ?? 0}
@@ -124,7 +147,8 @@ export const WeatherCard: React.FC = () => {
               <CloudRain className="w-5 h-5 text-[hsl(200,70%,45%)]" />
             </div>
             <p className="text-sm text-[hsl(200,50%,30%)] font-medium">
-              Rain expected soon. System will adjust irrigation schedule automatically.
+              Rain expected soon. System will adjust irrigation schedule
+              automatically.
             </p>
           </div>
         )}

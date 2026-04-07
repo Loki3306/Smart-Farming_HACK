@@ -4,7 +4,7 @@
  * Interfaces with RegimeService to generate multi-step tasks
  */
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Form,
   Input,
@@ -19,9 +19,9 @@ import {
   Row,
   Col,
   Spin,
-} from 'antd';
-import { SmileOutlined, FrownOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs';
+} from "antd";
+import { SmileOutlined, FrownOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
 
 interface RegimeFormProps {
   onSubmit: (data: any) => void;
@@ -35,55 +35,65 @@ export default function RegimeForm({
   initialData,
 }: RegimeFormProps) {
   const [form] = Form.useForm();
-  const [cropType, setCropType] = useState<string>(initialData?.crop_type || '');
+  const [cropType, setCropType] = useState<string>(
+    initialData?.crop_type || "",
+  );
   const [showWeather, setShowWeather] = useState(false);
 
   const CROP_TYPES = [
-    'rice',
-    'wheat',
-    'cotton',
-    'sugarcane',
-    'corn',
-    'potato',
-    'tomato',
-    'onion',
-    'groundnut',
-    'soybean',
+    "rice",
+    "wheat",
+    "cotton",
+    "sugarcane",
+    "corn",
+    "potato",
+    "tomato",
+    "onion",
+    "groundnut",
+    "soybean",
   ];
 
   const CROP_STAGES = [
-    { label: 'Germination', value: 'germination' },
-    { label: 'Seedling', value: 'seedling' },
-    { label: 'Vegetative', value: 'vegetative' },
-    { label: 'Flowering', value: 'flowering' },
-    { label: 'Fruiting', value: 'fruiting' },
-    { label: 'Maturity', value: 'maturity' },
-    { label: 'Harvest', value: 'harvest' },
-    { label: 'Unknown', value: 'unknown' },
+    { label: "Germination", value: "germination" },
+    { label: "Seedling", value: "seedling" },
+    { label: "Vegetative", value: "vegetative" },
+    { label: "Flowering", value: "flowering" },
+    { label: "Fruiting", value: "fruiting" },
+    { label: "Maturity", value: "maturity" },
+    { label: "Harvest", value: "harvest" },
+    { label: "Unknown", value: "unknown" },
   ];
 
   const handleSubmit = (values: any) => {
     // Transform recommendation IDs into proper recommendation objects
-    const recommendations = (values.recommendations || []).map((recId: string) => ({
-      id: recId,
-      type: recId === 'irrigation' ? 'irrigation' : 
-            recId === 'fertilizer' ? 'fertilizer' :
-            recId === 'pest' ? 'pest_control' :
-            recId === 'weed' ? 'weed_control' : 'general',
-      title: recId.charAt(0).toUpperCase() + recId.slice(1),
-      description: `Apply ${recId} management practices`,
-      action: `Start ${recId} treatment immediately`,
-      priority: 'high',
-      confidence: 85,
-    }));
+    const recommendations = (values.recommendations || []).map(
+      (recId: string) => ({
+        id: recId,
+        type:
+          recId === "irrigation"
+            ? "irrigation"
+            : recId === "fertilizer"
+              ? "fertilizer"
+              : recId === "pest"
+                ? "pest_control"
+                : recId === "weed"
+                  ? "weed_control"
+                  : "general",
+        title: recId.charAt(0).toUpperCase() + recId.slice(1),
+        description: `Apply ${recId} management practices`,
+        action: `Start ${recId} treatment immediately`,
+        priority: "high",
+        confidence: 85,
+      }),
+    );
 
     const data = {
       regime_name: values.regime_name,
       regime_description: values.regime_description,
       crop_type: cropType,
-      crop_stage: values.crop_stage || 'vegetative',
+      crop_stage: values.crop_stage || "vegetative",
       sowing_date: values.sowing_date
-        ? values.sowing_date.toISOString().split('T')[0]
+        ? values.sowing_date.toISOString().split("T")[0]
         : undefined,
       temperature: values.temperature,
       humidity: values.humidity,
@@ -126,7 +136,9 @@ export default function RegimeForm({
               <Form.Item
                 name="regime_name"
                 label="Regime Name *"
-                rules={[{ required: true, message: 'Please enter regime name' }]}
+                rules={[
+                  { required: true, message: "Please enter regime name" },
+                ]}
               >
                 <Input placeholder="e.g., Rice Growing Season 2026" />
               </Form.Item>
@@ -149,7 +161,10 @@ export default function RegimeForm({
                     label="Current Crop Stage *"
                     rules={[{ required: true }]}
                   >
-                    <Select placeholder="Select stage..." options={CROP_STAGES} />
+                    <Select
+                      placeholder="Select stage..."
+                      options={CROP_STAGES}
+                    />
                   </Form.Item>
                 </Col>
                 <Col xs={24} md={12}>
@@ -183,7 +198,7 @@ export default function RegimeForm({
                   size="small"
                   onClick={() => setShowWeather(!showWeather)}
                 >
-                  {showWeather ? 'Hide' : 'Show'}
+                  {showWeather ? "Hide" : "Show"}
                 </Button>
               }
             >
@@ -217,7 +232,11 @@ export default function RegimeForm({
                         label="Humidity (%)"
                         tooltip="Current air humidity level"
                       >
-                        <Slider min={0} max={100} marks={{ 0: '0%', 100: '100%' }} />
+                        <Slider
+                          min={0}
+                          max={100}
+                          marks={{ 0: "0%", 100: "100%" }}
+                        />
                       </Form.Item>
                     </Col>
                     <Col xs={24} md={8}>
@@ -226,7 +245,11 @@ export default function RegimeForm({
                         label="Recent Rainfall (mm)"
                         tooltip="Rainfall in last 7 days"
                       >
-                        <InputNumber placeholder="e.g., 15" min={0} step={0.1} />
+                        <InputNumber
+                          placeholder="e.g., 15"
+                          min={0}
+                          step={0.1}
+                        />
                       </Form.Item>
                     </Col>
                   </Row>
@@ -249,13 +272,13 @@ export default function RegimeForm({
                 rules={[
                   {
                     required: true,
-                    message: 'At least one recommendation is required',
+                    message: "At least one recommendation is required",
                   },
                   {
                     validator: (_, value) => {
                       if (!value || value.length === 0) {
                         return Promise.reject(
-                          new Error('Please add recommendations')
+                          new Error("Please add recommendations"),
                         );
                       }
                       return Promise.resolve();
@@ -267,12 +290,12 @@ export default function RegimeForm({
                   mode="multiple"
                   placeholder="Select recommendations from AI analysis..."
                   options={[
-                    { label: 'Schedule irrigation', value: 'irrigation' },
-                    { label: 'Apply fertilizer', value: 'fertilizer' },
-                    { label: 'Pest management', value: 'pest' },
-                    { label: 'Weed control', value: 'weed' },
-                    { label: 'Disease prevention', value: 'disease' },
-                    { label: 'Soil treatment', value: 'soil' },
+                    { label: "Schedule irrigation", value: "irrigation" },
+                    { label: "Apply fertilizer", value: "fertilizer" },
+                    { label: "Pest management", value: "pest" },
+                    { label: "Weed control", value: "weed" },
+                    { label: "Disease prevention", value: "disease" },
+                    { label: "Soil treatment", value: "soil" },
                   ]}
                 />
               </Form.Item>

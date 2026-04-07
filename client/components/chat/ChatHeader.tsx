@@ -1,14 +1,20 @@
-import { ArrowLeft, Phone, Video, MoreVertical, MessageCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { OnlineStatus } from './OnlineStatus';
-import { useUserPresence } from '@/hooks/useUserPresence';
-import { useEffect, useState } from 'react';
+import {
+  ArrowLeft,
+  Phone,
+  Video,
+  MoreVertical,
+  MessageCircle,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { OnlineStatus } from "./OnlineStatus";
+import { useUserPresence } from "@/hooks/useUserPresence";
+import { useEffect, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 
 interface ChatHeaderProps {
   userName: string;
@@ -23,8 +29,8 @@ interface ChatHeaderProps {
   onWhatsApp?: () => void;
 }
 
-export function ChatHeader({ 
-  userName, 
+export function ChatHeader({
+  userName,
   userId,
   conversationId,
   onBack,
@@ -41,7 +47,7 @@ export function ChatHeader({
   // Force re-render every 10 seconds to update presence status
   useEffect(() => {
     const interval = setInterval(() => {
-      forceUpdate(prev => prev + 1);
+      forceUpdate((prev) => prev + 1);
     }, 10000);
 
     return () => clearInterval(interval);
@@ -66,26 +72,28 @@ export function ChatHeader({
             </span>
           </div>
           <div className="absolute -bottom-0.5 -right-0.5">
-            <OnlineStatus status={presence?.status || 'offline'} size="sm" />
+            <OnlineStatus status={presence?.status || "offline"} size="sm" />
           </div>
         </div>
 
         <div className="flex-1">
-          <h3 className="font-semibold text-sm leading-none mb-1">{userName}</h3>
+          <h3 className="font-semibold text-sm leading-none mb-1">
+            {userName}
+          </h3>
           {isOnline ? (
             <p className="text-xs text-green-600 dark:text-green-400">Online</p>
           ) : (
             <p className="text-xs text-muted-foreground">
-              {lastSeen ? `Last seen ${formatLastSeen(lastSeen)}` : 'Offline'}
+              {lastSeen ? `Last seen ${formatLastSeen(lastSeen)}` : "Offline"}
             </p>
           )}
         </div>
       </div>
 
       <div className="flex items-center gap-2">
-        <Button 
-          variant="ghost" 
-          size="icon" 
+        <Button
+          variant="ghost"
+          size="icon"
           className="hidden sm:flex"
           onClick={onVoiceCall}
           disabled={!onVoiceCall}
@@ -93,9 +101,9 @@ export function ChatHeader({
         >
           <Phone className="h-4 w-4" />
         </Button>
-        <Button 
-          variant="ghost" 
-          size="icon" 
+        <Button
+          variant="ghost"
+          size="icon"
           className="hidden sm:flex"
           onClick={onVideoCall}
           disabled={!onVideoCall}
@@ -103,9 +111,9 @@ export function ChatHeader({
         >
           <Video className="h-4 w-4" />
         </Button>
-        <Button 
-          variant="ghost" 
-          size="icon" 
+        <Button
+          variant="ghost"
+          size="icon"
           className="hidden sm:flex"
           onClick={onWhatsApp}
           disabled={!onWhatsApp}
@@ -113,7 +121,7 @@ export function ChatHeader({
         >
           <MessageCircle className="h-4 w-4 text-green-600" />
         </Button>
-        
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
@@ -134,9 +142,7 @@ export function ChatHeader({
               </DropdownMenuItem>
             )}
             {onClose && (
-              <DropdownMenuItem onClick={onClose}>
-                Close Chat
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onClose}>Close Chat</DropdownMenuItem>
             )}
           </DropdownMenuContent>
         </DropdownMenu>
@@ -153,10 +159,10 @@ function formatLastSeen(lastSeen: string): string {
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMins < 1) return 'just now';
+  if (diffMins < 1) return "just now";
   if (diffMins < 60) return `${diffMins}m ago`;
   if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays === 1) return 'yesterday';
+  if (diffDays === 1) return "yesterday";
   if (diffDays < 7) return `${diffDays} days ago`;
   return date.toLocaleDateString();
 }

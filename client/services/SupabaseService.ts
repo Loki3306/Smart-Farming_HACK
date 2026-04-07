@@ -3,9 +3,15 @@
  * Handles farmer profile storage with encrypted sensitive data
  */
 
-import { SupabaseClient } from '@supabase/supabase-js';
-import supabase from '../lib/supabase';
-import { encryptData, decryptData, hashPassword, maskPhone, maskEmail } from '../lib/encryption';
+import { SupabaseClient } from "@supabase/supabase-js";
+import supabase from "../lib/supabase";
+import {
+  encryptData,
+  decryptData,
+  hashPassword,
+  maskPhone,
+  maskEmail,
+} from "../lib/encryption";
 
 /**
  * Get or create Supabase client
@@ -88,13 +94,15 @@ export async function saveFarmerOnboarding(data: {
   const client = getSupabaseClient();
 
   // No encryption needed - phone is now plain text in database
-  const hashedPassword = data.farmer.password ? hashPassword(data.farmer.password) : null;
+  const hashedPassword = data.farmer.password
+    ? hashPassword(data.farmer.password)
+    : null;
 
   // If no Supabase, use localStorage fallback
   if (!client) {
     try {
       const farmerId = `local_${Date.now()}`;
-      
+
       const localData = {
         farmer: {
           id: farmerId,
@@ -111,50 +119,52 @@ export async function saveFarmerOnboarding(data: {
           ...data.farm,
           createdAt: new Date().toISOString(),
         },
-        sensor: data.sensor.connected ? {
-          id: `sensor_${Date.now()}`,
-          farmerId,
-          sensorId: data.sensor.sensorId,
-          sensorType: 'smart-sensor',
-          status: 'active',
-          mqttTopic: `farm/${farmerId}/sensors`,
-          createdAt: new Date().toISOString(),
-        } : null,
+        sensor: data.sensor.connected
+          ? {
+              id: `sensor_${Date.now()}`,
+              farmerId,
+              sensorId: data.sensor.sensorId,
+              sensorType: "smart-sensor",
+              status: "active",
+              mqttTopic: `farm/${farmerId}/sensors`,
+              createdAt: new Date().toISOString(),
+            }
+          : null,
       };
 
-      localStorage.setItem('farmerProfile', JSON.stringify(localData));
-      localStorage.setItem('farmerId', farmerId);
-      localStorage.setItem('farmerName', data.farmer.fullName);
+      localStorage.setItem("farmerProfile", JSON.stringify(localData));
+      localStorage.setItem("farmerId", farmerId);
+      localStorage.setItem("farmerName", data.farmer.fullName);
 
-      console.log('[Supabase] Saved to localStorage (fallback mode)');
+      console.log("[Supabase] Saved to localStorage (fallback mode)");
       return { success: true, farmerId };
     } catch (error) {
-      console.error('[Supabase] localStorage save error:', error);
-      return { success: false, error: 'Failed to save profile' };
+      console.error("[Supabase] localStorage save error:", error);
+      return { success: false, error: "Failed to save profile" };
     }
   }
 
   try {
     // Get current user's farmer_id from localStorage (set during signup/login)
-    const farmerId = localStorage.getItem('user_id');
-    
+    const farmerId = localStorage.getItem("user_id");
+
     if (!farmerId) {
-      console.error('[Supabase] No user_id found in session');
-      return { success: false, error: 'User not authenticated' };
+      console.error("[Supabase] No user_id found in session");
+      return { success: false, error: "User not authenticated" };
     }
 
     // Update existing farmer record with phone (from onboarding)
     // Phone should already be normalized to +91XXXXXXXXXX format
     const { error: updateError } = await client
-      .from('farmers')
+      .from("farmers")
       .update({
         phone: data.farmer.phone, // Normalized format: +91XXXXXXXXXX
         experience: data.farmer.experience.substring(0, 50) || null,
       })
-      .eq('id', farmerId);
+      .eq("id", farmerId);
 
     if (updateError) {
-      console.error('[Supabase] Farmer update error:', updateError);
+      console.error("[Supabase] Farmer update error:", updateError);
       // Continue anyway, farm data is more important
     }
 
@@ -172,47 +182,43 @@ export async function saveFarmerOnboarding(data: {
     };
 
     // Insert farm
-    const { error: farmError } = await client
-      .from('farms')
-      .insert({
-        farmer_id: farmerId,
-        ...farmData,
-      });
+    const { error: farmError } = await client.from("farms").insert({
+      farmer_id: farmerId,
+      ...farmData,
+    });
 
     if (farmError) {
-      console.error('[Supabase] Farm insert error:', farmError);
-      console.error('[Supabase] Failed farm data:', farmData);
+      console.error("[Supabase] Farm insert error:", farmError);
+      console.error("[Supabase] Failed farm data:", farmData);
       // Don't fail completely, farmer was created
     }
 
     // Insert sensor if connected
     if (data.sensor.connected) {
-      const { error: sensorError } = await client
-        .from('sensors')
-        .insert({
-          farmer_id: farmerId,
-          sensor_type: 'smart-sensor',
-          sensor_id: data.sensor.sensorId,
-          status: 'active',
-          mqtt_topic: `farm/${farmerId}/sensors`,
-        });
+      const { error: sensorError } = await client.from("sensors").insert({
+        farmer_id: farmerId,
+        sensor_type: "smart-sensor",
+        sensor_id: data.sensor.sensorId,
+        status: "active",
+        mqtt_topic: `farm/${farmerId}/sensors`,
+      });
 
       if (sensorError) {
-        console.error('[Supabase] Sensor insert error:', sensorError);
+        console.error("[Supabase] Sensor insert error:", sensorError);
       }
     }
 
     // Also save to localStorage for quick access
-    localStorage.setItem('farmerId', farmerId);
-    localStorage.setItem('farmerName', data.farmer.fullName);
+    localStorage.setItem("farmerId", farmerId);
+    localStorage.setItem("farmerName", data.farmer.fullName);
 
-    console.log('[Supabase] Profile saved successfully:', farmerId);
+    console.log("[Supabase] Profile saved successfully:", farmerId);
     return { success: true, farmerId };
   } catch (error) {
-    console.error('[Supabase] Save error:', error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Database error' 
+    console.error("[Supabase] Save error:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Database error",
     };
   }
 }
@@ -220,13 +226,15 @@ export async function saveFarmerOnboarding(data: {
 /**
  * Get farmer profile (decrypted)
  */
-export async function getFarmerProfile(farmerId: string): Promise<FarmerProfile | null> {
+export async function getFarmerProfile(
+  farmerId: string,
+): Promise<FarmerProfile | null> {
   const client = getSupabaseClient();
 
   if (!client) {
     // Fallback to localStorage
     try {
-      const stored = localStorage.getItem('farmerProfile');
+      const stored = localStorage.getItem("farmerProfile");
       if (stored) {
         const data = JSON.parse(stored);
         return {
@@ -236,16 +244,16 @@ export async function getFarmerProfile(farmerId: string): Promise<FarmerProfile 
         };
       }
     } catch (error) {
-      console.error('[Supabase] localStorage read error:', error);
+      console.error("[Supabase] localStorage read error:", error);
     }
     return null;
   }
 
   try {
     const { data, error } = await client
-      .from('farmers')
-      .select('*')
-      .eq('id', farmerId)
+      .from("farmers")
+      .select("*")
+      .eq("id", farmerId)
       .single();
 
     if (error || !data) {
@@ -261,7 +269,7 @@ export async function getFarmerProfile(farmerId: string): Promise<FarmerProfile 
       createdAt: data.created_at,
     };
   } catch (error) {
-    console.error('[Supabase] Get profile error:', error);
+    console.error("[Supabase] Get profile error:", error);
     return null;
   }
 }
@@ -292,7 +300,7 @@ export async function getFarmerProfileMasked(farmerId: string): Promise<{
 export async function logAction(
   farmerId: string,
   action: string,
-  details: string
+  details: string,
 ): Promise<void> {
   const client = getSupabaseClient();
 
@@ -303,12 +311,12 @@ export async function logAction(
   }
 
   try {
-    await client.from('action_logs').insert({
+    await client.from("action_logs").insert({
       farmer_id: farmerId,
       action,
       details,
     });
   } catch (error) {
-    console.error('[Supabase] Log action error:', error);
+    console.error("[Supabase] Log action error:", error);
   }
 }

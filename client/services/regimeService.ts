@@ -4,7 +4,7 @@
  * Handles all HTTP requests for regime CRUD operations
  */
 
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosInstance } from "axios";
 
 interface CreateRegimeRequest {
   farmer_id: string;
@@ -37,18 +37,19 @@ class RegimeService {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = import.meta.env.VITE_PYTHON_AI_URL || 'http://localhost:8000';
+    this.baseUrl =
+      import.meta.env.VITE_PYTHON_AI_URL || "http://localhost:8000";
     this.client = axios.create({
       baseURL: this.baseUrl,
       timeout: 30000,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
     // Add auth token to requests if available
     this.client.interceptors.request.use((config) => {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -60,11 +61,9 @@ class RegimeService {
       (response) => response.data,
       (error) => {
         const message =
-          error.response?.data?.detail ||
-          error.message ||
-          'An error occurred';
+          error.response?.data?.detail || error.message || "An error occurred";
         throw new Error(message);
-      }
+      },
     );
   }
 
@@ -72,10 +71,10 @@ class RegimeService {
    * Get all regimes for current user
    */
   async getRegimes() {
-    const farmerId = localStorage.getItem('current_user') 
-      ? JSON.parse(localStorage.getItem('current_user') || '{}').id 
+    const farmerId = localStorage.getItem("current_user")
+      ? JSON.parse(localStorage.getItem("current_user") || "{}").id
       : null;
-    return this.client.get('/api/regime', {
+    return this.client.get("/api/regime", {
       params: { farmer_id: farmerId },
     });
   }
@@ -84,7 +83,9 @@ class RegimeService {
    * Get single regime with all tasks
    */
   async getRegime(regimeId: string) {
-    const currentUser = JSON.parse(localStorage.getItem('current_user') || '{}');
+    const currentUser = JSON.parse(
+      localStorage.getItem("current_user") || "{}",
+    );
     return this.client.get(`/api/regime/${regimeId}`, {
       params: { farmer_id: currentUser.id },
     });
@@ -94,17 +95,20 @@ class RegimeService {
    * Create new regime from recommendations
    */
   async createRegime(data: CreateRegimeRequest) {
-    const currentUser = JSON.parse(localStorage.getItem('current_user') || '{}');
-    
+    const currentUser = JSON.parse(
+      localStorage.getItem("current_user") || "{}",
+    );
+
     // Use farm_id from data if provided, otherwise try localStorage, otherwise null
-    const farmId = data.farm_id !== undefined 
-      ? data.farm_id 
-      : (localStorage.getItem('farm_id') || currentUser.farm_id || null);
-    
-    return this.client.post('/api/regime/generate', {
+    const farmId =
+      data.farm_id !== undefined
+        ? data.farm_id
+        : localStorage.getItem("farm_id") || currentUser.farm_id || null;
+
+    return this.client.post("/api/regime/generate", {
       ...data,
       farmer_id: data.farmer_id || currentUser.id,
-      farm_id: farmId,  // Can be null - no fallback to farmer_id
+      farm_id: farmId, // Can be null - no fallback to farmer_id
       recommendations: data.recommendations || [],
     });
   }
@@ -113,7 +117,9 @@ class RegimeService {
    * Update regime with new recommendations
    */
   async updateRegime(regimeId: string, data: UpdateRegimeRequest) {
-    const currentUser = JSON.parse(localStorage.getItem('current_user') || '{}');
+    const currentUser = JSON.parse(
+      localStorage.getItem("current_user") || "{}",
+    );
     return this.client.patch(`/api/regime/${regimeId}/update`, data, {
       params: { farmer_id: currentUser.id },
     });
@@ -123,7 +129,9 @@ class RegimeService {
    * Archive regime
    */
   async deleteRegime(regimeId: string) {
-    const currentUser = JSON.parse(localStorage.getItem('current_user') || '{}');
+    const currentUser = JSON.parse(
+      localStorage.getItem("current_user") || "{}",
+    );
     return this.client.delete(`/api/regime/${regimeId}`, {
       params: { farmer_id: currentUser.id },
     });
@@ -133,7 +141,9 @@ class RegimeService {
    * Get regime version history
    */
   async getRegimeHistory(regimeId: string) {
-    const currentUser = JSON.parse(localStorage.getItem('current_user') || '{}');
+    const currentUser = JSON.parse(
+      localStorage.getItem("current_user") || "{}",
+    );
     return this.client.get(`/api/regime/${regimeId}/history`, {
       params: { farmer_id: currentUser.id },
     });
@@ -142,8 +152,13 @@ class RegimeService {
   /**
    * Get regime tasks with optional filters
    */
-  async getRegimeTasks(regimeId: string, filters?: { status?: string; priority?: string }) {
-    const currentUser = JSON.parse(localStorage.getItem('current_user') || '{}');
+  async getRegimeTasks(
+    regimeId: string,
+    filters?: { status?: string; priority?: string },
+  ) {
+    const currentUser = JSON.parse(
+      localStorage.getItem("current_user") || "{}",
+    );
     return this.client.get(`/api/regime/${regimeId}/tasks`, {
       params: {
         farmer_id: currentUser.id,
@@ -159,9 +174,11 @@ class RegimeService {
     regimeId: string,
     taskId: string,
     status: string,
-    notes?: string
+    notes?: string,
   ) {
-    const currentUser = JSON.parse(localStorage.getItem('current_user') || '{}');
+    const currentUser = JSON.parse(
+      localStorage.getItem("current_user") || "{}",
+    );
     return this.client.patch(
       `/api/regime/${regimeId}/task/${taskId}/status`,
       {
@@ -170,21 +187,21 @@ class RegimeService {
       },
       {
         params: { farmer_id: currentUser.id },
-      }
+      },
     );
   }
 
   /**
    * Export regime to PDF or CSV
    */
-  async exportRegime(regimeId: string, format: 'pdf' | 'csv') {
+  async exportRegime(regimeId: string, format: "pdf" | "csv") {
     return this.client.post(
       `/api/regime/${regimeId}/export`,
       {},
       {
         params: { format },
-        responseType: 'blob',
-      }
+        responseType: "blob",
+      },
     );
   }
 
@@ -192,7 +209,7 @@ class RegimeService {
    * Check health of regime API
    */
   async health() {
-    return this.client.get('/api/regime/health');
+    return this.client.get("/api/regime/health");
   }
 }
 

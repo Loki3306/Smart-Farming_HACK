@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
 import {
   Course,
   CourseLesson,
@@ -17,7 +17,7 @@ import {
   UserRoadmapProgress,
   CoursePurchase,
   UserLearningStats,
-} from '../types/learn.types';
+} from "../types/learn.types";
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL!;
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY!;
@@ -36,25 +36,25 @@ export async function getCourses(
     level?: string;
     search?: string;
     isPublished?: boolean;
-  }
+  },
 ) {
-  let query = supabase.from('courses').select('*', { count: 'exact' });
+  let query = supabase.from("courses").select("*", { count: "exact" });
 
   if (filters?.category) {
-    query = query.eq('category', filters.category);
+    query = query.eq("category", filters.category);
   }
   if (filters?.level) {
-    query = query.eq('level', filters.level);
+    query = query.eq("level", filters.level);
   }
   if (filters?.isPublished !== undefined) {
-    query = query.eq('is_published', filters.isPublished);
+    query = query.eq("is_published", filters.isPublished);
   }
   if (filters?.search) {
-    query = query.textSearch('search_vector', filters.search);
+    query = query.textSearch("search_vector", filters.search);
   }
 
   const { data, error, count } = await query
-    .order('created_at', { ascending: false })
+    .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
   if (error) throw error;
@@ -63,18 +63,20 @@ export async function getCourses(
 
 export async function getCourseById(id: string) {
   const { data, error } = await supabase
-    .from('courses')
-    .select('*')
-    .eq('id', id)
+    .from("courses")
+    .select("*")
+    .eq("id", id)
     .single();
 
   if (error) throw error;
   return data as Course;
 }
 
-export async function createCourse(course: Omit<Course, 'id' | 'created_at' | 'updated_at' | 'published_at'>) {
+export async function createCourse(
+  course: Omit<Course, "id" | "created_at" | "updated_at" | "published_at">,
+) {
   const { data, error } = await supabase
-    .from('courses')
+    .from("courses")
     .insert([course])
     .select()
     .single();
@@ -85,9 +87,9 @@ export async function createCourse(course: Omit<Course, 'id' | 'created_at' | 'u
 
 export async function updateCourse(id: string, updates: Partial<Course>) {
   const { data, error } = await supabase
-    .from('courses')
+    .from("courses")
     .update(updates)
-    .eq('id', id)
+    .eq("id", id)
     .select()
     .single();
 
@@ -96,10 +98,7 @@ export async function updateCourse(id: string, updates: Partial<Course>) {
 }
 
 export async function deleteCourse(id: string) {
-  const { error } = await supabase
-    .from('courses')
-    .delete()
-    .eq('id', id);
+  const { error } = await supabase.from("courses").delete().eq("id", id);
 
   if (error) throw error;
 }
@@ -111,13 +110,13 @@ export async function deleteCourse(id: string) {
 export async function getCourseLessons(
   courseId: string,
   limit: number = 50,
-  offset: number = 0
+  offset: number = 0,
 ) {
   const { data, error, count } = await supabase
-    .from('course_lessons')
-    .select('*', { count: 'exact' })
-    .eq('course_id', courseId)
-    .order('order_index', { ascending: true })
+    .from("course_lessons")
+    .select("*", { count: "exact" })
+    .eq("course_id", courseId)
+    .order("order_index", { ascending: true })
     .range(offset, offset + limit - 1);
 
   if (error) throw error;
@@ -126,18 +125,20 @@ export async function getCourseLessons(
 
 export async function getLessonById(id: string) {
   const { data, error } = await supabase
-    .from('course_lessons')
-    .select('*')
-    .eq('id', id)
+    .from("course_lessons")
+    .select("*")
+    .eq("id", id)
     .single();
 
   if (error) throw error;
   return data as CourseLesson;
 }
 
-export async function createLesson(lesson: Omit<CourseLesson, 'id' | 'created_at' | 'updated_at'>) {
+export async function createLesson(
+  lesson: Omit<CourseLesson, "id" | "created_at" | "updated_at">,
+) {
   const { data, error } = await supabase
-    .from('course_lessons')
+    .from("course_lessons")
     .insert([lesson])
     .select()
     .single();
@@ -148,9 +149,9 @@ export async function createLesson(lesson: Omit<CourseLesson, 'id' | 'created_at
 
 export async function updateLesson(id: string, updates: Partial<CourseLesson>) {
   const { data, error } = await supabase
-    .from('course_lessons')
+    .from("course_lessons")
     .update(updates)
-    .eq('id', id)
+    .eq("id", id)
     .select()
     .single();
 
@@ -170,25 +171,25 @@ export async function getArticles(
     featured?: boolean;
     search?: string;
     isPublished?: boolean;
-  }
+  },
 ) {
-  let query = supabase.from('articles').select('*', { count: 'exact' });
+  let query = supabase.from("articles").select("*", { count: "exact" });
 
   if (filters?.category) {
-    query = query.eq('category', filters.category);
+    query = query.eq("category", filters.category);
   }
   if (filters?.featured) {
-    query = query.eq('is_featured', true);
+    query = query.eq("is_featured", true);
   }
   if (filters?.isPublished !== undefined) {
-    query = query.eq('is_published', filters.isPublished);
+    query = query.eq("is_published", filters.isPublished);
   }
   if (filters?.search) {
-    query = query.textSearch('search_vector', filters.search);
+    query = query.textSearch("search_vector", filters.search);
   }
 
   const { data, error, count } = await query
-    .order('created_at', { ascending: false })
+    .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
   if (error) throw error;
@@ -197,18 +198,20 @@ export async function getArticles(
 
 export async function getArticleById(id: string) {
   const { data, error } = await supabase
-    .from('articles')
-    .select('*')
-    .eq('id', id)
+    .from("articles")
+    .select("*")
+    .eq("id", id)
     .single();
 
   if (error) throw error;
   return data as Article;
 }
 
-export async function createArticle(article: Omit<Article, 'id' | 'created_at' | 'updated_at' | 'published_at'>) {
+export async function createArticle(
+  article: Omit<Article, "id" | "created_at" | "updated_at" | "published_at">,
+) {
   const { data, error } = await supabase
-    .from('articles')
+    .from("articles")
     .insert([article])
     .select()
     .single();
@@ -219,9 +222,9 @@ export async function createArticle(article: Omit<Article, 'id' | 'created_at' |
 
 export async function updateArticle(id: string, updates: Partial<Article>) {
   const { data, error } = await supabase
-    .from('articles')
+    .from("articles")
     .update(updates)
-    .eq('id', id)
+    .eq("id", id)
     .select()
     .single();
 
@@ -252,28 +255,28 @@ export async function getVideos(
     featured?: boolean;
     search?: string;
     isPublished?: boolean;
-  }
+  },
 ) {
-  let query = supabase.from('videos').select('*', { count: 'exact' });
+  let query = supabase.from("videos").select("*", { count: "exact" });
 
   if (filters?.category) {
-    query = query.eq('category', filters.category);
+    query = query.eq("category", filters.category);
   }
   if (filters?.type) {
-    query = query.eq('video_type', filters.type);
+    query = query.eq("video_type", filters.type);
   }
   if (filters?.featured) {
-    query = query.eq('is_featured', true);
+    query = query.eq("is_featured", true);
   }
   if (filters?.isPublished !== undefined) {
-    query = query.eq('is_published', filters.isPublished);
+    query = query.eq("is_published", filters.isPublished);
   }
   if (filters?.search) {
-    query = query.textSearch('search_vector', filters.search);
+    query = query.textSearch("search_vector", filters.search);
   }
 
   const { data, error, count } = await query
-    .order('created_at', { ascending: false })
+    .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
   if (error) throw error;
@@ -282,18 +285,20 @@ export async function getVideos(
 
 export async function getVideoById(id: string) {
   const { data, error } = await supabase
-    .from('videos')
-    .select('*')
-    .eq('id', id)
+    .from("videos")
+    .select("*")
+    .eq("id", id)
     .single();
 
   if (error) throw error;
   return data as Video;
 }
 
-export async function createVideo(video: Omit<Video, 'id' | 'created_at' | 'updated_at' | 'published_at'>) {
+export async function createVideo(
+  video: Omit<Video, "id" | "created_at" | "updated_at" | "published_at">,
+) {
   const { data, error } = await supabase
-    .from('videos')
+    .from("videos")
     .insert([video])
     .select()
     .single();
@@ -304,9 +309,9 @@ export async function createVideo(video: Omit<Video, 'id' | 'created_at' | 'upda
 
 export async function updateVideo(id: string, updates: Partial<Video>) {
   const { data, error } = await supabase
-    .from('videos')
+    .from("videos")
     .update(updates)
-    .eq('id', id)
+    .eq("id", id)
     .select()
     .single();
 
@@ -331,13 +336,13 @@ export async function incrementVideoViews(id: string) {
 export async function getQuizzesByCourse(
   courseId: string,
   limit: number = 20,
-  offset: number = 0
+  offset: number = 0,
 ) {
   const { data, error, count } = await supabase
-    .from('quizzes')
-    .select('*', { count: 'exact' })
-    .eq('course_id', courseId)
-    .order('order_index', { ascending: true })
+    .from("quizzes")
+    .select("*", { count: "exact" })
+    .eq("course_id", courseId)
+    .order("order_index", { ascending: true })
     .range(offset, offset + limit - 1);
 
   if (error) throw error;
@@ -346,9 +351,9 @@ export async function getQuizzesByCourse(
 
 export async function getQuizById(id: string) {
   const { data, error } = await supabase
-    .from('quizzes')
-    .select('*')
-    .eq('id', id)
+    .from("quizzes")
+    .select("*")
+    .eq("id", id)
     .single();
 
   if (error) throw error;
@@ -357,18 +362,18 @@ export async function getQuizById(id: string) {
 
 export async function getQuizWithQuestions(id: string) {
   const { data: quiz, error: quizError } = await supabase
-    .from('quizzes')
-    .select('*')
-    .eq('id', id)
+    .from("quizzes")
+    .select("*")
+    .eq("id", id)
     .single();
 
   if (quizError) throw quizError;
 
   const { data: questions, error: questionsError } = await supabase
-    .from('quiz_questions')
-    .select('*')
-    .eq('quiz_id', id)
-    .order('order_index', { ascending: true });
+    .from("quiz_questions")
+    .select("*")
+    .eq("quiz_id", id)
+    .order("order_index", { ascending: true });
 
   if (questionsError) throw questionsError;
 
@@ -378,9 +383,11 @@ export async function getQuizWithQuestions(id: string) {
   } as Quiz & { questions: QuizQuestion[] };
 }
 
-export async function createQuiz(quiz: Omit<Quiz, 'id' | 'created_at' | 'updated_at'>) {
+export async function createQuiz(
+  quiz: Omit<Quiz, "id" | "created_at" | "updated_at">,
+) {
   const { data, error } = await supabase
-    .from('quizzes')
+    .from("quizzes")
     .insert([quiz])
     .select()
     .single();
@@ -391,9 +398,9 @@ export async function createQuiz(quiz: Omit<Quiz, 'id' | 'created_at' | 'updated
 
 export async function updateQuiz(id: string, updates: Partial<Quiz>) {
   const { data, error } = await supabase
-    .from('quizzes')
+    .from("quizzes")
     .update(updates)
-    .eq('id', id)
+    .eq("id", id)
     .select()
     .single();
 
@@ -407,10 +414,10 @@ export async function updateQuiz(id: string, updates: Partial<Quiz>) {
 
 export async function getQuizQuestions(quizId: string) {
   const { data, error } = await supabase
-    .from('quiz_questions')
-    .select('*')
-    .eq('quiz_id', quizId)
-    .order('order_index', { ascending: true });
+    .from("quiz_questions")
+    .select("*")
+    .eq("quiz_id", quizId)
+    .order("order_index", { ascending: true });
 
   if (error) throw error;
   return data as QuizQuestion[];
@@ -418,18 +425,20 @@ export async function getQuizQuestions(quizId: string) {
 
 export async function getQuestionById(id: string) {
   const { data, error } = await supabase
-    .from('quiz_questions')
-    .select('*')
-    .eq('id', id)
+    .from("quiz_questions")
+    .select("*")
+    .eq("id", id)
     .single();
 
   if (error) throw error;
   return data as QuizQuestion;
 }
 
-export async function createQuestion(question: Omit<QuizQuestion, 'id' | 'created_at' | 'updated_at'>) {
+export async function createQuestion(
+  question: Omit<QuizQuestion, "id" | "created_at" | "updated_at">,
+) {
   const { data, error } = await supabase
-    .from('quiz_questions')
+    .from("quiz_questions")
     .insert([question])
     .select()
     .single();
@@ -438,11 +447,14 @@ export async function createQuestion(question: Omit<QuizQuestion, 'id' | 'create
   return data as QuizQuestion;
 }
 
-export async function updateQuestion(id: string, updates: Partial<QuizQuestion>) {
+export async function updateQuestion(
+  id: string,
+  updates: Partial<QuizQuestion>,
+) {
   const { data, error } = await supabase
-    .from('quiz_questions')
+    .from("quiz_questions")
     .update(updates)
-    .eq('id', id)
+    .eq("id", id)
     .select()
     .single();
 
@@ -457,16 +469,16 @@ export async function updateQuestion(id: string, updates: Partial<QuizQuestion>)
 export async function getBadges(
   limit: number = 20,
   offset: number = 0,
-  category?: string
+  category?: string,
 ) {
-  let query = supabase.from('badges').select('*', { count: 'exact' });
+  let query = supabase.from("badges").select("*", { count: "exact" });
 
   if (category) {
-    query = query.eq('category', category);
+    query = query.eq("category", category);
   }
 
   const { data, error, count } = await query
-    .order('created_at', { ascending: false })
+    .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
   if (error) throw error;
@@ -475,18 +487,18 @@ export async function getBadges(
 
 export async function getBadgeById(id: string) {
   const { data, error } = await supabase
-    .from('badges')
-    .select('*')
-    .eq('id', id)
+    .from("badges")
+    .select("*")
+    .eq("id", id)
     .single();
 
   if (error) throw error;
   return data as Badge;
 }
 
-export async function createBadge(badge: Omit<Badge, 'id' | 'created_at'>) {
+export async function createBadge(badge: Omit<Badge, "id" | "created_at">) {
   const { data, error } = await supabase
-    .from('badges')
+    .from("badges")
     .insert([badge])
     .select()
     .single();
@@ -503,30 +515,33 @@ export async function getEnrollments(
   userId: string,
   limit: number = 20,
   offset: number = 0,
-  status?: string
+  status?: string,
 ) {
   let query = supabase
-    .from('course_enrollments')
-    .select('*, courses(*)', { count: 'exact' })
-    .eq('user_id', userId);
+    .from("course_enrollments")
+    .select("*, courses(*)", { count: "exact" })
+    .eq("user_id", userId);
 
   if (status) {
-    query = query.eq('status', status);
+    query = query.eq("status", status);
   }
 
   const { data, error, count } = await query
-    .order('enrolled_at', { ascending: false })
+    .order("enrolled_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
   if (error) throw error;
-  return { data: data as (CourseEnrollment & { courses: Course })[], total: count || 0 };
+  return {
+    data: data as (CourseEnrollment & { courses: Course })[],
+    total: count || 0,
+  };
 }
 
 export async function getEnrollmentById(id: string) {
   const { data, error } = await supabase
-    .from('course_enrollments')
-    .select('*, courses(*)')
-    .eq('id', id)
+    .from("course_enrollments")
+    .select("*, courses(*)")
+    .eq("id", id)
     .single();
 
   if (error) throw error;
@@ -535,20 +550,22 @@ export async function getEnrollmentById(id: string) {
 
 export async function getEnrollment(userId: string, courseId: string) {
   const { data, error } = await supabase
-    .from('course_enrollments')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('course_id', courseId)
+    .from("course_enrollments")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("course_id", courseId)
     .single();
 
-  if (error?.code === 'PGRST116') return null; // not found
+  if (error?.code === "PGRST116") return null; // not found
   if (error) throw error;
   return data as CourseEnrollment;
 }
 
-export async function createEnrollment(enrollment: Omit<CourseEnrollment, 'id' | 'enrolled_at' | 'last_accessed_at'>) {
+export async function createEnrollment(
+  enrollment: Omit<CourseEnrollment, "id" | "enrolled_at" | "last_accessed_at">,
+) {
   const { data, error } = await supabase
-    .from('course_enrollments')
+    .from("course_enrollments")
     .insert([enrollment])
     .select()
     .single();
@@ -557,11 +574,14 @@ export async function createEnrollment(enrollment: Omit<CourseEnrollment, 'id' |
   return data as CourseEnrollment;
 }
 
-export async function updateEnrollment(id: string, updates: Partial<CourseEnrollment>) {
+export async function updateEnrollment(
+  id: string,
+  updates: Partial<CourseEnrollment>,
+) {
   const { data, error } = await supabase
-    .from('course_enrollments')
+    .from("course_enrollments")
     .update(updates)
-    .eq('id', id)
+    .eq("id", id)
     .select()
     .single();
 
@@ -571,9 +591,9 @@ export async function updateEnrollment(id: string, updates: Partial<CourseEnroll
 
 export async function deleteEnrollment(id: string) {
   const { error } = await supabase
-    .from('course_enrollments')
+    .from("course_enrollments")
     .delete()
-    .eq('id', id);
+    .eq("id", id);
 
   if (error) throw error;
 }
@@ -584,20 +604,22 @@ export async function deleteEnrollment(id: string) {
 
 export async function getLessonProgress(userId: string, lessonId: string) {
   const { data, error } = await supabase
-    .from('lesson_progress')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('lesson_id', lessonId)
+    .from("lesson_progress")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("lesson_id", lessonId)
     .single();
 
-  if (error?.code === 'PGRST116') return null; // not found
+  if (error?.code === "PGRST116") return null; // not found
   if (error) throw error;
   return data as LessonProgress;
 }
 
-export async function createLessonProgress(progress: Omit<LessonProgress, 'id' | 'created_at' | 'updated_at'>) {
+export async function createLessonProgress(
+  progress: Omit<LessonProgress, "id" | "created_at" | "updated_at">,
+) {
   const { data, error } = await supabase
-    .from('lesson_progress')
+    .from("lesson_progress")
     .insert([progress])
     .select()
     .single();
@@ -606,11 +628,14 @@ export async function createLessonProgress(progress: Omit<LessonProgress, 'id' |
   return data as LessonProgress;
 }
 
-export async function updateLessonProgress(id: string, updates: Partial<LessonProgress>) {
+export async function updateLessonProgress(
+  id: string,
+  updates: Partial<LessonProgress>,
+) {
   const { data, error } = await supabase
-    .from('lesson_progress')
+    .from("lesson_progress")
     .update(updates)
-    .eq('id', id)
+    .eq("id", id)
     .select()
     .single();
 
@@ -620,33 +645,39 @@ export async function updateLessonProgress(id: string, updates: Partial<LessonPr
 
 export async function getCourseProgress(userId: string, courseId: string) {
   const { data: enrollments, error: enrollError } = await supabase
-    .from('course_enrollments')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('course_id', courseId)
+    .from("course_enrollments")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("course_id", courseId)
     .single();
 
   if (enrollError) throw enrollError;
 
   const { data: lessons, error: lessonsError } = await supabase
-    .from('course_lessons')
-    .select('id')
-    .eq('course_id', courseId);
+    .from("course_lessons")
+    .select("id")
+    .eq("course_id", courseId);
 
   if (lessonsError) throw lessonsError;
 
   const { data: progress, error: progressError } = await supabase
-    .from('lesson_progress')
-    .select('*')
-    .eq('user_id', userId)
-    .in('lesson_id', lessons!.map((l) => l.id))
-    .eq('status', 'completed');
+    .from("lesson_progress")
+    .select("*")
+    .eq("user_id", userId)
+    .in(
+      "lesson_id",
+      lessons!.map((l) => l.id),
+    )
+    .eq("status", "completed");
 
   if (progressError) throw progressError;
 
   const totalLessons = lessons!.length;
   const completedLessons = progress!.length;
-  const progressPercent = totalLessons === 0 ? 0 : Math.round((completedLessons / totalLessons) * 100);
+  const progressPercent =
+    totalLessons === 0
+      ? 0
+      : Math.round((completedLessons / totalLessons) * 100);
 
   return {
     enrollment: enrollments as CourseEnrollment,
@@ -664,14 +695,14 @@ export async function getQuizAttempts(
   userId: string,
   quizId: string,
   limit: number = 20,
-  offset: number = 0
+  offset: number = 0,
 ) {
   const { data, error, count } = await supabase
-    .from('quiz_attempts')
-    .select('*', { count: 'exact' })
-    .eq('user_id', userId)
-    .eq('quiz_id', quizId)
-    .order('created_at', { ascending: false })
+    .from("quiz_attempts")
+    .select("*", { count: "exact" })
+    .eq("user_id", userId)
+    .eq("quiz_id", quizId)
+    .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
   if (error) throw error;
@@ -680,22 +711,24 @@ export async function getQuizAttempts(
 
 export async function getLatestQuizAttempt(userId: string, quizId: string) {
   const { data, error } = await supabase
-    .from('quiz_attempts')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('quiz_id', quizId)
-    .order('created_at', { ascending: false })
+    .from("quiz_attempts")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("quiz_id", quizId)
+    .order("created_at", { ascending: false })
     .limit(1)
     .single();
 
-  if (error?.code === 'PGRST116') return null; // not found
+  if (error?.code === "PGRST116") return null; // not found
   if (error) throw error;
   return data as QuizAttempt;
 }
 
-export async function createQuizAttempt(attempt: Omit<QuizAttempt, 'id' | 'created_at'>) {
+export async function createQuizAttempt(
+  attempt: Omit<QuizAttempt, "id" | "created_at">,
+) {
   const { data, error } = await supabase
-    .from('quiz_attempts')
+    .from("quiz_attempts")
     .insert([attempt])
     .select()
     .single();
@@ -704,11 +737,14 @@ export async function createQuizAttempt(attempt: Omit<QuizAttempt, 'id' | 'creat
   return data as QuizAttempt;
 }
 
-export async function updateQuizAttempt(id: string, updates: Partial<QuizAttempt>) {
+export async function updateQuizAttempt(
+  id: string,
+  updates: Partial<QuizAttempt>,
+) {
   const { data, error } = await supabase
-    .from('quiz_attempts')
+    .from("quiz_attempts")
     .update(updates)
-    .eq('id', id)
+    .eq("id", id)
     .select()
     .single();
 
@@ -722,17 +758,19 @@ export async function updateQuizAttempt(id: string, updates: Partial<QuizAttempt
 
 export async function getAttemptAnswers(attemptId: string) {
   const { data, error } = await supabase
-    .from('quiz_answers')
-    .select('*')
-    .eq('attempt_id', attemptId);
+    .from("quiz_answers")
+    .select("*")
+    .eq("attempt_id", attemptId);
 
   if (error) throw error;
   return data as QuizAnswer[];
 }
 
-export async function createQuizAnswer(answer: Omit<QuizAnswer, 'id' | 'created_at'>) {
+export async function createQuizAnswer(
+  answer: Omit<QuizAnswer, "id" | "created_at">,
+) {
   const { data, error } = await supabase
-    .from('quiz_answers')
+    .from("quiz_answers")
     .insert([answer])
     .select()
     .single();
@@ -741,9 +779,11 @@ export async function createQuizAnswer(answer: Omit<QuizAnswer, 'id' | 'created_
   return data as QuizAnswer;
 }
 
-export async function createQuizAnswers(answers: Omit<QuizAnswer, 'id' | 'created_at'>[]) {
+export async function createQuizAnswers(
+  answers: Omit<QuizAnswer, "id" | "created_at">[],
+) {
   const { data, error } = await supabase
-    .from('quiz_answers')
+    .from("quiz_answers")
     .insert(answers)
     .select();
 
@@ -759,19 +799,19 @@ export async function getUserBadges(
   userId: string,
   limit: number = 20,
   offset: number = 0,
-  category?: string
+  category?: string,
 ) {
   let query = supabase
-    .from('user_badges')
-    .select('*, badges(*)', { count: 'exact' })
-    .eq('user_id', userId);
+    .from("user_badges")
+    .select("*, badges(*)", { count: "exact" })
+    .eq("user_id", userId);
 
   if (category) {
-    query = query.filter('badges.category', 'eq', category);
+    query = query.filter("badges.category", "eq", category);
   }
 
   const { data, error, count } = await query
-    .order('earned_at', { ascending: false })
+    .order("earned_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
   if (error) throw error;
@@ -780,25 +820,25 @@ export async function getUserBadges(
 
 export async function getUserBadge(userId: string, badgeId: string) {
   const { data, error } = await supabase
-    .from('user_badges')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('badge_id', badgeId)
+    .from("user_badges")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("badge_id", badgeId)
     .single();
 
-  if (error?.code === 'PGRST116') return null; // not found
+  if (error?.code === "PGRST116") return null; // not found
   if (error) throw error;
   return data as UserBadge;
 }
 
 export async function awardBadge(userId: string, badgeId: string) {
   const { data, error } = await supabase
-    .from('user_badges')
+    .from("user_badges")
     .insert([{ user_id: userId, badge_id: badgeId }])
     .select()
     .single();
 
-  if (error?.code === 'PGRST116' || error?.code === '23505') return null; // already exists
+  if (error?.code === "PGRST116" || error?.code === "23505") return null; // already exists
   if (error) throw error;
   return data as UserBadge;
 }
@@ -811,19 +851,21 @@ export async function getRoadmaps(
   limit: number = 20,
   offset: number = 0,
   difficulty?: string,
-  isPublished: boolean = true
+  isPublished: boolean = true,
 ) {
-  let query = supabase.from('learning_roadmaps').select('*', { count: 'exact' });
+  let query = supabase
+    .from("learning_roadmaps")
+    .select("*", { count: "exact" });
 
   if (isPublished) {
-    query = query.eq('is_published', true);
+    query = query.eq("is_published", true);
   }
   if (difficulty) {
-    query = query.eq('difficulty', difficulty);
+    query = query.eq("difficulty", difficulty);
   }
 
   const { data, error, count } = await query
-    .order('created_at', { ascending: false })
+    .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
   if (error) throw error;
@@ -832,9 +874,9 @@ export async function getRoadmaps(
 
 export async function getRoadmapById(id: string) {
   const { data, error } = await supabase
-    .from('learning_roadmaps')
-    .select('*')
-    .eq('id', id)
+    .from("learning_roadmaps")
+    .select("*")
+    .eq("id", id)
     .single();
 
   if (error) throw error;
@@ -843,30 +885,34 @@ export async function getRoadmapById(id: string) {
 
 export async function getRoadmapWithMilestones(id: string) {
   const { data: roadmap, error: roadmapError } = await supabase
-    .from('learning_roadmaps')
-    .select('*')
-    .eq('id', id)
+    .from("learning_roadmaps")
+    .select("*")
+    .eq("id", id)
     .single();
 
   if (roadmapError) throw roadmapError;
 
   const { data: milestones, error: milestonesError } = await supabase
-    .from('roadmap_milestones')
-    .select('*, courses(*)')
-    .eq('roadmap_id', id)
-    .order('order_index', { ascending: true });
+    .from("roadmap_milestones")
+    .select("*, courses(*)")
+    .eq("roadmap_id", id)
+    .order("order_index", { ascending: true });
 
   if (milestonesError) throw milestonesError;
 
   return {
     ...roadmap,
     milestones: milestones as (RoadmapMilestone & { courses: Course })[],
-  } as LearningRoadmap & { milestones: (RoadmapMilestone & { courses: Course })[] };
+  } as LearningRoadmap & {
+    milestones: (RoadmapMilestone & { courses: Course })[];
+  };
 }
 
-export async function createRoadmap(roadmap: Omit<LearningRoadmap, 'id' | 'created_at' | 'updated_at'>) {
+export async function createRoadmap(
+  roadmap: Omit<LearningRoadmap, "id" | "created_at" | "updated_at">,
+) {
   const { data, error } = await supabase
-    .from('learning_roadmaps')
+    .from("learning_roadmaps")
     .insert([roadmap])
     .select()
     .single();
@@ -875,11 +921,14 @@ export async function createRoadmap(roadmap: Omit<LearningRoadmap, 'id' | 'creat
   return data as LearningRoadmap;
 }
 
-export async function updateRoadmap(id: string, updates: Partial<LearningRoadmap>) {
+export async function updateRoadmap(
+  id: string,
+  updates: Partial<LearningRoadmap>,
+) {
   const { data, error } = await supabase
-    .from('learning_roadmaps')
+    .from("learning_roadmaps")
     .update(updates)
-    .eq('id', id)
+    .eq("id", id)
     .select()
     .single();
 
@@ -893,10 +942,10 @@ export async function updateRoadmap(id: string, updates: Partial<LearningRoadmap
 
 export async function getRoadmapMilestones(roadmapId: string) {
   const { data, error } = await supabase
-    .from('roadmap_milestones')
-    .select('*, courses(*)')
-    .eq('roadmap_id', roadmapId)
-    .order('order_index', { ascending: true });
+    .from("roadmap_milestones")
+    .select("*, courses(*)")
+    .eq("roadmap_id", roadmapId)
+    .order("order_index", { ascending: true });
 
   if (error) throw error;
   return data as (RoadmapMilestone & { courses: Course })[];
@@ -904,18 +953,20 @@ export async function getRoadmapMilestones(roadmapId: string) {
 
 export async function getMilestoneById(id: string) {
   const { data, error } = await supabase
-    .from('roadmap_milestones')
-    .select('*, courses(*)')
-    .eq('id', id)
+    .from("roadmap_milestones")
+    .select("*, courses(*)")
+    .eq("id", id)
     .single();
 
   if (error) throw error;
   return data as RoadmapMilestone & { courses: Course };
 }
 
-export async function createMilestone(milestone: Omit<RoadmapMilestone, 'id' | 'created_at' | 'updated_at'>) {
+export async function createMilestone(
+  milestone: Omit<RoadmapMilestone, "id" | "created_at" | "updated_at">,
+) {
   const { data, error } = await supabase
-    .from('roadmap_milestones')
+    .from("roadmap_milestones")
     .insert([milestone])
     .select()
     .single();
@@ -924,11 +975,14 @@ export async function createMilestone(milestone: Omit<RoadmapMilestone, 'id' | '
   return data as RoadmapMilestone;
 }
 
-export async function updateMilestone(id: string, updates: Partial<RoadmapMilestone>) {
+export async function updateMilestone(
+  id: string,
+  updates: Partial<RoadmapMilestone>,
+) {
   const { data, error } = await supabase
-    .from('roadmap_milestones')
+    .from("roadmap_milestones")
     .update(updates)
-    .eq('id', id)
+    .eq("id", id)
     .select()
     .single();
 
@@ -940,27 +994,30 @@ export async function updateMilestone(id: string, updates: Partial<RoadmapMilest
 // USER ROADMAP PROGRESS
 // ============================================================================
 
-export async function getUserRoadmapProgress(userId: string, roadmapId: string) {
+export async function getUserRoadmapProgress(
+  userId: string,
+  roadmapId: string,
+) {
   const { data, error } = await supabase
-    .from('user_roadmap_progress')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('roadmap_id', roadmapId)
+    .from("user_roadmap_progress")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("roadmap_id", roadmapId)
     .single();
 
-  if (error?.code === 'PGRST116') return null; // not found
+  if (error?.code === "PGRST116") return null; // not found
   if (error) throw error;
   return data as UserRoadmapProgress;
 }
 
 export async function startRoadmap(userId: string, roadmapId: string) {
   const { data, error } = await supabase
-    .from('user_roadmap_progress')
+    .from("user_roadmap_progress")
     .insert([{ user_id: userId, roadmap_id: roadmapId }])
     .select()
     .single();
 
-  if (error?.code === '23505') return null; // already started
+  if (error?.code === "23505") return null; // already started
   if (error) throw error;
   return data as UserRoadmapProgress;
 }
@@ -968,13 +1025,13 @@ export async function startRoadmap(userId: string, roadmapId: string) {
 export async function updateRoadmapProgress(
   userId: string,
   roadmapId: string,
-  updates: Partial<UserRoadmapProgress>
+  updates: Partial<UserRoadmapProgress>,
 ) {
   const { data, error } = await supabase
-    .from('user_roadmap_progress')
+    .from("user_roadmap_progress")
     .update(updates)
-    .eq('user_id', userId)
-    .eq('roadmap_id', roadmapId)
+    .eq("user_id", userId)
+    .eq("roadmap_id", roadmapId)
     .select()
     .single();
 
@@ -990,39 +1047,44 @@ export async function getPurchases(
   userId: string,
   limit: number = 20,
   offset: number = 0,
-  status?: string
+  status?: string,
 ) {
   let query = supabase
-    .from('course_purchases')
-    .select('*, courses(*)', { count: 'exact' })
-    .eq('user_id', userId);
+    .from("course_purchases")
+    .select("*, courses(*)", { count: "exact" })
+    .eq("user_id", userId);
 
   if (status) {
-    query = query.eq('payment_status', status);
+    query = query.eq("payment_status", status);
   }
 
   const { data, error, count } = await query
-    .order('purchased_at', { ascending: false })
+    .order("purchased_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
   if (error) throw error;
-  return { data: data as (CoursePurchase & { courses: Course })[], total: count || 0 };
+  return {
+    data: data as (CoursePurchase & { courses: Course })[],
+    total: count || 0,
+  };
 }
 
 export async function getPurchaseById(id: string) {
   const { data, error } = await supabase
-    .from('course_purchases')
-    .select('*, courses(*)')
-    .eq('id', id)
+    .from("course_purchases")
+    .select("*, courses(*)")
+    .eq("id", id)
     .single();
 
   if (error) throw error;
   return data as CoursePurchase & { courses: Course };
 }
 
-export async function createPurchase(purchase: Omit<CoursePurchase, 'id' | 'purchased_at' | 'refunded_at'>) {
+export async function createPurchase(
+  purchase: Omit<CoursePurchase, "id" | "purchased_at" | "refunded_at">,
+) {
   const { data, error } = await supabase
-    .from('course_purchases')
+    .from("course_purchases")
     .insert([purchase])
     .select()
     .single();
@@ -1031,11 +1093,14 @@ export async function createPurchase(purchase: Omit<CoursePurchase, 'id' | 'purc
   return data as CoursePurchase;
 }
 
-export async function updatePurchase(id: string, updates: Partial<CoursePurchase>) {
+export async function updatePurchase(
+  id: string,
+  updates: Partial<CoursePurchase>,
+) {
   const { data, error } = await supabase
-    .from('course_purchases')
+    .from("course_purchases")
     .update(updates)
-    .eq('id', id)
+    .eq("id", id)
     .select()
     .single();
 
@@ -1049,12 +1114,12 @@ export async function updatePurchase(id: string, updates: Partial<CoursePurchase
 
 export async function getUserStats(userId: string) {
   const { data, error } = await supabase
-    .from('user_learning_stats')
-    .select('*')
-    .eq('user_id', userId)
+    .from("user_learning_stats")
+    .select("*")
+    .eq("user_id", userId)
     .single();
 
-  if (error?.code === 'PGRST116') {
+  if (error?.code === "PGRST116") {
     // Create default stats if not found
     return createUserStats({
       user_id: userId,
@@ -1072,14 +1137,16 @@ export async function getUserStats(userId: string) {
   return data as UserLearningStats;
 }
 
-export async function createUserStats(stats: Omit<UserLearningStats, 'id' | 'created_at' | 'updated_at'>) {
+export async function createUserStats(
+  stats: Omit<UserLearningStats, "id" | "created_at" | "updated_at">,
+) {
   const { data, error } = await supabase
-    .from('user_learning_stats')
+    .from("user_learning_stats")
     .insert([stats])
     .select()
     .single();
 
-  if (error?.code === '23505') {
+  if (error?.code === "23505") {
     // Already exists, fetch it
     return getUserStats(stats.user_id);
   }
@@ -1087,11 +1154,14 @@ export async function createUserStats(stats: Omit<UserLearningStats, 'id' | 'cre
   return data as UserLearningStats;
 }
 
-export async function updateUserStats(userId: string, updates: Partial<UserLearningStats>) {
+export async function updateUserStats(
+  userId: string,
+  updates: Partial<UserLearningStats>,
+) {
   const { data, error } = await supabase
-    .from('user_learning_stats')
+    .from("user_learning_stats")
     .update(updates)
-    .eq('user_id', userId)
+    .eq("user_id", userId)
     .select()
     .single();
 
@@ -1103,23 +1173,27 @@ export async function updateUserStats(userId: string, updates: Partial<UserLearn
 // SEARCH & AGGREGATION
 // ============================================================================
 
-export async function searchContent(query: string, limit: number = 20, offset: number = 0) {
+export async function searchContent(
+  query: string,
+  limit: number = 20,
+  offset: number = 0,
+) {
   const courses = supabase
-    .from('courses')
-    .select('*')
-    .textSearch('search_vector', query)
+    .from("courses")
+    .select("*")
+    .textSearch("search_vector", query)
     .limit(limit);
 
   const articles = supabase
-    .from('articles')
-    .select('*')
-    .textSearch('search_vector', query)
+    .from("articles")
+    .select("*")
+    .textSearch("search_vector", query)
     .limit(limit);
 
   const videos = supabase
-    .from('videos')
-    .select('*')
-    .textSearch('search_vector', query)
+    .from("videos")
+    .select("*")
+    .textSearch("search_vector", query)
     .limit(limit);
 
   const [coursesData, articlesData, videosData] = await Promise.all([
@@ -1143,30 +1217,32 @@ export async function getUserLearningProgress(userId: string) {
 
   // Get active enrollments
   const { data: enrollments } = await supabase
-    .from('course_enrollments')
-    .select('*, courses(*)')
-    .eq('user_id', userId)
-    .in('status', ['enrolled', 'in_progress']);
+    .from("course_enrollments")
+    .select("*, courses(*)")
+    .eq("user_id", userId)
+    .in("status", ["enrolled", "in_progress"]);
 
   // Get recent activity
   const { data: recentLessons } = await supabase
-    .from('lesson_progress')
-    .select('*')
-    .eq('user_id', userId)
-    .order('updated_at', { ascending: false })
+    .from("lesson_progress")
+    .select("*")
+    .eq("user_id", userId)
+    .order("updated_at", { ascending: false })
     .limit(5);
 
   // Get badges
   const { data: badges } = await supabase
-    .from('user_badges')
-    .select('*, badges(*)')
-    .eq('user_id', userId)
-    .order('earned_at', { ascending: false })
+    .from("user_badges")
+    .select("*, badges(*)")
+    .eq("user_id", userId)
+    .order("earned_at", { ascending: false })
     .limit(5);
 
   return {
     stats: stats as UserLearningStats,
-    activeEnrollments: (enrollments || []) as (CourseEnrollment & { courses: Course })[],
+    activeEnrollments: (enrollments || []) as (CourseEnrollment & {
+      courses: Course;
+    })[],
     recentActivity: (recentLessons || []) as LessonProgress[],
     recentBadges: (badges || []) as (UserBadge & { badges: Badge })[],
   };

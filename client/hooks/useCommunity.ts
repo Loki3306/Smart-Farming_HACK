@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { RealtimeChannel } from '@supabase/supabase-js';
+import { useState, useEffect, useCallback, useRef } from "react";
+import { RealtimeChannel } from "@supabase/supabase-js";
 import {
   Post,
   Comment,
@@ -16,7 +16,7 @@ import {
   statsApi,
   aiApi,
   realtime,
-} from '../services/communityApi';
+} from "../services/communityApi";
 
 // ============================================================================
 // useCommunityPosts - Main posts feed with real-time updates
@@ -41,45 +41,50 @@ interface UsePostsReturn {
   deletePost: (id: string, authorId: string) => Promise<boolean>;
 }
 
-export function useCommunityPosts(options: UsePostsOptions = {}): UsePostsReturn {
+export function useCommunityPosts(
+  options: UsePostsOptions = {},
+): UsePostsReturn {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [offset, setOffset] = useState(0);
-  
+
   const channelRef = useRef<RealtimeChannel | null>(null);
   const updateChannelRef = useRef<RealtimeChannel | null>(null);
   const limit = options.limit ?? 20;
 
   // Fetch posts
-  const fetchPosts = useCallback(async (resetOffset = true) => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const currentOffset = resetOffset ? 0 : offset;
-      const result = await postsApi.getPosts({
-        ...options,
-        limit,
-        offset: currentOffset,
-      });
+  const fetchPosts = useCallback(
+    async (resetOffset = true) => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      if (resetOffset) {
-        setPosts(result.posts);
-        setOffset(limit);
-      } else {
-        setPosts((prev) => [...prev, ...result.posts]);
-        setOffset((prev) => prev + limit);
+        const currentOffset = resetOffset ? 0 : offset;
+        const result = await postsApi.getPosts({
+          ...options,
+          limit,
+          offset: currentOffset,
+        });
+
+        if (resetOffset) {
+          setPosts(result.posts);
+          setOffset(limit);
+        } else {
+          setPosts((prev) => [...prev, ...result.posts]);
+          setOffset((prev) => prev + limit);
+        }
+
+        setHasMore(result.posts.length === limit);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to fetch posts");
+      } finally {
+        setLoading(false);
       }
-      
-      setHasMore(result.posts.length === limit);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch posts');
-    } finally {
-      setLoading(false);
-    }
-  }, [options.crop, options.type, options.tag, options.search, limit, offset]);
+    },
+    [options.crop, options.type, options.tag, options.search, limit, offset],
+  );
 
   // Initial fetch and real-time subscription
   useEffect(() => {
@@ -90,22 +95,27 @@ export function useCommunityPosts(options: UsePostsOptions = {}): UsePostsReturn
       // Only add if it matches current filters
       const matchesCrop = !options.crop || newPost.crop === options.crop;
       const matchesType = !options.type || newPost.post_type === options.type;
-      
+
       if (matchesCrop && matchesType) {
         setPosts((prev) => [newPost, ...prev]);
       }
     });
 
     // Subscribe to post updates
-    updateChannelRef.current = realtime.subscribeToPostUpdates((updatedPost) => {
-      setPosts((prev) =>
-        prev.map((p) => (p.id === updatedPost.id ? { ...p, ...updatedPost } : p))
-      );
-    });
+    updateChannelRef.current = realtime.subscribeToPostUpdates(
+      (updatedPost) => {
+        setPosts((prev) =>
+          prev.map((p) =>
+            p.id === updatedPost.id ? { ...p, ...updatedPost } : p,
+          ),
+        );
+      },
+    );
 
     return () => {
       if (channelRef.current) realtime.unsubscribe(channelRef.current);
-      if (updateChannelRef.current) realtime.unsubscribe(updateChannelRef.current);
+      if (updateChannelRef.current)
+        realtime.unsubscribe(updateChannelRef.current);
     };
   }, [options.crop, options.type, options.tag, options.search]);
 
@@ -122,30 +132,45 @@ export function useCommunityPosts(options: UsePostsOptions = {}): UsePostsReturn
   }, [fetchPosts]);
 
   // Create new post
-  const createPost = useCallback(async (data: CreatePostData): Promise<Post | null> => {
-    try {
-      const newPost = await postsApi.createPost(data);
-      // Real-time will handle adding it to the list
-      return newPost;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create post');
-      return null;
-    }
-  }, []);
+  const createPost = useCallback(
+    async (data: CreatePostData): Promise<Post | null> => {
+      try {
+        const newPost = await postsApi.createPost(data);
+        // Real-time will handle adding it to the list
+        return newPost;
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to create post");
+        return null;
+      }
+    },
+    [],
+  );
 
   // Delete post
-  const deletePost = useCallback(async (id: string, authorId: string): Promise<boolean> => {
-    try {
-      await postsApi.deletePost(id, authorId);
-      setPosts((prev) => prev.filter((p) => p.id !== id));
-      return true;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete post');
-      return false;
-    }
-  }, []);
+  const deletePost = useCallback(
+    async (id: string, authorId: string): Promise<boolean> => {
+      try {
+        await postsApi.deletePost(id, authorId);
+        setPosts((prev) => prev.filter((p) => p.id !== id));
+        return true;
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to delete post");
+        return false;
+      }
+    },
+    [],
+  );
 
-  return { posts, loading, error, hasMore, loadMore, refresh, createPost, deletePost };
+  return {
+    posts,
+    loading,
+    error,
+    hasMore,
+    loadMore,
+    refresh,
+    createPost,
+    deletePost,
+  };
 }
 
 // ============================================================================
@@ -162,12 +187,19 @@ interface UseReactionsReturn {
 export function usePostReactions(
   postId: string,
   userId: string,
-  initialCounts: Record<ReactionType, number> = { helpful: 0, tried: 0, didnt_work: 0, new_idea: 0 }
+  initialCounts: Record<ReactionType, number> = {
+    helpful: 0,
+    tried: 0,
+    didnt_work: 0,
+    new_idea: 0,
+  },
 ): UseReactionsReturn {
   const [reactionCounts, setReactionCounts] = useState(initialCounts);
-  const [userReactions, setUserReactions] = useState<Set<ReactionType>>(new Set());
+  const [userReactions, setUserReactions] = useState<Set<ReactionType>>(
+    new Set(),
+  );
   const [loading, setLoading] = useState(false);
-  
+
   const channelRef = useRef<RealtimeChannel | null>(null);
 
   // Load initial reaction data
@@ -182,43 +214,45 @@ export function usePostReactions(
           didnt_work: result.counts?.didnt_work || 0,
           new_idea: result.counts?.new_idea || 0,
         }));
-        
+
         // Set user's own reactions
         const userReactionsList = result.reactions
           .filter((r) => r.user_id === userId)
           .map((r) => r.reaction_type as ReactionType);
         setUserReactions(new Set(userReactionsList));
       } catch (err) {
-        console.error('Failed to load reactions:', err);
+        console.error("Failed to load reactions:", err);
       }
     };
-    
+
     loadReactions();
   }, [postId, userId]);
 
   // Subscribe to reaction changes
   useEffect(() => {
-    channelRef.current = realtime.subscribeToReactions((reaction, eventType) => {
-      if (reaction.post_id !== postId) return;
+    channelRef.current = realtime.subscribeToReactions(
+      (reaction, eventType) => {
+        if (reaction.post_id !== postId) return;
 
-      setReactionCounts((prev) => {
-        const type = reaction.reaction_type as ReactionType;
-        const change = eventType === 'INSERT' ? 1 : -1;
-        return { ...prev, [type]: Math.max(0, (prev[type] || 0) + change) };
-      });
-
-      if (reaction.user_id === userId) {
-        setUserReactions((prev) => {
-          const newSet = new Set(prev);
-          if (eventType === 'INSERT') {
-            newSet.add(reaction.reaction_type);
-          } else {
-            newSet.delete(reaction.reaction_type);
-          }
-          return newSet;
+        setReactionCounts((prev) => {
+          const type = reaction.reaction_type as ReactionType;
+          const change = eventType === "INSERT" ? 1 : -1;
+          return { ...prev, [type]: Math.max(0, (prev[type] || 0) + change) };
         });
-      }
-    });
+
+        if (reaction.user_id === userId) {
+          setUserReactions((prev) => {
+            const newSet = new Set(prev);
+            if (eventType === "INSERT") {
+              newSet.add(reaction.reaction_type);
+            } else {
+              newSet.delete(reaction.reaction_type);
+            }
+            return newSet;
+          });
+        }
+      },
+    );
 
     return () => {
       if (channelRef.current) realtime.unsubscribe(channelRef.current);
@@ -226,44 +260,47 @@ export function usePostReactions(
   }, [postId, userId]);
 
   // Toggle reaction
-  const toggleReaction = useCallback(async (type: ReactionType) => {
-    if (loading) return;
-    
-    setLoading(true);
-    try {
-      // Optimistic update
-      const isRemoving = userReactions.has(type);
-      setUserReactions((prev) => {
-        const newSet = new Set(prev);
-        if (isRemoving) {
-          newSet.delete(type);
-        } else {
-          newSet.add(type);
-        }
-        return newSet;
-      });
-      setReactionCounts((prev) => ({
-        ...prev,
-        [type]: prev[type] + (isRemoving ? -1 : 1),
-      }));
+  const toggleReaction = useCallback(
+    async (type: ReactionType) => {
+      if (loading) return;
 
-      await reactionsApi.toggleReaction(postId, userId, type);
-    } catch (err) {
-      // Revert on error
-      setUserReactions((prev) => {
-        const newSet = new Set(prev);
-        if (newSet.has(type)) {
-          newSet.delete(type);
-        } else {
-          newSet.add(type);
-        }
-        return newSet;
-      });
-      console.error('Failed to toggle reaction:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [postId, userId, loading, userReactions]);
+      setLoading(true);
+      try {
+        // Optimistic update
+        const isRemoving = userReactions.has(type);
+        setUserReactions((prev) => {
+          const newSet = new Set(prev);
+          if (isRemoving) {
+            newSet.delete(type);
+          } else {
+            newSet.add(type);
+          }
+          return newSet;
+        });
+        setReactionCounts((prev) => ({
+          ...prev,
+          [type]: prev[type] + (isRemoving ? -1 : 1),
+        }));
+
+        await reactionsApi.toggleReaction(postId, userId, type);
+      } catch (err) {
+        // Revert on error
+        setUserReactions((prev) => {
+          const newSet = new Set(prev);
+          if (newSet.has(type)) {
+            newSet.delete(type);
+          } else {
+            newSet.add(type);
+          }
+          return newSet;
+        });
+        console.error("Failed to toggle reaction:", err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [postId, userId, loading, userReactions],
+  );
 
   return { reactionCounts, userReactions, toggleReaction, loading };
 }
@@ -283,42 +320,51 @@ interface UseCommentsReturn {
   refresh: () => Promise<void>;
 }
 
-export function usePostComments(postId: string, authorId: string, initialLimit = 20): UseCommentsReturn {
+export function usePostComments(
+  postId: string,
+  authorId: string,
+  initialLimit = 20,
+): UseCommentsReturn {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
   const [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0);
-  
+
   const channelRef = useRef<RealtimeChannel | null>(null);
 
   // Fetch comments with pagination
-  const fetchComments = useCallback(async (reset = true) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const currentOffset = reset ? 0 : offset;
-      const result = await commentsApi.getComments(postId, { 
-        limit: initialLimit, 
-        offset: currentOffset 
-      });
-      
-      if (reset) {
-        setComments(result.comments);
-        setOffset(initialLimit);
-      } else {
-        setComments(prev => [...prev, ...result.comments]);
-        setOffset(prev => prev + initialLimit);
+  const fetchComments = useCallback(
+    async (reset = true) => {
+      try {
+        setLoading(true);
+        setError(null);
+        const currentOffset = reset ? 0 : offset;
+        const result = await commentsApi.getComments(postId, {
+          limit: initialLimit,
+          offset: currentOffset,
+        });
+
+        if (reset) {
+          setComments(result.comments);
+          setOffset(initialLimit);
+        } else {
+          setComments((prev) => [...prev, ...result.comments]);
+          setOffset((prev) => prev + initialLimit);
+        }
+        setHasMore(result.hasMore);
+        setTotal(result.total);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to fetch comments",
+        );
+      } finally {
+        setLoading(false);
       }
-      setHasMore(result.hasMore);
-      setTotal(result.total);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch comments');
-    } finally {
-      setLoading(false);
-    }
-  }, [postId, initialLimit, offset]);
+    },
+    [postId, initialLimit, offset],
+  );
 
   // Load more comments
   const loadMore = useCallback(async () => {
@@ -333,7 +379,7 @@ export function usePostComments(postId: string, authorId: string, initialLimit =
 
     channelRef.current = realtime.subscribeToComments(postId, (newComment) => {
       setComments((prev) => [...prev, newComment]);
-      setTotal(prev => prev + 1);
+      setTotal((prev) => prev + 1);
     });
 
     return () => {
@@ -342,18 +388,34 @@ export function usePostComments(postId: string, authorId: string, initialLimit =
   }, [postId]);
 
   // Add comment
-  const addComment = useCallback(async (content: string): Promise<Comment | null> => {
-    try {
-      const newComment = await commentsApi.addComment(postId, authorId, content);
-      // Real-time will handle adding it
-      return newComment;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to add comment');
-      return null;
-    }
-  }, [postId, authorId]);
+  const addComment = useCallback(
+    async (content: string): Promise<Comment | null> => {
+      try {
+        const newComment = await commentsApi.addComment(
+          postId,
+          authorId,
+          content,
+        );
+        // Real-time will handle adding it
+        return newComment;
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to add comment");
+        return null;
+      }
+    },
+    [postId, authorId],
+  );
 
-  return { comments, loading, error, hasMore, total, addComment, loadMore, refresh: () => fetchComments(true) };
+  return {
+    comments,
+    loading,
+    error,
+    hasMore,
+    total,
+    addComment,
+    loadMore,
+    refresh: () => fetchComments(true),
+  };
 }
 
 // ============================================================================
@@ -373,10 +435,16 @@ export function useCommunityExperts(userId: string): UseExpertsReturn {
   const [experts, setExperts] = useState<Expert[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [followedExperts, setFollowedExperts] = useState<Set<string>>(new Set());
-  
+  const [followedExperts, setFollowedExperts] = useState<Set<string>>(
+    new Set(),
+  );
+
   const channelRef = useRef<RealtimeChannel | null>(null);
-  const recentToggleRef = useRef<{ expertId: string; timestamp: number; action: 'follow' | 'unfollow' } | null>(null);
+  const recentToggleRef = useRef<{
+    expertId: string;
+    timestamp: number;
+    action: "follow" | "unfollow";
+  } | null>(null);
   const DEDUPE_WINDOW_MS = 2000;
 
   // Fetch experts
@@ -387,7 +455,7 @@ export function useCommunityExperts(userId: string): UseExpertsReturn {
       const result = await expertsApi.getExperts();
       setExperts(result.experts);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch experts');
+      setError(err instanceof Error ? err.message : "Failed to fetch experts");
     } finally {
       setLoading(false);
     }
@@ -404,7 +472,7 @@ export function useCommunityExperts(userId: string): UseExpertsReturn {
       let isRecentToggle = false;
       if (recentToggleRef.current) {
         const timeSinceToggle = Date.now() - recentToggleRef.current.timestamp;
-        const expectedAction = eventType === 'INSERT' ? 'follow' : 'unfollow';
+        const expectedAction = eventType === "INSERT" ? "follow" : "unfollow";
         if (
           recentToggleRef.current.expertId === follow.expert_id &&
           recentToggleRef.current.action === expectedAction &&
@@ -418,7 +486,7 @@ export function useCommunityExperts(userId: string): UseExpertsReturn {
       // Always update the followed set based on event type
       setFollowedExperts((prev) => {
         const newSet = new Set(prev);
-        if (eventType === 'INSERT') {
+        if (eventType === "INSERT") {
           newSet.add(follow.expert_id);
         } else {
           newSet.delete(follow.expert_id);
@@ -433,11 +501,11 @@ export function useCommunityExperts(userId: string): UseExpertsReturn {
             if (e.id === follow.expert_id) {
               return {
                 ...e,
-                followers: e.followers + (eventType === 'INSERT' ? 1 : -1),
+                followers: e.followers + (eventType === "INSERT" ? 1 : -1),
               };
             }
             return e;
-          })
+          }),
         );
       }
     });
@@ -448,62 +516,76 @@ export function useCommunityExperts(userId: string): UseExpertsReturn {
   }, [userId, fetchExperts]);
 
   // Toggle follow
-  const toggleFollow = useCallback(async (expertId: string) => {
-    try {
-      const isUnfollowing = followedExperts.has(expertId);
+  const toggleFollow = useCallback(
+    async (expertId: string) => {
+      try {
+        const isUnfollowing = followedExperts.has(expertId);
 
-      // Mark this toggle to avoid duplicate subscription updates
-      recentToggleRef.current = { expertId, timestamp: Date.now(), action: isUnfollowing ? 'unfollow' : 'follow' };
-      
-      // Optimistic update
-      setFollowedExperts((prev) => {
-        const newSet = new Set(prev);
-        if (isUnfollowing) {
-          newSet.delete(expertId);
-        } else {
-          newSet.add(expertId);
-        }
-        return newSet;
-      });
-      
-      // Optimistic update for follower count
-      setExperts((prev) =>
-        prev.map((e) =>
-          e.id === expertId
-            ? { ...e, followers: e.followers + (isUnfollowing ? -1 : 1) }
-            : e
-        )
-      );
+        // Mark this toggle to avoid duplicate subscription updates
+        recentToggleRef.current = {
+          expertId,
+          timestamp: Date.now(),
+          action: isUnfollowing ? "unfollow" : "follow",
+        };
 
-      // Call API - subscription will confirm the change
-      await expertsApi.toggleFollow(expertId, userId);
-    } catch (err) {
-      // Revert on error - use the saved isUnfollowing value
-      const wasUnfollowing = followedExperts.has(expertId) === false; // Current state is opposite of what we tried
-      
-      setFollowedExperts((prev) => {
-        const newSet = new Set(prev);
-        if (newSet.has(expertId)) {
-          newSet.delete(expertId);
-        } else {
-          newSet.add(expertId);
-        }
-        return newSet;
-      });
-      
-      // Revert follower count based on what we tried to do
-      setExperts((prev) =>
-        prev.map((e) =>
-          e.id === expertId
-            ? { ...e, followers: e.followers + (wasUnfollowing ? 1 : -1) }
-            : e
-        )
-      );
-      console.error('Failed to toggle follow:', err);
-    }
-  }, [userId, followedExperts]);
+        // Optimistic update
+        setFollowedExperts((prev) => {
+          const newSet = new Set(prev);
+          if (isUnfollowing) {
+            newSet.delete(expertId);
+          } else {
+            newSet.add(expertId);
+          }
+          return newSet;
+        });
 
-  return { experts, loading, error, followedExperts, toggleFollow, refresh: fetchExperts };
+        // Optimistic update for follower count
+        setExperts((prev) =>
+          prev.map((e) =>
+            e.id === expertId
+              ? { ...e, followers: e.followers + (isUnfollowing ? -1 : 1) }
+              : e,
+          ),
+        );
+
+        // Call API - subscription will confirm the change
+        await expertsApi.toggleFollow(expertId, userId);
+      } catch (err) {
+        // Revert on error - use the saved isUnfollowing value
+        const wasUnfollowing = followedExperts.has(expertId) === false; // Current state is opposite of what we tried
+
+        setFollowedExperts((prev) => {
+          const newSet = new Set(prev);
+          if (newSet.has(expertId)) {
+            newSet.delete(expertId);
+          } else {
+            newSet.add(expertId);
+          }
+          return newSet;
+        });
+
+        // Revert follower count based on what we tried to do
+        setExperts((prev) =>
+          prev.map((e) =>
+            e.id === expertId
+              ? { ...e, followers: e.followers + (wasUnfollowing ? 1 : -1) }
+              : e,
+          ),
+        );
+        console.error("Failed to toggle follow:", err);
+      }
+    },
+    [userId, followedExperts],
+  );
+
+  return {
+    experts,
+    loading,
+    error,
+    followedExperts,
+    toggleFollow,
+    refresh: fetchExperts,
+  };
 }
 
 // ============================================================================
@@ -522,7 +604,7 @@ export function useCommunityStats(): UseStatsReturn {
   const [trending, setTrending] = useState<TrendingTopic[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   const channelRef = useRef<RealtimeChannel | null>(null);
 
   useEffect(() => {
@@ -530,16 +612,16 @@ export function useCommunityStats(): UseStatsReturn {
       try {
         setLoading(true);
         setError(null);
-        
+
         const [statsResult, trendingResult] = await Promise.all([
           statsApi.getStats(),
           statsApi.getTrending(),
         ]);
-        
+
         setStats(statsResult);
         setTrending(trendingResult.trending);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch stats');
+        setError(err instanceof Error ? err.message : "Failed to fetch stats");
       } finally {
         setLoading(false);
       }
@@ -578,7 +660,7 @@ interface UseAISummaryReturn {
 }
 
 export function useAISummary(postId: string): UseAISummaryReturn {
-  const [summary, setSummary] = useState<UseAISummaryReturn['summary']>(null);
+  const [summary, setSummary] = useState<UseAISummaryReturn["summary"]>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cached, setCached] = useState(false);
@@ -587,12 +669,14 @@ export function useAISummary(postId: string): UseAISummaryReturn {
     try {
       setLoading(true);
       setError(null);
-      
+
       const result = await aiApi.summarizePost(postId);
       setSummary(result.summary);
       setCached(result.cached);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate summary');
+      setError(
+        err instanceof Error ? err.message : "Failed to generate summary",
+      );
     } finally {
       setLoading(false);
     }
@@ -608,29 +692,32 @@ export function useAISummary(postId: string): UseAISummaryReturn {
 export function useOptimisticUpdate<T>(
   initialValue: T,
   onUpdate: (value: T) => Promise<void>,
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void,
 ) {
   const [value, setValue] = useState(initialValue);
   const [pendingValue, setPendingValue] = useState<T | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const update = useCallback(async (newValue: T) => {
-    const previousValue = value;
-    setPendingValue(newValue);
-    setValue(newValue);
-    setIsUpdating(true);
+  const update = useCallback(
+    async (newValue: T) => {
+      const previousValue = value;
+      setPendingValue(newValue);
+      setValue(newValue);
+      setIsUpdating(true);
 
-    try {
-      await onUpdate(newValue);
-      setPendingValue(null);
-    } catch (err) {
-      setValue(previousValue);
-      setPendingValue(null);
-      onError?.(err instanceof Error ? err : new Error('Update failed'));
-    } finally {
-      setIsUpdating(false);
-    }
-  }, [value, onUpdate, onError]);
+      try {
+        await onUpdate(newValue);
+        setPendingValue(null);
+      } catch (err) {
+        setValue(previousValue);
+        setPendingValue(null);
+        onError?.(err instanceof Error ? err : new Error("Update failed"));
+      } finally {
+        setIsUpdating(false);
+      }
+    },
+    [value, onUpdate, onError],
+  );
 
   return { value, update, isUpdating, pendingValue };
 }
@@ -659,12 +746,14 @@ export function useSavedPosts(userId: string): UseSavedPostsReturn {
     try {
       setLoading(true);
       setError(null);
-      const { savedPostsApi } = await import('../services/communityApi');
+      const { savedPostsApi } = await import("../services/communityApi");
       const ids = await savedPostsApi.getSavedPostIds(userId);
       setSavedPostIds(ids);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch saved posts');
-      console.error('[useSavedPosts] Error fetching saved posts:', err);
+      setError(
+        err instanceof Error ? err.message : "Failed to fetch saved posts",
+      );
+      console.error("[useSavedPosts] Error fetching saved posts:", err);
     } finally {
       setLoading(false);
     }
@@ -678,21 +767,21 @@ export function useSavedPosts(userId: string): UseSavedPostsReturn {
   // Subscribe to real-time updates
   useEffect(() => {
     const setupRealtimeSubscription = async () => {
-      const { savedPostsApi } = await import('../services/communityApi');
-      
+      const { savedPostsApi } = await import("../services/communityApi");
+
       channelRef.current = savedPostsApi.subscribeSavedPosts(
         userId,
         (savedPost, eventType) => {
-          if (eventType === 'INSERT') {
-            setSavedPostIds(prev => new Set([...prev, savedPost.post_id]));
-          } else if (eventType === 'DELETE') {
-            setSavedPostIds(prev => {
+          if (eventType === "INSERT") {
+            setSavedPostIds((prev) => new Set([...prev, savedPost.post_id]));
+          } else if (eventType === "DELETE") {
+            setSavedPostIds((prev) => {
               const newSet = new Set(prev);
               newSet.delete(savedPost.post_id);
               return newSet;
             });
           }
-        }
+        },
       );
     };
 
@@ -706,42 +795,48 @@ export function useSavedPosts(userId: string): UseSavedPostsReturn {
   }, [userId]);
 
   // Toggle save/unsave
-  const toggleSave = useCallback(async (postId: string) => {
-    const wasSaved = savedPostIds.has(postId);
-    
-    // Optimistic update
-    setSavedPostIds(prev => {
-      const newSet = new Set(prev);
-      if (wasSaved) {
-        newSet.delete(postId);
-      } else {
-        newSet.add(postId);
-      }
-      return newSet;
-    });
+  const toggleSave = useCallback(
+    async (postId: string) => {
+      const wasSaved = savedPostIds.has(postId);
 
-    try {
-      const { savedPostsApi } = await import('../services/communityApi');
-      await savedPostsApi.toggleSave(userId, postId);
-    } catch (err) {
-      // Revert on error
-      setSavedPostIds(prev => {
+      // Optimistic update
+      setSavedPostIds((prev) => {
         const newSet = new Set(prev);
         if (wasSaved) {
-          newSet.add(postId);
-        } else {
           newSet.delete(postId);
+        } else {
+          newSet.add(postId);
         }
         return newSet;
       });
-      console.error('[useSavedPosts] Error toggling save:', err);
-      throw err;
-    }
-  }, [userId, savedPostIds]);
 
-  const isSaved = useCallback((postId: string) => {
-    return savedPostIds.has(postId);
-  }, [savedPostIds]);
+      try {
+        const { savedPostsApi } = await import("../services/communityApi");
+        await savedPostsApi.toggleSave(userId, postId);
+      } catch (err) {
+        // Revert on error
+        setSavedPostIds((prev) => {
+          const newSet = new Set(prev);
+          if (wasSaved) {
+            newSet.add(postId);
+          } else {
+            newSet.delete(postId);
+          }
+          return newSet;
+        });
+        console.error("[useSavedPosts] Error toggling save:", err);
+        throw err;
+      }
+    },
+    [userId, savedPostIds],
+  );
+
+  const isSaved = useCallback(
+    (postId: string) => {
+      return savedPostIds.has(postId);
+    },
+    [savedPostIds],
+  );
 
   return {
     savedPostIds,
@@ -768,7 +863,9 @@ interface UseReportedPostsReturn {
 }
 
 export function useReportedPosts(userId: string): UseReportedPostsReturn {
-  const [reportedPostIds, setReportedPostIds] = useState<Set<string>>(new Set());
+  const [reportedPostIds, setReportedPostIds] = useState<Set<string>>(
+    new Set(),
+  );
   const [userReports, setUserReports] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -780,16 +877,16 @@ export function useReportedPosts(userId: string): UseReportedPostsReturn {
     }
 
     try {
-      const { reportingApi } = await import('../services/communityApi');
+      const { reportingApi } = await import("../services/communityApi");
       const reports = await reportingApi.getUserReports(userId);
-      
-      const postIds = new Set(reports.map(r => r.post_id));
+
+      const postIds = new Set(reports.map((r) => r.post_id));
       setReportedPostIds(postIds);
       setUserReports(reports);
       setError(null);
     } catch (err) {
-      console.error('[useReportedPosts] Error fetching reports:', err);
-      setError('Failed to load reported posts');
+      console.error("[useReportedPosts] Error fetching reports:", err);
+      setError("Failed to load reported posts");
       setReportedPostIds(new Set());
       setUserReports([]);
     } finally {
@@ -801,12 +898,15 @@ export function useReportedPosts(userId: string): UseReportedPostsReturn {
     fetchReportedPosts();
   }, [fetchReportedPosts]);
 
-  const hasReported = useCallback((postId: string) => {
-    return reportedPostIds.has(postId);
-  }, [reportedPostIds]);
+  const hasReported = useCallback(
+    (postId: string) => {
+      return reportedPostIds.has(postId);
+    },
+    [reportedPostIds],
+  );
 
   const addReport = useCallback((postId: string) => {
-    setReportedPostIds(prev => new Set([...prev, postId]));
+    setReportedPostIds((prev) => new Set([...prev, postId]));
   }, []);
 
   return {
@@ -849,18 +949,18 @@ export function useNotifications(userId: string): UseNotificationsReturn {
     }
 
     try {
-      const { notificationsApi } = await import('../services/communityApi');
+      const { notificationsApi } = await import("../services/communityApi");
       const [notifs, count] = await Promise.all([
         notificationsApi.getNotifications(userId, 50),
         notificationsApi.getUnreadCount(userId),
       ]);
-      
+
       setNotifications(notifs);
       setUnreadCount(count);
       setError(null);
     } catch (err) {
-      console.error('[useNotifications] Error fetching notifications:', err);
-      setError('Failed to load notifications');
+      console.error("[useNotifications] Error fetching notifications:", err);
+      setError("Failed to load notifications");
     } finally {
       setLoading(false);
     }
@@ -875,14 +975,14 @@ export function useNotifications(userId: string): UseNotificationsReturn {
     if (!userId) return;
 
     const setupSubscription = async () => {
-      const { notificationsApi } = await import('../services/communityApi');
-      
+      const { notificationsApi } = await import("../services/communityApi");
+
       channelRef.current = notificationsApi.subscribeToNotifications(
         userId,
         (newNotification) => {
-          setNotifications(prev => [newNotification, ...prev]);
-          setUnreadCount(prev => prev + 1);
-        }
+          setNotifications((prev) => [newNotification, ...prev]);
+          setUnreadCount((prev) => prev + 1);
+        },
       );
     };
 
@@ -897,44 +997,47 @@ export function useNotifications(userId: string): UseNotificationsReturn {
 
   const markAsRead = useCallback(async (id: string) => {
     try {
-      const { notificationsApi } = await import('../services/communityApi');
+      const { notificationsApi } = await import("../services/communityApi");
       await notificationsApi.markAsRead(id);
-      
-      setNotifications(prev =>
-        prev.map(n => (n.id === id ? { ...n, read: true } : n))
+
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
       );
-      setUnreadCount(prev => Math.max(0, prev - 1));
+      setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch (err) {
-      console.error('[useNotifications] Error marking as read:', err);
+      console.error("[useNotifications] Error marking as read:", err);
     }
   }, []);
 
   const markAllAsRead = useCallback(async () => {
     try {
-      const { notificationsApi } = await import('../services/communityApi');
+      const { notificationsApi } = await import("../services/communityApi");
       await notificationsApi.markAllAsRead(userId);
-      
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
       setUnreadCount(0);
     } catch (err) {
-      console.error('[useNotifications] Error marking all as read:', err);
+      console.error("[useNotifications] Error marking all as read:", err);
     }
   }, [userId]);
 
-  const deleteNotification = useCallback(async (id: string) => {
-    try {
-      const { notificationsApi } = await import('../services/communityApi');
-      await notificationsApi.deleteNotification(id);
-      
-      setNotifications(prev => prev.filter(n => n.id !== id));
-      setUnreadCount(prev => {
-        const deleted = notifications.find(n => n.id === id);
-        return deleted && !deleted.read ? Math.max(0, prev - 1) : prev;
-      });
-    } catch (err) {
-      console.error('[useNotifications] Error deleting notification:', err);
-    }
-  }, [notifications]);
+  const deleteNotification = useCallback(
+    async (id: string) => {
+      try {
+        const { notificationsApi } = await import("../services/communityApi");
+        await notificationsApi.deleteNotification(id);
+
+        setNotifications((prev) => prev.filter((n) => n.id !== id));
+        setUnreadCount((prev) => {
+          const deleted = notifications.find((n) => n.id === id);
+          return deleted && !deleted.read ? Math.max(0, prev - 1) : prev;
+        });
+      } catch (err) {
+        console.error("[useNotifications] Error deleting notification:", err);
+      }
+    },
+    [notifications],
+  );
 
   return {
     notifications,

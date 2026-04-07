@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Lightbulb,
   AlertTriangle,
@@ -10,9 +10,9 @@ import {
   Sparkles,
   Target,
   ListChecks,
-} from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+} from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 // Article structure matching our lesson content
 export interface ArticleContent {
@@ -40,7 +40,9 @@ export const RichArticleViewer: React.FC<RichArticleViewerProps> = ({
   article,
   onComplete,
 }) => {
-  const [expandedSections, setExpandedSections] = useState<Set<number>>(new Set([0])); // First section expanded by default
+  const [expandedSections, setExpandedSections] = useState<Set<number>>(
+    new Set([0]),
+  ); // First section expanded by default
   const [showMistakes, setShowMistakes] = useState(false);
   const [showActionItems, setShowActionItems] = useState(false);
   const [readSections, setReadSections] = useState<Set<number>>(new Set());
@@ -52,12 +54,14 @@ export const RichArticleViewer: React.FC<RichArticleViewerProps> = ({
     } else {
       newExpanded.add(index);
       // Mark as read when expanded
-      setReadSections(prev => new Set(prev).add(index));
+      setReadSections((prev) => new Set(prev).add(index));
     }
     setExpandedSections(newExpanded);
   };
 
-  const readProgress = Math.round((readSections.size / article.sections.length) * 100);
+  const readProgress = Math.round(
+    (readSections.size / article.sections.length) * 100,
+  );
 
   return (
     <div className="space-y-6">
@@ -69,12 +73,10 @@ export const RichArticleViewer: React.FC<RichArticleViewerProps> = ({
           </div>
           <div className="flex-1">
             <h1 className="text-2xl font-bold text-green-900 mb-2">{title}</h1>
-            {description && (
-              <p className="text-green-700">{description}</p>
-            )}
+            {description && <p className="text-green-700">{description}</p>}
             <div className="mt-3 flex items-center gap-2 text-sm text-green-600">
               <div className="w-32 h-2 bg-green-200 rounded-full overflow-hidden">
-                <div 
+                <div
                   className="h-full bg-green-500 transition-all duration-300"
                   style={{ width: `${readProgress}%` }}
                 />
@@ -103,7 +105,7 @@ export const RichArticleViewer: React.FC<RichArticleViewerProps> = ({
         {article.sections.map((section, index) => {
           const isExpanded = expandedSections.has(index);
           const isRead = readSections.has(index);
-          
+
           return (
             <motion.div
               key={index}
@@ -111,16 +113,22 @@ export const RichArticleViewer: React.FC<RichArticleViewerProps> = ({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <Card className={`overflow-hidden transition-colors ${isRead ? 'border-green-200 bg-green-50/30' : ''}`}>
+              <Card
+                className={`overflow-hidden transition-colors ${isRead ? "border-green-200 bg-green-50/30" : ""}`}
+              >
                 <button
                   onClick={() => toggleSection(index)}
                   className="w-full p-4 flex items-center justify-between text-left hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                      isRead ? 'bg-green-500 text-white' : 'bg-muted text-muted-foreground'
-                    }`}>
-                      {isRead ? '✓' : index + 1}
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                        isRead
+                          ? "bg-green-500 text-white"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {isRead ? "✓" : index + 1}
                     </div>
                     <h3 className="font-semibold text-lg">{section.title}</h3>
                   </div>
@@ -130,12 +138,12 @@ export const RichArticleViewer: React.FC<RichArticleViewerProps> = ({
                     <ChevronDown className="w-5 h-5 text-muted-foreground" />
                   )}
                 </button>
-                
+
                 <AnimatePresence>
                   {isExpanded && (
                     <motion.div
                       initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
+                      animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden"
@@ -145,18 +153,25 @@ export const RichArticleViewer: React.FC<RichArticleViewerProps> = ({
                           <p className="text-foreground leading-relaxed whitespace-pre-wrap mb-4">
                             {section.content}
                           </p>
-                          
+
                           {/* Tips */}
                           {section.tips && section.tips.length > 0 && (
                             <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
                               <div className="flex items-center gap-2 mb-3">
                                 <Lightbulb className="w-5 h-5 text-blue-600" />
-                                <span className="font-semibold text-blue-900">Pro Tips</span>
+                                <span className="font-semibold text-blue-900">
+                                  Pro Tips
+                                </span>
                               </div>
                               <ul className="space-y-2">
                                 {section.tips.map((tip, tipIndex) => (
-                                  <li key={tipIndex} className="flex items-start gap-2 text-blue-800">
-                                    <span className="text-blue-500 mt-1">💡</span>
+                                  <li
+                                    key={tipIndex}
+                                    className="flex items-start gap-2 text-blue-800"
+                                  >
+                                    <span className="text-blue-500 mt-1">
+                                      💡
+                                    </span>
                                     <span>{tip}</span>
                                   </li>
                                 ))}
@@ -184,8 +199,12 @@ export const RichArticleViewer: React.FC<RichArticleViewerProps> = ({
             <div className="flex items-center gap-3">
               <AlertTriangle className="w-6 h-6 text-red-500" />
               <div>
-                <h3 className="font-semibold text-red-900">Common Mistakes to Avoid</h3>
-                <p className="text-sm text-red-700">Learn from others' errors</p>
+                <h3 className="font-semibold text-red-900">
+                  Common Mistakes to Avoid
+                </h3>
+                <p className="text-sm text-red-700">
+                  Learn from others' errors
+                </p>
               </div>
             </div>
             {showMistakes ? (
@@ -194,12 +213,12 @@ export const RichArticleViewer: React.FC<RichArticleViewerProps> = ({
               <ChevronDown className="w-5 h-5 text-red-500" />
             )}
           </button>
-          
+
           <AnimatePresence>
             {showMistakes && (
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
+                animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden"
               >
@@ -231,8 +250,12 @@ export const RichArticleViewer: React.FC<RichArticleViewerProps> = ({
             <div className="flex items-center gap-3">
               <Target className="w-6 h-6 text-purple-500" />
               <div>
-                <h3 className="font-semibold text-purple-900">Action Items - Do This Week!</h3>
-                <p className="text-sm text-purple-700">Practical steps to apply your learning</p>
+                <h3 className="font-semibold text-purple-900">
+                  Action Items - Do This Week!
+                </h3>
+                <p className="text-sm text-purple-700">
+                  Practical steps to apply your learning
+                </p>
               </div>
             </div>
             {showActionItems ? (
@@ -241,12 +264,12 @@ export const RichArticleViewer: React.FC<RichArticleViewerProps> = ({
               <ChevronDown className="w-5 h-5 text-purple-500" />
             )}
           </button>
-          
+
           <AnimatePresence>
             {showActionItems && (
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
+                animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden"
               >
@@ -272,7 +295,9 @@ export const RichArticleViewer: React.FC<RichArticleViewerProps> = ({
           <div className="flex items-start gap-3">
             <ListChecks className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
             <div>
-              <h3 className="font-semibold text-green-900 mb-2">📝 Key Takeaways</h3>
+              <h3 className="font-semibold text-green-900 mb-2">
+                📝 Key Takeaways
+              </h3>
               <p className="text-green-800 leading-relaxed">
                 {article.summary}
               </p>
@@ -291,7 +316,11 @@ export const RichArticleViewer: React.FC<RichArticleViewerProps> = ({
           <p className="text-green-600 font-medium mb-3">
             🎉 You've read all sections! Ready to mark this lesson complete?
           </p>
-          <Button onClick={onComplete} size="lg" className="bg-green-500 hover:bg-green-600">
+          <Button
+            onClick={onComplete}
+            size="lg"
+            className="bg-green-500 hover:bg-green-600"
+          >
             ✅ Mark as Complete
           </Button>
         </motion.div>

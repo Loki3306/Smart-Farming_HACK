@@ -3,12 +3,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-
 /**
  * Farmer-friendly analysis stages
  */
 // FARMING_STAGES moved to component to use t() function
-
 
 const MINIMUM_DISPLAY_TIME = 3000; // 3 seconds
 const STAGE_INTERVAL = 600; // Change text every 0.6 seconds
@@ -106,7 +104,9 @@ export const FarmAnalysisLoader: React.FC<FarmAnalysisLoaderProps> = ({
               </div>
               <div>
                 <h3 className="text-xl font-semibold">{t("loader.title")}</h3>
-                <p className="text-sm text-muted-foreground">{t("loader.subtitle")}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("loader.subtitle")}
+                </p>
               </div>
             </div>
 
@@ -124,7 +124,9 @@ export const FarmAnalysisLoader: React.FC<FarmAnalysisLoaderProps> = ({
                     className="flex items-center gap-4"
                   >
                     <div className="w-6 flex justify-center">
-                      {isCompleted && <CheckCircle className="w-5 h-5 text-green-500" />}
+                      {isCompleted && (
+                        <CheckCircle className="w-5 h-5 text-green-500" />
+                      )}
                       {isCurrent && (
                         <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                       )}
@@ -136,12 +138,13 @@ export const FarmAnalysisLoader: React.FC<FarmAnalysisLoaderProps> = ({
                     <div className="flex items-center gap-2 flex-1">
                       <span className="text-xl">{stage.emoji}</span>
                       <span
-                        className={`${isCurrent
-                          ? "text-primary font-medium"
-                          : isCompleted
-                            ? "text-foreground"
-                            : "text-muted-foreground"
-                          }`}
+                        className={`${
+                          isCurrent
+                            ? "text-primary font-medium"
+                            : isCompleted
+                              ? "text-foreground"
+                              : "text-muted-foreground"
+                        }`}
                       >
                         {stage.text}
                       </span>

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Dialog,
   DialogContent,
@@ -7,21 +7,21 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Loader2, Save } from 'lucide-react';
-import type { Post, PostType } from '@/services/communityApi';
-import { POST_TYPE_CONFIG } from '@/constants/community';
+} from "@/components/ui/select";
+import { Loader2, Save } from "lucide-react";
+import type { Post, PostType } from "@/services/communityApi";
+import { POST_TYPE_CONFIG } from "@/constants/community";
 
 interface EditPostDialogProps {
   post: Post;
@@ -37,10 +37,12 @@ export const EditPostDialog: React.FC<EditPostDialogProps> = ({
   onSave,
 }) => {
   const [content, setContent] = useState(post.content);
-  const [postType, setPostType] = useState<PostType>(post.post_type as PostType);
-  const [crop, setCrop] = useState(post.crop || '');
-  const [method, setMethod] = useState(post.method || '');
-  const [tags, setTags] = useState((post.tags || []).join(', '));
+  const [postType, setPostType] = useState<PostType>(
+    post.post_type as PostType,
+  );
+  const [crop, setCrop] = useState(post.crop || "");
+  const [method, setMethod] = useState(post.method || "");
+  const [tags, setTags] = useState((post.tags || []).join(", "));
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSave = async () => {
@@ -54,7 +56,7 @@ export const EditPostDialog: React.FC<EditPostDialogProps> = ({
         crop: crop.trim() || undefined,
         method: method.trim() || undefined,
         tags: tags
-          .split(',')
+          .split(",")
           .map((t) => t.trim())
           .filter(Boolean),
       };
@@ -62,7 +64,7 @@ export const EditPostDialog: React.FC<EditPostDialogProps> = ({
       await onSave(post.id, updates);
       onOpenChange(false);
     } catch (error) {
-      console.error('Failed to update post:', error);
+      console.error("Failed to update post:", error);
     } finally {
       setIsLoading(false);
     }
@@ -82,7 +84,10 @@ export const EditPostDialog: React.FC<EditPostDialogProps> = ({
           {/* Post Type */}
           <div className="space-y-2">
             <Label htmlFor="post-type">Post Type</Label>
-            <Select value={postType} onValueChange={(value) => setPostType(value as PostType)}>
+            <Select
+              value={postType}
+              onValueChange={(value) => setPostType(value as PostType)}
+            >
               <SelectTrigger id="post-type">
                 <SelectValue />
               </SelectTrigger>

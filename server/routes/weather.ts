@@ -1,9 +1,9 @@
-import { Request, Response } from 'express';
-import { db } from '../db/supabase';
+import { Request, Response } from "express";
+import { db } from "../db/supabase";
 
 // OpenWeatherMap API configuration
-const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY || '';
-const OPENWEATHER_BASE_URL = 'https://api.openweathermap.org/data/2.5';
+const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY || "";
+const OPENWEATHER_BASE_URL = "https://api.openweathermap.org/data/2.5";
 
 // Mock weather data as fallback
 const mockWeatherData = {
@@ -85,7 +85,12 @@ const mockHourlyForecast = [
 async function getFarmLocation(farmId?: string) {
   if (!farmId) {
     // If no farmId, use default location (Nashik, Maharashtra, India)
-    return { latitude: 20.0, longitude: 73.8, city: 'Nashik', state: 'Maharashtra' };
+    return {
+      latitude: 20.0,
+      longitude: 73.8,
+      city: "Nashik",
+      state: "Maharashtra",
+    };
   }
 
   try {
@@ -94,28 +99,33 @@ async function getFarmLocation(farmId?: string) {
       return {
         latitude: farm.latitude,
         longitude: farm.longitude,
-        city: farm.city || 'Unknown',
-        state: farm.state || 'Unknown',
+        city: farm.city || "Unknown",
+        state: farm.state || "Unknown",
       };
     }
   } catch (error) {
-    console.warn('[Weather] Could not fetch farm location:', error);
+    console.warn("[Weather] Could not fetch farm location:", error);
   }
 
   // Default location if farm not found or no GPS coordinates
-  return { latitude: 20.0, longitude: 73.8, city: 'Nashik', state: 'Maharashtra' };
+  return {
+    latitude: 20.0,
+    longitude: 73.8,
+    city: "Nashik",
+    state: "Maharashtra",
+  };
 }
 
 // Map OpenWeatherMap condition codes to readable conditions
 function mapWeatherCondition(code: number, description: string): string {
-  if (code >= 200 && code < 300) return 'Thunderstorm';
-  if (code >= 300 && code < 400) return 'Drizzle';
-  if (code >= 500 && code < 600) return 'Rainy';
-  if (code >= 600 && code < 700) return 'Snow';
-  if (code >= 700 && code < 800) return 'Mist';
-  if (code === 800) return 'Clear';
-  if (code === 801) return 'Partly Cloudy';
-  if (code >= 802) return 'Cloudy';
+  if (code >= 200 && code < 300) return "Thunderstorm";
+  if (code >= 300 && code < 400) return "Drizzle";
+  if (code >= 500 && code < 600) return "Rainy";
+  if (code >= 600 && code < 700) return "Snow";
+  if (code >= 700 && code < 800) return "Mist";
+  if (code === 800) return "Clear";
+  if (code === 801) return "Partly Cloudy";
+  if (code >= 802) return "Cloudy";
   return description;
 }
 
@@ -123,34 +133,42 @@ function mapWeatherCondition(code: number, description: string): string {
 export const getCurrentWeather = async (req: Request, res: Response) => {
   try {
     const { farmId, lat, lon } = req.query;
-    
+
     let location;
-    
+
     // Priority 1: Use GPS coordinates from query if provided
     if (lat && lon) {
       const latitude = parseFloat(lat as string);
       const longitude = parseFloat(lon as string);
-      
+
       if (!isNaN(latitude) && !isNaN(longitude)) {
-        location = { latitude, longitude, city: 'Your Location', state: '' };
-        console.log(`[Weather] Using GPS coordinates from request: (${latitude}, ${longitude})`);
+        location = { latitude, longitude, city: "Your Location", state: "" };
+        console.log(
+          `[Weather] Using GPS coordinates from request: (${latitude}, ${longitude})`,
+        );
       }
     }
-    
+
     // Priority 2: Fall back to farm location
     if (!location) {
       location = await getFarmLocation(farmId as string | undefined);
-      console.log(`[Weather] Using farm location: ${location.city}, ${location.state} (${location.latitude}, ${location.longitude})`);
+      console.log(
+        `[Weather] Using farm location: ${location.city}, ${location.state} (${location.latitude}, ${location.longitude})`,
+      );
     }
 
     // If no API key, return mock data
     if (!OPENWEATHER_API_KEY) {
-      console.warn('[Weather] ⚠️  No OpenWeatherMap API key found. Using mock data.');
-      console.warn('[Weather] Set OPENWEATHER_API_KEY in .env to enable real weather data.');
+      console.warn(
+        "[Weather] ⚠️  No OpenWeatherMap API key found. Using mock data.",
+      );
+      console.warn(
+        "[Weather] Set OPENWEATHER_API_KEY in .env to enable real weather data.",
+      );
       return res.json({
         ...mockWeatherData,
         location: `${location.city}, ${location.state}`,
-        source: 'mock',
+        source: "mock",
       });
     }
 
@@ -175,23 +193,28 @@ export const getCurrentWeather = async (req: Request, res: Response) => {
       uvIndex: 0, // UV index requires separate API call in free tier
       feelsLike: Math.round(data.main.feels_like * 10) / 10,
       timestamp: new Date(data.dt * 1000),
-      location: location.state ? `${data.name || location.city}, ${location.state}` : data.name || location.city,
-      source: 'openweathermap',
+      location: location.state
+        ? `${data.name || location.city}, ${location.state}`
+        : data.name || location.city,
+      source: "openweathermap",
     };
 
-    console.log(`✅ Weather data fetched: ${weatherData.temperature}°C, ${weatherData.condition} at ${weatherData.location}`);
+    console.log(
+      `✅ Weather data fetched: ${weatherData.temperature}°C, ${weatherData.condition} at ${weatherData.location}`,
+    );
     res.json(weatherData);
-
   } catch (error) {
-    console.error('[Weather] Error fetching weather:', error);
-    
+    console.error("[Weather] Error fetching weather:", error);
+
     // Fallback to mock data on error
-    const location = await getFarmLocation(req.query.farmId as string | undefined);
+    const location = await getFarmLocation(
+      req.query.farmId as string | undefined,
+    );
     res.json({
       ...mockWeatherData,
       location: `${location.city}, ${location.state}`,
-      source: 'mock_fallback',
-      error: error instanceof Error ? error.message : 'Weather API error',
+      source: "mock_fallback",
+      error: error instanceof Error ? error.message : "Weather API error",
     });
   }
 };
@@ -200,19 +223,19 @@ export const getCurrentWeather = async (req: Request, res: Response) => {
 export const getForecast = async (req: Request, res: Response) => {
   try {
     const { farmId, lat, lon } = req.query;
-    
+
     let location;
-    
+
     // Priority 1: Use GPS coordinates from query if provided
     if (lat && lon) {
       const latitude = parseFloat(lat as string);
       const longitude = parseFloat(lon as string);
-      
+
       if (!isNaN(latitude) && !isNaN(longitude)) {
-        location = { latitude, longitude, city: 'Your Location', state: '' };
+        location = { latitude, longitude, city: "Your Location", state: "" };
       }
     }
-    
+
     // Priority 2: Fall back to farm location
     if (!location) {
       location = await getFarmLocation(farmId as string | undefined);
@@ -220,12 +243,14 @@ export const getForecast = async (req: Request, res: Response) => {
 
     // If no API key, return mock data
     if (!OPENWEATHER_API_KEY) {
-      console.warn('[Weather] No OpenWeatherMap API key. Using mock forecast.');
+      console.warn("[Weather] No OpenWeatherMap API key. Using mock forecast.");
       return res.json({
         forecast: mockForecast,
         hourly: mockHourlyForecast,
-        location: location.state ? `${location.city}, ${location.state}` : location.city,
-        source: 'mock',
+        location: location.state
+          ? `${location.city}, ${location.state}`
+          : location.city,
+        source: "mock",
       });
     }
 
@@ -241,41 +266,52 @@ export const getForecast = async (req: Request, res: Response) => {
 
     // Group forecast by day and get daily high/low
     const dailyMap = new Map<string, any>();
-    
+
     data.list.forEach((item: any) => {
       const date = new Date(item.dt * 1000);
-      const dateKey = date.toISOString().split('T')[0];
-      
+      const dateKey = date.toISOString().split("T")[0];
+
       if (!dailyMap.has(dateKey)) {
         dailyMap.set(dateKey, {
           date: new Date(dateKey),
           high: item.main.temp_max,
           low: item.main.temp_min,
           rainChance: Math.round((item.pop || 0) * 100),
-          condition: mapWeatherCondition(item.weather[0].id, item.weather[0].main),
+          condition: mapWeatherCondition(
+            item.weather[0].id,
+            item.weather[0].main,
+          ),
           temps: [item.main.temp],
         });
       } else {
         const existing = dailyMap.get(dateKey);
         existing.high = Math.max(existing.high, item.main.temp_max);
         existing.low = Math.min(existing.low, item.main.temp_min);
-        existing.rainChance = Math.max(existing.rainChance, Math.round((item.pop || 0) * 100));
+        existing.rainChance = Math.max(
+          existing.rainChance,
+          Math.round((item.pop || 0) * 100),
+        );
         existing.temps.push(item.main.temp);
       }
     });
 
     // Convert to array and take first 7 days
-    const forecast = Array.from(dailyMap.values()).slice(0, 7).map(day => ({
-      date: day.date,
-      high: Math.round(day.high),
-      low: Math.round(day.low),
-      rainChance: day.rainChance,
-      condition: day.condition,
-    }));
+    const forecast = Array.from(dailyMap.values())
+      .slice(0, 7)
+      .map((day) => ({
+        date: day.date,
+        high: Math.round(day.high),
+        low: Math.round(day.low),
+        rainChance: day.rainChance,
+        condition: day.condition,
+      }));
 
     // Get hourly forecast for next 24 hours (8 data points at 3-hour intervals)
     const hourlyForecast = data.list.slice(0, 8).map((hour: any) => ({
-      time: new Date(hour.dt * 1000).toLocaleTimeString('en-US', { hour: 'numeric', hour12: true }),
+      time: new Date(hour.dt * 1000).toLocaleTimeString("en-US", {
+        hour: "numeric",
+        hour12: true,
+      }),
       temp: Math.round(hour.main.temp),
       condition: mapWeatherCondition(hour.weather[0].id, hour.weather[0].main),
     }));
@@ -284,20 +320,21 @@ export const getForecast = async (req: Request, res: Response) => {
       forecast,
       hourly: hourlyForecast,
       location: `${location.city}, ${location.state}`,
-      source: 'openweathermap',
+      source: "openweathermap",
     });
-
   } catch (error) {
-    console.error('[Weather] Error fetching forecast:', error);
-    
+    console.error("[Weather] Error fetching forecast:", error);
+
     // Fallback to mock data
-    const location = await getFarmLocation(req.query.farmId as string | undefined);
+    const location = await getFarmLocation(
+      req.query.farmId as string | undefined,
+    );
     res.json({
       forecast: mockForecast,
       hourly: mockHourlyForecast,
       location: `${location.city}, ${location.state}`,
-      source: 'mock_fallback',
-      error: error instanceof Error ? error.message : 'Weather API error',
+      source: "mock_fallback",
+      error: error instanceof Error ? error.message : "Weather API error",
     });
   }
 };
@@ -310,8 +347,10 @@ export const getHistoricalWeather = async (req: Request, res: Response) => {
     const location = await getFarmLocation(farmId as string | undefined);
 
     // Historical weather requires paid OpenWeatherMap tier, so return mock data
-    console.warn('[Weather] Historical weather requires OpenWeatherMap paid tier. Using mock data.');
-    
+    console.warn(
+      "[Weather] Historical weather requires OpenWeatherMap paid tier. Using mock data.",
+    );
+
     const historicalData = [];
     for (let i = 0; i < daysNum; i++) {
       historicalData.push({
@@ -320,7 +359,9 @@ export const getHistoricalWeather = async (req: Request, res: Response) => {
         pressure: 1010 + Math.random() * 10,
         windSpeed: 5 + Math.random() * 15,
         rainProbability: Math.random() * 100,
-        condition: ['Sunny', 'Cloudy', 'Rainy', 'Partly Cloudy'][Math.floor(Math.random() * 4)],
+        condition: ["Sunny", "Cloudy", "Rainy", "Partly Cloudy"][
+          Math.floor(Math.random() * 4)
+        ],
         uvIndex: Math.floor(Math.random() * 11),
         feelsLike: 20 + Math.random() * 10,
         timestamp: new Date(Date.now() - i * 86400000),
@@ -330,15 +371,14 @@ export const getHistoricalWeather = async (req: Request, res: Response) => {
     res.json({
       data: historicalData,
       location: `${location.city}, ${location.state}`,
-      source: 'mock',
-      note: 'Historical weather requires OpenWeatherMap paid tier',
+      source: "mock",
+      note: "Historical weather requires OpenWeatherMap paid tier",
     });
-
   } catch (error) {
-    console.error('[Weather] Error fetching historical weather:', error);
+    console.error("[Weather] Error fetching historical weather:", error);
     res.status(500).json({
-      error: 'Failed to fetch historical weather',
-      details: error instanceof Error ? error.message : 'Unknown error',
+      error: "Failed to fetch historical weather",
+      details: error instanceof Error ? error.message : "Unknown error",
     });
   }
 };

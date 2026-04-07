@@ -7,7 +7,7 @@ export interface ChatMessage {
   id: string;
   message: string;
   timestamp: string;
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   model?: string;
   sources?: string[];
 }
@@ -24,24 +24,25 @@ export interface ChatbotServiceOptions {
   userId?: string;
   crop?: string;
   context?: string;
-  conversationHistory?: Array<{ role: 'user' | 'assistant'; content: string }>;
+  conversationHistory?: Array<{ role: "user" | "assistant"; content: string }>;
   model?: string;
   language?: string;
 }
 
 class ChatbotService {
-  private baseUrl = '/api/chatbot';
+  private baseUrl = "/api/chatbot";
 
   // Persist a session id per browser (used to track conversation history server-side)
   private getSessionId(): string {
     try {
-      const key = 'chat_session_id';
+      const key = "chat_session_id";
       let sid = localStorage.getItem(key);
       if (!sid) {
         // Use crypto.randomUUID when available
-        sid = (window.crypto && (window.crypto as any).randomUUID)
-          ? (window.crypto as any).randomUUID()
-          : `sess_${Date.now()}`;
+        sid =
+          window.crypto && (window.crypto as any).randomUUID
+            ? (window.crypto as any).randomUUID()
+            : `sess_${Date.now()}`;
         localStorage.setItem(key, sid);
       }
       return sid;
@@ -54,14 +55,17 @@ class ChatbotService {
   /**
    * Send message to chatbot
    */
-  async sendMessage(message: string, options?: ChatbotServiceOptions): Promise<ChatMessage> {
+  async sendMessage(
+    message: string,
+    options?: ChatbotServiceOptions,
+  ): Promise<ChatMessage> {
     try {
       const response = await fetch(`${this.baseUrl}/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message,
-          model: options?.model || 'llama3',
+          model: options?.model || "llama3",
           session_id: options?.userId || this.getSessionId(),
           crop: options?.crop,
           context: options?.context,
@@ -72,7 +76,7 @@ class ChatbotService {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to send message');
+        throw new Error(error.error || "Failed to send message");
       }
 
       const data = await response.json();
@@ -81,12 +85,12 @@ class ChatbotService {
         id: data.id,
         message: data.message,
         timestamp: data.timestamp,
-        role: 'assistant',
+        role: "assistant",
         model: data.model,
         sources: data.sources,
       };
     } catch (error) {
-      console.error('Chatbot service error:', error);
+      console.error("Chatbot service error:", error);
       throw error;
     }
   }
@@ -97,12 +101,12 @@ class ChatbotService {
   async sendMessageStream(
     message: string,
     onChunk: (chunk: string) => void,
-    options?: ChatbotServiceOptions
+    options?: ChatbotServiceOptions,
   ): Promise<{ fullMessage: string; winningModel?: string }> {
     try {
       const response = await fetch(`${this.baseUrl}/chat-stream`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message,
           crop: options?.crop,
@@ -114,16 +118,16 @@ class ChatbotService {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to start streaming');
+        throw new Error("Failed to start streaming");
       }
 
       const reader = response.body?.getReader();
-      if (!reader) throw new Error('No response stream');
+      if (!reader) throw new Error("No response stream");
 
       const decoder = new TextDecoder();
-      let fullMessage = '';
+      let fullMessage = "";
       let winningModel: string | undefined;
-      let buffer = '';
+      let buffer = "";
 
       while (true) {
         const { done, value } = await reader.read();
@@ -131,11 +135,11 @@ class ChatbotService {
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
+        const lines = buffer.split("\n");
 
         // Process complete lines
         for (let i = 0; i < lines.length - 1; i++) {
-          if (lines[i].startsWith('data: ')) {
+          if (lines[i].startsWith("data: ")) {
             try {
               const data = JSON.parse(lines[i].slice(6));
               if (data.chunk) {
@@ -158,7 +162,7 @@ class ChatbotService {
 
       return { fullMessage, winningModel };
     } catch (error) {
-      console.error('Stream error:', error);
+      console.error("Stream error:", error);
       throw error;
     }
   }
@@ -178,12 +182,12 @@ class ChatbotService {
       const response = await fetch(`${this.baseUrl}/health`);
 
       if (!response.ok) {
-        throw new Error('Health check failed');
+        throw new Error("Health check failed");
       }
 
       return response.json();
     } catch (error) {
-      console.error('Health check error:', error);
+      console.error("Health check error:", error);
       throw error;
     }
   }
@@ -196,13 +200,13 @@ class ChatbotService {
       const response = await fetch(`${this.baseUrl}/models`);
 
       if (!response.ok) {
-        throw new Error('Failed to fetch models');
+        throw new Error("Failed to fetch models");
       }
 
       const data = await response.json();
       return data.models || [];
     } catch (error) {
-      console.error('Get models error:', error);
+      console.error("Get models error:", error);
       return [];
     }
   }

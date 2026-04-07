@@ -1,13 +1,10 @@
-import { supabase } from '@/lib/supabase';
+import { supabase } from "@/lib/supabase";
 
 // WebRTC configuration with STUN/TURN servers
 const rtcConfiguration: RTCConfiguration = {
   iceServers: [
     {
-      urls: [
-        'stun:stun.l.google.com:19302',
-        'stun:stun1.l.google.com:19302',
-      ],
+      urls: ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"],
     },
     // Add TURN servers for better connectivity (optional, requires setup)
     // {
@@ -18,8 +15,15 @@ const rtcConfiguration: RTCConfiguration = {
   ],
 };
 
-export type CallType = 'voice' | 'video';
-export type CallStatus = 'initiated' | 'ringing' | 'accepted' | 'rejected' | 'missed' | 'ended' | 'failed';
+export type CallType = "voice" | "video";
+export type CallStatus =
+  | "initiated"
+  | "ringing"
+  | "accepted"
+  | "rejected"
+  | "missed"
+  | "ended"
+  | "failed";
 
 export interface Call {
   id: string;
@@ -39,7 +43,7 @@ export interface SignalingMessage {
   call_id: string;
   sender_id: string;
   receiver_id: string;
-  signal_type: 'offer' | 'answer' | 'ice_candidate' | 'end';
+  signal_type: "offer" | "answer" | "ice_candidate" | "end";
   signal_data: any;
   created_at: string;
 }
@@ -65,15 +69,15 @@ export class CallService {
     conversationId: string,
     callerId: string,
     receiverId: string,
-    callType: CallType
+    callType: CallType,
   ): Promise<string> {
     try {
       // Store user ID and receiver ID for signaling
       this.userId = callerId;
       this.receiverId = receiverId;
-      
+
       // Create call record
-      const { data, error } = await supabase.rpc('create_call', {
+      const { data, error } = await supabase.rpc("create_call", {
         p_conversation_id: conversationId,
         p_caller_id: callerId,
         p_receiver_id: receiverId,
@@ -81,11 +85,11 @@ export class CallService {
       });
 
       if (error) throw error;
-      
+
       this.currentCallId = data;
       return data;
     } catch (error) {
-      console.error('Failed to initiate call:', error);
+      console.error("Failed to initiate call:", error);
       throw error;
     }
   }
@@ -95,19 +99,21 @@ export class CallService {
     try {
       const constraints: MediaStreamConstraints = {
         audio: true,
-        video: callType === 'video',
+        video: callType === "video",
       };
 
       this.localStream = await navigator.mediaDevices.getUserMedia(constraints);
       return this.localStream;
     } catch (error) {
-      console.error('Failed to get user media:', error);
+      console.error("Failed to get user media:", error);
       throw error;
     }
   }
 
   // Create peer connection
-  createPeerConnection(onRemoteStream: (stream: MediaStream) => void): RTCPeerConnection {
+  createPeerConnection(
+    onRemoteStream: (stream: MediaStream) => void,
+  ): RTCPeerConnection {
     this.peerConnection = new RTCPeerConnection(rtcConfiguration);
 
     // Add local stream tracks
@@ -128,18 +134,22 @@ export class CallService {
     // Handle ICE candidates
     this.peerConnection.onicecandidate = (event) => {
       if (event.candidate && this.currentCallId && this.receiverId) {
-        this.sendSignal('ice_candidate', {
-          candidate: event.candidate.toJSON(),
-        }, this.receiverId);
+        this.sendSignal(
+          "ice_candidate",
+          {
+            candidate: event.candidate.toJSON(),
+          },
+          this.receiverId,
+        );
       }
     };
 
     // Handle connection state
     this.peerConnection.onconnectionstatechange = () => {
-      console.log('Connection state:', this.peerConnection?.connectionState);
-      
-      if (this.peerConnection?.connectionState === 'failed') {
-        this.updateCallStatus('failed');
+      console.log("Connection state:", this.peerConnection?.connectionState);
+
+      if (this.peerConnection?.connectionState === "failed") {
+        this.updateCallStatus("failed");
         this.endCall();
       }
     };
@@ -155,12 +165,16 @@ export class CallService {
       const offer = await this.peerConnection.createOffer();
       await this.peerConnection.setLocalDescription(offer);
 
-      await this.sendSignal('offer', {
-        sdp: offer.sdp,
-        type: offer.type,
-      }, receiverId);
+      await this.sendSignal(
+        "offer",
+        {
+          sdp: offer.sdp,
+          type: offer.type,
+        },
+        receiverId,
+      );
     } catch (error) {
-      console.error('Failed to create offer:', error);
+      console.error("Failed to create offer:", error);
       throw error;
     }
   }
@@ -173,12 +187,16 @@ export class CallService {
       const answer = await this.peerConnection.createAnswer();
       await this.peerConnection.setLocalDescription(answer);
 
-      await this.sendSignal('answer', {
-        sdp: answer.sdp,
-        type: answer.type,
-      }, senderId);
+      await this.sendSignal(
+        "answer",
+        {
+          sdp: answer.sdp,
+          type: answer.type,
+        },
+        senderId,
+      );
     } catch (error) {
-      console.error('Failed to create answer:', error);
+      console.error("Failed to create answer:", error);
       throw error;
     }
   }
@@ -188,9 +206,11 @@ export class CallService {
     if (!this.peerConnection) return;
 
     try {
-      await this.peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+      await this.peerConnection.setRemoteDescription(
+        new RTCSessionDescription(offer),
+      );
     } catch (error) {
-      console.error('Failed to handle offer:', error);
+      console.error("Failed to handle offer:", error);
       throw error;
     }
   }
@@ -200,9 +220,11 @@ export class CallService {
     if (!this.peerConnection) return;
 
     try {
-      await this.peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+      await this.peerConnection.setRemoteDescription(
+        new RTCSessionDescription(answer),
+      );
     } catch (error) {
-      console.error('Failed to handle answer:', error);
+      console.error("Failed to handle answer:", error);
       throw error;
     }
   }
@@ -214,20 +236,20 @@ export class CallService {
     try {
       await this.peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
     } catch (error) {
-      console.error('Failed to add ICE candidate:', error);
+      console.error("Failed to add ICE candidate:", error);
     }
   }
 
   // Send signaling message
   private async sendSignal(
-    signalType: 'offer' | 'answer' | 'ice_candidate' | 'end',
+    signalType: "offer" | "answer" | "ice_candidate" | "end",
     signalData: any,
-    receiverId?: string
+    receiverId?: string,
   ): Promise<void> {
     if (!this.currentCallId || !this.userId) return;
 
     try {
-      const { error } = await supabase.from('call_signaling').insert({
+      const { error } = await supabase.from("call_signaling").insert({
         call_id: this.currentCallId,
         sender_id: this.userId,
         receiver_id: receiverId,
@@ -237,7 +259,7 @@ export class CallService {
 
       if (error) throw error;
     } catch (error) {
-      console.error('Failed to send signal:', error);
+      console.error("Failed to send signal:", error);
       throw error;
     }
   }
@@ -246,21 +268,21 @@ export class CallService {
   subscribeToSignaling(
     callId: string,
     userId: string,
-    onSignal: (signal: SignalingMessage) => void
+    onSignal: (signal: SignalingMessage) => void,
   ): () => void {
     const channel = supabase
       .channel(`call-signaling:${callId}`)
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'call_signaling',
+          event: "INSERT",
+          schema: "public",
+          table: "call_signaling",
           filter: `receiver_id=eq.${userId}`,
         },
         (payload) => {
           onSignal(payload.new as SignalingMessage);
-        }
+        },
       )
       .subscribe();
 
@@ -274,34 +296,34 @@ export class CallService {
     if (!this.currentCallId) return;
 
     try {
-      const { error } = await supabase.rpc('update_call_status', {
+      const { error } = await supabase.rpc("update_call_status", {
         p_call_id: this.currentCallId,
         p_status: status,
       });
 
       if (error) throw error;
     } catch (error) {
-      console.error('Failed to update call status:', error);
+      console.error("Failed to update call status:", error);
     }
   }
 
   // End call and cleanup
   async endCall(): Promise<void> {
-    console.log('endCall() called, sending end signal to:', this.receiverId);
-    
+    console.log("endCall() called, sending end signal to:", this.receiverId);
+
     // Send end signal to other party
     if (this.currentCallId && this.receiverId) {
       try {
-        console.log('Sending end signal for call:', this.currentCallId);
-        await this.sendSignal('end', {}, this.receiverId);
-        console.log('End signal sent successfully');
+        console.log("Sending end signal for call:", this.currentCallId);
+        await this.sendSignal("end", {}, this.receiverId);
+        console.log("End signal sent successfully");
       } catch (error) {
-        console.error('Failed to send end signal:', error);
+        console.error("Failed to send end signal:", error);
       }
     } else {
-      console.log('Cannot send end signal - missing callId or receiverId', {
+      console.log("Cannot send end signal - missing callId or receiverId", {
         callId: this.currentCallId,
-        receiverId: this.receiverId
+        receiverId: this.receiverId,
       });
     }
 
@@ -319,7 +341,7 @@ export class CallService {
 
     // Update call status
     if (this.currentCallId) {
-      await this.updateCallStatus('ended');
+      await this.updateCallStatus("ended");
       this.currentCallId = null;
     }
 

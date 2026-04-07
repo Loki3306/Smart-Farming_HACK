@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import 'leaflet-draw/dist/leaflet.draw.css';
-import 'leaflet-draw';
+import React, { useEffect, useRef, useState } from "react";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import "leaflet-draw/dist/leaflet.draw.css";
+import "leaflet-draw";
 import {
   getFarmMapping,
   saveFarmBoundary,
@@ -15,11 +15,14 @@ import {
   updateAllSectionsWaterSources,
   type SectionData,
   type WaterSource,
-} from '../../utils/farmMappingStorage';
-import { fetchWaterSourcesFromOSM, isCacheValid } from '../../services/osmWaterService';
-import { v4 as uuidv4 } from 'uuid';
-import { toast } from 'react-hot-toast';
-import { Navigation, Droplets } from 'lucide-react';
+} from "../../utils/farmMappingStorage";
+import {
+  fetchWaterSourcesFromOSM,
+  isCacheValid,
+} from "../../services/osmWaterService";
+import { v4 as uuidv4 } from "uuid";
+import { toast } from "react-hot-toast";
+import { Navigation, Droplets } from "lucide-react";
 
 // Add custom CSS for modern labels
 const labelStyles = `
@@ -35,11 +38,11 @@ const labelStyles = `
 `;
 
 // Inject styles
-if (typeof document !== 'undefined') {
-  const styleSheet = document.createElement('style');
+if (typeof document !== "undefined") {
+  const styleSheet = document.createElement("style");
   styleSheet.textContent = labelStyles;
-  if (!document.head.querySelector('style[data-section-labels]')) {
-    styleSheet.setAttribute('data-section-labels', 'true');
+  if (!document.head.querySelector("style[data-section-labels]")) {
+    styleSheet.setAttribute("data-section-labels", "true");
     document.head.appendChild(styleSheet);
   }
 }
@@ -47,29 +50,36 @@ if (typeof document !== 'undefined') {
 // Fix Leaflet default marker icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  iconRetinaUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+  iconUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
 // Fix leaflet-draw area measurement
-if (typeof (L.GeometryUtil as any) !== 'undefined') {
-  (L.GeometryUtil as any).readableArea = function (area: number, isMetric: boolean, precision?: any) {
+if (typeof (L.GeometryUtil as any) !== "undefined") {
+  (L.GeometryUtil as any).readableArea = function (
+    area: number,
+    isMetric: boolean,
+    precision?: any,
+  ) {
     let areaStr;
     if (isMetric) {
       if (area >= 10000) {
-        areaStr = (area * 0.0001).toFixed(2) + ' ha';
+        areaStr = (area * 0.0001).toFixed(2) + " ha";
       } else {
-        areaStr = area.toFixed(2) + ' m²';
+        areaStr = area.toFixed(2) + " m²";
       }
     } else {
       const areaYards = area / 0.836127; // sq meters to sq yards
       if (areaYards >= 3097600) {
-        areaStr = (areaYards / 3097600).toFixed(2) + ' mi²';
+        areaStr = (areaYards / 3097600).toFixed(2) + " mi²";
       } else if (areaYards >= 4840) {
-        areaStr = (areaYards / 4840).toFixed(2) + ' acres';
+        areaStr = (areaYards / 4840).toFixed(2) + " acres";
       } else {
-        areaStr = Math.ceil(areaYards) + ' yd²';
+        areaStr = Math.ceil(areaYards) + " yd²";
       }
     }
     return areaStr;
@@ -127,9 +137,9 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
       setMapCenter(initialCenter);
       return;
     }
-    
+
     // Otherwise, try to get user's GPS location and save it
-    const savedLocation = localStorage.getItem('user_gps_location');
+    const savedLocation = localStorage.getItem("user_gps_location");
     if (savedLocation) {
       const location = JSON.parse(savedLocation);
       setMapCenter([location.lat, location.lng]);
@@ -138,13 +148,13 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
         (position) => {
           const { latitude, longitude } = position.coords;
           const location = { lat: latitude, lng: longitude };
-          localStorage.setItem('user_gps_location', JSON.stringify(location));
+          localStorage.setItem("user_gps_location", JSON.stringify(location));
           setMapCenter([latitude, longitude]);
         },
         () => {
           // If geolocation fails, use default center
           setMapCenter(initialCenter);
-        }
+        },
       );
     }
   }, [initialCenter]);
@@ -155,26 +165,26 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
 
     const map = L.map(mapRef.current).setView(mapCenter, initialZoom);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap contributors",
       maxZoom: 19,
     }).addTo(map);
 
     drawnItemsRef.current = new L.FeatureGroup();
     sectionsLayerRef.current = new L.FeatureGroup();
     waterSourcesLayerRef.current = new L.FeatureGroup();
-    
+
     // Add layers to map with error handling
     try {
       map.addLayer(drawnItemsRef.current);
       map.addLayer(sectionsLayerRef.current);
       map.addLayer(waterSourcesLayerRef.current);
     } catch (error) {
-      console.error('Error adding layers to map:', error);
+      console.error("Error adding layers to map:", error);
     }
 
     const drawControl = new L.Control.Draw({
-      position: 'topright',
+      position: "topright",
       draw: {
         polygon: {
           allowIntersection: false,
@@ -183,7 +193,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
           feet: false,
           nautic: false,
           shapeOptions: {
-            color: '#3B82F6',
+            color: "#3B82F6",
             weight: 3,
             fillOpacity: 0.2,
           },
@@ -228,13 +238,16 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
           // Update farm boundary
           const polygon = layer as L.Polygon;
           const latLngs = polygon.getLatLngs()[0] as L.LatLng[];
-          const coordinates = [latLngs.map(ll => [ll.lng, ll.lat])];
+          const coordinates = [latLngs.map((ll) => [ll.lng, ll.lat])];
           const area = calculateArea(polygon);
           const bounds = polygon.getBounds();
-          const center: [number, number] = [bounds.getCenter().lat, bounds.getCenter().lng];
-          
+          const center: [number, number] = [
+            bounds.getCenter().lat,
+            bounds.getCenter().lng,
+          ];
+
           saveFarmBoundary(farmId, coordinates, area, center);
-          toast.success('Farm boundary updated');
+          toast.success("Farm boundary updated");
           if (onStatsUpdate) onStatsUpdate();
         } else {
           // Update section
@@ -244,18 +257,18 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
             if (section) {
               const polygon = layer as L.Polygon;
               const latLngs = polygon.getLatLngs()[0] as L.LatLng[];
-              const coordinates = [latLngs.map(ll => [ll.lng, ll.lat])];
+              const coordinates = [latLngs.map((ll) => [ll.lng, ll.lat])];
               const area = calculateArea(polygon);
-              
+
               const updatedSection = {
                 ...section,
                 geometry: {
-                  type: 'Polygon' as const,
+                  type: "Polygon" as const,
                   coordinates,
                 },
                 area,
               };
-              
+
               saveSection(farmId, updatedSection);
               toast.success(`${section.name} updated`);
               if (onStatsUpdate) onStatsUpdate();
@@ -271,7 +284,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
       layers.eachLayer((layer: L.Layer) => {
         if (layer === farmBoundaryRef.current) {
           farmBoundaryRef.current = null;
-          toast.success('Farm boundary removed');
+          toast.success("Farm boundary removed");
         } else {
           const sectionId = (layer as any).options.sectionId;
           if (sectionId) {
@@ -283,7 +296,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
     });
 
     // Handle zoom to show/hide labels based on zoom level
-    map.on('zoomend', () => {
+    map.on("zoomend", () => {
       const currentZoom = map.getZoom();
       const minZoomForLabels = 14; // Show labels only when zoomed in enough
 
@@ -332,13 +345,17 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
     }
 
     // Load boundary
-    if (farmData.farmBoundary && mapInstanceRef.current && drawnItemsRef.current) {
+    if (
+      farmData.farmBoundary &&
+      mapInstanceRef.current &&
+      drawnItemsRef.current
+    ) {
       const coords = farmData.farmBoundary.coordinates[0].map(
-        (coord: number[]) => [coord[1], coord[0]] as L.LatLngExpression
+        (coord: number[]) => [coord[1], coord[0]] as L.LatLngExpression,
       );
 
       const boundaryLayer = L.polygon(coords, {
-        color: '#3B82F6',
+        color: "#3B82F6",
         weight: 3,
         fillOpacity: 0.1,
       });
@@ -354,7 +371,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
 
       farmData.sections.forEach((section: SectionData) => {
         const coords = section.geometry.coordinates[0].map(
-          (coord: number[]) => [coord[1], coord[0]] as L.LatLngExpression
+          (coord: number[]) => [coord[1], coord[0]] as L.LatLngExpression,
         );
 
         const sectionLayer = L.polygon(coords, {
@@ -369,13 +386,14 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
         sectionLayer.bindPopup(`
           <div class="p-2">
             <strong>${section.name}</strong><br/>
-            Crop: ${section.cropType || 'Not set'}<br/>
+            Crop: ${section.cropType || "Not set"}<br/>
             Area: ${section.area.toFixed(2)} acres
           </div>
         `);
 
         // Bind permanent tooltip with modern styling and GPS icon
-        sectionLayer.bindTooltip(`
+        sectionLayer.bindTooltip(
+          `
           <div style="
             background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%);
             padding: 8px 12px;
@@ -396,14 +414,16 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
               <div style="color: #6b7280; font-size: 11px;">${section.area.toFixed(2)} acres</div>
             </div>
           </div>
-        `, {
-          permanent: true,
-          direction: 'center',
-          className: 'modern-section-label',
-          opacity: 1,
-        });
+        `,
+          {
+            permanent: true,
+            direction: "center",
+            className: "modern-section-label",
+            opacity: 1,
+          },
+        );
 
-        sectionLayer.on('click', () => {
+        sectionLayer.on("click", () => {
           if (onSectionSelect) {
             onSectionSelect(section.id);
           }
@@ -422,13 +442,20 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
     }
 
     // Load water sources
-    if (farmData.waterSources && waterSourcesLayerRef.current && mapInstanceRef.current) {
+    if (
+      farmData.waterSources &&
+      waterSourcesLayerRef.current &&
+      mapInstanceRef.current
+    ) {
       setWaterSources(farmData.waterSources);
       renderWaterSources(farmData.waterSources);
     }
 
     // Fetch water sources from OSM if cache is invalid (with delay to ensure map is ready)
-    if (!isCacheValid(farmData.waterSourcesLastFetched) && mapInstanceRef.current) {
+    if (
+      !isCacheValid(farmData.waterSourcesLastFetched) &&
+      mapInstanceRef.current
+    ) {
       setTimeout(() => {
         if (mapInstanceRef.current) {
           fetchAndDisplayWaterSources();
@@ -445,13 +472,13 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
       waterSourcesLayerRef.current.clearLayers();
     } catch (error) {
       // Layer might not be properly initialized yet
-      console.warn('Could not clear water sources layer:', error);
+      console.warn("Could not clear water sources layer:", error);
       return;
     }
 
     sources.forEach((source) => {
       const waterIcon = L.divIcon({
-        className: 'water-source-marker',
+        className: "water-source-marker",
         html: `
           <div style="
             background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
@@ -477,17 +504,17 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
         icon: waterIcon,
       });
 
-      const typeLabels: Record<WaterSource['type'], string> = {
-        river: 'River',
-        lake: 'Lake',
-        pond: 'Pond',
-        reservoir: 'Reservoir',
-        canal: 'Canal',
-        stream: 'Stream',
-        well: 'Well',
-        water_tower: 'Water Tower',
-        spring: 'Spring',
-        waterway: 'Waterway',
+      const typeLabels: Record<WaterSource["type"], string> = {
+        river: "River",
+        lake: "Lake",
+        pond: "Pond",
+        reservoir: "Reservoir",
+        canal: "Canal",
+        stream: "Stream",
+        well: "Well",
+        water_tower: "Water Tower",
+        spring: "Spring",
+        waterway: "Waterway",
       };
 
       marker.bindPopup(`
@@ -500,7 +527,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
           </div>
           <div style="color: #6b7280; font-size: 12px; margin-left: 28px;">
             <div><strong>Type:</strong> ${typeLabels[source.type]}</div>
-            <div style="margin-top: 4px;"><strong>Source:</strong> ${source.source === 'osm' ? 'OpenStreetMap' : 'Manual'}</div>
+            <div style="margin-top: 4px;"><strong>Source:</strong> ${source.source === "osm" ? "OpenStreetMap" : "Manual"}</div>
           </div>
         </div>
       `);
@@ -510,7 +537,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
           waterSourcesLayerRef.current.addLayer(marker);
         }
       } catch (error) {
-        console.warn('Could not add water source marker:', error);
+        console.warn("Could not add water source marker:", error);
       }
     });
   };
@@ -529,19 +556,22 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
         saveWaterSources(sources);
         setWaterSources(sources);
         renderWaterSources(sources);
-        
+
         // Update all sections with nearest water sources
         updateAllSectionsWaterSources();
-        
-        toast.success(`Found ${sources.length} water source${sources.length !== 1 ? 's' : ''} nearby!`, {
-          icon: '💧',
-        });
+
+        toast.success(
+          `Found ${sources.length} water source${sources.length !== 1 ? "s" : ""} nearby!`,
+          {
+            icon: "💧",
+          },
+        );
       } else {
-        toast('No water sources found in this area', { icon: 'ℹ️' });
+        toast("No water sources found in this area", { icon: "ℹ️" });
       }
     } catch (error) {
-      console.error('Error fetching water sources:', error);
-      toast.error('Failed to fetch water sources from OpenStreetMap');
+      console.error("Error fetching water sources:", error);
+      toast.error("Failed to fetch water sources from OpenStreetMap");
     } finally {
       setIsFetchingWater(false);
     }
@@ -557,10 +587,13 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
     drawnItemsRef.current?.addLayer(layer);
 
     const latLngs = layer.getLatLngs()[0] as L.LatLng[];
-    const coordinates = [latLngs.map(ll => [ll.lng, ll.lat])];
+    const coordinates = [latLngs.map((ll) => [ll.lng, ll.lat])];
     const area = calculateArea(layer);
     const bounds = layer.getBounds();
-    const center: [number, number] = [bounds.getCenter().lat, bounds.getCenter().lng];
+    const center: [number, number] = [
+      bounds.getCenter().lat,
+      bounds.getCenter().lng,
+    ];
 
     const saved = saveFarmBoundary(farmId, coordinates, area, center);
 
@@ -581,7 +614,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
     if (!farmData) return;
 
     const latLngs = layer.getLatLngs()[0] as L.LatLng[];
-    const coordinates = [latLngs.map(ll => [ll.lng, ll.lat])];
+    const coordinates = [latLngs.map((ll) => [ll.lng, ll.lat])];
     const area = calculateArea(layer);
 
     const sectionId = uuidv4();
@@ -591,13 +624,13 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
       id: sectionId,
       name: `Section ${farmData.sections.length + 1}`,
       geometry: {
-        type: 'Polygon',
+        type: "Polygon",
         coordinates,
       },
       area,
-      cropType: '',
-      soilType: '',
-      irrigationType: '',
+      cropType: "",
+      soilType: "",
+      irrigationType: "",
       color: getSectionColor(colorIndex),
       createdAt: new Date().toISOString(),
     };
@@ -623,7 +656,8 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
       `);
 
       // Bind permanent tooltip with modern styling and GPS icon
-      layer.bindTooltip(`
+      layer.bindTooltip(
+        `
         <div style="
           background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%);
           padding: 8px 12px;
@@ -644,14 +678,16 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
             <div style="color: #6b7280; font-size: 11px;">${area.toFixed(2)} acres</div>
           </div>
         </div>
-      `, {
-        permanent: true,
-        direction: 'center',
-        className: 'modern-section-label',
-        opacity: 1,
-      });
+      `,
+        {
+          permanent: true,
+          direction: "center",
+          className: "modern-section-label",
+          opacity: 1,
+        },
+      );
 
-      layer.on('click', () => {
+      layer.on("click", () => {
         if (onSectionSelect) {
           onSectionSelect(sectionId);
         }
@@ -675,7 +711,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
   // Handle section delete from map
   const handleSectionDeleteFromMap = (sectionId: string) => {
     deleteSection(sectionId);
-    toast.success('Section deleted');
+    toast.success("Section deleted");
     if (onStatsUpdate) onStatsUpdate();
   };
 
@@ -685,7 +721,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
     isDrawingBoundaryRef.current = true;
     setIsDrawingSection(false);
     isDrawingSectionRef.current = false;
-    toast('Click on the map to draw farm boundary', { icon: 'ℹ️' });
+    toast("Click on the map to draw farm boundary", { icon: "ℹ️" });
   };
 
   // Start drawing section
@@ -694,7 +730,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
     isDrawingSectionRef.current = true;
     setIsDrawingBoundary(false);
     isDrawingBoundaryRef.current = false;
-    toast('Click on the map to draw a new section', { icon: '✏️' });
+    toast("Click on the map to draw a new section", { icon: "✏️" });
   };
 
   // Get user location
@@ -714,23 +750,25 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
 
         userMarkerRef.current = L.marker(latlng, {
           icon: L.icon({
-            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+            iconUrl:
+              "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
+            shadowUrl:
+              "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
             iconSize: [25, 41],
             iconAnchor: [12, 41],
           }),
         }).addTo(mapInstanceRef.current!);
 
-        userMarkerRef.current.bindPopup('Your Location').openPopup();
+        userMarkerRef.current.bindPopup("Your Location").openPopup();
         mapInstanceRef.current?.setView(latlng, 17);
         setIsLocating(false);
-        toast.success('Location found!');
+        toast.success("Location found!");
       },
       (error) => {
-        console.error('Geolocation error:', error);
-        toast.error('Failed to get location');
+        console.error("Geolocation error:", error);
+        toast.error("Failed to get location");
         setIsLocating(false);
-      }
+      },
     );
   };
 
@@ -744,22 +782,22 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
           onClick={startDrawingBoundary}
           className={`px-4 py-2 rounded-lg shadow-lg font-medium transition-all ${
             isDrawingBoundary
-              ? 'bg-blue-600 text-white'
-              : 'bg-white text-gray-700 hover:bg-gray-50'
+              ? "bg-blue-600 text-white"
+              : "bg-white text-gray-700 hover:bg-gray-50"
           }`}
         >
-          {isDrawingBoundary ? 'Drawing Boundary...' : 'Draw Farm Boundary'}
+          {isDrawingBoundary ? "Drawing Boundary..." : "Draw Farm Boundary"}
         </button>
 
         <button
           onClick={startDrawingSection}
           className={`px-4 py-2 rounded-lg shadow-lg font-medium transition-all block ${
             isDrawingSection
-              ? 'bg-green-600 text-white'
-              : 'bg-white text-gray-700 hover:bg-gray-50'
+              ? "bg-green-600 text-white"
+              : "bg-white text-gray-700 hover:bg-gray-50"
           }`}
         >
-          {isDrawingSection ? 'Drawing Section...' : 'Add New Section'}
+          {isDrawingSection ? "Drawing Section..." : "Add New Section"}
         </button>
 
         <button
@@ -767,8 +805,10 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
           disabled={isLocating}
           className="px-4 py-2 bg-white hover:bg-gray-50 text-gray-700 rounded-lg shadow-lg font-medium transition-all flex items-center gap-2 disabled:opacity-50"
         >
-          <Navigation className={`w-4 h-4 ${isLocating ? 'animate-spin' : ''}`} />
-          {isLocating ? 'Locating...' : 'My Location'}
+          <Navigation
+            className={`w-4 h-4 ${isLocating ? "animate-spin" : ""}`}
+          />
+          {isLocating ? "Locating..." : "My Location"}
         </button>
 
         <button
@@ -776,8 +816,10 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
           disabled={isFetchingWater}
           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg font-medium transition-all flex items-center gap-2 disabled:opacity-50"
         >
-          <Droplets className={`w-4 h-4 ${isFetchingWater ? 'animate-pulse' : ''}`} />
-          {isFetchingWater ? 'Scanning...' : 'Find Water Sources'}
+          <Droplets
+            className={`w-4 h-4 ${isFetchingWater ? "animate-pulse" : ""}`}
+          />
+          {isFetchingWater ? "Scanning..." : "Find Water Sources"}
         </button>
       </div>
     </div>

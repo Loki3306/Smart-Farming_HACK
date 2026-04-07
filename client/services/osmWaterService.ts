@@ -3,9 +3,9 @@
  * Fetches water sources from OpenStreetMap using Overpass API
  */
 
-import { WaterSource } from '../utils/farmMappingStorage';
+import { WaterSource } from "../utils/farmMappingStorage";
 
-const OVERPASS_API_URL = 'https://overpass-api.de/api/interpreter';
+const OVERPASS_API_URL = "https://overpass-api.de/api/interpreter";
 
 // Cache timeout: 24 hours
 const CACHE_TIMEOUT_MS = 24 * 60 * 60 * 1000;
@@ -29,48 +29,52 @@ interface OverpassElement {
 /**
  * Map OSM tags to our water source types
  */
-const mapOsmToWaterType = (tags: any): WaterSource['type'] | null => {
-  if (tags.natural === 'water') {
-    if (tags.water === 'river') return 'river';
-    if (tags.water === 'lake') return 'lake';
-    if (tags.water === 'pond') return 'pond';
-    if (tags.water === 'reservoir') return 'reservoir';
-    if (tags.water === 'canal') return 'canal';
-    return 'pond'; // default for natural water
+const mapOsmToWaterType = (tags: any): WaterSource["type"] | null => {
+  if (tags.natural === "water") {
+    if (tags.water === "river") return "river";
+    if (tags.water === "lake") return "lake";
+    if (tags.water === "pond") return "pond";
+    if (tags.water === "reservoir") return "reservoir";
+    if (tags.water === "canal") return "canal";
+    return "pond"; // default for natural water
   }
-  if (tags.waterway === 'river') return 'river';
-  if (tags.waterway === 'stream') return 'stream';
-  if (tags.waterway === 'canal') return 'canal';
-  if (tags.waterway) return 'waterway';
-  if (tags.man_made === 'water_tower') return 'water_tower';
-  if (tags.man_made === 'water_well' || tags.amenity === 'water_point') return 'well';
-  if (tags.natural === 'spring') return 'spring';
-  
+  if (tags.waterway === "river") return "river";
+  if (tags.waterway === "stream") return "stream";
+  if (tags.waterway === "canal") return "canal";
+  if (tags.waterway) return "waterway";
+  if (tags.man_made === "water_tower") return "water_tower";
+  if (tags.man_made === "water_well" || tags.amenity === "water_point")
+    return "well";
+  if (tags.natural === "spring") return "spring";
+
   return null;
 };
 
 /**
  * Generate a readable name for a water source
  */
-const generateWaterSourceName = (element: OverpassElement, type: string): string => {
+const generateWaterSourceName = (
+  element: OverpassElement,
+  type: string,
+): string => {
   if (element.tags?.name) {
     return element.tags.name;
   }
-  
+
   const typeNames: Record<string, string> = {
-    river: 'River',
-    lake: 'Lake',
-    pond: 'Pond',
-    reservoir: 'Reservoir',
-    canal: 'Canal',
-    stream: 'Stream',
-    well: 'Well',
-    water_tower: 'Water Tower',
-    spring: 'Spring',
-    waterway: 'Waterway',
+    river: "River",
+    lake: "Lake",
+    pond: "Pond",
+    reservoir: "Reservoir",
+    canal: "Canal",
+    stream: "Stream",
+    well: "Well",
+    water_tower: "Water Tower",
+    spring: "Spring",
+    waterway: "Waterway",
   };
-  
-  return typeNames[type] || 'Water Source';
+
+  return typeNames[type] || "Water Source";
 };
 
 /**
@@ -81,13 +85,13 @@ const generateWaterSourceName = (element: OverpassElement, type: string): string
 export const fetchWaterSourcesFromOSM = async (
   centerLat: number,
   centerLon: number,
-  radiusKm: number = 2
+  radiusKm: number = 2,
 ): Promise<WaterSource[]> => {
   try {
     // Calculate bounding box from center and radius
     const latOffset = radiusKm / 111; // rough conversion: 1 degree lat ≈ 111 km
     const lonOffset = radiusKm / (111 * Math.cos((centerLat * Math.PI) / 180));
-    
+
     const bounds = {
       minLat: centerLat - latOffset,
       maxLat: centerLat + latOffset,
@@ -120,9 +124,9 @@ export const fetchWaterSourcesFromOSM = async (
     `;
 
     const response = await fetch(OVERPASS_API_URL, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        "Content-Type": "application/x-www-form-urlencoded",
       },
       body: `data=${encodeURIComponent(query)}`,
     });
@@ -156,14 +160,14 @@ export const fetchWaterSourcesFromOSM = async (
         name: generateWaterSourceName(element, waterType),
         type: waterType,
         coordinates: [lat, lon],
-        source: 'osm',
+        source: "osm",
         osmId: element.id.toString(),
       });
     });
 
     return waterSources;
   } catch (error) {
-    console.error('Error fetching water sources from OSM:', error);
+    console.error("Error fetching water sources from OSM:", error);
     throw error;
   }
 };
@@ -173,9 +177,9 @@ export const fetchWaterSourcesFromOSM = async (
  */
 export const isCacheValid = (lastFetched: string | undefined): boolean => {
   if (!lastFetched) return false;
-  
+
   const fetchedTime = new Date(lastFetched).getTime();
   const now = Date.now();
-  
-  return (now - fetchedTime) < CACHE_TIMEOUT_MS;
+
+  return now - fetchedTime < CACHE_TIMEOUT_MS;
 };

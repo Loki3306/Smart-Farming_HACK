@@ -14,19 +14,21 @@ interface DashboardLayoutProps {
 
 // Map routes to their corresponding tour IDs
 const routeTourMap: Record<string, string> = {
-  '/dashboard': 'main-tour',
-  '/farm': 'farm-tour',
-  '/weather': 'weather-tour',
-  '/recommendations': 'recommendations-tour',
-  '/regimes': 'regimes-tour',
-  '/marketplace': 'marketplace-tour',
-  '/learn': 'learn-tour',
-  '/community': 'community-tour',
-  '/notifications': 'notifications-tour',
+  "/dashboard": "main-tour",
+  "/farm": "farm-tour",
+  "/weather": "weather-tour",
+  "/recommendations": "recommendations-tour",
+  "/regimes": "regimes-tour",
+  "/marketplace": "marketplace-tour",
+  "/learn": "learn-tour",
+  "/community": "community-tour",
+  "/notifications": "notifications-tour",
   // Add more routes and tours here as needed
 };
 
-export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
+export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
+  children,
+}) => {
   const location = useLocation();
   const { user } = useAuth();
 
@@ -44,9 +46,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
       {/* Main Content */}
       <main className="lg:pl-64 transition-all duration-300 pt-16 lg:pt-0">
-        <div className="min-h-screen">
-          {children || <Outlet />}
-        </div>
+        <div className="min-h-screen">{children || <Outlet />}</div>
       </main>
 
       {/* Tour System - Route-aware */}
@@ -54,8 +54,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
         <TourManager key={currentTourId} tourId={currentTourId} autoStart />
       )}
       <DashboardGuide />
-
-
     </div>
   );
 };

@@ -1,5 +1,5 @@
-import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface TypingIndicatorProps {
   className?: string;
@@ -7,7 +7,7 @@ interface TypingIndicatorProps {
 
 export function TypingIndicator({ className }: TypingIndicatorProps) {
   return (
-    <div className={cn('flex items-center gap-1 px-3 py-2', className)}>
+    <div className={cn("flex items-center gap-1 px-3 py-2", className)}>
       <div className="flex items-center gap-1">
         {[0, 1, 2].map((i) => (
           <motion.div

@@ -26,7 +26,11 @@ interface AuthContextType {
   skipLoginAsDemo: () => void;
   clearError: () => void;
   markOnboardingComplete: () => void;
-  updateProfile: (updates: { fullName?: string; email?: string; phone?: string }) => Promise<void>;
+  updateProfile: (updates: {
+    fullName?: string;
+    email?: string;
+    phone?: string;
+  }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -50,11 +54,11 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
         setIsLoading(true);
         const currentUser = await AuthService.getCurrentUser();
         if (currentUser) {
-          console.log('[AuthContext] User restored:', currentUser.fullName);
+          console.log("[AuthContext] User restored:", currentUser.fullName);
           setUser(currentUser);
           setIsDemoUser(currentUser.isDemoUser || false);
         } else {
-          console.log('[AuthContext] No user session found');
+          console.log("[AuthContext] No user session found");
           setUser(null);
         }
       } catch (err) {
@@ -89,8 +93,11 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
       setIsLoading(true);
       setError(null);
       const response = await AuthService.login(payload);
-      console.log('[AuthContext] Login response user:', response.user);
-      console.log('[AuthContext] hasCompletedOnboarding:', response.user.hasCompletedOnboarding);
+      console.log("[AuthContext] Login response user:", response.user);
+      console.log(
+        "[AuthContext] hasCompletedOnboarding:",
+        response.user.hasCompletedOnboarding,
+      );
       setUser(response.user);
       setIsDemoUser(false);
     } catch (err) {
@@ -138,29 +145,33 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
       setUser(updatedUser);
 
       // Persist to localStorage for mock users
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem("auth_token");
       if (token) {
         // Store updated user status AND update the cached user object
-        localStorage.setItem('onboarding_completed', 'true');
-        localStorage.setItem('current_user', JSON.stringify(updatedUser));
+        localStorage.setItem("onboarding_completed", "true");
+        localStorage.setItem("current_user", JSON.stringify(updatedUser));
       }
     }
   }, [user]);
 
-  const updateProfile = useCallback(async (updates: { fullName?: string; email?: string; phone?: string }) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const updatedUser = await AuthService.updateProfile(updates);
-      setUser(updatedUser);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to update profile";
-      setError(message);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const updateProfile = useCallback(
+    async (updates: { fullName?: string; email?: string; phone?: string }) => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const updatedUser = await AuthService.updateProfile(updates);
+        setUser(updatedUser);
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Failed to update profile";
+        setError(message);
+        throw err;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [],
+  );
 
   const isAuthenticated = user !== null;
 

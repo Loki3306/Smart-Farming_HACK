@@ -1,43 +1,46 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
 // Lazy initialization to prevent throwing at config load time (vite imports server)
 let _supabase: SupabaseClient | null = null;
 
 function getSupabaseClient(): SupabaseClient {
   if (_supabase) return _supabase;
-  
+
   const SUPABASE_URL = process.env.SUPABASE_URL;
   const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error(
-      'Missing Supabase credentials. Please set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env file'
+      "Missing Supabase credentials. Please set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env file",
     );
   }
 
   _supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
     auth: {
       autoRefreshToken: false,
-      persistSession: false
+      persistSession: false,
     },
     global: {
       fetch: (...args) => {
         return fetch(args[0], {
           ...args[1],
-          signal: AbortSignal.timeout(10000) // 10 second timeout
+          signal: AbortSignal.timeout(10000), // 10 second timeout
         }).catch((error) => {
           // Log connection errors but don't throw to prevent server crashes
-          if (error.name === 'AbortError') {
-            console.warn('[Supabase] Request timeout after 10s');
-          } else if (error.code === 'ECONNRESET' || error.message?.includes('ECONNRESET')) {
-            console.warn('[Supabase] Connection reset - network or SSL issue');
+          if (error.name === "AbortError") {
+            console.warn("[Supabase] Request timeout after 10s");
+          } else if (
+            error.code === "ECONNRESET" ||
+            error.message?.includes("ECONNRESET")
+          ) {
+            console.warn("[Supabase] Connection reset - network or SSL issue");
           }
           throw error;
         });
-      }
-    }
+      },
+    },
   });
-  
+
   return _supabase;
 }
 
@@ -45,7 +48,7 @@ function getSupabaseClient(): SupabaseClient {
 export const supabase = new Proxy({} as SupabaseClient, {
   get(_, prop) {
     return (getSupabaseClient() as any)[prop];
-  }
+  },
 });
 
 // Database helper functions
@@ -53,45 +56,45 @@ export const db = {
   // Farms
   async getFarms(farmerId: string) {
     const { data, error } = await supabase
-      .from('farms')
-      .select('*')
-      .eq('farmer_id', farmerId)
-      .order('created_at', { ascending: false });
-    
+      .from("farms")
+      .select("*")
+      .eq("farmer_id", farmerId)
+      .order("created_at", { ascending: false });
+
     if (error) throw error;
     return data;
   },
 
   async getFarmById(farmId: string) {
     const { data, error } = await supabase
-      .from('farms')
-      .select('*')
-      .eq('id', farmId)
+      .from("farms")
+      .select("*")
+      .eq("id", farmId)
       .single();
-    
+
     if (error) throw error;
     return data;
   },
 
   async createFarm(farm: any) {
     const { data, error } = await supabase
-      .from('farms')
+      .from("farms")
       .insert([farm])
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   },
 
   async updateFarm(farmId: string, updates: any) {
     const { data, error } = await supabase
-      .from('farms')
+      .from("farms")
       .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq('id', farmId)
+      .eq("id", farmId)
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   },
@@ -99,16 +102,16 @@ export const db = {
   // Sensors
   async getLatestSensorData(farmId: string) {
     const { data, error } = await supabase
-      .from('sensor_readings')
-      .select('*')
-      .eq('farm_id', farmId)
-      .order('timestamp', { ascending: false })
+      .from("sensor_readings")
+      .select("*")
+      .eq("farm_id", farmId)
+      .order("timestamp", { ascending: false })
       .limit(1)
       .single();
-    
+
     if (error) {
       // If no data exists, return null instead of throwing
-      if (error.code === 'PGRST116') return null;
+      if (error.code === "PGRST116") return null;
       throw error;
     }
     return data;
@@ -116,23 +119,23 @@ export const db = {
 
   async saveSensorData(sensorData: any) {
     const { data, error } = await supabase
-      .from('sensor_readings')
+      .from("sensor_readings")
       .insert([sensorData])
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   },
 
   async getSensorHistory(farmId: string, limit = 100) {
     const { data, error } = await supabase
-      .from('sensor_readings')
-      .select('*')
-      .eq('farm_id', farmId)
-      .order('timestamp', { ascending: false })
+      .from("sensor_readings")
+      .select("*")
+      .eq("farm_id", farmId)
+      .order("timestamp", { ascending: false })
       .limit(limit);
-    
+
     if (error) throw error;
     return data;
   },
@@ -140,23 +143,23 @@ export const db = {
   // Action Logs
   async getActionLogs(farmerId: string, limit = 50) {
     const { data, error } = await supabase
-      .from('action_logs')
-      .select('*')
-      .eq('farmer_id', farmerId)
-      .order('timestamp', { ascending: false })
+      .from("action_logs")
+      .select("*")
+      .eq("farmer_id", farmerId)
+      .order("timestamp", { ascending: false })
       .limit(limit);
-    
+
     if (error) throw error;
     return data;
   },
 
   async getActionLogsSince(farmerId: string, sinceIso: string) {
     const { data, error } = await supabase
-      .from('action_logs')
-      .select('*')
-      .eq('farmer_id', farmerId)
-      .gt('timestamp', sinceIso)
-      .order('timestamp', { ascending: true });
+      .from("action_logs")
+      .select("*")
+      .eq("farmer_id", farmerId)
+      .gt("timestamp", sinceIso)
+      .order("timestamp", { ascending: true });
 
     if (error) throw error;
     return data;
@@ -173,11 +176,11 @@ export const db = {
     };
 
     const { data, error } = await supabase
-      .from('action_logs')
+      .from("action_logs")
       .insert([normalized])
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   },
@@ -185,13 +188,13 @@ export const db = {
   // Farm Settings
   async getFarmSettings(farmerId: string) {
     const { data, error } = await supabase
-      .from('farm_settings')
-      .select('*')
-      .eq('farmer_id', farmerId)
+      .from("farm_settings")
+      .select("*")
+      .eq("farmer_id", farmerId)
       .single();
-    
+
     if (error) {
-      if (error.code === 'PGRST116') return null;
+      if (error.code === "PGRST116") return null;
       throw error;
     }
     return data;
@@ -199,11 +202,11 @@ export const db = {
 
   async saveFarmSettings(settings: any) {
     const { data, error } = await supabase
-      .from('farm_settings')
+      .from("farm_settings")
       .upsert([settings])
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   },

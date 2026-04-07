@@ -1,24 +1,27 @@
-import { useEffect, useState } from 'react';
-import { Search, Loader2, User, Filter } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { chatService, OnlineFarmer } from '@/services/chatService';
-import { cn } from '@/lib/utils';
-import { OnlineStatus } from './OnlineStatus';
+import { useEffect, useState } from "react";
+import { Search, Loader2, User, Filter } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { chatService, OnlineFarmer } from "@/services/chatService";
+import { cn } from "@/lib/utils";
+import { OnlineStatus } from "./OnlineStatus";
 
 interface ActiveFarmersProps {
   currentUserId: string;
   onSelectFarmer: (farmer: OnlineFarmer) => void;
 }
 
-type FilterType = 'all' | 'online';
+type FilterType = "all" | "online";
 
-export function ActiveFarmers({ currentUserId, onSelectFarmer }: ActiveFarmersProps) {
+export function ActiveFarmers({
+  currentUserId,
+  onSelectFarmer,
+}: ActiveFarmersProps) {
   const [farmers, setFarmers] = useState<OnlineFarmer[]>([]);
   const [filteredFarmers, setFilteredFarmers] = useState<OnlineFarmer[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterType, setFilterType] = useState<FilterType>('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterType, setFilterType] = useState<FilterType>("all");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -29,16 +32,17 @@ export function ActiveFarmers({ currentUserId, onSelectFarmer }: ActiveFarmersPr
   }, [currentUserId]);
 
   useEffect(() => {
-    let filtered = farmers.filter((farmer) =>
-      farmer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      farmer.phone.includes(searchQuery)
+    let filtered = farmers.filter(
+      (farmer) =>
+        farmer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        farmer.phone.includes(searchQuery),
     );
-    
+
     // Apply status filter
-    if (filterType === 'online') {
-      filtered = filtered.filter((farmer) => farmer.status === 'online');
+    if (filterType === "online") {
+      filtered = filtered.filter((farmer) => farmer.status === "online");
     }
-    
+
     setFilteredFarmers(filtered);
   }, [searchQuery, farmers, filterType]);
 
@@ -49,7 +53,7 @@ export function ActiveFarmers({ currentUserId, onSelectFarmer }: ActiveFarmersPr
       setFarmers(data);
       setFilteredFarmers(data);
     } catch (error) {
-      console.error('Failed to load farmers:', error);
+      console.error("Failed to load farmers:", error);
     } finally {
       setIsLoading(false);
     }
@@ -57,17 +61,17 @@ export function ActiveFarmers({ currentUserId, onSelectFarmer }: ActiveFarmersPr
 
   const getInitials = (name: string) => {
     return name
-      .split(' ')
+      .split(" ")
       .map((n) => n[0])
-      .join('')
+      .join("")
       .toUpperCase()
       .slice(0, 2);
   };
 
   const formatLastSeen = (lastSeen: string, status: string) => {
-    if (status === 'online') return 'Online';
-    if (status === 'away') return 'Away';
-    
+    if (status === "online") return "Online";
+    if (status === "away") return "Away";
+
     const date = new Date(lastSeen);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
@@ -75,16 +79,16 @@ export function ActiveFarmers({ currentUserId, onSelectFarmer }: ActiveFarmersPr
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMins < 1) return 'Just now';
+    if (diffMins < 1) return "Just now";
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays < 7) return `${diffDays}d ago`;
     return date.toLocaleDateString();
   };
 
-  const onlineFarmers = filteredFarmers.filter((f) => f.status === 'online');
-  const awayFarmers = filteredFarmers.filter((f) => f.status === 'away');
-  const offlineFarmers = filteredFarmers.filter((f) => f.status === 'offline');
+  const onlineFarmers = filteredFarmers.filter((f) => f.status === "online");
+  const awayFarmers = filteredFarmers.filter((f) => f.status === "away");
+  const offlineFarmers = filteredFarmers.filter((f) => f.status === "offline");
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -99,21 +103,21 @@ export function ActiveFarmers({ currentUserId, onSelectFarmer }: ActiveFarmersPr
             className="pl-9"
           />
         </div>
-        
+
         {/* Filter Buttons */}
         <div className="flex gap-2">
           <Button
-            variant={filterType === 'all' ? 'default' : 'outline'}
+            variant={filterType === "all" ? "default" : "outline"}
             size="sm"
-            onClick={() => setFilterType('all')}
+            onClick={() => setFilterType("all")}
             className="flex-1"
           >
             All Farmers
           </Button>
           <Button
-            variant={filterType === 'online' ? 'default' : 'outline'}
+            variant={filterType === "online" ? "default" : "outline"}
             size="sm"
-            onClick={() => setFilterType('online')}
+            onClick={() => setFilterType("online")}
             className="flex-1"
           >
             <div className="w-2 h-2 rounded-full bg-green-500 mr-2" />
@@ -132,12 +136,12 @@ export function ActiveFarmers({ currentUserId, onSelectFarmer }: ActiveFarmersPr
           <div className="flex flex-col items-center justify-center h-full p-8 text-center">
             <User className="h-12 w-12 text-muted-foreground mb-4" />
             <h3 className="font-semibold text-lg mb-2">
-              {searchQuery ? 'No farmers found' : 'No farmers available'}
+              {searchQuery ? "No farmers found" : "No farmers available"}
             </h3>
             <p className="text-sm text-muted-foreground">
-              {searchQuery 
-                ? 'Try a different search term'
-                : 'Check back later to see active farmers'}
+              {searchQuery
+                ? "Try a different search term"
+                : "Check back later to see active farmers"}
             </p>
           </div>
         ) : (
@@ -157,7 +161,7 @@ export function ActiveFarmers({ currentUserId, onSelectFarmer }: ActiveFarmersPr
                       onClick={() => onSelectFarmer(farmer)}
                       className={cn(
                         "w-full flex items-center gap-3 p-3 rounded-lg",
-                        "hover:bg-accent transition-colors cursor-pointer"
+                        "hover:bg-accent transition-colors cursor-pointer",
                       )}
                     >
                       <div className="relative">
@@ -196,7 +200,7 @@ export function ActiveFarmers({ currentUserId, onSelectFarmer }: ActiveFarmersPr
                       onClick={() => onSelectFarmer(farmer)}
                       className={cn(
                         "w-full flex items-center gap-3 p-3 rounded-lg",
-                        "hover:bg-accent transition-colors cursor-pointer"
+                        "hover:bg-accent transition-colors cursor-pointer",
                       )}
                     >
                       <div className="relative">
@@ -235,7 +239,7 @@ export function ActiveFarmers({ currentUserId, onSelectFarmer }: ActiveFarmersPr
                       onClick={() => onSelectFarmer(farmer)}
                       className={cn(
                         "w-full flex items-center gap-3 p-3 rounded-lg",
-                        "hover:bg-accent transition-colors cursor-pointer"
+                        "hover:bg-accent transition-colors cursor-pointer",
                       )}
                     >
                       <div className="relative">

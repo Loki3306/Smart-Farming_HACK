@@ -6,7 +6,11 @@ interface Props {
   disabled?: boolean;
 }
 
-export default function ImageUploader({ onFileSelected, file, disabled }: Props) {
+export default function ImageUploader({
+  onFileSelected,
+  file,
+  disabled,
+}: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
 
@@ -42,12 +46,14 @@ export default function ImageUploader({ onFileSelected, file, disabled }: Props)
       <div
         onDrop={onDrop}
         onDragOver={(e) => e.preventDefault()}
-        className={`rounded-2xl border-2 border-dashed p-6 text-center transition-shadow ${disabled ? 'opacity-60' : 'hover:shadow-lg'}`}
+        className={`rounded-2xl border-2 border-dashed p-6 text-center transition-shadow ${disabled ? "opacity-60" : "hover:shadow-lg"}`}
         aria-disabled={disabled}
       >
         {!preview ? (
           <div>
-            <p className="text-sm text-muted-foreground">Drag & drop a clear leaf photo here, or</p>
+            <p className="text-sm text-muted-foreground">
+              Drag & drop a clear leaf photo here, or
+            </p>
             <div className="mt-3">
               <button
                 type="button"
@@ -58,14 +64,26 @@ export default function ImageUploader({ onFileSelected, file, disabled }: Props)
                 Choose image
               </button>
             </div>
-            <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={onSelect} />
+            <input
+              ref={inputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={onSelect}
+            />
           </div>
         ) : (
           <div className="flex flex-col sm:flex-row items-start gap-4">
             <div className="w-full sm:w-64">
               <div className="relative rounded-lg overflow-hidden shadow-sm">
-                <img src={preview} alt="Uploaded leaf preview" className="h-48 w-full rounded object-cover" />
-                <div className="absolute left-3 top-3 rounded bg-white/80 px-2 py-1 text-xs font-medium">Leaf image detected</div>
+                <img
+                  src={preview}
+                  alt="Uploaded leaf preview"
+                  className="h-48 w-full rounded object-cover"
+                />
+                <div className="absolute left-3 top-3 rounded bg-white/80 px-2 py-1 text-xs font-medium">
+                  Leaf image detected
+                </div>
               </div>
               <div className="mt-3 flex gap-2 justify-start sm:justify-center">
                 <button
@@ -85,22 +103,35 @@ export default function ImageUploader({ onFileSelected, file, disabled }: Props)
                 >
                   Replace
                 </button>
-                <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={onSelect} />
+                <input
+                  ref={inputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={onSelect}
+                />
               </div>
             </div>
 
             <div className="flex-1">
               <p className="text-sm font-medium">Preview</p>
               <div className="mt-2">
-                <p className="text-xs text-muted-foreground">File: <span className="font-medium">{file?.name ?? ''}</span></p>
-                <p className="text-xs text-muted-foreground mt-1">Tip: Try to include a single leaf with even lighting.</p>
+                <p className="text-xs text-muted-foreground">
+                  File: <span className="font-medium">{file?.name ?? ""}</span>
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Tip: Try to include a single leaf with even lighting.
+                </p>
               </div>
             </div>
           </div>
         )}
       </div>
       <div className="mt-2 text-sm text-muted-foreground">
-        <p>Tips: Use a clear leaf image. Avoid background clutter. Good light improves results.</p>
+        <p>
+          Tips: Use a clear leaf image. Avoid background clutter. Good light
+          improves results.
+        </p>
       </div>
     </div>
   );

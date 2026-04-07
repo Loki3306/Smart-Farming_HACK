@@ -4,7 +4,7 @@
  * Displays confidence scores, timing windows, farmer notes
  */
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   List,
   Card,
@@ -20,20 +20,20 @@ import {
   Row,
   Col,
   Statistic,
-} from 'antd';
+} from "antd";
 import {
   CheckCircleOutlined,
   ClockCircleOutlined,
   ExclamationCircleOutlined,
   EditOutlined,
-} from '@ant-design/icons';
+} from "@ant-design/icons";
 
 interface RegimeTask {
   task_id: string;
   task_name: string;
   description: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'skipped' | 'failed';
-  priority: 'high' | 'medium' | 'low';
+  status: "pending" | "in_progress" | "completed" | "skipped" | "failed";
+  priority: "high" | "medium" | "low";
   timing_type: string;
   timing_value: number;
   timing_window_start?: string;
@@ -64,18 +64,23 @@ export default function RegimeDetail({
   loading = false,
 }: RegimeDetailProps) {
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
-  const [editStatus, setEditStatus] = useState<string>('');
-  const [editNotes, setEditNotes] = useState<string>('');
+  const [editStatus, setEditStatus] = useState<string>("");
+  const [editNotes, setEditNotes] = useState<string>("");
 
   if (!regime.tasks || regime.tasks.length === 0) {
     return <Empty description="No tasks in this regime" />;
   }
 
   // Calculate stats
-  const completedCount = regime.tasks.filter((t) => t.status === 'completed').length;
-  const inProgressCount = regime.tasks.filter((t) => t.status === 'in_progress').length;
+  const completedCount = regime.tasks.filter(
+    (t) => t.status === "completed",
+  ).length;
+  const inProgressCount = regime.tasks.filter(
+    (t) => t.status === "in_progress",
+  ).length;
   const avgConfidence =
-    regime.tasks.reduce((sum, t) => sum + t.confidence_score, 0) / regime.tasks.length;
+    regime.tasks.reduce((sum, t) => sum + t.confidence_score, 0) /
+    regime.tasks.length;
 
   const getStatusIcon = (status: string) => {
     const icons: Record<string, any> = {
@@ -90,28 +95,28 @@ export default function RegimeDetail({
 
   const getPriorityColor = (priority: string) => {
     const colors: Record<string, string> = {
-      high: 'red',
-      medium: 'orange',
-      low: 'green',
+      high: "red",
+      medium: "orange",
+      low: "green",
     };
-    return colors[priority] || 'default';
+    return colors[priority] || "default";
   };
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      completed: 'green',
-      in_progress: 'blue',
-      pending: 'default',
-      failed: 'red',
-      skipped: 'orange',
+      completed: "green",
+      in_progress: "blue",
+      pending: "default",
+      failed: "red",
+      skipped: "orange",
     };
-    return colors[status] || 'default';
+    return colors[status] || "default";
   };
 
   const handleEditTask = (task: RegimeTask) => {
     setEditingTaskId(task.task_id);
     setEditStatus(task.status);
-    setEditNotes(task.farmer_notes || '');
+    setEditNotes(task.farmer_notes || "");
   };
 
   const handleSaveTask = () => {
@@ -134,7 +139,9 @@ export default function RegimeDetail({
           />
           <Progress
             percent={(completedCount / regime.tasks.length) * 100}
-            status={completedCount === regime.tasks.length ? 'success' : 'active'}
+            status={
+              completedCount === regime.tasks.length ? "success" : "active"
+            }
           />
         </Col>
         <Col xs={12} md={6}>
@@ -165,11 +172,11 @@ export default function RegimeDetail({
             className="hover:shadow-md transition"
             style={{
               borderLeft: `4px solid ${
-                getStatusColor(task.status) === 'green'
-                  ? '#52c41a'
-                  : getStatusColor(task.status) === 'blue'
-                    ? '#1890ff'
-                    : '#d9d9d9'
+                getStatusColor(task.status) === "green"
+                  ? "#52c41a"
+                  : getStatusColor(task.status) === "blue"
+                    ? "#1890ff"
+                    : "#d9d9d9"
               }`,
             }}
           >
@@ -182,13 +189,13 @@ export default function RegimeDetail({
                 <Select
                   value={editStatus}
                   onChange={setEditStatus}
-                  style={{ width: '100%' }}
+                  style={{ width: "100%" }}
                   options={[
-                    { label: 'Pending', value: 'pending' },
-                    { label: 'In Progress', value: 'in_progress' },
-                    { label: 'Completed', value: 'completed' },
-                    { label: 'Skipped', value: 'skipped' },
-                    { label: 'Failed', value: 'failed' },
+                    { label: "Pending", value: "pending" },
+                    { label: "In Progress", value: "in_progress" },
+                    { label: "Completed", value: "completed" },
+                    { label: "Skipped", value: "skipped" },
+                    { label: "Failed", value: "failed" },
                   ]}
                 />
 
@@ -219,7 +226,9 @@ export default function RegimeDetail({
                       {getStatusIcon(task.status)}
                       {task.task_name}
                     </h4>
-                    <p className="text-gray-600 text-sm mt-1">{task.description}</p>
+                    <p className="text-gray-600 text-sm mt-1">
+                      {task.description}
+                    </p>
                   </div>
                   <Button
                     icon={<EditOutlined />}
@@ -235,14 +244,16 @@ export default function RegimeDetail({
                     {task.priority} priority
                   </Tag>
                   <span className="text-gray-500">
-                    📅 Day {task.timing_value}{' '}
+                    📅 Day {task.timing_value}{" "}
                     {task.timing_type && `(${task.timing_type})`}
                   </span>
                   <span className="text-gray-500">
                     📊 Confidence: {task.confidence_score}%
                   </span>
                   {task.quantity && (
-                    <span className="text-gray-500">📦 Qty: {task.quantity}</span>
+                    <span className="text-gray-500">
+                      📦 Qty: {task.quantity}
+                    </span>
                   )}
                 </div>
 
@@ -254,7 +265,8 @@ export default function RegimeDetail({
 
                 {task.timing_window_start && (
                   <div className="mt-2 text-xs text-gray-500">
-                    Window: {new Date(task.timing_window_start).toLocaleDateString()} -{' '}
+                    Window:{" "}
+                    {new Date(task.timing_window_start).toLocaleDateString()} -{" "}
                     {new Date(task.timing_window_end!).toLocaleDateString()}
                   </div>
                 )}

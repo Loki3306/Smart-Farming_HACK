@@ -1,7 +1,11 @@
-import { useState, useCallback, useRef } from 'react';
-import { chatbotService, ChatMessage, ConversationContext } from '@/services/chatbotService';
-import { useAuth } from '@/context/AuthContext';
-import { useFarmContext } from '@/context/FarmContext';
+import { useState, useCallback, useRef } from "react";
+import {
+  chatbotService,
+  ChatMessage,
+  ConversationContext,
+} from "@/services/chatbotService";
+import { useAuth } from "@/context/AuthContext";
+import { useFarmContext } from "@/context/FarmContext";
 
 interface UseChatbotOptions {
   initialMessages?: ChatMessage[];
@@ -12,12 +16,14 @@ export function useChatbot(options?: UseChatbotOptions) {
   const { user } = useAuth();
   const { sensorData } = useFarmContext();
 
-  const [messages, setMessages] = useState<ChatMessage[]>(options?.initialMessages || []);
+  const [messages, setMessages] = useState<ChatMessage[]>(
+    options?.initialMessages || [],
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isHealthy, setIsHealthy] = useState(true);
-  const [healthMessage, setHealthMessage] = useState('');
+  const [healthMessage, setHealthMessage] = useState("");
 
   const contextRef = useRef<ConversationContext>(options?.context || {});
 
@@ -28,7 +34,7 @@ export function useChatbot(options?: UseChatbotOptions) {
 
   // Get context string from farm data
   const getContextString = useCallback((): string => {
-    let contextStr = '';
+    let contextStr = "";
 
     // The FarmContext doesn't have crop/soilType directly on sensorData
     // For now, we'll skip this since FarmContext is structured differently
@@ -41,7 +47,7 @@ export function useChatbot(options?: UseChatbotOptions) {
   const checkHealth = useCallback(async () => {
     // For Hugging Face backend, always healthy if backend is up
     setIsHealthy(true);
-    setHealthMessage('Chatbot ready!');
+    setHealthMessage("Chatbot ready!");
   }, []);
 
   // Send message without streaming (now delegates to streaming to ensure UI receives incremental chunks)
@@ -54,7 +60,7 @@ export function useChatbot(options?: UseChatbotOptions) {
         id: `user_${Date.now()}`,
         message: content,
         timestamp: new Date().toISOString(),
-        role: 'user',
+        role: "user",
       };
 
       setMessages((prev) => [...prev, userMessage]);
@@ -62,7 +68,7 @@ export function useChatbot(options?: UseChatbotOptions) {
       setError(null);
 
       const assistantMessageId = `assistant_${Date.now()}`;
-      let fullResponse = '';
+      let fullResponse = "";
 
       try {
         const contextString = getContextString();
@@ -72,9 +78,9 @@ export function useChatbot(options?: UseChatbotOptions) {
           ...prev,
           {
             id: assistantMessageId,
-            message: '',
+            message: "",
             timestamp: new Date().toISOString(),
-            role: 'assistant',
+            role: "assistant",
           },
         ]);
 
@@ -84,7 +90,11 @@ export function useChatbot(options?: UseChatbotOptions) {
           (chunk) => {
             fullResponse += chunk;
             setMessages((prev) =>
-              prev.map((m) => (m.id === assistantMessageId ? { ...m, message: fullResponse } : m))
+              prev.map((m) =>
+                m.id === assistantMessageId
+                  ? { ...m, message: fullResponse }
+                  : m,
+              ),
             );
           },
           {
@@ -92,11 +102,15 @@ export function useChatbot(options?: UseChatbotOptions) {
             crop: contextRef.current.crop,
             context: contextString,
             language: language,
-            conversationHistory: messages.map((m) => ({ role: m.role, content: m.message })),
-          }
+            conversationHistory: messages.map((m) => ({
+              role: m.role,
+              content: m.message,
+            })),
+          },
         );
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to send message';
+        const message =
+          err instanceof Error ? err.message : "Failed to send message";
         setError(message);
 
         // Update error message in chat
@@ -104,14 +118,14 @@ export function useChatbot(options?: UseChatbotOptions) {
           prev.map((m) =>
             m.id === assistantMessageId
               ? { ...m, message: `Sorry, I encountered an error: ${message}` }
-              : m
-          )
+              : m,
+          ),
         );
       } finally {
         setIsStreaming(false);
       }
     },
-    [messages, user?.id, getContextString]
+    [messages, user?.id, getContextString],
   );
 
   // Send message with streaming
@@ -124,7 +138,7 @@ export function useChatbot(options?: UseChatbotOptions) {
         id: `user_${Date.now()}`,
         message: content,
         timestamp: new Date().toISOString(),
-        role: 'user',
+        role: "user",
       };
 
       setMessages((prev) => [...prev, userMessage]);
@@ -132,7 +146,7 @@ export function useChatbot(options?: UseChatbotOptions) {
       setError(null);
 
       const assistantMessageId = `assistant_${Date.now()}`;
-      let fullResponse = '';
+      let fullResponse = "";
 
       try {
         const contextString = getContextString();
@@ -142,9 +156,9 @@ export function useChatbot(options?: UseChatbotOptions) {
           ...prev,
           {
             id: assistantMessageId,
-            message: '',
+            message: "",
             timestamp: new Date().toISOString(),
-            role: 'assistant',
+            role: "assistant",
           },
         ]);
 
@@ -156,8 +170,10 @@ export function useChatbot(options?: UseChatbotOptions) {
             // Update the streaming message in real-time
             setMessages((prev) =>
               prev.map((m) =>
-                m.id === assistantMessageId ? { ...m, message: fullResponse } : m
-              )
+                m.id === assistantMessageId
+                  ? { ...m, message: fullResponse }
+                  : m,
+              ),
             );
           },
           {
@@ -168,10 +184,11 @@ export function useChatbot(options?: UseChatbotOptions) {
               role: m.role,
               content: m.message,
             })),
-          }
+          },
         );
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to get response';
+        const message =
+          err instanceof Error ? err.message : "Failed to get response";
         setError(message);
 
         // Update error message in chat
@@ -179,17 +196,17 @@ export function useChatbot(options?: UseChatbotOptions) {
           prev.map((m) =>
             m.id === assistantMessageId
               ? {
-                ...m,
-                message: `Sorry, I encountered an error: ${message}. Please make sure Ollama is running.`,
-              }
-              : m
-          )
+                  ...m,
+                  message: `Sorry, I encountered an error: ${message}. Please make sure Ollama is running.`,
+                }
+              : m,
+          ),
         );
       } finally {
         setIsStreaming(false);
       }
     },
-    [messages, user?.id, getContextString]
+    [messages, user?.id, getContextString],
   );
 
   // Clear conversation

@@ -94,7 +94,7 @@ type Post = ApiPost & {
   hasExpertReply?: boolean;
 };
 
-interface Expert extends Omit<ApiExpert, 'is_verified' | 'last_active_at'> {
+interface Expert extends Omit<ApiExpert, "is_verified" | "last_active_at"> {
   avatar: string;
   isVerified: boolean;
   isActiveThisWeek: boolean;
@@ -171,16 +171,49 @@ const getPostTypeConfig = (t: any) => ({
   },
 });
 
-const getReactionConfig = (t: any): Record<ReactionType, { emoji: string; label: string; countText: string }> => ({
-  helpful: { emoji: "👍", label: t("reactions.helpful.label"), countText: t("reactions.helpful.countText") },
-  tried: { emoji: "🌱", label: t("reactions.tried.label"), countText: t("reactions.tried.countText") },
-  didnt_work: { emoji: "⚠️", label: t("reactions.didntWork.label"), countText: t("reactions.didntWork.countText") },
-  new_idea: { emoji: "💡", label: t("reactions.newIdea.label"), countText: t("reactions.newIdea.countText") },
+const getReactionConfig = (
+  t: any,
+): Record<
+  ReactionType,
+  { emoji: string; label: string; countText: string }
+> => ({
+  helpful: {
+    emoji: "👍",
+    label: t("reactions.helpful.label"),
+    countText: t("reactions.helpful.countText"),
+  },
+  tried: {
+    emoji: "🌱",
+    label: t("reactions.tried.label"),
+    countText: t("reactions.tried.countText"),
+  },
+  didnt_work: {
+    emoji: "⚠️",
+    label: t("reactions.didntWork.label"),
+    countText: t("reactions.didntWork.countText"),
+  },
+  new_idea: {
+    emoji: "💡",
+    label: t("reactions.newIdea.label"),
+    countText: t("reactions.newIdea.countText"),
+  },
 });
 
 const CROPS = [
-  "rice", "wheat", "cotton", "sugarcane", "tomato", "potato", "onion",
-  "maize", "soybean", "groundnut", "mustard", "chilli", "banana", "mango",
+  "rice",
+  "wheat",
+  "cotton",
+  "sugarcane",
+  "tomato",
+  "potato",
+  "onion",
+  "maize",
+  "soybean",
+  "groundnut",
+  "mustard",
+  "chilli",
+  "banana",
+  "mango",
 ];
 
 // Transform API post to component post format
@@ -189,10 +222,26 @@ const transformPost = (apiPost: ApiPost): Post => ({
   postType: apiPost.post_type,
   image: apiPost.image_url,
   reactions: [
-    { type: 'helpful', count: apiPost.reaction_counts?.helpful || 0, hasReacted: false },
-    { type: 'tried', count: apiPost.reaction_counts?.tried || 0, hasReacted: false },
-    { type: 'new_idea', count: apiPost.reaction_counts?.new_idea || 0, hasReacted: false },
-    { type: 'didnt_work', count: apiPost.reaction_counts?.didnt_work || 0, hasReacted: false },
+    {
+      type: "helpful",
+      count: apiPost.reaction_counts?.helpful || 0,
+      hasReacted: false,
+    },
+    {
+      type: "tried",
+      count: apiPost.reaction_counts?.tried || 0,
+      hasReacted: false,
+    },
+    {
+      type: "new_idea",
+      count: apiPost.reaction_counts?.new_idea || 0,
+      hasReacted: false,
+    },
+    {
+      type: "didnt_work",
+      count: apiPost.reaction_counts?.didnt_work || 0,
+      hasReacted: false,
+    },
   ],
   comments: apiPost.comment_count || 0,
   shares: 0,
@@ -204,14 +253,16 @@ const transformPost = (apiPost: ApiPost): Post => ({
 // Transform API expert to component expert format
 const transformExpert = (apiExpert: ApiExpert): Expert => ({
   ...apiExpert,
-  avatar: '',
+  avatar: "",
   isVerified: apiExpert.is_verified,
-  isActiveThisWeek: new Date(apiExpert.last_active_at).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000,
+  isActiveThisWeek:
+    new Date(apiExpert.last_active_at).getTime() >
+    Date.now() - 7 * 24 * 60 * 60 * 1000,
 });
 
 export const Community: React.FC = () => {
   const { user } = useAuth();
-  const userId = user?.id || 'demo-user';
+  const userId = user?.id || "demo-user";
   const { t } = useTranslation("community");
 
   // Get localized configs
@@ -272,12 +323,8 @@ export const Community: React.FC = () => {
   } = useSavedPosts(userId);
 
   // Reported posts hook
-  const {
-    reportedPostIds,
-    hasReported,
-    addReport,
-    userReports,
-  } = useReportedPosts(userId);
+  const { reportedPostIds, hasReported, addReport, userReports } =
+    useReportedPosts(userId);
 
   // Transform API data to component format
   const posts = useMemo(() => apiPosts.map(transformPost), [apiPosts]);
@@ -290,12 +337,12 @@ export const Community: React.FC = () => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
     };
   }, []);
 
@@ -307,7 +354,8 @@ export const Community: React.FC = () => {
     const now = new Date();
 
     // Calculate difference in seconds and subtract 5.5 hours (19800 seconds) to fix timezone
-    const seconds = Math.floor((now.getTime() - timestamp.getTime()) / 1000) - 19800;
+    const seconds =
+      Math.floor((now.getTime() - timestamp.getTime()) / 1000) - 19800;
 
     if (seconds < 60) return t("time.justNow");
     const minutes = Math.floor(seconds / 60);
@@ -321,16 +369,20 @@ export const Community: React.FC = () => {
     return timestamp.toLocaleDateString("en-IN", {
       day: "numeric",
       month: "short",
-      timeZone: "Asia/Kolkata"
+      timeZone: "Asia/Kolkata",
     });
   };
 
   const getHeatColor = (heat: "hot" | "warm" | "rising"): string => {
     switch (heat) {
-      case "hot": return "bg-red-500";
-      case "warm": return "bg-orange-400";
-      case "rising": return "bg-yellow-400";
-      default: return "bg-gray-400";
+      case "hot":
+        return "bg-red-500";
+      case "warm":
+        return "bg-orange-400";
+      case "rising":
+        return "bg-yellow-400";
+      default:
+        return "bg-gray-400";
     }
   };
 
@@ -399,23 +451,24 @@ export const Community: React.FC = () => {
   // Handle reaction - will be connected to usePostReactions hook
   const handleReaction = async (postId: string, reactionType: ReactionType) => {
     try {
-      const { reactionsApi, notificationsApi } = await import('@/services/communityApi');
+      const { reactionsApi, notificationsApi } =
+        await import("@/services/communityApi");
       await reactionsApi.toggleReaction(postId, userId, reactionType);
 
       // Find the post to get the author
-      const post = posts.find(p => p.id === postId);
+      const post = posts.find((p) => p.id === postId);
       if (post && post.author_id !== userId) {
         // Create notification for post author
         try {
           await notificationsApi.createNotification(
             post.author_id,
             userId,
-            'reaction',
+            "reaction",
             `reacted ${REACTION_CONFIG[reactionType].emoji} to your post`,
-            postId
+            postId,
           );
         } catch (notifError) {
-          console.error('Failed to create notification:', notifError);
+          console.error("Failed to create notification:", notifError);
         }
       }
 
@@ -461,10 +514,12 @@ export const Community: React.FC = () => {
   const handleAskExpert = (expertId: string) => {
     // Add query params to current URL to trigger chat dialog
     const searchParams = new URLSearchParams(location.search);
-    searchParams.set('openMessages', 'true');
-    searchParams.set('farmer_id', userId);
-    searchParams.set('expert_id', expertId);
-    navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
+    searchParams.set("openMessages", "true");
+    searchParams.set("farmer_id", userId);
+    searchParams.set("expert_id", expertId);
+    navigate(`${location.pathname}?${searchParams.toString()}`, {
+      replace: true,
+    });
   };
 
   // Handle bookmark toggle
@@ -491,16 +546,16 @@ export const Community: React.FC = () => {
   // Handle share
   const handleShare = async (postId: string, method: ShareMethod) => {
     try {
-      const { sharingApi } = await import('@/services/communityApi');
+      const { sharingApi } = await import("@/services/communityApi");
       await sharingApi.trackShare(postId, userId, method);
 
       // Don't show toast for copy_link - ShareDialog handles it
-      if (method !== 'copy_link') {
+      if (method !== "copy_link") {
         const methodLabels: Record<ShareMethod, string> = {
-          whatsapp: '📱 WhatsApp',
-          copy_link: '📋 Link',
-          native_share: '📤 Share',
-          download: '💾 Download',
+          whatsapp: "📱 WhatsApp",
+          copy_link: "📋 Link",
+          native_share: "📤 Share",
+          download: "💾 Download",
         };
 
         toast({
@@ -510,14 +565,14 @@ export const Community: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error('Failed to track share:', error);
+      console.error("Failed to track share:", error);
     }
   };
 
   // Handle edit post
   const handleEdit = async (postId: string, updates: Partial<ApiPost>) => {
     try {
-      const { postsApi } = await import('@/services/communityApi');
+      const { postsApi } = await import("@/services/communityApi");
       await postsApi.updatePost(postId, userId, updates);
 
       toast({
@@ -529,7 +584,7 @@ export const Community: React.FC = () => {
       // Refresh posts
       refreshPosts();
     } catch (error) {
-      console.error('Failed to update post:', error);
+      console.error("Failed to update post:", error);
       toast({
         title: t("actions.failedToUpdate"),
         description: t("actions.tryAgain"),
@@ -541,7 +596,7 @@ export const Community: React.FC = () => {
   // Handle delete post
   const handleDelete = async (postId: string) => {
     try {
-      const { postsApi } = await import('@/services/communityApi');
+      const { postsApi } = await import("@/services/communityApi");
       await postsApi.deletePost(postId, userId);
 
       toast({
@@ -553,7 +608,7 @@ export const Community: React.FC = () => {
       // Refresh posts
       refreshPosts();
     } catch (error) {
-      console.error('Failed to delete post:', error);
+      console.error("Failed to delete post:", error);
       toast({
         title: t("actions.failedToDelete"),
         description: t("actions.tryAgain"),
@@ -563,9 +618,13 @@ export const Community: React.FC = () => {
   };
 
   // Handle report post
-  const handleReport = async (postId: string, reason: string, details: string) => {
+  const handleReport = async (
+    postId: string,
+    reason: string,
+    details: string,
+  ) => {
     try {
-      const { reportingApi } = await import('@/services/communityApi');
+      const { reportingApi } = await import("@/services/communityApi");
       await reportingApi.reportPost(postId, userId, reason as any, details);
 
       // Add to local reported posts
@@ -577,9 +636,9 @@ export const Community: React.FC = () => {
         duration: 3000,
       });
     } catch (error: any) {
-      console.error('Failed to report post:', error);
+      console.error("Failed to report post:", error);
 
-      if (error.message === 'You have already reported this post') {
+      if (error.message === "You have already reported this post") {
         toast({
           title: t("actions.alreadyReported"),
           description: t("actions.alreadyReportedDesc"),
@@ -596,7 +655,7 @@ export const Community: React.FC = () => {
   };
 
   // Filter saved posts
-  const savedPosts = posts.filter(post => savedPostIds.has(post.id));
+  const savedPosts = posts.filter((post) => savedPostIds.has(post.id));
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50/50 to-background">
@@ -641,7 +700,9 @@ export const Community: React.FC = () => {
               disabled={postsLoading}
               className="h-10 w-10"
             >
-              <RefreshCw className={`w-4 h-4 ${postsLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw
+                className={`w-4 h-4 ${postsLoading ? "animate-spin" : ""}`}
+              />
             </Button>
             <Button
               onClick={() => setIsCreatePostOpen(true)}
@@ -695,10 +756,11 @@ export const Community: React.FC = () => {
         >
           <button
             onClick={() => setActiveTab("posts")}
-            className={`px-6 py-3 font-medium text-base transition-all relative ${activeTab === "posts"
-              ? "text-primary"
-              : "text-muted-foreground hover:text-foreground"
-              }`}
+            className={`px-6 py-3 font-medium text-base transition-all relative ${
+              activeTab === "posts"
+                ? "text-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
           >
             Posts
             {activeTab === "posts" && (
@@ -710,10 +772,11 @@ export const Community: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab("experts")}
-            className={`px-6 py-3 font-medium text-base transition-all relative ${activeTab === "experts"
-              ? "text-primary"
-              : "text-muted-foreground hover:text-foreground"
-              }`}
+            className={`px-6 py-3 font-medium text-base transition-all relative ${
+              activeTab === "experts"
+                ? "text-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
           >
             {t("tabs.experts")}
             {activeTab === "experts" && (
@@ -725,15 +788,19 @@ export const Community: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab("saved")}
-            className={`px-6 py-3 font-medium text-base transition-all relative flex items-center gap-2 ${activeTab === "saved"
-              ? "text-primary"
-              : "text-muted-foreground hover:text-foreground"
-              }`}
+            className={`px-6 py-3 font-medium text-base transition-all relative flex items-center gap-2 ${
+              activeTab === "saved"
+                ? "text-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
           >
             <Bookmark className="w-4 h-4" />
             {t("tabs.saved")}
             {savedPostIds.size > 0 && (
-              <Badge variant="secondary" className="ml-1 bg-primary/10 text-primary text-xs">
+              <Badge
+                variant="secondary"
+                className="ml-1 bg-primary/10 text-primary text-xs"
+              >
                 {savedPostIds.size}
               </Badge>
             )}
@@ -746,15 +813,19 @@ export const Community: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab("reports")}
-            className={`px-6 py-3 font-medium text-base transition-all relative flex items-center gap-2 ${activeTab === "reports"
-              ? "text-primary"
-              : "text-muted-foreground hover:text-foreground"
-              }`}
+            className={`px-6 py-3 font-medium text-base transition-all relative flex items-center gap-2 ${
+              activeTab === "reports"
+                ? "text-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
           >
             <Flag className="w-4 h-4" />
             {t("tabs.myReports")}
             {reportedPostIds.size > 0 && (
-              <Badge variant="secondary" className="ml-1 bg-primary/10 text-primary text-xs">
+              <Badge
+                variant="secondary"
+                className="ml-1 bg-primary/10 text-primary text-xs"
+              >
                 {reportedPostIds.size}
               </Badge>
             )}
@@ -785,7 +856,9 @@ export const Community: React.FC = () => {
                   {postsLoading && posts.length === 0 && (
                     <div className="flex flex-col items-center justify-center py-12">
                       <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
-                      <p className="text-muted-foreground">{t("posts.loadingPosts")}</p>
+                      <p className="text-muted-foreground">
+                        {t("posts.loadingPosts")}
+                      </p>
                     </div>
                   )}
 
@@ -795,7 +868,9 @@ export const Community: React.FC = () => {
                       <div className="flex items-center gap-3">
                         <AlertTriangle className="w-5 h-5 text-red-500" />
                         <div>
-                          <p className="font-medium text-red-800">{t("posts.failedToLoad")}</p>
+                          <p className="font-medium text-red-800">
+                            {t("posts.failedToLoad")}
+                          </p>
                           <p className="text-sm text-red-600">{postsError}</p>
                         </div>
                         <Button
@@ -814,7 +889,9 @@ export const Community: React.FC = () => {
                   {!postsLoading && !postsError && posts.length === 0 && (
                     <Card className="p-8 text-center">
                       <Users className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                      <h3 className="font-semibold text-lg mb-2">{t("posts.noPosts")}</h3>
+                      <h3 className="font-semibold text-lg mb-2">
+                        {t("posts.noPosts")}
+                      </h3>
                       <p className="text-muted-foreground mb-4">
                         {t("posts.noPostsDescription")}
                       </p>
@@ -830,7 +907,9 @@ export const Community: React.FC = () => {
                     <PostCard
                       key={post.id}
                       post={post}
-                      onReaction={(postId, reactionType) => handleReaction(postId, reactionType as ApiReactionType)}
+                      onReaction={(postId, reactionType) =>
+                        handleReaction(postId, reactionType as ApiReactionType)
+                      }
                       formatTimeAgo={formatTimeAgo}
                       index={index}
                       isSaved={isSaved(post.id)}
@@ -883,7 +962,9 @@ export const Community: React.FC = () => {
                   {expertsLoading && experts.length === 0 && (
                     <div className="flex flex-col items-center justify-center py-12">
                       <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
-                      <p className="text-muted-foreground">Loading experts...</p>
+                      <p className="text-muted-foreground">
+                        Loading experts...
+                      </p>
                     </div>
                   )}
 
@@ -901,7 +982,9 @@ export const Community: React.FC = () => {
                           {expert.isActiveThisWeek && (
                             <div className="bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-2 flex items-center gap-2 border-b">
                               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                              <span className="text-xs font-medium text-green-700">Active this week</span>
+                              <span className="text-xs font-medium text-green-700">
+                                Active this week
+                              </span>
                             </div>
                           )}
 
@@ -915,14 +998,18 @@ export const Community: React.FC = () => {
                               </Avatar>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2">
-                                  <h3 className="font-semibold text-foreground truncate">{expert.name}</h3>
+                                  <h3 className="font-semibold text-foreground truncate">
+                                    {expert.name}
+                                  </h3>
                                   {expert.isVerified && (
                                     <BadgeCheck className="w-5 h-5 text-primary flex-shrink-0" />
                                   )}
                                 </div>
                                 <div className="flex items-center gap-1.5 text-sm text-muted-foreground mt-0.5">
                                   <MapPin className="w-3.5 h-3.5" />
-                                  <span className="truncate">{expert.location}</span>
+                                  <span className="truncate">
+                                    {expert.location}
+                                  </span>
                                 </div>
                                 <div className="flex items-center gap-1.5 text-sm text-muted-foreground mt-0.5">
                                   <Award className="w-3.5 h-3.5" />
@@ -934,7 +1021,11 @@ export const Community: React.FC = () => {
                             {/* Specializations */}
                             <div className="flex flex-wrap gap-2 mt-4">
                               {expert.specializations.map((spec) => (
-                                <Badge key={spec} variant="secondary" className="text-xs bg-primary/10 text-primary">
+                                <Badge
+                                  key={spec}
+                                  variant="secondary"
+                                  className="text-xs bg-primary/10 text-primary"
+                                >
                                   {spec}
                                 </Badge>
                               ))}
@@ -946,28 +1037,47 @@ export const Community: React.FC = () => {
                                 <p className="text-lg font-semibold text-foreground">
                                   {expert.followers.toLocaleString()}
                                 </p>
-                                <p className="text-xs text-muted-foreground">Followers</p>
+                                <p className="text-xs text-muted-foreground">
+                                  Followers
+                                </p>
                               </div>
                               <div className="text-center">
                                 <p className="text-lg font-semibold text-foreground">
                                   {expert.questionsAnswered.toLocaleString()}
                                 </p>
-                                <p className="text-xs text-muted-foreground">Answers</p>
+                                <p className="text-xs text-muted-foreground">
+                                  Answers
+                                </p>
                               </div>
                             </div>
 
                             {/* Actions */}
                             <div className="grid grid-cols-2 gap-3 mt-4">
                               <Button
-                                variant={followedExperts.has(expert.id) ? "secondary" : "default"}
+                                variant={
+                                  followedExperts.has(expert.id)
+                                    ? "secondary"
+                                    : "default"
+                                }
                                 size="sm"
                                 className="w-full overflow-hidden"
                                 onClick={() => handleFollowExpert(expert.id)}
                               >
                                 <UserCheck className="w-4 h-4 mr-1.5 flex-shrink-0" />
-                                <span className="truncate">{followedExperts.has(expert.id) ? "Following" : "Follow"}</span>
+                                <span className="truncate">
+                                  {followedExperts.has(expert.id)
+                                    ? "Following"
+                                    : "Follow"}
+                                </span>
                               </Button>
-                              <Button variant="outline" size="sm" className="w-full" onClick={() => handleAskExpert(expert.farmer_id)}>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="w-full"
+                                onClick={() =>
+                                  handleAskExpert(expert.farmer_id)
+                                }
+                              >
                                 <MessageSquare className="w-4 h-4 mr-1.5" />
                                 Ask
                               </Button>
@@ -993,7 +1103,9 @@ export const Community: React.FC = () => {
                   {savedPostsLoading && (
                     <div className="flex flex-col items-center justify-center py-12">
                       <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
-                      <p className="text-muted-foreground">Loading saved posts...</p>
+                      <p className="text-muted-foreground">
+                        Loading saved posts...
+                      </p>
                     </div>
                   )}
 
@@ -1001,7 +1113,9 @@ export const Community: React.FC = () => {
                   {!savedPostsLoading && savedPosts.length === 0 && (
                     <Card className="p-8 text-center">
                       <Bookmark className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                      <h3 className="font-semibold text-lg mb-2">No saved posts yet</h3>
+                      <h3 className="font-semibold text-lg mb-2">
+                        No saved posts yet
+                      </h3>
                       <p className="text-muted-foreground mb-4">
                         Bookmark posts to save them for later reference
                       </p>
@@ -1017,7 +1131,9 @@ export const Community: React.FC = () => {
                     <PostCard
                       key={post.id}
                       post={post}
-                      onReaction={(postId, reactionType) => handleReaction(postId, reactionType as ApiReactionType)}
+                      onReaction={(postId, reactionType) =>
+                        handleReaction(postId, reactionType as ApiReactionType)
+                      }
                       formatTimeAgo={formatTimeAgo}
                       index={index}
                       isSaved={true}
@@ -1052,9 +1168,12 @@ export const Community: React.FC = () => {
                             <Flag className="w-8 h-8 text-muted-foreground" />
                           </div>
                           <div className="space-y-2">
-                            <p className="text-lg font-medium text-foreground">No Reports Yet</p>
+                            <p className="text-lg font-medium text-foreground">
+                              No Reports Yet
+                            </p>
                             <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-                              You haven't reported any posts. Use the report feature to flag inappropriate content.
+                              You haven't reported any posts. Use the report
+                              feature to flag inappropriate content.
                             </p>
                           </div>
                         </div>
@@ -1093,11 +1212,16 @@ export const Community: React.FC = () => {
                                           }
                                           className="text-xs"
                                         >
-                                          {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
+                                          {report.status
+                                            .charAt(0)
+                                            .toUpperCase() +
+                                            report.status.slice(1)}
                                         </Badge>
                                       </div>
                                       <p className="text-xs text-muted-foreground">
-                                        {formatTimeAgo(new Date(report.created_at))}
+                                        {formatTimeAgo(
+                                          new Date(report.created_at),
+                                        )}
                                       </p>
                                     </div>
                                   </div>
@@ -1106,8 +1230,13 @@ export const Community: React.FC = () => {
                                 {/* Report Reason */}
                                 <div className="pl-11 space-y-2">
                                   <div className="flex items-center gap-2">
-                                    <span className="text-xs font-medium text-muted-foreground">Reason:</span>
-                                    <Badge variant="outline" className="text-xs">
+                                    <span className="text-xs font-medium text-muted-foreground">
+                                      Reason:
+                                    </span>
+                                    <Badge
+                                      variant="outline"
+                                      className="text-xs"
+                                    >
                                       {report.reason === "spam"
                                         ? "🚫 Spam"
                                         : report.reason === "inappropriate"
@@ -1174,8 +1303,13 @@ export const Community: React.FC = () => {
                       <Sun className="w-4 h-4" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-green-800">Weather Update</p>
-                      <p className="text-xs text-green-700/80 mt-0.5">Clear skies expected. Good day for pesticide application.</p>
+                      <p className="text-xs font-medium text-green-800">
+                        Weather Update
+                      </p>
+                      <p className="text-xs text-green-700/80 mt-0.5">
+                        Clear skies expected. Good day for pesticide
+                        application.
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -1183,8 +1317,12 @@ export const Community: React.FC = () => {
                       <TrendingUp className="w-4 h-4" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-green-800">Trending Discussion</p>
-                      <p className="text-xs text-green-700/80 mt-0.5">Rabi crop preparation tips getting high engagement</p>
+                      <p className="text-xs font-medium text-green-800">
+                        Trending Discussion
+                      </p>
+                      <p className="text-xs text-green-700/80 mt-0.5">
+                        Rabi crop preparation tips getting high engagement
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -1192,8 +1330,12 @@ export const Community: React.FC = () => {
                       <Lightbulb className="w-4 h-4" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-green-800">Expert Tip</p>
-                      <p className="text-xs text-green-700/80 mt-0.5">Add neem cake to soil before sowing for pest prevention</p>
+                      <p className="text-xs font-medium text-green-800">
+                        Expert Tip
+                      </p>
+                      <p className="text-xs text-green-700/80 mt-0.5">
+                        Add neem cake to soil before sowing for pest prevention
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -1224,7 +1366,9 @@ export const Community: React.FC = () => {
                         <span className="text-sm text-muted-foreground font-medium w-5">
                           #{index + 1}
                         </span>
-                        <div className={`w-2 h-2 rounded-full ${getHeatColor(topic.heat)}`} />
+                        <div
+                          className={`w-2 h-2 rounded-full ${getHeatColor(topic.heat)}`}
+                        />
                         <span className="font-medium text-sm text-primary">
                           #{topic.tag}
                         </span>
@@ -1248,7 +1392,9 @@ export const Community: React.FC = () => {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base font-semibold flex items-center justify-between">
                     Community Stats
-                    {statsLoading && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
+                    {statsLoading && (
+                      <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                    )}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -1258,7 +1404,7 @@ export const Community: React.FC = () => {
                       Active Farmers
                     </span>
                     <span className="font-semibold text-foreground">
-                      {stats?.active_farmers?.toLocaleString() || '--'}
+                      {stats?.active_farmers?.toLocaleString() || "--"}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
@@ -1267,7 +1413,7 @@ export const Community: React.FC = () => {
                       Posts Today
                     </span>
                     <span className="font-semibold text-foreground">
-                      {stats?.posts_today?.toLocaleString() || '--'}
+                      {stats?.posts_today?.toLocaleString() || "--"}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
@@ -1276,7 +1422,9 @@ export const Community: React.FC = () => {
                       Questions Answered
                     </span>
                     <span className="font-semibold text-green-600">
-                      {stats?.questions_answered_percent ? `${stats.questions_answered_percent}%` : '--'}
+                      {stats?.questions_answered_percent
+                        ? `${stats.questions_answered_percent}%`
+                        : "--"}
                     </span>
                   </div>
                 </CardContent>
@@ -1293,16 +1441,19 @@ export const Community: React.FC = () => {
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
                 <CardContent className="p-6 relative">
                   <div className="text-4xl mb-3">🧑‍🔬</div>
-                  <h3 className="font-semibold text-lg mb-2">Need Expert Help?</h3>
+                  <h3 className="font-semibold text-lg mb-2">
+                    Need Expert Help?
+                  </h3>
                   <p className="text-sm opacity-90 mb-4">
-                    Get personalized advice from verified agricultural experts in your area.
+                    Get personalized advice from verified agricultural experts
+                    in your area.
                   </p>
                   <Button
                     variant="secondary"
                     className="w-full font-medium"
                     onClick={() => {
                       setActiveTab("experts");
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                      window.scrollTo({ top: 0, behavior: "smooth" });
                     }}
                   >
                     Ask an Expert
@@ -1320,7 +1471,9 @@ export const Community: React.FC = () => {
               <Card className="border-dashed border-2">
                 <CardContent className="p-4 text-center">
                   <Sparkles className="w-8 h-8 text-primary mx-auto mb-2" />
-                  <p className="text-sm font-medium text-foreground">AI Summary</p>
+                  <p className="text-sm font-medium text-foreground">
+                    AI Summary
+                  </p>
                   <p className="text-xs text-muted-foreground mt-1">
                     Get quick summaries of long discussions with AI
                   </p>
@@ -1335,7 +1488,9 @@ export const Community: React.FC = () => {
           <DialogContent className="sm:max-w-lg">
             <DialogHeader>
               <DialogTitle className="text-xl">
-                {createPostStep === 1 ? "Create a Post" : "Share Your Experience"}
+                {createPostStep === 1
+                  ? "Create a Post"
+                  : "Share Your Experience"}
               </DialogTitle>
               <DialogDescription>
                 {createPostStep === 1
@@ -1355,25 +1510,36 @@ export const Community: React.FC = () => {
                   className="space-y-4"
                 >
                   <div className="text-center mb-6">
-                    <h3 className="text-lg font-semibold text-foreground">{t("createPost.selectType")}</h3>
-                    <p className="text-sm text-muted-foreground mt-1">Choose the type of post</p>
+                    <h3 className="text-lg font-semibold text-foreground">
+                      {t("createPost.selectType")}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Choose the type of post
+                    </p>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    {(Object.entries(POST_TYPE_CONFIG) as [PostType, typeof POST_TYPE_CONFIG.success][]).map(
-                      ([type, config]) => (
-                        <motion.button
-                          key={type}
-                          whileHover={{ scale: 1.02, y: -2 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() => handlePostTypeSelect(type)}
-                          className={`p-6 rounded-xl border-2 ${config.color} hover:shadow-md transition-all text-left`}
-                        >
-                          <div className="text-3xl mb-3">{config.emoji}</div>
-                          <h4 className="font-semibold text-base">{config.label}</h4>
-                          <p className="text-xs opacity-80 mt-1">{config.description}</p>
-                        </motion.button>
-                      )
-                    )}
+                    {(
+                      Object.entries(POST_TYPE_CONFIG) as [
+                        PostType,
+                        typeof POST_TYPE_CONFIG.success,
+                      ][]
+                    ).map(([type, config]) => (
+                      <motion.button
+                        key={type}
+                        whileHover={{ scale: 1.02, y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => handlePostTypeSelect(type)}
+                        className={`p-6 rounded-xl border-2 ${config.color} hover:shadow-md transition-all text-left`}
+                      >
+                        <div className="text-3xl mb-3">{config.emoji}</div>
+                        <h4 className="font-semibold text-base">
+                          {config.label}
+                        </h4>
+                        <p className="text-xs opacity-80 mt-1">
+                          {config.description}
+                        </p>
+                      </motion.button>
+                    ))}
                   </div>
                 </motion.div>
               )}
@@ -1395,8 +1561,11 @@ export const Community: React.FC = () => {
                     >
                       <ChevronRight className="w-5 h-5 rotate-180" />
                     </button>
-                    <div className={`px-3 py-1.5 rounded-full text-sm font-medium ${POST_TYPE_CONFIG[createPostData.type].color}`}>
-                      {POST_TYPE_CONFIG[createPostData.type].emoji} {POST_TYPE_CONFIG[createPostData.type].label}
+                    <div
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium ${POST_TYPE_CONFIG[createPostData.type].color}`}
+                    >
+                      {POST_TYPE_CONFIG[createPostData.type].emoji}{" "}
+                      {POST_TYPE_CONFIG[createPostData.type].label}
                     </div>
                   </div>
 
@@ -1405,7 +1574,12 @@ export const Community: React.FC = () => {
                     <label className="text-sm font-medium text-foreground">
                       {POST_TYPE_CONFIG[createPostData.type].prompts.crop}
                     </label>
-                    <Select value={createPostData.crop} onValueChange={(v) => setCreatePostData(prev => ({ ...prev, crop: v }))}>
+                    <Select
+                      value={createPostData.crop}
+                      onValueChange={(v) =>
+                        setCreatePostData((prev) => ({ ...prev, crop: v }))
+                      }
+                    >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select a crop..." />
                       </SelectTrigger>
@@ -1426,23 +1600,35 @@ export const Community: React.FC = () => {
                     </label>
                     <Textarea
                       value={createPostData.content}
-                      onChange={(e) => setCreatePostData(prev => ({ ...prev, content: e.target.value }))}
+                      onChange={(e) =>
+                        setCreatePostData((prev) => ({
+                          ...prev,
+                          content: e.target.value,
+                        }))
+                      }
                       placeholder="Write your experience here..."
                       className="min-h-[120px] resize-none"
                     />
                     <p className="text-xs text-muted-foreground">
-                      💡 Tip: Be specific and share details that can help other farmers
+                      💡 Tip: Be specific and share details that can help other
+                      farmers
                     </p>
                   </div>
 
                   {/* Method/Technique */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-foreground">
-                      {POST_TYPE_CONFIG[createPostData.type].prompts.method} <span className="text-muted-foreground">(optional)</span>
+                      {POST_TYPE_CONFIG[createPostData.type].prompts.method}{" "}
+                      <span className="text-muted-foreground">(optional)</span>
                     </label>
                     <Input
                       value={createPostData.method}
-                      onChange={(e) => setCreatePostData(prev => ({ ...prev, method: e.target.value }))}
+                      onChange={(e) =>
+                        setCreatePostData((prev) => ({
+                          ...prev,
+                          method: e.target.value,
+                        }))
+                      }
                       placeholder="e.g., Drip irrigation, Organic compost, etc."
                     />
                   </div>
@@ -1450,7 +1636,8 @@ export const Community: React.FC = () => {
                   {/* Image Upload */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-foreground">
-                      Add a photo <span className="text-muted-foreground">(optional)</span>
+                      Add a photo{" "}
+                      <span className="text-muted-foreground">(optional)</span>
                     </label>
                     <div className="border-2 border-dashed border-muted-foreground/30 rounded-xl p-6 text-center hover:border-primary/50 transition-colors cursor-pointer">
                       <Upload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />

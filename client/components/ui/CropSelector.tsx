@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Check, ChevronsUpDown, Search } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useState, useEffect } from "react";
+import { Check, ChevronsUpDown, Search } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   Command,
   CommandEmpty,
@@ -8,14 +8,14 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 // List of crops the model is trained on
 export const TRAINED_CROPS = [
@@ -51,37 +51,42 @@ interface CropSelectorProps {
   options?: string[];
 }
 
-export function CropSelector({ value, onChange, disabled, options }: CropSelectorProps) {
+export function CropSelector({
+  value,
+  onChange,
+  disabled,
+  options,
+}: CropSelectorProps) {
   const cropsList = options ?? TRAINED_CROPS;
 
   const [open, setOpen] = useState(false);
   const [isOther, setIsOther] = useState(false);
-  const [customCrop, setCustomCrop] = useState('');
+  const [customCrop, setCustomCrop] = useState("");
 
   // Check if current value is in cropsList
   useEffect(() => {
     const normalizedValue = value.toLowerCase().trim();
     const isTrainedCrop = cropsList.some(
-      crop => crop.toLowerCase() === normalizedValue
+      (crop) => crop.toLowerCase() === normalizedValue,
     );
-    
+
     if (!isTrainedCrop && value) {
       setIsOther(true);
       setCustomCrop(value);
     } else {
       setIsOther(false);
-      setCustomCrop('');
+      setCustomCrop("");
     }
   }, [value, cropsList]);
 
   const handleSelectCrop = (selectedCrop: string) => {
-    if (selectedCrop === 'other') {
+    if (selectedCrop === "other") {
       setIsOther(true);
-      setCustomCrop('');
-      onChange('');
+      setCustomCrop("");
+      onChange("");
     } else {
       setIsOther(false);
-      setCustomCrop('');
+      setCustomCrop("");
       onChange(selectedCrop);
     }
     setOpen(false);
@@ -96,16 +101,16 @@ export function CropSelector({ value, onChange, disabled, options }: CropSelecto
   // Get display value
   const getDisplayValue = () => {
     if (isOther) {
-      return 'Other (Custom Crop)';
+      return "Other (Custom Crop)";
     }
     if (value) {
       // Find matching crop with proper capitalization
       const matchingCrop = TRAINED_CROPS.find(
-        crop => crop.toLowerCase() === value.toLowerCase()
+        (crop) => crop.toLowerCase() === value.toLowerCase(),
       );
       return matchingCrop || value;
     }
-    return 'Select crop...';
+    return "Select crop...";
   };
 
   return (
@@ -137,10 +142,10 @@ export function CropSelector({ value, onChange, disabled, options }: CropSelecto
                   >
                     <Check
                       className={cn(
-                        'mr-2 h-4 w-4',
+                        "mr-2 h-4 w-4",
                         value.toLowerCase() === crop.toLowerCase() && !isOther
-                          ? 'opacity-100'
-                          : 'opacity-0'
+                          ? "opacity-100"
+                          : "opacity-0",
                       )}
                     />
                     {crop}
@@ -150,12 +155,12 @@ export function CropSelector({ value, onChange, disabled, options }: CropSelecto
               <CommandGroup heading="Other Options">
                 <CommandItem
                   value="other"
-                  onSelect={() => handleSelectCrop('other')}
+                  onSelect={() => handleSelectCrop("other")}
                 >
                   <Check
                     className={cn(
-                      'mr-2 h-4 w-4',
-                      isOther ? 'opacity-100' : 'opacity-0'
+                      "mr-2 h-4 w-4",
+                      isOther ? "opacity-100" : "opacity-0",
                     )}
                   />
                   Other (Custom Crop)

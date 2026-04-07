@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from "fs";
+import * as path from "path";
 
 export type FarmAutomationState = {
   isAutonomous: boolean;
@@ -10,7 +10,7 @@ export type FarmAutomationState = {
 
 export type AutomationStateFile = Record<string, FarmAutomationState>;
 
-const STATE_FILE = path.join(process.cwd(), 'autonomous_state.json');
+const STATE_FILE = path.join(process.cwd(), "autonomous_state.json");
 
 function safeParseJson(text: string): unknown {
   // tolerate UTF-8 BOM
@@ -26,9 +26,11 @@ export class AutonomousStateStore {
   private readAll(): AutomationStateFile {
     if (!fs.existsSync(this.filePath)) return {};
     try {
-      const raw = fs.readFileSync(this.filePath, 'utf-8');
+      const raw = fs.readFileSync(this.filePath, "utf-8");
       const parsed = safeParseJson(raw);
-      return (parsed && typeof parsed === 'object') ? (parsed as AutomationStateFile) : {};
+      return parsed && typeof parsed === "object"
+        ? (parsed as AutomationStateFile)
+        : {};
     } catch {
       return {};
     }
@@ -36,28 +38,32 @@ export class AutonomousStateStore {
 
   private writeAll(data: AutomationStateFile) {
     const tmp = `${this.filePath}.tmp`;
-    fs.writeFileSync(tmp, JSON.stringify(data, null, 2), 'utf-8');
+    fs.writeFileSync(tmp, JSON.stringify(data, null, 2), "utf-8");
     fs.renameSync(tmp, this.filePath);
   }
 
   getFarmState(farmId: string): FarmAutomationState {
     const all = this.readAll();
     const state = all[farmId];
-    if (state && typeof state.isAutonomous === 'boolean') return state;
+    if (state && typeof state.isAutonomous === "boolean") return state;
     return { isAutonomous: true };
   }
 
   setFarmState(farmId: string, patch: Partial<FarmAutomationState>) {
     const all = this.readAll();
     const existing = all[farmId];
-    const base: FarmAutomationState = (existing && typeof existing.isAutonomous === 'boolean')
-      ? existing
-      : { isAutonomous: true };
+    const base: FarmAutomationState =
+      existing && typeof existing.isAutonomous === "boolean"
+        ? existing
+        : { isAutonomous: true };
 
     all[farmId] = {
       ...base,
       ...patch,
-      isAutonomous: typeof patch.isAutonomous === 'boolean' ? patch.isAutonomous : base.isAutonomous,
+      isAutonomous:
+        typeof patch.isAutonomous === "boolean"
+          ? patch.isAutonomous
+          : base.isAutonomous,
     };
 
     this.writeAll(all);

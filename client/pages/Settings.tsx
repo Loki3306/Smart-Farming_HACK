@@ -31,7 +31,8 @@ import { useToast } from "@/hooks/use-toast";
 
 export const Settings: React.FC = () => {
   const { logout, user, updateProfile } = useAuth();
-  const { settings, isLoading, isSaving, updateSettings, setLanguage } = useSettings();
+  const { settings, isLoading, isSaving, updateSettings, setLanguage } =
+    useSettings();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useTranslation("settings");
@@ -52,7 +53,10 @@ export const Settings: React.FC = () => {
     navigate("/login");
   };
 
-  const handleToggle = async (key: keyof typeof settings, currentValue: boolean) => {
+  const handleToggle = async (
+    key: keyof typeof settings,
+    currentValue: boolean,
+  ) => {
     await updateSettings({ [key]: !currentValue });
     toast({
       title: "Setting updated",
@@ -65,12 +69,12 @@ export const Settings: React.FC = () => {
     await setLanguage(lang);
     toast({
       title: "Language changed",
-      description: `Language set to ${languages.find(l => l.code === lang)?.name || lang}`,
+      description: `Language set to ${languages.find((l) => l.code === lang)?.name || lang}`,
       duration: 2000,
     });
   };
 
-  const handleThemeChange = async (theme: 'light' | 'dark' | 'system') => {
+  const handleThemeChange = async (theme: "light" | "dark" | "system") => {
     await updateSettings({ theme });
     toast({
       title: "Theme changed",
@@ -211,9 +215,7 @@ export const Settings: React.FC = () => {
             <SettingsIcon className="w-8 h-8 text-primary" />
             {t("title")}
           </h1>
-          <p className="text-muted-foreground mt-1">
-            {t("subtitle")}
-          </p>
+          <p className="text-muted-foreground mt-1">{t("subtitle")}</p>
         </div>
         <AnimatePresence>
           {isSaving && (
@@ -241,25 +243,32 @@ export const Settings: React.FC = () => {
               transition={{ duration: 0.2, delay: index * 0.05 }}
             >
               <button
-                onClick={() => setActiveSection(activeSection === item.id ? null : item.id)}
-                className={`w-full flex items-center gap-4 p-4 rounded-lg text-left transition-all ${activeSection === item.id
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-card hover:bg-muted border border-border"
-                  }`}
+                onClick={() =>
+                  setActiveSection(activeSection === item.id ? null : item.id)
+                }
+                className={`w-full flex items-center gap-4 p-4 rounded-lg text-left transition-all ${
+                  activeSection === item.id
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-card hover:bg-muted border border-border"
+                }`}
               >
                 <item.icon className="w-5 h-5 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <h3 className="font-medium">{item.label}</h3>
                   <p
-                    className={`text-sm truncate ${activeSection === item.id ? "opacity-80" : "text-muted-foreground"
-                      }`}
+                    className={`text-sm truncate ${
+                      activeSection === item.id
+                        ? "opacity-80"
+                        : "text-muted-foreground"
+                    }`}
                   >
                     {item.description}
                   </p>
                 </div>
                 <ChevronRight
-                  className={`w-5 h-5 transition-transform ${activeSection === item.id ? "rotate-90" : ""
-                    }`}
+                  className={`w-5 h-5 transition-transform ${
+                    activeSection === item.id ? "rotate-90" : ""
+                  }`}
                 />
               </button>
             </motion.div>
@@ -322,14 +331,18 @@ export const Settings: React.FC = () => {
                           });
                           toast({
                             title: "Profile updated",
-                            description: "Your personal information has been saved.",
+                            description:
+                              "Your personal information has been saved.",
                             duration: 2000,
                           });
                           setIsEditingProfile(false);
                         } catch (error) {
                           toast({
                             title: "Failed to update",
-                            description: error instanceof Error ? error.message : "Please try again.",
+                            description:
+                              error instanceof Error
+                                ? error.message
+                                : "Please try again.",
                             variant: "destructive",
                             duration: 3000,
                           });
@@ -366,11 +379,18 @@ export const Settings: React.FC = () => {
                       <input
                         type="text"
                         value={profileForm.fullName}
-                        onChange={(e) => setProfileForm({ ...profileForm, fullName: e.target.value })}
+                        onChange={(e) =>
+                          setProfileForm({
+                            ...profileForm,
+                            fullName: e.target.value,
+                          })
+                        }
                         className="w-full px-3 py-2 bg-card border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     ) : (
-                      <p className="text-foreground font-medium">{user?.fullName || "Not set"}</p>
+                      <p className="text-foreground font-medium">
+                        {user?.fullName || "Not set"}
+                      </p>
                     )}
                   </div>
 
@@ -383,11 +403,18 @@ export const Settings: React.FC = () => {
                       <input
                         type="tel"
                         value={profileForm.phone}
-                        onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                        onChange={(e) =>
+                          setProfileForm({
+                            ...profileForm,
+                            phone: e.target.value,
+                          })
+                        }
                         className="w-full px-3 py-2 bg-card border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     ) : (
-                      <p className="text-foreground font-medium">{user?.phone || "Not set"}</p>
+                      <p className="text-foreground font-medium">
+                        {user?.phone || "Not set"}
+                      </p>
                     )}
                   </div>
 
@@ -400,26 +427,43 @@ export const Settings: React.FC = () => {
                       <input
                         type="email"
                         value={profileForm.email}
-                        onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
+                        onChange={(e) =>
+                          setProfileForm({
+                            ...profileForm,
+                            email: e.target.value,
+                          })
+                        }
                         className="w-full px-3 py-2 bg-card border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     ) : (
-                      <p className="text-foreground font-medium">{user?.email || "Not set"}</p>
+                      <p className="text-foreground font-medium">
+                        {user?.email || "Not set"}
+                      </p>
                     )}
                   </div>
 
                   {/* Read-only info */}
                   <div className="p-4 bg-muted/50 rounded-lg border border-dashed border-border">
-                    <p className="text-sm text-muted-foreground mb-2">{t("sections.profile.accountInfo")}</p>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      {t("sections.profile.accountInfo")}
+                    </p>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <span className="text-muted-foreground">{t("sections.profile.experience")}: </span>
-                        <span className="font-medium capitalize">{user?.experienceLevel || "N/A"}</span>
+                        <span className="text-muted-foreground">
+                          {t("sections.profile.experience")}:{" "}
+                        </span>
+                        <span className="font-medium capitalize">
+                          {user?.experienceLevel || "N/A"}
+                        </span>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">{t("sections.profile.memberSince")}: </span>
+                        <span className="text-muted-foreground">
+                          {t("sections.profile.memberSince")}:{" "}
+                        </span>
                         <span className="font-medium">
-                          {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A"}
+                          {user?.createdAt
+                            ? new Date(user.createdAt).toLocaleDateString()
+                            : "N/A"}
                         </span>
                       </div>
                     </div>
@@ -456,13 +500,20 @@ export const Settings: React.FC = () => {
                         </div>
                       </div>
                       <button
-                        onClick={() => handleToggle(setting.key, settings[setting.key] as boolean)}
-                        className={`w-12 h-6 rounded-full transition-colors relative ${settings[setting.key] ? "bg-primary" : "bg-muted"
-                          }`}
+                        onClick={() =>
+                          handleToggle(
+                            setting.key,
+                            settings[setting.key] as boolean,
+                          )
+                        }
+                        className={`w-12 h-6 rounded-full transition-colors relative ${
+                          settings[setting.key] ? "bg-primary" : "bg-muted"
+                        }`}
                       >
                         <span
-                          className={`absolute top-1 w-4 h-4 bg-card rounded-full transition-transform ${settings[setting.key] ? "right-1" : "left-1"
-                            }`}
+                          className={`absolute top-1 w-4 h-4 bg-card rounded-full transition-transform ${
+                            settings[setting.key] ? "right-1" : "left-1"
+                          }`}
                         />
                       </button>
                     </div>
@@ -491,16 +542,25 @@ export const Settings: React.FC = () => {
                     >
                       <div>
                         <h4 className="font-medium">{setting.label}</h4>
-                        <p className="text-sm text-muted-foreground">{setting.description}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {setting.description}
+                        </p>
                       </div>
                       <button
-                        onClick={() => handleToggle(setting.key, settings[setting.key] as boolean)}
-                        className={`w-12 h-6 rounded-full transition-colors relative ${settings[setting.key] ? "bg-primary" : "bg-muted"
-                          }`}
+                        onClick={() =>
+                          handleToggle(
+                            setting.key,
+                            settings[setting.key] as boolean,
+                          )
+                        }
+                        className={`w-12 h-6 rounded-full transition-colors relative ${
+                          settings[setting.key] ? "bg-primary" : "bg-muted"
+                        }`}
                       >
                         <span
-                          className={`absolute top-1 w-4 h-4 bg-card rounded-full transition-transform ${settings[setting.key] ? "right-1" : "left-1"
-                            }`}
+                          className={`absolute top-1 w-4 h-4 bg-card rounded-full transition-transform ${
+                            settings[setting.key] ? "right-1" : "left-1"
+                          }`}
                         />
                       </button>
                     </div>
@@ -526,15 +586,18 @@ export const Settings: React.FC = () => {
                     <button
                       key={lang.code}
                       onClick={() => handleLanguageChange(lang.code)}
-                      className={`p-4 rounded-lg border text-left transition-all ${settings.language === lang.code
-                        ? "border-primary bg-primary/10"
-                        : "border-border hover:border-primary/50"
-                        }`}
+                      className={`p-4 rounded-lg border text-left transition-all ${
+                        settings.language === lang.code
+                          ? "border-primary bg-primary/10"
+                          : "border-border hover:border-primary/50"
+                      }`}
                     >
                       <div className="flex items-center justify-between">
                         <div>
                           <h4 className="font-medium">{lang.native}</h4>
-                          <p className="text-sm text-muted-foreground">{lang.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {lang.name}
+                          </p>
                         </div>
                         {settings.language === lang.code && (
                           <Check className="w-5 h-5 text-primary" />
@@ -555,17 +618,22 @@ export const Settings: React.FC = () => {
               transition={{ duration: 0.3 }}
             >
               <Card className="p-6">
-                <h2 className="text-xl font-semibold text-foreground mb-6">{t("sections.appearance.title")}</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-6">
+                  {t("sections.appearance.title")}
+                </h2>
                 <div className="space-y-6">
                   <div>
-                    <h3 className="font-medium mb-3">{t("sections.appearance.theme")}</h3>
+                    <h3 className="font-medium mb-3">
+                      {t("sections.appearance.theme")}
+                    </h3>
                     <div className="flex gap-3">
                       <button
                         onClick={() => handleThemeChange("light")}
-                        className={`flex-1 p-4 rounded-lg border text-center transition-all ${settings.theme === "light"
-                          ? "border-primary bg-primary/10"
-                          : "border-border hover:border-primary/50"
-                          }`}
+                        className={`flex-1 p-4 rounded-lg border text-center transition-all ${
+                          settings.theme === "light"
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-primary/50"
+                        }`}
                       >
                         <Sun className="w-6 h-6 mx-auto mb-2" />
                         <span className="font-medium">Light</span>
@@ -575,10 +643,11 @@ export const Settings: React.FC = () => {
                       </button>
                       <button
                         onClick={() => handleThemeChange("dark")}
-                        className={`flex-1 p-4 rounded-lg border text-center transition-all ${settings.theme === "dark"
-                          ? "border-primary bg-primary/10"
-                          : "border-border hover:border-primary/50"
-                          }`}
+                        className={`flex-1 p-4 rounded-lg border text-center transition-all ${
+                          settings.theme === "dark"
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-primary/50"
+                        }`}
                       >
                         <Moon className="w-6 h-6 mx-auto mb-2" />
                         <span className="font-medium">Dark</span>
@@ -588,10 +657,11 @@ export const Settings: React.FC = () => {
                       </button>
                       <button
                         onClick={() => handleThemeChange("system")}
-                        className={`flex-1 p-4 rounded-lg border text-center transition-all ${settings.theme === "system"
-                          ? "border-primary bg-primary/10"
-                          : "border-border hover:border-primary/50"
-                          }`}
+                        className={`flex-1 p-4 rounded-lg border text-center transition-all ${
+                          settings.theme === "system"
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-primary/50"
+                        }`}
                       >
                         <Smartphone className="w-6 h-6 mx-auto mb-2" />
                         <span className="font-medium">System</span>
@@ -644,7 +714,9 @@ export const Settings: React.FC = () => {
                       <div className="w-3 h-3 rounded-full bg-green-500" />
                       <div>
                         <h4 className="font-medium">Soil Moisture Sensor #1</h4>
-                        <p className="text-sm text-muted-foreground">Online • Last sync 5m ago</p>
+                        <p className="text-sm text-muted-foreground">
+                          Online • Last sync 5m ago
+                        </p>
                       </div>
                     </div>
                     <Button variant="outline" size="sm">
@@ -656,7 +728,9 @@ export const Settings: React.FC = () => {
                       <div className="w-3 h-3 rounded-full bg-green-500" />
                       <div>
                         <h4 className="font-medium">Weather Station</h4>
-                        <p className="text-sm text-muted-foreground">Online • Last sync 2m ago</p>
+                        <p className="text-sm text-muted-foreground">
+                          Online • Last sync 2m ago
+                        </p>
                       </div>
                     </div>
                     <Button variant="outline" size="sm">
@@ -678,7 +752,9 @@ export const Settings: React.FC = () => {
                     </Button>
                   </div>
                 </div>
-                <Button className="mt-6 w-full">{t("sections.devices.addNew")}</Button>
+                <Button className="mt-6 w-full">
+                  {t("sections.devices.addNew")}
+                </Button>
               </Card>
             </motion.div>
           )}
@@ -691,7 +767,9 @@ export const Settings: React.FC = () => {
               transition={{ duration: 0.3 }}
             >
               <Card className="p-6">
-                <h2 className="text-xl font-semibold text-foreground mb-6">{t("sections.help.title")}</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-6">
+                  {t("sections.help.title")}
+                </h2>
 
                 {/* FAQ Accordion */}
                 <div className="space-y-3 mb-6">
@@ -701,38 +779,52 @@ export const Settings: React.FC = () => {
                   {[
                     {
                       question: "How do I connect my soil sensors?",
-                      answer: "Go to Settings → Connected Devices and click 'Add New Device'. Follow the setup wizard to pair your sensors via Bluetooth or Wi-Fi."
+                      answer:
+                        "Go to Settings → Connected Devices and click 'Add New Device'. Follow the setup wizard to pair your sensors via Bluetooth or Wi-Fi.",
                     },
                     {
                       question: "How accurate is the weather forecast?",
-                      answer: "Our weather data is sourced from OpenWeatherMap and updated every 3 hours. We provide 7-day forecasts with 85%+ accuracy for local conditions."
+                      answer:
+                        "Our weather data is sourced from OpenWeatherMap and updated every 3 hours. We provide 7-day forecasts with 85%+ accuracy for local conditions.",
                     },
                     {
                       question: "Can I use the app offline?",
-                      answer: "Yes! The app caches your farm data and recent forecasts. However, real-time sensor data and AI recommendations require an internet connection."
+                      answer:
+                        "Yes! The app caches your farm data and recent forecasts. However, real-time sensor data and AI recommendations require an internet connection.",
                     },
                     {
                       question: "How do I change crop recommendations?",
-                      answer: "Navigate to My Farm → Edit Details and update your current crop. The AI will recalibrate recommendations based on your new crop selection."
+                      answer:
+                        "Navigate to My Farm → Edit Details and update your current crop. The AI will recalibrate recommendations based on your new crop selection.",
                     },
                     {
                       question: "What languages are supported?",
-                      answer: "Currently we support English and Hindi. More regional languages including Marathi, Tamil, Telugu, Kannada, Punjabi, and Gujarati are coming soon!"
+                      answer:
+                        "Currently we support English and Hindi. More regional languages including Marathi, Tamil, Telugu, Kannada, Punjabi, and Gujarati are coming soon!",
                     },
                     {
                       question: "How can I reset my irrigation schedule?",
-                      answer: "Go to Dashboard → Control Center and click on any active irrigation. You can modify, pause, or cancel schedules from there."
+                      answer:
+                        "Go to Dashboard → Control Center and click on any active irrigation. You can modify, pause, or cancel schedules from there.",
                     },
                   ].map((faq, index) => (
-                    <div key={index} className="border border-border rounded-lg overflow-hidden">
+                    <div
+                      key={index}
+                      className="border border-border rounded-lg overflow-hidden"
+                    >
                       <button
-                        onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
+                        onClick={() =>
+                          setExpandedFaq(expandedFaq === index ? null : index)
+                        }
                         className="w-full flex items-center justify-between p-4 bg-muted/50 hover:bg-muted transition-colors text-left"
                       >
-                        <span className="font-medium text-foreground pr-4">{faq.question}</span>
+                        <span className="font-medium text-foreground pr-4">
+                          {faq.question}
+                        </span>
                         <ChevronDown
-                          className={`w-5 h-5 text-muted-foreground flex-shrink-0 transition-transform ${expandedFaq === index ? "rotate-180" : ""
-                            }`}
+                          className={`w-5 h-5 text-muted-foreground flex-shrink-0 transition-transform ${
+                            expandedFaq === index ? "rotate-180" : ""
+                          }`}
                         />
                       </button>
                       <AnimatePresence>
@@ -766,8 +858,12 @@ export const Settings: React.FC = () => {
                     >
                       <Mail className="w-5 h-5 text-primary" />
                       <div>
-                        <p className="font-medium">{t("sections.help.emailSupport")}</p>
-                        <p className="text-sm text-muted-foreground">support@smartfarm.app</p>
+                        <p className="font-medium">
+                          {t("sections.help.emailSupport")}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          support@smartfarm.app
+                        </p>
                       </div>
                     </a>
                     <a
@@ -778,8 +874,12 @@ export const Settings: React.FC = () => {
                     >
                       <MessageSquare className="w-5 h-5 text-green-600" />
                       <div>
-                        <p className="font-medium text-green-800 dark:text-green-300">{t("sections.help.chat")}</p>
-                        <p className="text-sm text-green-600 dark:text-green-400">{t("sections.help.chat")}</p>
+                        <p className="font-medium text-green-800 dark:text-green-300">
+                          {t("sections.help.chat")}
+                        </p>
+                        <p className="text-sm text-green-600 dark:text-green-400">
+                          {t("sections.help.chat")}
+                        </p>
                       </div>
                     </a>
                   </div>
@@ -787,8 +887,12 @@ export const Settings: React.FC = () => {
 
                 {/* App Version */}
                 <div className="mt-6 p-4 bg-primary/10 rounded-lg text-center">
-                  <p className="text-sm text-muted-foreground">{t("sections.help.version")}</p>
-                  <p className="text-xs text-muted-foreground mt-1">© 2024 Krushi Unnati Technologies</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t("sections.help.version")}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    © 2024 Krushi Unnati Technologies
+                  </p>
                 </div>
               </Card>
             </motion.div>

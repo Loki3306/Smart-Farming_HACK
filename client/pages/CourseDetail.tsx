@@ -32,12 +32,12 @@ interface Lesson {
   description?: string;
   order_index: number;
   duration?: string;
-  content_type: 'video' | 'text' | 'quiz' | 'assignment';
+  content_type: "video" | "text" | "quiz" | "assignment";
   content_url?: string;
   is_preview: boolean;
 }
 
-interface CourseWithLessons extends Omit<LearnService.Course, 'lessons'> {
+interface CourseWithLessons extends Omit<LearnService.Course, "lessons"> {
   lessons: Lesson[];
   lesson_count?: number;
 }
@@ -46,21 +46,25 @@ export const CourseDetail: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
   const { language, toggleLanguage } = useLanguage();
-  const isHindi = language === 'hi';
+  const isHindi = language === "hi";
   const [course, setCourse] = useState<CourseWithLessons | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [enrolling, setEnrolling] = useState(false);
   const [isEnrolled, setIsEnrolled] = useState(false);
-  const [enrollment, setEnrollment] = useState<LearnService.Enrollment | null>(null);
-  const [lessonProgress, setLessonProgress] = useState<Record<string, string>>({});
-  const [viewMode, setViewMode] = useState<'roadmap' | 'classic'>('roadmap');
+  const [enrollment, setEnrollment] = useState<LearnService.Enrollment | null>(
+    null,
+  );
+  const [lessonProgress, setLessonProgress] = useState<Record<string, string>>(
+    {},
+  );
+  const [viewMode, setViewMode] = useState<"roadmap" | "classic">("roadmap");
 
   useEffect(() => {
     if (courseId) {
       fetchCourse(courseId);
       // Only check enrollment if user is logged in
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem("auth_token");
       if (token) {
         checkEnrollmentStatus(courseId);
       }
@@ -71,7 +75,7 @@ export const CourseDetail: React.FC = () => {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden && courseId) {
-        const token = localStorage.getItem('auth_token');
+        const token = localStorage.getItem("auth_token");
         if (token) {
           checkEnrollmentStatus(courseId);
         }
@@ -80,19 +84,19 @@ export const CourseDetail: React.FC = () => {
 
     const handleFocus = () => {
       if (courseId) {
-        const token = localStorage.getItem('auth_token');
+        const token = localStorage.getItem("auth_token");
         if (token) {
           checkEnrollmentStatus(courseId);
         }
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('focus', handleFocus);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handleFocus);
 
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleFocus);
     };
   }, [courseId]);
 
@@ -125,7 +129,8 @@ export const CourseDetail: React.FC = () => {
           setEnrollment(data.enrollment);
           // Build lesson progress map - handle both camelCase and snake_case
           const progressMap: Record<string, string> = {};
-          const progressData = data.lessonProgress || data.lessons_progress || [];
+          const progressData =
+            data.lessonProgress || data.lessons_progress || [];
           progressData.forEach((lp: any) => {
             progressMap[lp.lesson_id] = lp.status;
           });
@@ -163,9 +168,9 @@ export const CourseDetail: React.FC = () => {
   const handleStartLearning = () => {
     if (!courseId || !course?.lessons?.length) return;
     // Navigate to first lesson or continue where left off
-    const firstIncompleteLesson = course.lessons.find(
-      (l) => lessonProgress[l.id] !== 'completed'
-    ) || course.lessons[0];
+    const firstIncompleteLesson =
+      course.lessons.find((l) => lessonProgress[l.id] !== "completed") ||
+      course.lessons[0];
     navigate(`/learn/courses/${courseId}/lesson/${firstIncompleteLesson.id}`);
   };
 
@@ -199,9 +204,9 @@ export const CourseDetail: React.FC = () => {
 
   const getLessonStatus = (lessonId: string) => {
     const status = lessonProgress[lessonId];
-    if (status === 'completed') return 'completed';
-    if (status === 'in_progress') return 'in_progress';
-    return 'not_started';
+    if (status === "completed") return "completed";
+    if (status === "in_progress") return "in_progress";
+    return "not_started";
   };
 
   if (loading) {
@@ -216,8 +221,12 @@ export const CourseDetail: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-6">
         <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
-        <h2 className="text-2xl font-bold text-foreground mb-2">Course Not Found</h2>
-        <p className="text-muted-foreground mb-6">{error || "The course you're looking for doesn't exist."}</p>
+        <h2 className="text-2xl font-bold text-foreground mb-2">
+          Course Not Found
+        </h2>
+        <p className="text-muted-foreground mb-6">
+          {error || "The course you're looking for doesn't exist."}
+        </p>
         <Button onClick={() => navigate("/learn")}>
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Learn
@@ -227,7 +236,9 @@ export const CourseDetail: React.FC = () => {
   }
 
   // Calculate progress from lesson completion
-  const completedLessons = Object.values(lessonProgress).filter(s => s === 'completed').length;
+  const completedLessons = Object.values(lessonProgress).filter(
+    (s) => s === "completed",
+  ).length;
   const totalLessons = course.lessons?.length || 1;
   const progressPercent = Math.round((completedLessons / totalLessons) * 100);
 
@@ -239,7 +250,7 @@ export const CourseDetail: React.FC = () => {
   // Refetch progress data (called from child components or after navigation)
   const refetchProgress = async () => {
     if (courseId) {
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem("auth_token");
       if (token) {
         await checkEnrollmentStatus(courseId);
       }
@@ -247,7 +258,7 @@ export const CourseDetail: React.FC = () => {
   };
 
   // Show gamified roadmap view by default
-  if (viewMode === 'roadmap' && course.lessons && course.lessons.length > 0) {
+  if (viewMode === "roadmap" && course.lessons && course.lessons.length > 0) {
     return (
       <LearningRoadmap
         courseId={courseId!}
@@ -260,7 +271,7 @@ export const CourseDetail: React.FC = () => {
         totalXP={course.lessons.length * 20}
         earnedXP={completedLessons * 20}
         courseDescription={course.description}
-        instructor={course.instructor_name || 'Krushi Unnati Team'}
+        instructor={course.instructor_name || "Krushi Unnati Team"}
         duration={course.duration || `${course.lessons.length * 15} min`}
         level={course.level}
       />
@@ -274,9 +285,9 @@ export const CourseDetail: React.FC = () => {
         <div className="flex items-center justify-between mb-6">
           <Button variant="ghost" onClick={() => navigate("/learn")}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            {isHindi ? 'सीखने पर वापसें' : 'Back to Learn'}
+            {isHindi ? "सीखने पर वापसें" : "Back to Learn"}
           </Button>
-          
+
           <div className="flex items-center gap-2">
             {/* Language Toggle */}
             <Button
@@ -286,29 +297,33 @@ export const CourseDetail: React.FC = () => {
               className="gap-2"
             >
               <Globe className="w-4 h-4" />
-              {language === 'en' ? 'हिंदी' : 'English'}
+              {language === "en" ? "हिंदी" : "English"}
             </Button>
 
             {/* View Mode Toggle */}
             {course.lessons && course.lessons.length > 0 && (
               <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
                 <Button
-                  variant={viewMode === 'roadmap' ? 'default' : 'ghost'}
+                  variant={viewMode === "roadmap" ? "default" : "ghost"}
                   size="sm"
-                  onClick={() => setViewMode('roadmap')}
+                  onClick={() => setViewMode("roadmap")}
                   className="gap-2"
                 >
                   <Map className="w-4 h-4" />
-                  <span className="hidden sm:inline">{isHindi ? 'रोडमैप' : 'Roadmap'}</span>
+                  <span className="hidden sm:inline">
+                    {isHindi ? "रोडमैप" : "Roadmap"}
+                  </span>
                 </Button>
                 <Button
-                  variant={viewMode === 'classic' ? 'default' : 'ghost'}
+                  variant={viewMode === "classic" ? "default" : "ghost"}
                   size="sm"
-                  onClick={() => setViewMode('classic')}
+                  onClick={() => setViewMode("classic")}
                   className="gap-2"
                 >
                   <List className="w-4 h-4" />
-                  <span className="hidden sm:inline">{isHindi ? 'क्लासिक' : 'Classic'}</span>
+                  <span className="hidden sm:inline">
+                    {isHindi ? "क्लासिक" : "Classic"}
+                  </span>
                 </Button>
               </div>
             )}
@@ -326,13 +341,19 @@ export const CourseDetail: React.FC = () => {
             >
               <Card className="p-6">
                 <div className="flex items-start gap-4">
-                  <div className="text-6xl">{course.thumbnail_emoji || "📚"}</div>
+                  <div className="text-6xl">
+                    {course.thumbnail_emoji || "📚"}
+                  </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${getLevelBadge(course.level)}`}>
+                      <span
+                        className={`text-xs px-2 py-0.5 rounded-full ${getLevelBadge(course.level)}`}
+                      >
                         {course.level}
                       </span>
-                      <span className="text-xs text-muted-foreground">{course.language}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {course.language}
+                      </span>
                       {course.price === 0 && (
                         <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">
                           Free
@@ -342,8 +363,10 @@ export const CourseDetail: React.FC = () => {
                     <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
                       {course.title}
                     </h1>
-                    <p className="text-muted-foreground mb-4">{course.description}</p>
-                    
+                    <p className="text-muted-foreground mb-4">
+                      {course.description}
+                    </p>
+
                     <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Clock className="w-4 h-4" />
@@ -351,7 +374,10 @@ export const CourseDetail: React.FC = () => {
                       </span>
                       <span className="flex items-center gap-1">
                         <BookOpen className="w-4 h-4" />
-                        {course.lessons?.length || course.lesson_count || 0} lessons
+                        {course.lessons?.length ||
+                          course.lesson_count ||
+                          0}{" "}
+                        lessons
                       </span>
                       <span className="flex items-center gap-1">
                         <Users className="w-4 h-4" />
@@ -373,8 +399,12 @@ export const CourseDetail: React.FC = () => {
                         <GraduationCap className="w-5 h-5 text-primary" />
                       </div>
                       <div>
-                        <p className="font-medium text-foreground">{course.instructor_name}</p>
-                        <p className="text-sm text-muted-foreground">Instructor</p>
+                        <p className="font-medium text-foreground">
+                          {course.instructor_name}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Instructor
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -384,8 +414,12 @@ export const CourseDetail: React.FC = () => {
                 {isEnrolled && (
                   <div className="mt-6 pt-6 border-t">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-foreground">Your Progress</span>
-                      <span className="text-sm text-muted-foreground">{progressPercent}%</span>
+                      <span className="text-sm font-medium text-foreground">
+                        Your Progress
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        {progressPercent}%
+                      </span>
                     </div>
                     <Progress value={progressPercent} className="h-2" />
                     <p className="text-xs text-muted-foreground mt-2">
@@ -416,7 +450,7 @@ export const CourseDetail: React.FC = () => {
                     course.lessons.map((lesson, index) => {
                       const status = getLessonStatus(lesson.id);
                       const isLocked = !isEnrolled && !lesson.is_preview;
-                      
+
                       return (
                         <div
                           key={lesson.id}
@@ -427,12 +461,14 @@ export const CourseDetail: React.FC = () => {
                           }`}
                           onClick={() => {
                             if (!isLocked && isEnrolled) {
-                              navigate(`/learn/courses/${courseId}/lesson/${lesson.id}`);
+                              navigate(
+                                `/learn/courses/${courseId}/lesson/${lesson.id}`,
+                              );
                             }
                           }}
                         >
                           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted text-sm font-medium">
-                            {status === 'completed' ? (
+                            {status === "completed" ? (
                               <CheckCircle className="w-5 h-5 text-green-500" />
                             ) : isLocked ? (
                               <Lock className="w-4 h-4 text-muted-foreground" />
@@ -445,7 +481,9 @@ export const CourseDetail: React.FC = () => {
                               <span className="text-muted-foreground">
                                 {getContentTypeIcon(lesson.content_type)}
                               </span>
-                              <span className={`font-medium ${isLocked ? "text-muted-foreground" : "text-foreground"}`}>
+                              <span
+                                className={`font-medium ${isLocked ? "text-muted-foreground" : "text-foreground"}`}
+                              >
                                 {lesson.title}
                               </span>
                               {lesson.is_preview && !isEnrolled && (
@@ -455,7 +493,9 @@ export const CourseDetail: React.FC = () => {
                               )}
                             </div>
                             {lesson.duration && (
-                              <p className="text-xs text-muted-foreground mt-0.5">{lesson.duration}</p>
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                {lesson.duration}
+                              </p>
                             )}
                           </div>
                           {!isLocked && (
@@ -495,7 +535,10 @@ export const CourseDetail: React.FC = () => {
                       </p>
                       {course.discount_percent > 0 && (
                         <p className="text-sm text-muted-foreground line-through">
-                          ₹{Math.round(course.price / (1 - course.discount_percent / 100))}
+                          ₹
+                          {Math.round(
+                            course.price / (1 - course.discount_percent / 100),
+                          )}
                         </p>
                       )}
                     </div>
@@ -504,9 +547,15 @@ export const CourseDetail: React.FC = () => {
 
                 {/* CTA Button */}
                 {isEnrolled ? (
-                  <Button className="w-full mb-4" size="lg" onClick={handleStartLearning}>
+                  <Button
+                    className="w-full mb-4"
+                    size="lg"
+                    onClick={handleStartLearning}
+                  >
                     <Play className="w-4 h-4 mr-2" />
-                    {progressPercent > 0 ? "Continue Learning" : "Start Learning"}
+                    {progressPercent > 0
+                      ? "Continue Learning"
+                      : "Start Learning"}
                   </Button>
                 ) : (
                   <Button
@@ -531,7 +580,9 @@ export const CourseDetail: React.FC = () => {
 
                 {/* Course Includes */}
                 <div className="space-y-3 pt-4 border-t">
-                  <p className="font-medium text-foreground">This course includes:</p>
+                  <p className="font-medium text-foreground">
+                    This course includes:
+                  </p>
                   <ul className="space-y-2 text-sm text-muted-foreground">
                     <li className="flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-green-500" />
@@ -564,7 +615,8 @@ export const CourseDetail: React.FC = () => {
                       You're enrolled
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Enrolled on {new Date(enrollment.enrolled_at).toLocaleDateString()}
+                      Enrolled on{" "}
+                      {new Date(enrollment.enrolled_at).toLocaleDateString()}
                     </p>
                   </div>
                 )}

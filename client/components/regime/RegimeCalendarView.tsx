@@ -4,24 +4,24 @@
  * Supports clicking on days to view/edit tasks
  */
 
-import React, { useState } from 'react';
-import { Calendar, Badge, Modal, Card, Tag, Button, Tooltip } from 'antd';
-import type { Dayjs } from 'dayjs';
-import dayjs from 'dayjs';
+import React, { useState } from "react";
+import { Calendar, Badge, Modal, Card, Tag, Button, Tooltip } from "antd";
+import type { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import {
   CheckCircleOutlined,
   ClockCircleOutlined,
   WarningOutlined,
   CloseCircleOutlined,
   PlusOutlined,
-} from '@ant-design/icons';
+} from "@ant-design/icons";
 
 interface RegimeTask {
   task_id: string;
   task_name: string;
   description: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'skipped' | 'failed';
-  priority: 'high' | 'medium' | 'low';
+  status: "pending" | "in_progress" | "completed" | "skipped" | "failed";
+  priority: "high" | "medium" | "low";
   timing_window_start?: string;
   timing_window_end?: string;
   confidence_score: number;
@@ -48,9 +48,9 @@ export default function RegimeCalendarView({
   const getTasksForDate = (date: Dayjs): RegimeTask[] => {
     return tasks.filter((task) => {
       if (!task.timing_window_start) return false;
-      
+
       const taskDate = dayjs(task.timing_window_start);
-      return taskDate.isSame(date, 'day');
+      return taskDate.isSame(date, "day");
     });
   };
 
@@ -59,10 +59,12 @@ export default function RegimeCalendarView({
     const dateTasks = getTasksForDate(value);
     if (dateTasks.length === 0) return null;
 
-    const completed = dateTasks.filter(t => t.status === 'completed').length;
-    const pending = dateTasks.filter(t => t.status === 'pending').length;
-    const inProgress = dateTasks.filter(t => t.status === 'in_progress').length;
-    const highPriority = dateTasks.filter(t => t.priority === 'high').length;
+    const completed = dateTasks.filter((t) => t.status === "completed").length;
+    const pending = dateTasks.filter((t) => t.status === "pending").length;
+    const inProgress = dateTasks.filter(
+      (t) => t.status === "in_progress",
+    ).length;
+    const highPriority = dateTasks.filter((t) => t.priority === "high").length;
 
     return (
       <div className="flex flex-col gap-1 p-1">
@@ -111,30 +113,30 @@ export default function RegimeCalendarView({
   // Get status icon
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed':
-        return <CheckCircleOutlined style={{ color: '#52c41a' }} />;
-      case 'in_progress':
-        return <ClockCircleOutlined style={{ color: '#1890ff' }} />;
-      case 'pending':
-        return <ClockCircleOutlined style={{ color: '#d9d9d9' }} />;
-      case 'failed':
-        return <CloseCircleOutlined style={{ color: '#ff4d4f' }} />;
+      case "completed":
+        return <CheckCircleOutlined style={{ color: "#52c41a" }} />;
+      case "in_progress":
+        return <ClockCircleOutlined style={{ color: "#1890ff" }} />;
+      case "pending":
+        return <ClockCircleOutlined style={{ color: "#d9d9d9" }} />;
+      case "failed":
+        return <CloseCircleOutlined style={{ color: "#ff4d4f" }} />;
       default:
-        return <WarningOutlined style={{ color: '#faad14' }} />;
+        return <WarningOutlined style={{ color: "#faad14" }} />;
     }
   };
 
   // Get priority color
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high':
-        return 'red';
-      case 'medium':
-        return 'orange';
-      case 'low':
-        return 'green';
+      case "high":
+        return "red";
+      case "medium":
+        return "orange";
+      case "low":
+        return "green";
       default:
-        return 'default';
+        return "default";
     }
   };
 
@@ -151,7 +153,7 @@ export default function RegimeCalendarView({
       <Modal
         title={
           <div className="flex items-center justify-between">
-            <span>Tasks for {selectedDate.format('MMMM D, YYYY')}</span>
+            <span>Tasks for {selectedDate.format("MMMM D, YYYY")}</span>
             <Button
               type="text"
               icon={<PlusOutlined />}
@@ -187,26 +189,28 @@ export default function RegimeCalendarView({
                     {getStatusIcon(task.status)}
                     <h4 className="font-semibold mb-0">{task.task_name}</h4>
                   </div>
-                  
+
                   <p className="text-sm text-gray-600 mb-2">
                     {task.description}
                   </p>
-                  
+
                   <div className="flex items-center gap-2 flex-wrap">
                     <Tag color={getPriorityColor(task.priority)}>
                       {task.priority.toUpperCase()}
                     </Tag>
-                    <Tag>{task.status.replace('_', ' ').toUpperCase()}</Tag>
+                    <Tag>{task.status.replace("_", " ").toUpperCase()}</Tag>
                     <Tooltip title="Confidence Score">
-                      <Tag color="blue">{task.confidence_score.toFixed(0)}%</Tag>
+                      <Tag color="blue">
+                        {task.confidence_score.toFixed(0)}%
+                      </Tag>
                     </Tooltip>
                     {task.timing_window_end && (
                       <Tag color="purple">
-                        Due: {dayjs(task.timing_window_end).format('MMM D')}
+                        Due: {dayjs(task.timing_window_end).format("MMM D")}
                       </Tag>
                     )}
                   </div>
-                  
+
                   {task.farmer_notes && (
                     <div className="mt-2 p-2 bg-gray-50 rounded text-xs">
                       <strong>Notes:</strong> {task.farmer_notes}

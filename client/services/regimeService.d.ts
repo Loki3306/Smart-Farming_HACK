@@ -33,8 +33,8 @@ export interface RegimeTask {
   task_id: string;
   task_name: string;
   description: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'skipped' | 'failed';
-  priority: 'high' | 'medium' | 'low';
+  status: "pending" | "in_progress" | "completed" | "skipped" | "failed";
+  priority: "high" | "medium" | "low";
   timing_type: string;
   timing_value: number;
   timing_window_start?: string;
@@ -48,7 +48,7 @@ export interface Regime {
   regime_id: string;
   name: string;
   description: string;
-  status: 'active' | 'completed' | 'archived';
+  status: "active" | "completed" | "archived";
   valid_from: string;
   valid_until: string;
   task_count: number;
@@ -77,15 +77,15 @@ export class RegimeService {
   getRegimeHistory(regimeId: string): Promise<RegimeHistory>;
   getRegimeTasks(
     regimeId: string,
-    filters?: { status?: string; priority?: string }
+    filters?: { status?: string; priority?: string },
   ): Promise<RegimeTask[]>;
   updateTaskStatus(
     regimeId: string,
     taskId: string,
     status: string,
-    notes?: string
+    notes?: string,
   ): Promise<any>;
-  exportRegime(regimeId: string, format: 'pdf' | 'csv'): Promise<any>;
+  exportRegime(regimeId: string, format: "pdf" | "csv"): Promise<any>;
   health(): Promise<any>;
 }
 

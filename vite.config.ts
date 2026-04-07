@@ -21,15 +21,19 @@ export default defineConfig(({ mode }) => ({
       output: {
         manualChunks: {
           // Separate vendor chunks for better caching
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'ui-vendor': ['framer-motion', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
-          'query-vendor': ['@tanstack/react-query'],
-          'three-vendor': ['three', '@react-three/fiber', '@react-three/drei'],
+          "react-vendor": ["react", "react-dom", "react-router-dom"],
+          "ui-vendor": [
+            "framer-motion",
+            "@radix-ui/react-dialog",
+            "@radix-ui/react-dropdown-menu",
+          ],
+          "query-vendor": ["@tanstack/react-query"],
+          "three-vendor": ["three", "@react-three/fiber", "@react-three/drei"],
         },
       },
     },
     chunkSizeWarningLimit: 1000, // Increase limit to 1MB for heavy pages
-    minify: 'terser', // Better minification
+    minify: "terser", // Better minification
     terserOptions: {
       compress: {
         drop_console: true, // Remove console.logs in production
@@ -41,27 +45,27 @@ export default defineConfig(({ mode }) => ({
     react(),
     expressPlugin(),
     VitePWA({
-      registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      registerType: "autoUpdate",
+      includeAssets: ["favicon.ico", "apple-touch-icon.png", "mask-icon.svg"],
       manifest: {
-        name: 'Smart Farming AI',
-        short_name: 'SmartFarm',
-        description: 'AI-driven smart farming solutions',
-        theme_color: '#4CAF50',
+        name: "Smart Farming AI",
+        short_name: "SmartFarm",
+        description: "AI-driven smart farming solutions",
+        theme_color: "#4CAF50",
         icons: [
           {
-            src: 'pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png'
+            src: "pwa-192x192.png",
+            sizes: "192x192",
+            type: "image/png",
           },
           {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
-          }
-        ]
-      }
-    })
+            src: "pwa-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+          },
+        ],
+      },
+    }),
   ],
   resolve: {
     alias: {

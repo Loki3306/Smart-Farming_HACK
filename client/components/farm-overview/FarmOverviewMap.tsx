@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import { SectionData, FarmMappingData } from '../../utils/farmMappingStorage';
+import React, { useEffect, useRef, useState } from "react";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import { SectionData, FarmMappingData } from "../../utils/farmMappingStorage";
 
 interface FarmOverviewMapProps {
   farmData: FarmMappingData;
@@ -32,20 +32,20 @@ const FarmOverviewMap: React.FC<FarmOverviewMapProps> = ({
           scrollWheelZoom: true,
         });
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap contributors',
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "© OpenStreetMap contributors",
           maxZoom: 19,
         }).addTo(map);
 
         mapRef.current = map;
-        
+
         // Small delay to ensure map renders properly
         setTimeout(() => {
           map.invalidateSize();
           setIsLoading(false);
         }, 100);
       } catch (error) {
-        console.error('Error initializing map:', error);
+        console.error("Error initializing map:", error);
         setIsLoading(false);
       }
     }
@@ -64,7 +64,7 @@ const FarmOverviewMap: React.FC<FarmOverviewMapProps> = ({
     const map = mapRef.current;
 
     // Clear existing layers
-    Object.values(layersRef.current).forEach(layer => {
+    Object.values(layersRef.current).forEach((layer) => {
       map.removeLayer(layer);
     });
     layersRef.current = {};
@@ -72,15 +72,15 @@ const FarmOverviewMap: React.FC<FarmOverviewMapProps> = ({
     // Draw farm boundary if exists
     if (farmData.farmBoundary) {
       const coordinates = farmData.farmBoundary.coordinates[0].map(
-        (coord: number[]) => [coord[1], coord[0]] as L.LatLngExpression
+        (coord: number[]) => [coord[1], coord[0]] as L.LatLngExpression,
       );
 
       const boundaryLayer = L.polygon(coordinates, {
-        color: '#3b82f6',
-        fillColor: '#3b82f6',
+        color: "#3b82f6",
+        fillColor: "#3b82f6",
         fillOpacity: 0.1,
         weight: 3,
-        dashArray: '10, 5',
+        dashArray: "10, 5",
       }).addTo(map);
 
       boundaryLayer.bindPopup(`
@@ -90,7 +90,7 @@ const FarmOverviewMap: React.FC<FarmOverviewMapProps> = ({
         </div>
       `);
 
-      layersRef.current['boundary'] = boundaryLayer;
+      layersRef.current["boundary"] = boundaryLayer;
 
       // Fit bounds to farm boundary
       map.fitBounds(boundaryLayer.getBounds(), { padding: [50, 50] });
@@ -99,7 +99,7 @@ const FarmOverviewMap: React.FC<FarmOverviewMapProps> = ({
     // Draw sections
     farmData.sections.forEach((section: SectionData) => {
       const coordinates = section.geometry.coordinates[0].map(
-        (coord: number[]) => [coord[1], coord[0]] as L.LatLngExpression
+        (coord: number[]) => [coord[1], coord[0]] as L.LatLngExpression,
       );
 
       const isSelected = section.id === selectedSectionId;
@@ -116,29 +116,29 @@ const FarmOverviewMap: React.FC<FarmOverviewMapProps> = ({
           <h3 class="font-semibold text-base mb-2">${section.name}</h3>
           <div class="space-y-1 text-sm">
             <p><span class="font-medium">Area:</span> ${section.area.toFixed(2)} acres</p>
-            <p><span class="font-medium">Crop:</span> ${section.cropType || 'Not set'}</p>
-            <p><span class="font-medium">Soil:</span> ${section.soilType || 'Not set'}</p>
-            <p><span class="font-medium">Irrigation:</span> ${section.irrigationType || 'Not set'}</p>
+            <p><span class="font-medium">Crop:</span> ${section.cropType || "Not set"}</p>
+            <p><span class="font-medium">Soil:</span> ${section.soilType || "Not set"}</p>
+            <p><span class="font-medium">Irrigation:</span> ${section.irrigationType || "Not set"}</p>
           </div>
         </div>
       `);
 
       // Handle click events
-      sectionLayer.on('click', () => {
+      sectionLayer.on("click", () => {
         if (onSectionClick) {
           onSectionClick(section.id);
         }
       });
 
       // Add hover effect
-      sectionLayer.on('mouseover', function() {
+      sectionLayer.on("mouseover", function () {
         this.setStyle({
           fillOpacity: 0.5,
           weight: 3,
         });
       });
 
-      sectionLayer.on('mouseout', function() {
+      sectionLayer.on("mouseout", function () {
         if (section.id !== selectedSectionId) {
           this.setStyle({
             fillOpacity: 0.3,
@@ -154,10 +154,10 @@ const FarmOverviewMap: React.FC<FarmOverviewMapProps> = ({
     if (!farmData.farmBoundary && farmData.sections.length > 0) {
       const allCoordinates = farmData.sections.flatMap((section: SectionData) =>
         section.geometry.coordinates[0].map(
-          (coord: number[]) => [coord[1], coord[0]] as L.LatLngExpression
-        )
+          (coord: number[]) => [coord[1], coord[0]] as L.LatLngExpression,
+        ),
       );
-      
+
       if (allCoordinates.length > 0) {
         const bounds = L.latLngBounds(allCoordinates);
         map.fitBounds(bounds, { padding: [50, 50] });
@@ -196,7 +196,7 @@ const FarmOverviewMap: React.FC<FarmOverviewMapProps> = ({
   return (
     <div className="relative w-full h-full">
       <div ref={mapContainerRef} className="w-full h-full rounded-lg" />
-      
+
       {/* Map Legend */}
       <div className="absolute top-4 right-4 bg-white rounded-lg shadow-lg p-3 z-[1000]">
         <h4 className="font-semibold text-sm mb-2">Map Legend</h4>

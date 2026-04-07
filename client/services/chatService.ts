@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { supabase } from "@/lib/supabase";
 
 // =====================================================
 // TYPES & INTERFACES
@@ -28,7 +28,7 @@ export interface Message {
   receiver_id: string;
   content: string;
   image_url?: string;
-  message_type?: 'text' | 'system' | 'image';
+  message_type?: "text" | "system" | "image";
   read: boolean;
   read_at?: string;
   created_at: string;
@@ -58,7 +58,7 @@ export interface OnlineFarmer {
   name: string;
   phone: string;
   email?: string;
-  status: 'online' | 'away' | 'offline';
+  status: "online" | "away" | "offline";
   last_seen: string;
 }
 
@@ -70,16 +70,18 @@ export const chatService = {
   /**
    * Start a new conversation or get existing one
    */
-  async startConversation(payload: CreateConversationPayload): Promise<{ conversation: Conversation; is_new: boolean }> {
-    const response = await fetch('/api/chat/conversations/start', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+  async startConversation(
+    payload: CreateConversationPayload,
+  ): Promise<{ conversation: Conversation; is_new: boolean }> {
+    const response = await fetch("/api/chat/conversations/start", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to start conversation');
+      throw new Error(error.error || "Failed to start conversation");
     }
 
     return response.json();
@@ -93,7 +95,7 @@ export const chatService = {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to fetch conversations');
+      throw new Error(error.error || "Failed to fetch conversations");
     }
 
     const data = await response.json();
@@ -103,12 +105,17 @@ export const chatService = {
   /**
    * Get conversation details by ID
    */
-  async getConversation(conversationId: string, userId: string): Promise<Conversation> {
-    const response = await fetch(`/api/chat/conversations/${conversationId}?user_id=${userId}`);
+  async getConversation(
+    conversationId: string,
+    userId: string,
+  ): Promise<Conversation> {
+    const response = await fetch(
+      `/api/chat/conversations/${conversationId}?user_id=${userId}`,
+    );
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to fetch conversation');
+      throw new Error(error.error || "Failed to fetch conversation");
     }
 
     const data = await response.json();
@@ -118,14 +125,19 @@ export const chatService = {
   /**
    * Get messages in a conversation
    */
-  async getMessages(conversationId: string, userId: string, limit = 50, offset = 0): Promise<Message[]> {
+  async getMessages(
+    conversationId: string,
+    userId: string,
+    limit = 50,
+    offset = 0,
+  ): Promise<Message[]> {
     const response = await fetch(
-      `/api/chat/conversations/${conversationId}/messages?user_id=${userId}&limit=${limit}&offset=${offset}`
+      `/api/chat/conversations/${conversationId}/messages?user_id=${userId}&limit=${limit}&offset=${offset}`,
     );
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to fetch messages');
+      throw new Error(error.error || "Failed to fetch messages");
     }
 
     const data = await response.json();
@@ -136,15 +148,15 @@ export const chatService = {
    * Send a message
    */
   async sendMessage(payload: SendMessagePayload): Promise<Message> {
-    const response = await fetch('/api/chat/messages/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const response = await fetch("/api/chat/messages/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to send message');
+      throw new Error(error.error || "Failed to send message");
     }
 
     const data = await response.json();
@@ -156,30 +168,36 @@ export const chatService = {
    */
   async markMessageRead(messageId: string, userId: string): Promise<void> {
     const response = await fetch(`/api/chat/messages/${messageId}/read`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ user_id: userId }),
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to mark message as read');
+      throw new Error(error.error || "Failed to mark message as read");
     }
   },
 
   /**
    * Mark all messages in conversation as read
    */
-  async markConversationRead(conversationId: string, userId: string): Promise<void> {
-    const response = await fetch(`/api/chat/conversations/${conversationId}/mark-read`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: userId }),
-    });
+  async markConversationRead(
+    conversationId: string,
+    userId: string,
+  ): Promise<void> {
+    const response = await fetch(
+      `/api/chat/conversations/${conversationId}/mark-read`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId }),
+      },
+    );
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to mark conversation as read');
+      throw new Error(error.error || "Failed to mark conversation as read");
     }
   },
 
@@ -188,42 +206,54 @@ export const chatService = {
    */
   async deleteMessage(messageId: string, userId: string): Promise<void> {
     const response = await fetch(`/api/chat/messages/${messageId}`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ user_id: userId }),
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to delete message');
+      throw new Error(error.error || "Failed to delete message");
     }
   },
 
   /**
    * Update typing indicator
    */
-  async updateTypingStatus(conversationId: string, userId: string, isTyping: boolean): Promise<void> {
-    const response = await fetch(`/api/chat/conversations/${conversationId}/typing`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: userId, is_typing: isTyping }),
-    });
+  async updateTypingStatus(
+    conversationId: string,
+    userId: string,
+    isTyping: boolean,
+  ): Promise<void> {
+    const response = await fetch(
+      `/api/chat/conversations/${conversationId}/typing`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId, is_typing: isTyping }),
+      },
+    );
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to update typing status');
+      throw new Error(error.error || "Failed to update typing status");
     }
   },
 
   /**
    * Get typing status
    */
-  async getTypingStatus(conversationId: string, userId: string): Promise<{ is_typing: boolean }> {
-    const response = await fetch(`/api/chat/conversations/${conversationId}/typing?user_id=${userId}`);
+  async getTypingStatus(
+    conversationId: string,
+    userId: string,
+  ): Promise<{ is_typing: boolean }> {
+    const response = await fetch(
+      `/api/chat/conversations/${conversationId}/typing?user_id=${userId}`,
+    );
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to fetch typing status');
+      throw new Error(error.error || "Failed to fetch typing status");
     }
 
     return response.json();
@@ -237,7 +267,7 @@ export const chatService = {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to fetch chat stats');
+      throw new Error(error.error || "Failed to fetch chat stats");
     }
 
     return response.json();
@@ -249,8 +279,9 @@ export const chatService = {
   async getOnlineFarmers(currentUserId: string): Promise<OnlineFarmer[]> {
     try {
       const { data, error } = await supabase
-        .from('farmers')
-        .select(`
+        .from("farmers")
+        .select(
+          `
           id,
           name,
           phone,
@@ -259,9 +290,10 @@ export const chatService = {
             status,
             last_seen
           )
-        `)
-        .neq('id', currentUserId)
-        .order('name', { ascending: true });
+        `,
+        )
+        .neq("id", currentUserId)
+        .order("name", { ascending: true });
 
       if (error) throw error;
 
@@ -271,8 +303,9 @@ export const chatService = {
         name: farmer.name,
         phone: farmer.phone,
         email: farmer.email,
-        status: farmer.user_presence?.[0]?.status || 'offline',
-        last_seen: farmer.user_presence?.[0]?.last_seen || new Date().toISOString(),
+        status: farmer.user_presence?.[0]?.status || "offline",
+        last_seen:
+          farmer.user_presence?.[0]?.last_seen || new Date().toISOString(),
       }));
 
       // Sort by status (online first, then away, then offline) and then by name
@@ -283,7 +316,7 @@ export const chatService = {
         return a.name.localeCompare(b.name);
       });
     } catch (error) {
-      console.error('Failed to fetch online farmers:', error);
+      console.error("Failed to fetch online farmers:", error);
       return [];
     }
   },
@@ -291,24 +324,30 @@ export const chatService = {
   /**
    * Subscribe to new messages in a conversation
    */
-  subscribeToMessages(conversationId: string, callback: (message: Message) => void) {
+  subscribeToMessages(
+    conversationId: string,
+    callback: (message: Message) => void,
+  ) {
     const channel = supabase
       .channel(`messages:${conversationId}`)
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
           filter: `conversation_id=eq.${conversationId}`,
         },
         (payload) => {
-          console.log('📨 New message received via realtime:', payload.new);
+          console.log("📨 New message received via realtime:", payload.new);
           callback(payload.new as Message);
-        }
+        },
       )
       .subscribe((status) => {
-        console.log(`🔌 Messages subscription status for ${conversationId}:`, status);
+        console.log(
+          `🔌 Messages subscription status for ${conversationId}:`,
+          status,
+        );
       });
 
     return () => {
@@ -320,20 +359,23 @@ export const chatService = {
   /**
    * Subscribe to message updates (read status, etc.)
    */
-  subscribeToMessageUpdates(conversationId: string, callback: (message: Message) => void) {
+  subscribeToMessageUpdates(
+    conversationId: string,
+    callback: (message: Message) => void,
+  ) {
     const channel = supabase
       .channel(`message-updates:${conversationId}`)
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'messages',
+          event: "UPDATE",
+          schema: "public",
+          table: "messages",
           filter: `conversation_id=eq.${conversationId}`,
         },
         (payload) => {
           callback(payload.new as Message);
-        }
+        },
       )
       .subscribe();
 
@@ -345,32 +387,35 @@ export const chatService = {
   /**
    * Subscribe to conversation updates
    */
-  subscribeToConversations(userId: string, callback: (conversation: Conversation) => void) {
+  subscribeToConversations(
+    userId: string,
+    callback: (conversation: Conversation) => void,
+  ) {
     const channel = supabase
       .channel(`conversations:${userId}`)
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*',
-          schema: 'public',
-          table: 'conversations',
+          event: "*",
+          schema: "public",
+          table: "conversations",
           filter: `farmer_id=eq.${userId}`,
         },
         (payload) => {
           callback(payload.new as Conversation);
-        }
+        },
       )
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*',
-          schema: 'public',
-          table: 'conversations',
+          event: "*",
+          schema: "public",
+          table: "conversations",
           filter: `expert_id=eq.${userId}`,
         },
         (payload) => {
           callback(payload.new as Conversation);
-        }
+        },
       )
       .subscribe();
 
@@ -382,20 +427,23 @@ export const chatService = {
   /**
    * Subscribe to typing indicators
    */
-  subscribeToTyping(conversationId: string, callback: (isTyping: boolean, userId: string) => void) {
+  subscribeToTyping(
+    conversationId: string,
+    callback: (isTyping: boolean, userId: string) => void,
+  ) {
     const channel = supabase
       .channel(`typing:${conversationId}`)
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*',
-          schema: 'public',
-          table: 'typing_indicators',
+          event: "*",
+          schema: "public",
+          table: "typing_indicators",
           filter: `conversation_id=eq.${conversationId}`,
         },
         (payload: any) => {
           callback(payload.new.is_typing, payload.new.user_id);
-        }
+        },
       )
       .subscribe();
 
