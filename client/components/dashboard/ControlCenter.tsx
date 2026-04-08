@@ -15,19 +15,31 @@ export const ControlCenter: React.FC = () => {
   const [pumpLoading, setPumpLoading] = useState(false);
   const [fertilizerLoading, setFertilizerLoading] = useState(false);
 
+  // Local state for actuation status (default to off)
+  const [irrigationOn, setIrrigationOn] = useState(false);
+  const [fertilizerOn, setFertilizerOn] = useState(false);
+
+  // Toggle Water Pump
   const handleWaterPump = async () => {
+    if (systemStatus?.isAutonomous) return;
     setPumpLoading(true);
     try {
-      await triggerWaterPump();
+      const newState = !irrigationOn;
+      await triggerWaterPump(newState);
+      setIrrigationOn(newState);
     } finally {
       setPumpLoading(false);
     }
   };
 
+  // Toggle Fertilizer
   const handleFertilizer = async () => {
+    if (systemStatus?.isAutonomous) return;
     setFertilizerLoading(true);
     try {
-      await triggerFertilizer();
+      const newState = !fertilizerOn;
+      await triggerFertilizer(newState);
+      setFertilizerOn(newState);
     } finally {
       setFertilizerLoading(false);
     }
@@ -91,57 +103,71 @@ export const ControlCenter: React.FC = () => {
 
       {/* Control Buttons */}
       <div className="space-y-3">
+        {/* Irrigation Toggle Button */}
         <button
           onClick={handleWaterPump}
           disabled={systemStatus?.isAutonomous || pumpLoading}
-          className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 ${systemStatus?.isAutonomous || pumpLoading
-            ? 'bg-amber-100/30 dark:bg-amber-800/20 border-amber-200/30 dark:border-amber-700/30 cursor-not-allowed opacity-60'
-            : 'bg-gradient-to-r from-blue-100/60 to-cyan-100/60 dark:from-blue-800/30 dark:to-cyan-800/30 border-blue-200/50 dark:border-blue-700/40 hover:shadow-md hover:scale-[1.02] active:scale-[0.98]'
+          className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 group ${systemStatus?.isAutonomous
+              ? 'bg-amber-100/30 dark:bg-amber-800/20 border-amber-200/30 dark:border-amber-700/30 cursor-not-allowed opacity-60'
+              : irrigationOn
+                ? 'bg-blue-600 dark:bg-blue-700 border-blue-500 shadow-md transform hover:scale-[1.01]'
+                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-sm'
             }`}
         >
-          <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${systemStatus?.isAutonomous || pumpLoading
-            ? 'bg-amber-200/30 dark:bg-amber-700/30'
-            : 'bg-blue-500/20 dark:bg-blue-500/30'
+          <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${irrigationOn ? 'bg-white/20 text-white' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 group-hover:bg-blue-200 dark:group-hover:bg-blue-900/50'
             }`}>
-            <Droplet className={`w-6 h-6 ${systemStatus?.isAutonomous || pumpLoading
-              ? 'text-muted-foreground'
-              : 'text-blue-600 dark:text-blue-400'
-              }`} />
+            <Droplet className={`w-6 h-6 ${irrigationOn && pumpLoading ? "animate-pulse" : ""}`} />
           </div>
           <div className="flex-1 text-left">
-            <div className="font-semibold text-foreground">
-              {pumpLoading ? t("control.dispensingWater") : t("control.waterPump")}
+            <div className={`font-semibold ${irrigationOn ? 'text-white' : 'text-gray-900 dark:text-gray-100'}`}>
+              {pumpLoading
+                ? (irrigationOn ? "Stopping..." : "Starting...")
+                : (irrigationOn ? "Stop Irrigation" : "Start Irrigation")
+              }
             </div>
-            <div className="text-xs text-muted-foreground">
-              {t("control.manualIrrigation")}
+            <div className={`text-xs ${irrigationOn ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'}`}>
+              {irrigationOn ? "System Active - Dispensing Water" : "System Idle"}
             </div>
+          </div>
+          <div className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${irrigationOn
+              ? 'bg-white/20 text-white'
+              : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+            }`}>
+            {irrigationOn ? "ON" : "OFF"}
           </div>
         </button>
 
+        {/* Fertilizer Toggle Button */}
         <button
           onClick={handleFertilizer}
           disabled={systemStatus?.isAutonomous || fertilizerLoading}
-          className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 ${systemStatus?.isAutonomous || fertilizerLoading
-            ? 'bg-amber-100/30 dark:bg-amber-800/20 border-amber-200/30 dark:border-amber-700/30 cursor-not-allowed opacity-60'
-            : 'bg-gradient-to-r from-green-100/60 to-emerald-100/60 dark:from-green-800/30 dark:to-emerald-800/30 border-green-200/50 dark:border-green-700/40 hover:shadow-md hover:scale-[1.02] active:scale-[0.98]'
+          className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 group ${systemStatus?.isAutonomous
+              ? 'bg-amber-100/30 dark:bg-amber-800/20 border-amber-200/30 dark:border-amber-700/30 cursor-not-allowed opacity-60'
+              : fertilizerOn
+                ? 'bg-green-600 dark:bg-green-700 border-green-500 shadow-md transform hover:scale-[1.01]'
+                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-700 hover:shadow-sm'
             }`}
         >
-          <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${systemStatus?.isAutonomous || fertilizerLoading
-            ? 'bg-amber-200/30 dark:bg-amber-700/30'
-            : 'bg-green-500/20 dark:bg-green-500/30'
+          <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${fertilizerOn ? 'bg-white/20 text-white' : 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 group-hover:bg-green-200 dark:group-hover:bg-green-900/50'
             }`}>
-            <Leaf className={`w-6 h-6 ${systemStatus?.isAutonomous || fertilizerLoading
-              ? 'text-muted-foreground'
-              : 'text-green-600 dark:text-green-400'
-              }`} />
+            <Leaf className={`w-6 h-6 ${fertilizerOn && fertilizerLoading ? "animate-pulse" : ""}`} />
           </div>
           <div className="flex-1 text-left">
-            <div className="font-semibold text-foreground">
-              {fertilizerLoading ? t("control.dispensingNutrients") : t("control.fertilizer")}
+            <div className={`font-semibold ${fertilizerOn ? 'text-white' : 'text-gray-900 dark:text-gray-100'}`}>
+              {fertilizerLoading
+                ? (fertilizerOn ? "Stopping..." : "Starting...")
+                : (fertilizerOn ? "Stop Fertilizer" : "Start Fertilizer")
+              }
             </div>
-            <div className="text-xs text-muted-foreground">
-              {t("control.manualNutrient")}
+            <div className={`text-xs ${fertilizerOn ? 'text-green-100' : 'text-gray-500 dark:text-gray-400'}`}>
+              {fertilizerOn ? "System Active - Dispensing Nutrients" : "System Idle"}
             </div>
+          </div>
+          <div className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${fertilizerOn
+              ? 'bg-white/20 text-white'
+              : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+            }`}>
+            {fertilizerOn ? "ON" : "OFF"}
           </div>
         </button>
       </div>

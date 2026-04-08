@@ -67,8 +67,9 @@ class IoTServiceClass {
             // Production: use configured API URL
             wsUrl = `${apiBase.replace(/^http/, 'ws')}/iot/ws/telemetry/${farmId}`;
         } else {
-            // Development: connect directly to FastAPI backend on port 8000
-            wsUrl = `ws://localhost:8000/iot/ws/telemetry/${farmId}`;
+            // Development: connect directly to FastAPI backend on port 8000 using dynamic hostname
+            const hostname = window.location.hostname;
+            wsUrl = `ws://${hostname}:8000/iot/ws/telemetry/${farmId}`;
         }
 
         console.log(`[IoTService] 🔌 Connecting to WebSocket: ${wsUrl}`);

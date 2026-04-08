@@ -590,5 +590,64 @@ class AgronomyExpert:
             "season_roadmap": primary_details["season_roadmap"]
         }
 
+    def get_rotation_strategy(
+        self,
+        current_crop: str,
+        n_level: float,
+        moisture: float,
+        soil_type: str = "Clay Loam"
+    ) -> Dict[str, any]:
+        """
+        Crop Rotation Strategist
+        Logic based on soil depletion and climate resilience
+        """
+        # normalize inputs
+        current_crop = current_crop.lower()
+        
+        strategy = {
+            "recommended_crop": "Unknown",
+            "recovery_score": 0,
+            "benefit": "Maintains soil health",
+            "reasoning": "Standard rotation practice"
+        }
+
+        # SCENARIO A: High Nitrogen Depletion (e.g. after Maize)
+        # Maize is a heavy feeder. If N is low (< 250) or just after Maize, suggest Legumes.
+        if "maize" in current_crop:
+            # Suggest Nitrogen Fixer
+            strategy = {
+                "recommended_crop": "Soybean",
+                "recovery_score": 95,
+                "benefit": "Natural Nitrogen Boost 🌿",
+                "reasoning": f"Maize has depleted soil Nitrogen (current: {n_level} ppm). Soybean roots fix atmospheric nitrogen, restoring up to 50kg N/ha naturally."
+            }
+            
+            # Sub-case: Winter/Rabi season alternative
+            if moisture < 40:
+                 strategy["recommended_crop"] = "Chickpea (Harbhara)"
+                 strategy["reasoning"] = f"Maize depleted Nitrogen. Chickpea is drought-tolerant and will restore Nitrogen while requiring less water ({moisture}% current)."
+
+        # SCENARIO B: High Moisture in Clay Soil (Risk of Root Rot)
+        # If moisture is high (>65%) and soil is heavy (Clay Loam)
+        elif moisture > 65 and "clay" in soil_type.lower():
+            # Avoid pulses sensitive to water-logging
+            strategy = {
+                "recommended_crop": "Wheat (Rabi)",
+                "recovery_score": 88,
+                "benefit": "High Moisture Utilization 💧",
+                "reasoning": f"Soil moisture is high ({moisture}%). Wheat thrives on residual moisture in {soil_type}, unlike pulses which risk root rot."
+            }
+            
+        # Default Fallback for Pune Region
+        else:
+             strategy = {
+                "recommended_crop": "Sorghum (Jowar)",
+                "recovery_score": 85,
+                "benefit": "Drought Resilience ☀️",
+                "reasoning": "Sorghum is the most resilient crop for Pune's fluctuating climate, ensuring yield stability."
+            }
+
+        return strategy
+
 # Global instance
 agronomy_expert = AgronomyExpert()

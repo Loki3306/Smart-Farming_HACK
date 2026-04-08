@@ -22,8 +22,7 @@ import {
 } from "../components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "../components/ui/avatar";
 import { AgronomyPlanner } from "../components/dashboard/AgronomyPlanner";
-
-// Time-based farm images (WebP optimized - 94% smaller!)
+import { CropRotationCard } from "../components/dashboard/cards/CropRotationCard";
 import morningImage from "../assets/farm-time-images/morning.webp";
 import afternoonImage from "../assets/farm-time-images/afternoon.webp";
 import eveningImage from "../assets/farm-time-images/evening.webp";
@@ -374,11 +373,14 @@ export const Home: React.FC = () => {
         {/* Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Main Content */}
+          {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Soil Moisture Hero - Now with Live IoT Data */}
             <div data-tour-id="soil-moisture">
               <SoilMoisture />
             </div>
+
+            <CropRotationCard />
           </div>
 
           {/* Right Column - Controls & Sidebar */}

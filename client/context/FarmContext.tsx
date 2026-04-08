@@ -55,8 +55,8 @@ interface FarmContextType {
   refreshWeather: () => Promise<void>;
   refreshBlockchain: () => Promise<void>;
   setAutonomous: (enabled: boolean) => Promise<void>;
-  triggerWaterPump: () => Promise<void>;
-  triggerFertilizer: () => Promise<void>;
+  triggerWaterPump: (state?: boolean) => Promise<void>;
+  triggerFertilizer: (state?: boolean) => Promise<void>;
   addActionLog: (action: ActionLogEntry) => void;
 }
 
@@ -366,16 +366,16 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
     }
   }, []);
 
-  const triggerWaterPump = useCallback(async () => {
+  const triggerWaterPump = useCallback(async (state: boolean = true) => {
     try {
       setLoading(true);
-      const success = await SensorService.triggerWaterPump();
+      const success = await SensorService.triggerWaterPump(state);
       if (success) {
         addActionLog({
           id: `log_${Date.now()}`,
           timestamp: new Date(),
           action: "Water Pump",
-          description: "Manual irrigation triggered – 15L dispensed",
+          description: state ? "Manual irrigation triggered – 15L dispensed" : "Manual irrigation stopped",
           type: "irrigation",
         });
       }
@@ -386,17 +386,16 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
     }
   }, []);
 
-  const triggerFertilizer = useCallback(async () => {
+  const triggerFertilizer = useCallback(async (state: boolean = true) => {
     try {
       setLoading(true);
-      const success = await SensorService.triggerFertilizer();
+      const success = await SensorService.triggerFertilizer(state);
       if (success) {
         addActionLog({
           id: `log_${Date.now()}`,
           timestamp: new Date(),
           action: "Fertilizer",
-          description:
-            "Manual fertilization triggered – 2kg NPK blend dispensed",
+          description: state ? "Manual fertilization triggered – 2kg NPK blend dispensed" : "Manual fertilization stopped",
           type: "fertilization",
         });
       }

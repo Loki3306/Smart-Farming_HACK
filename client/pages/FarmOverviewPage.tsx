@@ -13,6 +13,8 @@ const FarmOverviewPage: React.FC = () => {
   const navigate = useNavigate();
   const [farmData, setFarmData] = useState<FarmMappingData | null>(null);
   const [selectedSection, setSelectedSection] = useState<SectionData | null>(null);
+  const [waterFilter, setWaterFilter] = useState('all');
+  const [showAllWater, setShowAllWater] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   // Add Sensor Data State
   const [sensorData, setSensorData] = useState<any>(null);
@@ -258,7 +260,11 @@ const FarmOverviewPage: React.FC = () => {
               Farm Overview
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
+<<<<<<< Updated upstream
               {farmData.sections.length} sections • {totalArea.toFixed(1)} acres total
+=======
+              {farmData.sections.length} {t('subtitle', { count: Number(totalArea.toFixed(1)) })}
+>>>>>>> Stashed changes
             </p>
           </div>
 
@@ -387,6 +393,7 @@ const FarmOverviewPage: React.FC = () => {
 
         {/* Water Sources Summary */}
         {farmData.waterSources && farmData.waterSources.length > 0 && (
+<<<<<<< Updated upstream
           <div className="mt-8">
             <h2 className="text-xl font-semibold text-gray-800 dark:text-white flex items-center gap-2 mb-4">
               <Waves className="w-5 h-5 text-blue-500" />
@@ -404,7 +411,87 @@ const FarmOverviewPage: React.FC = () => {
                   <span className="text-xs opacity-70">({source.type})</span>
                 </div>
               ))}
+=======
+          <div className="bg-green-50/40 backdrop-blur-sm border border-green-100/50 dark:bg-gray-800 rounded-2xl shadow-sm p-5 md:p-7">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white flex items-center gap-2">
+                <div className="p-2 bg-teal-100 dark:bg-teal-900/30 rounded-xl">
+                  <Waves className="w-5 h-5 text-green-700 dark:text-green-400" />
+                </div>
+                {t('waterSources.title')}
+              </h2>
+
+              {/* Water Source Filter Dropdown */}
+              <div className="relative">
+                <select
+                  value={waterFilter}
+                  onChange={(e) => setWaterFilter(e.target.value)}
+                  className="appearance-none bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 py-2.5 pl-4 pr-10 rounded-xl text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 cursor-pointer"
+                >
+                  <option value="all">All Water Sources</option>
+                  {[...new Set(farmData.waterSources.map(ws => ws.type))].map(type => (
+                    <option key={type} value={type}>
+                      {type.charAt(0).toUpperCase() + type.slice(1).replace('_', ' ')}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
             </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {farmData.waterSources
+                .filter(source => waterFilter === 'all' || source.type === waterFilter)
+                .slice(0, showAllWater ? undefined : 8)
+                .map((source, i) => {
+                  // Fallback name logic: if name is generic (wrapped in parens) or empty, use type
+                  const displayName = (!source.name || source.name.startsWith('('))
+                    ? source.type.charAt(0).toUpperCase() + source.type.slice(1).replace('_', ' ')
+                    : source.name;
+
+                  return (
+                    <div
+                      key={source.id}
+                      className="flex items-center gap-3 p-3 rounded-2xl bg-white dark:bg-gray-700/50 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors border border-gray-100 hover:border-green-100 dark:hover:border-green-800/50 group"
+                      style={{ animationDelay: `${i * 50}ms` }}
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center shadow-sm text-green-600 group-hover:scale-105 transition-transform">
+                        <Droplets className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-medium text-gray-700 dark:text-gray-200 truncate text-sm">
+                          {displayName}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate opacity-70">
+                          {source.type.replace('_', ' ')}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+
+              {farmData.waterSources.filter(source => waterFilter === 'all' || source.type === waterFilter).length === 0 && (
+                <div className="col-span-full py-8 text-center text-gray-400 text-sm">
+                  No water sources found for this filter.
+                </div>
+              )}
+>>>>>>> Stashed changes
+            </div>
+
+            {farmData.waterSources.filter(source => waterFilter === 'all' || source.type === waterFilter).length > 8 && (
+              <div className="mt-4 flex justify-center">
+                <button
+                  onClick={() => setShowAllWater(!showAllWater)}
+                  className="text-sm font-medium text-green-700 hover:text-green-800 flex items-center gap-1 px-4 py-2 hover:bg-green-50 rounded-lg transition-colors"
+                >
+                  {showAllWater ? 'Show Less' : `View All (${farmData.waterSources.filter(source => waterFilter === 'all' || source.type === waterFilter).length})`}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

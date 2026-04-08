@@ -76,7 +76,8 @@ export const CropAdvisor: React.FC<CropAdvisorProps> = ({ sensorData }) => {
                 rainfall: 120.0 // Default or from weather API
             };
 
-            const response = await fetch('http://localhost:8000/iot/recommend-crop', {
+            const hostname = window.location.hostname;
+            const response = await fetch(`http://${hostname}:8000/iot/recommend-crop`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)

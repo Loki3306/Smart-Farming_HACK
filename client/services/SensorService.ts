@@ -42,13 +42,13 @@ class RequestCache {
   private defaultTTL = 5000; // 5 seconds default cache
 
   async get<T>(
-    key: string, 
-    fetcher: () => Promise<T>, 
+    key: string,
+    fetcher: () => Promise<T>,
     ttl: number = this.defaultTTL
   ): Promise<T> {
     const now = Date.now();
     const cached = this.cache.get(key);
-    
+
     // Return cached data if still valid
     if (cached && (now - cached.timestamp) < ttl) {
       return cached.data as T;
@@ -146,7 +146,7 @@ class SensorServiceClass {
     }
 
     const cacheKey = `sensor-data-${farmId}`;
-    
+
     return requestCache.get(cacheKey, async () => {
       try {
         const response = await fetch(`${CONFIG.API_BASE_URL}/sensors/latest?farmId=${farmId}`);
@@ -195,7 +195,7 @@ class SensorServiceClass {
     }
 
     const cacheKey = `system-status-${farmId}`;
-    
+
     return requestCache.get(cacheKey, async () => {
       const response = await fetch(`${CONFIG.API_BASE_URL}/sensors/system-status?farmId=${farmId}`);
       if (!response.ok) throw new Error("Failed to fetch system status");
@@ -219,7 +219,7 @@ class SensorServiceClass {
     if (!response.ok) throw new Error("Failed to set autonomous mode");
   }
 
-  async triggerWaterPump(): Promise<boolean> {
+  async triggerWaterPump(state: boolean = true): Promise<boolean> {
     if (CONFIG.USE_MOCK_DATA) {
       await this.simulateDelay();
       return true;
@@ -229,17 +229,25 @@ class SensorServiceClass {
     if (!farmId || !isUuid(farmId)) {
       throw new Error("No farm selected");
     }
-    const response = await fetch(`${CONFIG.API_BASE_URL}/sensors/actions/water-pump`, {
+
+    // Use Python Proxy to hit real MQTT backend
+    const response = await fetch(`/api/python/iot/control`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ farmId }),
+      body: JSON.stringify({
+        farm_id: farmId,
+        action: "irrigation",
+        value: state,
+        mode: "manual"
+      }),
     });
-    if (!response.ok) throw new Error("Failed to trigger water pump");
+
+    if (!response.ok) throw new Error("Failed to toggle water pump");
     const data = await response.json();
-    return data.success;
+    return data.status === "success";
   }
 
-  async triggerFertilizer(): Promise<boolean> {
+  async triggerFertilizer(state: boolean = true): Promise<boolean> {
     if (CONFIG.USE_MOCK_DATA) {
       await this.simulateDelay();
       return true;
@@ -249,14 +257,22 @@ class SensorServiceClass {
     if (!farmId || !isUuid(farmId)) {
       throw new Error("No farm selected");
     }
-    const response = await fetch(`${CONFIG.API_BASE_URL}/sensors/actions/fertilizer`, {
+
+    // Use Python Proxy to hit real MQTT backend
+    const response = await fetch(`/api/python/iot/control`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ farmId }),
+      body: JSON.stringify({
+        farm_id: farmId,
+        action: "fertilization",
+        value: state,
+        mode: "manual"
+      }),
     });
-    if (!response.ok) throw new Error("Failed to trigger fertilizer");
+
+    if (!response.ok) throw new Error("Failed to toggle fertilizer");
     const data = await response.json();
-    return data.success;
+    return data.status === "success";
   }
 
   async getActionLogs(limit = 50): Promise<ServerActionLog[]> {

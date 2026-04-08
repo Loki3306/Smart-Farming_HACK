@@ -593,7 +593,11 @@ const IrrigationPlannerPage: React.FC = () => {
                         distance: getDistance(selectedSection, source),
                       }))
                       .sort((a, b) => a.distance - b.distance)
+<<<<<<< Updated upstream
                       .slice(0, showAllWaterSources ? undefined : 5)
+=======
+                      .slice(0, showAllWaterSources ? undefined : 8)
+>>>>>>> Stashed changes
                       .map(({ source, distance }) => {
                         const isSelected = selectedWaterSources.some(s => s.id === source.id);
                         const isPrimary = selectedWaterSources[0]?.id === source.id;
@@ -636,7 +640,7 @@ const IrrigationPlannerPage: React.FC = () => {
                         );
                       })}
                   </div>
-                  {waterSources.length > 5 && (
+                  {waterSources.length > 8 && (
                     <button
                       onClick={() => setShowAllWaterSources(!showAllWaterSources)}
                       className="w-full mt-3 py-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 font-medium transition-colors flex items-center justify-center gap-2"
@@ -649,7 +653,11 @@ const IrrigationPlannerPage: React.FC = () => {
                       ) : (
                         <>
                           <ChevronDown className="w-4 h-4" />
+<<<<<<< Updated upstream
                           +{waterSources.length - 5} more
+=======
+                          +{waterSources.length - 8} {t('steps.step2.more')}
+>>>>>>> Stashed changes
                         </>
                       )}
                     </button>

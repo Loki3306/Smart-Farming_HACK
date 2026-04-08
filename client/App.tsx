@@ -17,6 +17,7 @@ import { DashboardLayout } from "./components/layout/DashboardLayout";
 import { Login } from "./pages/Login";
 import { Signup } from "./pages/Signup";
 import { Home } from "./pages/Home";
+import { VoiceChat } from "./pages/voice-chat/VoiceChat";
 import NotFound from "./pages/NotFound";
 
 // Lazy load heavy components to reduce initial bundle size
@@ -206,6 +207,15 @@ function AnimatedRoutes() {
                 <DashboardLayout>
                   <ArticleDetail />
                 </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/voice-chat"
+            element={
+              <ProtectedRoute requireOnboarding>
+                <VoiceChat />
               </ProtectedRoute>
             }
           />

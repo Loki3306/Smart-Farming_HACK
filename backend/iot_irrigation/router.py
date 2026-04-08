@@ -589,12 +589,20 @@ async def control_actuation(command: ActuationCommand):
         "mode": command.mode,
         "timestamp": datetime.utcnow().isoformat()
     })
+
+    # Update global latest data state if we want UI to reflect it immediately
+    # (Optional, but good for UI responsiveness)
+    if mqtt_farm_id in latest_sensor_data:
+        # We don't have a field for actuator state in SensorData yet, 
+        # but we can broadcast a status update
+        pass
     
     return {
         "status": "success",
         "message": f"{command.action} {'activated' if command.value else 'deactivated'}",
         "farm_id": command.farm_id,
-        "mode": command.mode
+        "mode": command.mode,
+        "current_state": command.value
     }
 
 
@@ -646,6 +654,30 @@ async def send_irrigation_command(command: IrrigationCommand):
         }
     else:
         raise HTTPException(status_code=500, detail="Failed to publish command")
+
+class RotationRequest(BaseModel):
+    current_crop: str
+    n_level: float
+    moisture: float
+    soil_type: str = "Clay Loam"
+
+@router.post("/rotation/strategy")
+async def get_rotation_strategy(data: RotationRequest):
+    """
+    Get smart crop rotation Strategy based on current soil state
+    """
+    try:
+        from app.agents.agronomy_expert import agronomy_expert
+        strategy = agronomy_expert.get_rotation_strategy(
+            current_crop=data.current_crop,
+            n_level=data.n_level,
+            moisture=data.moisture,
+            soil_type=data.soil_type
+        )
+        return {"status": "success", "strategy": strategy}
+    except Exception as e:
+        logger.error(f"Rotation Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ============================================================================

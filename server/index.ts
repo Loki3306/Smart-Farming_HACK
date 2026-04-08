@@ -204,6 +204,45 @@ export function createServer() {
     }
   });
 
+  // ============================================================================
+  // GENERIC PYTHON PROXY - Forward /api/python/* to http://localhost:8000/*
+  // ============================================================================
+  app.use("/api/python", async (req, res) => {
+    try {
+      const targetUrl = `${PYTHON_AI_URL}${req.url}`;
+      console.log(`🔌 Proxying ${req.method} ${req.originalUrl} to Internal Python -> ${targetUrl}`);
+
+      const headers: any = {
+        "Content-Type": "application/json",
+      };
+
+      // Copy auth headers if present
+      if (req.headers.authorization) headers.authorization = req.headers.authorization;
+
+      const options: RequestInit = {
+        method: req.method,
+        headers: headers,
+      };
+
+      if (req.method !== "GET" && req.method !== "HEAD" && Object.keys(req.body || {}).length > 0) {
+        options.body = JSON.stringify(req.body);
+      }
+
+      const response = await fetch(targetUrl, options);
+
+      // forward status
+      res.status(response.status);
+
+      // forward json body
+      const data = await response.json();
+      res.json(data);
+
+    } catch (error) {
+      console.error("❌ Python Proxy Error:", error);
+      res.status(502).json({ error: "Backend unavailable during proxy", details: String(error) });
+    }
+  });
+
   // Health check for Python AI backend
   app.get("/api/recommendations/health", async (_req, res) => {
     try {
