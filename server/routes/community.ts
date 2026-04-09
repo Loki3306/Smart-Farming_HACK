@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { supabase } from "../db/supabase";
+import { query } from "../db/neon";
 
 const router = Router();
 
@@ -33,73 +33,55 @@ interface ReactionBody {
 
 /**
  * GET /api/community/posts
- * Fetch all posts with author info and reaction counts
  */
 router.get("/posts", async (req: Request, res: Response) => {
   try {
     const { crop, type, tag, search, limit = 20, offset = 0 } = req.query;
 
-    let query = supabase
-      .from("community_posts")
-      .select(
-        `
-        *,
-        author:farmers!author_id(id, name, phone, farm:farms!farmer_id(city, district, village)),
-        reactions:post_reactions(reaction_type),
-        comment_count:post_comments(count)
-      `,
-      )
-      .order("created_at", { ascending: false })
-      .range(Number(offset), Number(offset) + Number(limit) - 1);
+    const conditions: string[] = [];
+    const values: any[] = [];
+    let idx = 1;
 
-    // Apply filters
-    if (crop) {
-      query = query.eq("crop", crop);
-    }
-    if (type) {
-      query = query.eq("post_type", type);
-    }
-    if (tag) {
-      query = query.contains("tags", [tag]);
-    }
+    if (crop) { conditions.push(`cp.crop = $${idx++}`); values.push(crop); }
+    if (type) { conditions.push(`cp.post_type = $${idx++}`); values.push(type); }
+    if (tag) { conditions.push(`$${idx++} = ANY(cp.tags)`); values.push(tag); }
     if (search) {
-      query = query.or(`content.ilike.%${search}%,crop.ilike.%${search}%`);
+      conditions.push(`(cp.content ILIKE $${idx} OR cp.crop ILIKE $${idx})`);
+      values.push(`%${search}%`); idx++;
     }
 
-    const { data, error } = await query;
+    const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
 
-    if (error) throw error;
+    const postsResult = await query(
+      `SELECT cp.*,
+        json_build_object('id', f.id, 'name', f.name) as author,
+        (SELECT COUNT(*) FROM post_comments pc WHERE pc.post_id = cp.id)::int as comment_count
+       FROM community_posts cp
+       LEFT JOIN farmers f ON f.id = cp.author_id
+       ${where}
+       ORDER BY cp.created_at DESC
+       LIMIT $${idx} OFFSET $${idx + 1}`,
+      [...values, Number(limit), Number(offset)],
+    );
 
-    // Transform data to include reaction counts
-    const posts = data?.map((post) => {
-      const reactionCounts =
-        post.reactions?.reduce((acc: Record<string, number>, r: any) => {
-          acc[r.reaction_type] = (acc[r.reaction_type] || 0) + 1;
-          return acc;
-        }, {}) || {};
+    // Get reaction counts for each post
+    const posts = await Promise.all(
+      postsResult.rows.map(async (post: any) => {
+        const reactResult = await query(
+          `SELECT reaction_type, COUNT(*)::int as count
+           FROM post_reactions WHERE post_id = $1
+           GROUP BY reaction_type`,
+          [post.id],
+        );
+        const reaction_counts: Record<string, number> = {};
+        reactResult.rows.forEach((r: any) => {
+          reaction_counts[r.reaction_type] = r.count;
+        });
+        return { ...post, reaction_counts };
+      }),
+    );
 
-      // Get location from farm data if available
-      const farm = Array.isArray(post.author?.farm)
-        ? post.author?.farm[0]
-        : post.author?.farm;
-      const location = farm
-        ? `${farm.village || farm.city}, ${farm.district}`
-        : "India";
-
-      return {
-        ...post,
-        reactions: undefined, // Remove raw reactions
-        reaction_counts: reactionCounts,
-        comment_count: post.comment_count?.[0]?.count || 0,
-        author: {
-          id: post.author?.id,
-          name: post.author?.name,
-          location: location,
-        },
-      };
-    });
-
-    res.json({ posts, count: posts?.length || 0 });
+    res.json({ posts, count: posts.length });
   } catch (error: any) {
     console.error("Error fetching posts:", error);
     res.status(500).json({ error: error.message });
@@ -108,61 +90,48 @@ router.get("/posts", async (req: Request, res: Response) => {
 
 /**
  * GET /api/community/posts/:id
- * Fetch single post with full details
  */
 router.get("/posts/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const { data: post, error } = await supabase
-      .from("community_posts")
-      .select(
-        `
-        *,
-        author:farmers!author_id(id, name, phone, farm:farms!farmer_id(city, district, village)),
-        comments:post_comments(
-          id, content, is_expert_reply, created_at,
-          author:farmers!author_id(id, name)
-        )
-      `,
-      )
-      .eq("id", id)
-      .single();
+    const [postResult, reactResult, commentsResult] = await Promise.all([
+      query(
+        `SELECT cp.*, json_build_object('id', f.id, 'name', f.name) as author
+         FROM community_posts cp
+         LEFT JOIN farmers f ON f.id = cp.author_id
+         WHERE cp.id = $1`,
+        [id],
+      ),
+      query(
+        `SELECT reaction_type, user_id FROM post_reactions WHERE post_id = $1`,
+        [id],
+      ),
+      query(
+        `SELECT pc.*, json_build_object('id', f.id, 'name', f.name) as author
+         FROM post_comments pc
+         LEFT JOIN farmers f ON f.id = pc.author_id
+         WHERE pc.post_id = $1
+         ORDER BY pc.created_at ASC`,
+        [id],
+      ),
+    ]);
 
-    if (error) throw error;
+    if (!postResult.rows[0]) {
+      return res.status(404).json({ error: "Post not found" });
+    }
 
-    // Get reaction counts
-    const { data: reactions } = await supabase
-      .from("post_reactions")
-      .select("reaction_type, user_id")
-      .eq("post_id", id);
+    const reaction_counts: Record<string, number> = {};
+    reactResult.rows.forEach((r: any) => {
+      reaction_counts[r.reaction_type] = (reaction_counts[r.reaction_type] || 0) + 1;
+    });
 
-    const reactionCounts =
-      reactions?.reduce((acc: Record<string, number>, r) => {
-        acc[r.reaction_type] = (acc[r.reaction_type] || 0) + 1;
-        return acc;
-      }, {}) || {};
-
-    // Get location from farm data
-    const farm = Array.isArray(post.author?.farm)
-      ? post.author?.farm[0]
-      : post.author?.farm;
-    const location = farm
-      ? `${farm.village || farm.city}, ${farm.district}`
-      : "India";
-
-    const transformedPost = {
-      ...post,
-      author: {
-        id: post.author?.id,
-        name: post.author?.name,
-        location: location,
-      },
-      reaction_counts: reactionCounts,
-      reactions_list: reactions, // For checking if current user reacted
-    };
-
-    res.json(transformedPost);
+    res.json({
+      ...postResult.rows[0],
+      reaction_counts,
+      reactions_list: reactResult.rows,
+      comments: commentsResult.rows,
+    });
   } catch (error: any) {
     console.error("Error fetching post:", error);
     res.status(500).json({ error: error.message });
@@ -171,48 +140,28 @@ router.get("/posts/:id", async (req: Request, res: Response) => {
 
 /**
  * POST /api/community/posts
- * Create a new post
  */
 router.post("/posts", async (req: Request, res: Response) => {
   try {
     const body: CreatePostBody = req.body;
 
-    // Validate required fields
     if (!body.author_id || !body.post_type || !body.content) {
-      return res
-        .status(400)
-        .json({
-          error: "Missing required fields: author_id, post_type, content",
-        });
+      return res.status(400).json({ error: "Missing required fields: author_id, post_type, content" });
     }
 
-    const { data, error } = await supabase
-      .from("community_posts")
-      .insert([
-        {
-          author_id: body.author_id,
-          post_type: body.post_type,
-          content: body.content,
-          crop: body.crop || null,
-          method: body.method || null,
-          image_url: body.image_url || null,
-          tags: body.tags || [],
-        },
-      ])
-      .select(
-        `
-        *,
-        author:farmers!author_id(id, name, phone)
-      `,
-      )
-      .single();
+    const result = await query(
+      `INSERT INTO community_posts
+         (author_id, post_type, content, crop, method, image_url, tags)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING *`,
+      [
+        body.author_id, body.post_type, body.content,
+        body.crop || null, body.method || null,
+        body.image_url || null, body.tags || [],
+      ],
+    );
 
-    if (error) throw error;
-
-    // Update community stats
-    await supabase.rpc("update_community_stats");
-
-    res.status(201).json(data);
+    res.status(201).json(result.rows[0]);
   } catch (error: any) {
     console.error("Error creating post:", error);
     res.status(500).json({ error: error.message });
@@ -221,20 +170,16 @@ router.post("/posts", async (req: Request, res: Response) => {
 
 /**
  * DELETE /api/community/posts/:id
- * Delete a post (author only)
  */
 router.delete("/posts/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { author_id } = req.body;
 
-    const { error } = await supabase
-      .from("community_posts")
-      .delete()
-      .eq("id", id)
-      .eq("author_id", author_id); // Only author can delete
-
-    if (error) throw error;
+    await query(
+      `DELETE FROM community_posts WHERE id = $1 AND author_id = $2`,
+      [id, author_id],
+    );
 
     res.json({ success: true });
   } catch (error: any) {
@@ -245,19 +190,13 @@ router.delete("/posts/:id", async (req: Request, res: Response) => {
 
 /**
  * PATCH /api/community/posts/:id
- * Update a post (author only)
  */
 router.patch("/posts/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { author_id, content, post_type, crop, method, tags, image_url } =
-      req.body;
+    const { author_id, content, post_type, crop, method, tags, image_url } = req.body;
 
-    // Build update object with only provided fields
-    const updates: any = {
-      updated_at: new Date().toISOString(),
-    };
-
+    const updates: any = { updated_at: new Date().toISOString() };
     if (content !== undefined) updates.content = content;
     if (post_type !== undefined) updates.post_type = post_type;
     if (crop !== undefined) updates.crop = crop || null;
@@ -265,17 +204,18 @@ router.patch("/posts/:id", async (req: Request, res: Response) => {
     if (tags !== undefined) updates.tags = tags || [];
     if (image_url !== undefined) updates.image_url = image_url || null;
 
-    const { data, error } = await supabase
-      .from("community_posts")
-      .update(updates)
-      .eq("id", id)
-      .eq("author_id", author_id) // Only author can update
-      .select()
-      .single();
+    const keys = Object.keys(updates);
+    const setClauses = keys.map((k, i) => `${k} = $${i + 1}`).join(", ");
+    const values = keys.map((k) => updates[k]);
 
-    if (error) throw error;
+    const result = await query(
+      `UPDATE community_posts SET ${setClauses}
+       WHERE id = $${keys.length + 1} AND author_id = $${keys.length + 2}
+       RETURNING *`,
+      [...values, id, author_id],
+    );
 
-    res.json(data);
+    res.json(result.rows[0]);
   } catch (error: any) {
     console.error("Error updating post:", error);
     res.status(500).json({ error: error.message });
@@ -288,7 +228,6 @@ router.patch("/posts/:id", async (req: Request, res: Response) => {
 
 /**
  * POST /api/community/posts/:id/react
- * Toggle a reaction on a post
  */
 router.post("/posts/:id/react", async (req: Request, res: Response) => {
   try {
@@ -296,36 +235,23 @@ router.post("/posts/:id/react", async (req: Request, res: Response) => {
     const { user_id, reaction_type }: ReactionBody = req.body;
 
     if (!user_id || !reaction_type) {
-      return res
-        .status(400)
-        .json({ error: "Missing required fields: user_id, reaction_type" });
+      return res.status(400).json({ error: "Missing required fields: user_id, reaction_type" });
     }
 
-    // Check if reaction exists
-    const { data: existing } = await supabase
-      .from("post_reactions")
-      .select("id")
-      .eq("post_id", post_id)
-      .eq("user_id", user_id)
-      .eq("reaction_type", reaction_type)
-      .single();
+    const existing = await query(
+      `SELECT id FROM post_reactions
+       WHERE post_id = $1 AND user_id = $2 AND reaction_type = $3`,
+      [post_id, user_id, reaction_type],
+    );
 
-    if (existing) {
-      // Remove reaction (toggle off)
-      const { error } = await supabase
-        .from("post_reactions")
-        .delete()
-        .eq("id", existing.id);
-
-      if (error) throw error;
+    if (existing.rows[0]) {
+      await query(`DELETE FROM post_reactions WHERE id = $1`, [existing.rows[0].id]);
       res.json({ action: "removed", reaction_type });
     } else {
-      // Add reaction
-      const { error } = await supabase
-        .from("post_reactions")
-        .insert([{ post_id, user_id, reaction_type }]);
-
-      if (error) throw error;
+      await query(
+        `INSERT INTO post_reactions (post_id, user_id, reaction_type) VALUES ($1, $2, $3)`,
+        [post_id, user_id, reaction_type],
+      );
       res.json({ action: "added", reaction_type });
     }
   } catch (error: any) {
@@ -336,27 +262,22 @@ router.post("/posts/:id/react", async (req: Request, res: Response) => {
 
 /**
  * GET /api/community/posts/:id/reactions
- * Get all reactions for a post
  */
 router.get("/posts/:id/reactions", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const { data, error } = await supabase
-      .from("post_reactions")
-      .select("reaction_type, user_id")
-      .eq("post_id", id);
+    const result = await query(
+      `SELECT reaction_type, user_id FROM post_reactions WHERE post_id = $1`,
+      [id],
+    );
 
-    if (error) throw error;
+    const counts: Record<string, number> = {};
+    result.rows.forEach((r: any) => {
+      counts[r.reaction_type] = (counts[r.reaction_type] || 0) + 1;
+    });
 
-    // Aggregate counts
-    const counts =
-      data?.reduce((acc: Record<string, number>, r) => {
-        acc[r.reaction_type] = (acc[r.reaction_type] || 0) + 1;
-        return acc;
-      }, {}) || {};
-
-    res.json({ reactions: data, counts });
+    res.json({ reactions: result.rows, counts });
   } catch (error: any) {
     console.error("Error fetching reactions:", error);
     res.status(500).json({ error: error.message });
@@ -369,40 +290,29 @@ router.get("/posts/:id/reactions", async (req: Request, res: Response) => {
 
 /**
  * GET /api/community/posts/:id/comments
- * Get comments for a post with pagination
- * Query params: limit (default 20), offset (default 0)
  */
 router.get("/posts/:id/comments", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const limit = Math.min(parseInt(req.query.limit as string) || 20, 100); // Max 100
+    const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
     const offset = parseInt(req.query.offset as string) || 0;
 
-    // Get total count
-    const { count } = await supabase
-      .from("post_comments")
-      .select("id", { count: "exact", head: true })
-      .eq("post_id", id);
+    const [countResult, result] = await Promise.all([
+      query(`SELECT COUNT(*) FROM post_comments WHERE post_id = $1`, [id]),
+      query(
+        `SELECT pc.*, json_build_object('id', f.id, 'name', f.name) as author
+         FROM post_comments pc
+         LEFT JOIN farmers f ON f.id = pc.author_id
+         WHERE pc.post_id = $1
+         ORDER BY pc.created_at ASC
+         LIMIT $2 OFFSET $3`,
+        [id, limit, offset],
+      ),
+    ]);
 
-    const { data, error } = await supabase
-      .from("post_comments")
-      .select(
-        `
-        *,
-        author:farmers!author_id(id, name:name)
-      `,
-      )
-      .eq("post_id", id)
-      .order("created_at", { ascending: true })
-      .range(offset, offset + limit - 1);
+    const total = parseInt(countResult.rows[0].count, 10);
 
-    if (error) throw error;
-
-    res.json({
-      comments: data,
-      total: count || 0,
-      hasMore: offset + limit < (count || 0),
-    });
+    res.json({ comments: result.rows, total, hasMore: offset + limit < total });
   } catch (error: any) {
     console.error("Error fetching comments:", error);
     res.status(500).json({ error: error.message });
@@ -411,7 +321,6 @@ router.get("/posts/:id/comments", async (req: Request, res: Response) => {
 
 /**
  * POST /api/community/posts/:id/comments
- * Add a comment to a post
  */
 router.post("/posts/:id/comments", async (req: Request, res: Response) => {
   try {
@@ -419,50 +328,30 @@ router.post("/posts/:id/comments", async (req: Request, res: Response) => {
     const { author_id, content }: CreateCommentBody = req.body;
 
     if (!author_id || !content) {
-      return res
-        .status(400)
-        .json({ error: "Missing required fields: author_id, content" });
+      return res.status(400).json({ error: "Missing required fields: author_id, content" });
     }
 
-    // Check if author is an expert
-    const { data: expert } = await supabase
-      .from("experts")
-      .select("id, is_verified")
-      .eq("farmer_id", author_id)
-      .single();
+    const expertResult = await query(
+      `SELECT id, is_verified FROM experts WHERE farmer_id = $1 LIMIT 1`,
+      [author_id],
+    );
+    const is_expert_reply = expertResult.rows[0]?.is_verified || false;
 
-    const is_expert_reply = expert?.is_verified || false;
+    const result = await query(
+      `INSERT INTO post_comments (post_id, author_id, content, is_expert_reply, created_at)
+       VALUES ($1, $2, $3, $4, NOW())
+       RETURNING *`,
+      [post_id, author_id, content, is_expert_reply],
+    );
 
-    const { data, error } = await supabase
-      .from("post_comments")
-      .insert([
-        {
-          post_id,
-          author_id,
-          content,
-          is_expert_reply,
-          created_at: new Date().toISOString(),
-        },
-      ])
-      .select(
-        `
-        *,
-        author:farmers!author_id(id, name)
-      `,
-      )
-      .single();
-
-    if (error) throw error;
-
-    // Update has_expert_reply on post if this is an expert
     if (is_expert_reply) {
-      await supabase
-        .from("community_posts")
-        .update({ has_expert_reply: true })
-        .eq("id", post_id);
+      await query(
+        `UPDATE community_posts SET has_expert_reply = true WHERE id = $1`,
+        [post_id],
+      );
     }
 
-    res.status(201).json(data);
+    res.status(201).json(result.rows[0]);
   } catch (error: any) {
     console.error("Error creating comment:", error);
     res.status(500).json({ error: error.message });
@@ -475,55 +364,35 @@ router.post("/posts/:id/comments", async (req: Request, res: Response) => {
 
 /**
  * GET /api/community/experts
- * Get all experts with stats
  */
 router.get("/experts", async (req: Request, res: Response) => {
   try {
-    const { data: experts, error } = await supabase
-      .from("experts")
-      .select(
-        `
-        *,
-        farmer:farmers!farmer_id(id, name, phone, farm:farms!farmer_id(city, district, village))
-      `,
-      )
-      .eq("is_verified", true)
-      .order("last_active_at", { ascending: false });
+    const expertsResult = await query(
+      `SELECT e.*, f.name, f.phone
+       FROM experts e
+       LEFT JOIN farmers f ON f.id = e.farmer_id
+       WHERE e.is_verified = true
+       ORDER BY e.last_active_at DESC`,
+      [],
+    );
 
-    if (error) throw error;
-
-    // Get follower counts and questions answered for each expert
     const enrichedExperts = await Promise.all(
-      (experts || []).map(async (expert) => {
-        const { count: followerCount } = await supabase
-          .from("expert_follows")
-          .select("*", { count: "exact", head: true })
-          .eq("expert_id", expert.id);
-
-        const { count: questionsAnswered } = await supabase
-          .from("post_comments")
-          .select("*", { count: "exact", head: true })
-          .eq("author_id", expert.farmer_id)
-          .eq("is_expert_reply", true);
+      expertsResult.rows.map(async (expert: any) => {
+        const [followResult, answerResult] = await Promise.all([
+          query(`SELECT COUNT(*) FROM expert_follows WHERE expert_id = $1`, [expert.id]),
+          query(
+            `SELECT COUNT(*) FROM post_comments WHERE author_id = $1 AND is_expert_reply = true`,
+            [expert.farmer_id],
+          ),
+        ]);
 
         const isActiveThisWeek =
-          new Date(expert.last_active_at) >
-          new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-
-        // Get location from farm data
-        const farm = Array.isArray(expert.farmer?.farm)
-          ? expert.farmer?.farm[0]
-          : expert.farmer?.farm;
-        const location = farm
-          ? `${farm.village || farm.city}, ${farm.district}`
-          : "India";
+          new Date(expert.last_active_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
         return {
           ...expert,
-          name: expert.farmer?.name,
-          location: location,
-          followers: followerCount || 0,
-          questionsAnswered: questionsAnswered || 0,
+          followers: parseInt(followResult.rows[0].count, 10),
+          questionsAnswered: parseInt(answerResult.rows[0].count, 10),
           isActiveThisWeek,
         };
       }),
@@ -538,7 +407,6 @@ router.get("/experts", async (req: Request, res: Response) => {
 
 /**
  * POST /api/community/experts/:id/follow
- * Follow or unfollow an expert
  */
 router.post("/experts/:id/follow", async (req: Request, res: Response) => {
   try {
@@ -546,35 +414,22 @@ router.post("/experts/:id/follow", async (req: Request, res: Response) => {
     const { follower_id } = req.body;
 
     if (!follower_id) {
-      return res
-        .status(400)
-        .json({ error: "Missing required field: follower_id" });
+      return res.status(400).json({ error: "Missing required field: follower_id" });
     }
 
-    // Check if already following
-    const { data: existing } = await supabase
-      .from("expert_follows")
-      .select("id")
-      .eq("expert_id", expert_id)
-      .eq("follower_id", follower_id)
-      .single();
+    const existing = await query(
+      `SELECT id FROM expert_follows WHERE expert_id = $1 AND follower_id = $2`,
+      [expert_id, follower_id],
+    );
 
-    if (existing) {
-      // Unfollow
-      const { error } = await supabase
-        .from("expert_follows")
-        .delete()
-        .eq("id", existing.id);
-
-      if (error) throw error;
+    if (existing.rows[0]) {
+      await query(`DELETE FROM expert_follows WHERE id = $1`, [existing.rows[0].id]);
       res.json({ action: "unfollowed" });
     } else {
-      // Follow
-      const { error } = await supabase
-        .from("expert_follows")
-        .insert([{ expert_id, follower_id }]);
-
-      if (error) throw error;
+      await query(
+        `INSERT INTO expert_follows (expert_id, follower_id) VALUES ($1, $2)`,
+        [expert_id, follower_id],
+      );
       res.json({ action: "followed" });
     }
   } catch (error: any) {
@@ -584,76 +439,55 @@ router.post("/experts/:id/follow", async (req: Request, res: Response) => {
 });
 
 // ============================================================================
-// STATS ENDPOINTS
+// STATS & TRENDING ENDPOINTS
 // ============================================================================
 
 /**
  * GET /api/community/stats
- * Get community statistics
  */
 router.get("/stats", async (req: Request, res: Response) => {
   try {
-    // First, update stats
-    await supabase.rpc("update_community_stats");
+    const [farmersResult, postsResult, answeredResult] = await Promise.all([
+      query(`SELECT COUNT(*) FROM farmers`, []),
+      query(`SELECT COUNT(*) FROM community_posts WHERE created_at >= NOW() - INTERVAL '1 day'`, []),
+      query(`SELECT COUNT(*) FROM post_comments WHERE is_expert_reply = true`, []),
+    ]);
 
-    const { data, error } = await supabase
-      .from("community_stats")
-      .select("*")
-      .eq("id", 1)
-      .single();
-
-    if (error) throw error;
-
-    res.json(
-      data || {
-        active_farmers: 0,
-        posts_today: 0,
-        questions_answered_percent: 0,
-      },
-    );
+    res.json({
+      active_farmers: parseInt(farmersResult.rows[0].count, 10),
+      posts_today: parseInt(postsResult.rows[0].count, 10),
+      questions_answered: parseInt(answeredResult.rows[0].count, 10),
+    });
   } catch (error: any) {
     console.error("Error fetching stats:", error);
     res.status(500).json({ error: error.message });
   }
 });
 
-// ============================================================================
-// TRENDING TOPICS ENDPOINTS
-// ============================================================================
-
 /**
  * GET /api/community/trending
- * Get trending topics based on tag usage
  */
 router.get("/trending", async (req: Request, res: Response) => {
   try {
-    // Get posts from last 7 days
-    const sevenDaysAgo = new Date(
-      Date.now() - 7 * 24 * 60 * 60 * 1000,
-    ).toISOString();
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
-    const { data: posts, error } = await supabase
-      .from("community_posts")
-      .select("tags")
-      .gte("created_at", sevenDaysAgo);
+    const result = await query(
+      `SELECT tags FROM community_posts WHERE created_at >= $1`,
+      [sevenDaysAgo],
+    );
 
-    if (error) throw error;
-
-    // Count tag occurrences
     const tagCounts: Record<string, number> = {};
-    posts?.forEach((post) => {
-      post.tags?.forEach((tag: string) => {
+    result.rows.forEach((post: any) => {
+      (post.tags || []).forEach((tag: string) => {
         tagCounts[tag] = (tagCounts[tag] || 0) + 1;
       });
     });
 
-    // Sort by count and get top 5
     const trending = Object.entries(tagCounts)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
       .map(([tag, count], index) => ({
-        tag,
-        posts: count,
+        tag, posts: count,
         heat: index < 2 ? "hot" : index < 4 ? "warm" : "rising",
       }));
 
@@ -664,95 +498,56 @@ router.get("/trending", async (req: Request, res: Response) => {
   }
 });
 
-// ============================================================================
-// AI SUMMARY ENDPOINTS
-// ============================================================================
-
 /**
  * POST /api/community/posts/:id/summarize
- * Generate AI summary for a post
  */
 router.post("/posts/:id/summarize", async (req: Request, res: Response) => {
   try {
     const { id: post_id } = req.params;
 
-    // Check cache first
-    const { data: cached } = await supabase
-      .from("ai_summaries")
-      .select("*")
-      .eq("post_id", post_id)
-      .single();
-
-    if (cached) {
-      return res.json({ summary: cached, cached: true });
+    // Check cache
+    const cached = await query(`SELECT * FROM ai_summaries WHERE post_id = $1 LIMIT 1`, [post_id]);
+    if (cached.rows[0]) {
+      return res.json({ summary: cached.rows[0], cached: true });
     }
 
-    // Fetch post and comments
-    const { data: post } = await supabase
-      .from("community_posts")
-      .select("content")
-      .eq("id", post_id)
-      .single();
+    const [postResult, commentsResult] = await Promise.all([
+      query(`SELECT content FROM community_posts WHERE id = $1`, [post_id]),
+      query(`SELECT content, is_expert_reply FROM post_comments WHERE post_id = $1`, [post_id]),
+    ]);
 
-    const { data: comments } = await supabase
-      .from("post_comments")
-      .select("content, is_expert_reply")
-      .eq("post_id", post_id);
-
-    // Build content for AI
-    const contentForAI = {
-      post: post?.content,
-      comments: comments?.map((c) => ({
-        content: c.content,
-        is_expert: c.is_expert_reply,
-      })),
-    };
-
-    // Call Python AI backend (using existing PYTHON_AI_URL)
     const PYTHON_AI_URL = process.env.PYTHON_AI_URL || "http://localhost:8000";
 
     try {
       const aiResponse = await fetch(`${PYTHON_AI_URL}/api/summarize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(contentForAI),
+        body: JSON.stringify({
+          post: postResult.rows[0]?.content,
+          comments: commentsResult.rows.map((c: any) => ({
+            content: c.content,
+            is_expert: c.is_expert_reply,
+          })),
+        }),
       });
 
       if (aiResponse.ok) {
         const aiData = await aiResponse.json();
-
-        // Cache the result
-        const { data: savedSummary } = await supabase
-          .from("ai_summaries")
-          .insert([
-            {
-              post_id,
-              summary: aiData.summary || "No summary available",
-              common_solution: aiData.common_solution,
-              warnings: aiData.warnings,
-              best_practice: aiData.best_practice,
-            },
-          ])
-          .select()
-          .single();
-
-        return res.json({ summary: savedSummary, cached: false });
+        const saved = await query(
+          `INSERT INTO ai_summaries (post_id, summary, common_solution, warnings, best_practice)
+           VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+          [post_id, aiData.summary || "No summary available", aiData.common_solution, aiData.warnings, aiData.best_practice],
+        );
+        return res.json({ summary: saved.rows[0], cached: false });
       }
     } catch (aiError) {
       console.log("AI service unavailable, using fallback");
     }
 
-    // Fallback if AI is unavailable
     const fallbackSummary = {
       post_id,
-      summary: `This discussion has ${comments?.length || 0} comments. ${
-        comments?.some((c) => c.is_expert_reply)
-          ? "An expert has responded."
-          : ""
-      }`,
-      common_solution: null,
-      warnings: null,
-      best_practice: null,
+      summary: `This discussion has ${commentsResult.rows.length} comments. ${commentsResult.rows.some((c: any) => c.is_expert_reply) ? "An expert has responded." : ""}`,
+      common_solution: null, warnings: null, best_practice: null,
     };
 
     res.json({ summary: fallbackSummary, cached: false, fallback: true });

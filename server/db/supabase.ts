@@ -1,173 +1,140 @@
-import { createClient, SupabaseClient } from "@supabase/supabase-js";
+/**
+ * server/db/supabase.ts
+ *
+ * DB helper layer — previously Supabase, now backed by Neon PostgreSQL via pg.
+ * The exported `db` object interface is UNCHANGED so no routes need modification.
+ */
 
-// Lazy initialization to prevent throwing at config load time (vite imports server)
-let _supabase: SupabaseClient | null = null;
+import { query } from "./neon";
 
-function getSupabaseClient(): SupabaseClient {
-  if (_supabase) return _supabase;
-
-  const SUPABASE_URL = process.env.SUPABASE_URL;
-  const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error(
-      "Missing Supabase credentials. Please set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env file",
-    );
-  }
-
-  _supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-    global: {
-      fetch: (...args) => {
-        return fetch(args[0], {
-          ...args[1],
-          signal: AbortSignal.timeout(10000), // 10 second timeout
-        }).catch((error) => {
-          // Log connection errors but don't throw to prevent server crashes
-          if (error.name === "AbortError") {
-            console.warn("[Supabase] Request timeout after 10s");
-          } else if (
-            error.code === "ECONNRESET" ||
-            error.message?.includes("ECONNRESET")
-          ) {
-            console.warn("[Supabase] Connection reset - network or SSL issue");
-          }
-          throw error;
-        });
-      },
-    },
-  });
-
-  return _supabase;
-}
-
-// Export getter function for lazy initialization
-export const supabase = new Proxy({} as SupabaseClient, {
-  get(_, prop) {
-    return (getSupabaseClient() as any)[prop];
-  },
-});
-
+// ============================================================================
 // Database helper functions
+// ============================================================================
 export const db = {
-  // Farms
-  async getFarms(farmerId: string) {
-    const { data, error } = await supabase
-      .from("farms")
-      .select("*")
-      .eq("farmer_id", farmerId)
-      .order("created_at", { ascending: false });
+  // --------------------------------------------------------------------------
+  // FARMS
+  // --------------------------------------------------------------------------
 
-    if (error) throw error;
-    return data;
+  async getFarms(farmerId: string) {
+    const result = await query(
+      `SELECT * FROM farms
+       WHERE farmer_id = $1
+       ORDER BY created_at DESC`,
+      [farmerId],
+    );
+    return result.rows;
   },
 
   async getFarmById(farmId: string) {
-    const { data, error } = await supabase
-      .from("farms")
-      .select("*")
-      .eq("id", farmId)
-      .single();
-
-    if (error) throw error;
-    return data;
+    const result = await query(
+      `SELECT * FROM farms WHERE id = $1 LIMIT 1`,
+      [farmId],
+    );
+    if (result.rows.length === 0) throw { code: "PGRST116", message: "Not found" };
+    return result.rows[0];
   },
 
   async createFarm(farm: any) {
-    const { data, error } = await supabase
-      .from("farms")
-      .insert([farm])
-      .select()
-      .single();
+    const keys = Object.keys(farm);
+    const values = Object.values(farm);
+    const placeholders = keys.map((_, i) => `$${i + 1}`).join(", ");
+    const cols = keys.join(", ");
 
-    if (error) throw error;
-    return data;
+    const result = await query(
+      `INSERT INTO farms (${cols}) VALUES (${placeholders}) RETURNING *`,
+      values,
+    );
+    return result.rows[0];
   },
 
   async updateFarm(farmId: string, updates: any) {
-    const { data, error } = await supabase
-      .from("farms")
-      .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq("id", farmId)
-      .select()
-      .single();
+    const updatesWithTimestamp = {
+      ...updates,
+      updated_at: new Date().toISOString(),
+    };
 
-    if (error) throw error;
-    return data;
+    const keys = Object.keys(updatesWithTimestamp);
+    const values = Object.values(updatesWithTimestamp);
+    const setClauses = keys.map((k, i) => `${k} = $${i + 1}`).join(", ");
+
+    const result = await query(
+      `UPDATE farms SET ${setClauses}
+       WHERE id = $${keys.length + 1}
+       RETURNING *`,
+      [...values, farmId],
+    );
+    if (result.rows.length === 0) throw new Error("Farm not found");
+    return result.rows[0];
   },
 
-  // Sensors
-  async getLatestSensorData(farmId: string) {
-    const { data, error } = await supabase
-      .from("sensor_readings")
-      .select("*")
-      .eq("farm_id", farmId)
-      .order("timestamp", { ascending: false })
-      .limit(1)
-      .single();
+  // --------------------------------------------------------------------------
+  // SENSORS
+  // --------------------------------------------------------------------------
 
-    if (error) {
-      // If no data exists, return null instead of throwing
-      if (error.code === "PGRST116") return null;
-      throw error;
-    }
-    return data;
+  async getLatestSensorData(farmId: string) {
+    const result = await query(
+      `SELECT * FROM sensor_readings
+       WHERE farm_id = $1
+       ORDER BY timestamp DESC
+       LIMIT 1`,
+      [farmId],
+    );
+    if (result.rows.length === 0) return null; // matches old PGRST116 behaviour
+    return result.rows[0];
   },
 
   async saveSensorData(sensorData: any) {
-    const { data, error } = await supabase
-      .from("sensor_readings")
-      .insert([sensorData])
-      .select()
-      .single();
+    const keys = Object.keys(sensorData);
+    const values = Object.values(sensorData);
+    const placeholders = keys.map((_, i) => `$${i + 1}`).join(", ");
+    const cols = keys.join(", ");
 
-    if (error) throw error;
-    return data;
+    const result = await query(
+      `INSERT INTO sensor_readings (${cols}) VALUES (${placeholders}) RETURNING *`,
+      values,
+    );
+    return result.rows[0];
   },
 
   async getSensorHistory(farmId: string, limit = 100) {
-    const { data, error } = await supabase
-      .from("sensor_readings")
-      .select("*")
-      .eq("farm_id", farmId)
-      .order("timestamp", { ascending: false })
-      .limit(limit);
-
-    if (error) throw error;
-    return data;
+    const result = await query(
+      `SELECT * FROM sensor_readings
+       WHERE farm_id = $1
+       ORDER BY timestamp DESC
+       LIMIT $2`,
+      [farmId, limit],
+    );
+    return result.rows;
   },
 
-  // Action Logs
-  async getActionLogs(farmerId: string, limit = 50) {
-    const { data, error } = await supabase
-      .from("action_logs")
-      .select("*")
-      .eq("farmer_id", farmerId)
-      .order("timestamp", { ascending: false })
-      .limit(limit);
+  // --------------------------------------------------------------------------
+  // ACTION LOGS
+  // --------------------------------------------------------------------------
 
-    if (error) throw error;
-    return data;
+  async getActionLogs(farmerId: string, limit = 50) {
+    const result = await query(
+      `SELECT * FROM action_logs
+       WHERE farmer_id = $1
+       ORDER BY timestamp DESC
+       LIMIT $2`,
+      [farmerId, limit],
+    );
+    return result.rows;
   },
 
   async getActionLogsSince(farmerId: string, sinceIso: string) {
-    const { data, error } = await supabase
-      .from("action_logs")
-      .select("*")
-      .eq("farmer_id", farmerId)
-      .gt("timestamp", sinceIso)
-      .order("timestamp", { ascending: true });
-
-    if (error) throw error;
-    return data;
+    const result = await query(
+      `SELECT * FROM action_logs
+       WHERE farmer_id = $1
+         AND timestamp > $2
+       ORDER BY timestamp ASC`,
+      [farmerId, sinceIso],
+    );
+    return result.rows;
   },
 
   async createActionLog(log: any) {
-    // DB schema (DB_Scripts/DB_SCHEMA.sql): farmer_id, action, details, timestamp
-    // Keep backward compatibility with older call sites that used action_type/description.
+    // Normalise field names — keep backward compat with old call sites
     const normalized = {
       farmer_id: log?.farmer_id,
       action: log?.action ?? log?.action_type,
@@ -175,39 +142,51 @@ export const db = {
       timestamp: log?.timestamp,
     };
 
-    const { data, error } = await supabase
-      .from("action_logs")
-      .insert([normalized])
-      .select()
-      .single();
+    const keys = Object.keys(normalized).filter(
+      (k) => normalized[k as keyof typeof normalized] !== undefined,
+    );
+    const values = keys.map((k) => normalized[k as keyof typeof normalized]);
+    const placeholders = keys.map((_, i) => `$${i + 1}`).join(", ");
+    const cols = keys.join(", ");
 
-    if (error) throw error;
-    return data;
+    const result = await query(
+      `INSERT INTO action_logs (${cols}) VALUES (${placeholders}) RETURNING *`,
+      values,
+    );
+    return result.rows[0];
   },
 
-  // Farm Settings
-  async getFarmSettings(farmerId: string) {
-    const { data, error } = await supabase
-      .from("farm_settings")
-      .select("*")
-      .eq("farmer_id", farmerId)
-      .single();
+  // --------------------------------------------------------------------------
+  // FARM SETTINGS
+  // --------------------------------------------------------------------------
 
-    if (error) {
-      if (error.code === "PGRST116") return null;
-      throw error;
-    }
-    return data;
+  async getFarmSettings(farmerId: string) {
+    const result = await query(
+      `SELECT * FROM farm_settings WHERE farmer_id = $1 LIMIT 1`,
+      [farmerId],
+    );
+    if (result.rows.length === 0) return null; // matches old PGRST116 behaviour
+    return result.rows[0];
   },
 
   async saveFarmSettings(settings: any) {
-    const { data, error } = await supabase
-      .from("farm_settings")
-      .upsert([settings])
-      .select()
-      .single();
+    const keys = Object.keys(settings);
+    const values = Object.values(settings);
+    const placeholders = keys.map((_, i) => `$${i + 1}`).join(", ");
+    const cols = keys.join(", ");
 
-    if (error) throw error;
-    return data;
+    // Upsert on farmer_id
+    const updateClauses = keys
+      .filter((k) => k !== "farmer_id")
+      .map((k, i) => `${k} = EXCLUDED.${k}`)
+      .join(", ");
+
+    const result = await query(
+      `INSERT INTO farm_settings (${cols}) VALUES (${placeholders})
+       ON CONFLICT (farmer_id) DO UPDATE SET ${updateClauses}
+       RETURNING *`,
+      values,
+    );
+    return result.rows[0];
   },
 };
