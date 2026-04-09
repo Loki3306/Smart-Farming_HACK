@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { RealtimeChannel } from "@supabase/supabase-js";
+// RealtimeChannel replaced by Socket.IO — using local type alias
+type RealtimeChannel = { _event?: string; _cb?: Function; _noop?: boolean; _postId?: string } | null;
 import {
   Post,
   Comment,

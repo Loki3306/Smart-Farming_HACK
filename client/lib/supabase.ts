@@ -1,50 +1,15 @@
-import { createClient, SupabaseClient } from "@supabase/supabase-js";
+/**
+ * client/lib/supabase.ts
+ *
+ * STUB — Supabase has been fully replaced by Neon PostgreSQL + Socket.IO.
+ *
+ * This file exists only to satisfy any remaining import references during
+ * the migration. All actual database access goes through backend API
+ * endpoints (/api/*). Real-time features go through client/lib/socket.ts.
+ *
+ * TODO (Phase 6 cleanup): Delete this file and remove all imports of it.
+ */
 
-// Get Supabase configuration from environment variables (Vite)
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+export const supabase = null;
 
-// Check if credentials are valid (not placeholder values)
-const hasValidCredentials =
-  SUPABASE_URL &&
-  SUPABASE_ANON_KEY &&
-  SUPABASE_URL !== "your_supabase_url_here" &&
-  SUPABASE_URL !== "https://placeholder.supabase.co" &&
-  SUPABASE_ANON_KEY !== "your_supabase_anon_key_here" &&
-  SUPABASE_ANON_KEY !== "placeholder_anon_key_for_development";
-
-if (!hasValidCredentials) {
-  console.warn(
-    "⚠️ Supabase credentials not configured. Running in MOCK DATA mode.\n" +
-      "To use real database:\n" +
-      "1. Get your Supabase credentials from https://supabase.com\n" +
-      "2. Update .env file with VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY",
-  );
-}
-
-// Create a mock client or real client based on credentials
-let supabaseClient: SupabaseClient | null = null;
-
-if (hasValidCredentials) {
-  // Create real Supabase client
-  supabaseClient = createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-    },
-    realtime: {
-      params: {
-        eventsPerSecond: 10,
-      },
-    },
-  });
-} else {
-  // Create a mock client that won't throw errors
-  supabaseClient = null;
-  console.log("📦 Using localStorage for data persistence (mock mode)");
-}
-
-// Export the client (can be null in mock mode)
-export const supabase = supabaseClient as SupabaseClient;
-
-export default supabase;
+export default null;

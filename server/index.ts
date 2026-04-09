@@ -1,6 +1,9 @@
 import "dotenv/config";
+import http from "http";
 import express from "express";
 import cors from "cors";
+import { Server as SocketIOServer } from "socket.io";
+
 import { handleDemo } from "./routes/demo";
 import { sendOtp, verifyOtp } from "./routes/otp";
 import { getFarms, getFarmById, createFarm, updateFarm } from "./routes/farms";
@@ -30,133 +33,140 @@ import diseaseRouter from "./routes/disease";
 import stressRouter from "./routes/stress";
 import { autonomousEngine } from "./autonomous/autonomousEngine";
 
+// Socket.IO handlers
+import { registerChatSocket } from "./socket/chatSocket";
+import { registerPresenceSocket } from "./socket/presenceSocket";
+import { registerNotificationSocket } from "./socket/notificationSocket";
+import { registerCommunitySocket } from "./socket/communitySocket";
+
 // Python AI Backend Configuration
 const PYTHON_AI_URL = process.env.PYTHON_AI_URL || "http://localhost:8000";
 
 export function createServer() {
   const app = express();
 
-  // Middleware
-  app.use(cors());
+  // ── Middleware ────────────────────────────────────────────────────────────
+  app.use(
+    cors({
+      origin: process.env.CLIENT_URL || "*",
+      credentials: true,
+    }),
+  );
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
-  // Example API routes
+  // ── HTTP Server ───────────────────────────────────────────────────────────
+  const httpServer = http.createServer(app);
+
+  // ── Socket.IO ────────────────────────────────────────────────────────────
+  const io = new SocketIOServer(httpServer, {
+    cors: {
+      origin: process.env.CLIENT_URL || "*",
+      methods: ["GET", "POST"],
+      credentials: true,
+    },
+    transports: ["websocket", "polling"],
+  });
+
+  // Attach io to app so routes can access it
+  (app as any).io = io;
+
+  // Register all socket handlers
+  registerChatSocket(io);
+  registerPresenceSocket(io);
+  registerNotificationSocket(io);
+  registerCommunitySocket(io);
+  console.log("🔌 Socket.IO handlers registered");
+
+  // ── REST Routes ───────────────────────────────────────────────────────────
+
   app.get("/api/ping", (_req, res) => {
-    const ping = process.env.PING_MESSAGE ?? "ping";
-    res.json({ message: ping });
+    res.json({ message: process.env.PING_MESSAGE ?? "ping" });
   });
 
   app.get("/api/demo", handleDemo);
 
-  // OTP Routes
+  // OTP
   app.post("/api/otp/send", sendOtp);
   app.post("/api/otp/verify", verifyOtp);
 
-  // ============================================================================
-  // FARM MANAGEMENT - Database CRUD operations
-  // ============================================================================
+  // Farm Management
   app.get("/api/farms", getFarms);
   app.get("/api/farms/:id", getFarmById);
   app.post("/api/farms", createFarm);
   app.put("/api/farms/:id", updateFarm);
 
-  // ============================================================================
-  // SENSOR DATA - IoT sensor readings and system status
-  // ============================================================================
+  // Sensors
   app.get("/api/sensors/latest", getLatestSensorData);
   app.get("/api/sensors/history", getSensorHistory);
   app.get("/api/sensors/action-logs", getActionLogs);
   app.post("/api/sensors", saveSensorData);
   app.get("/api/sensors/system-status", getSystemStatus);
-
-  // Sensor Actions
   app.post("/api/sensors/actions/water-pump", triggerWaterPump);
   app.post("/api/sensors/actions/fertilizer", triggerFertilizer);
 
-  // ============================================================================
-  // SYSTEM CONTROL - Autonomous mode toggle
-  // ============================================================================
+  // System Control
   app.post("/api/system/autonomous", setAutonomous);
   app.get("/api/system/autonomous", getAutonomous);
 
-  // ============================================================================
-  // WEATHER DATA - Real-time weather based on farm GPS location
-  // ============================================================================
+  // Weather
   app.get("/api/weather/current", getCurrentWeather);
   app.get("/api/weather/forecast", getForecast);
   app.get("/api/weather/historical", getHistoricalWeather);
 
-  // =========================================================================
-  // AUTONOMOUS ENGINE - background decisions (irrigation/fertilizer)
-  // =========================================================================
+  // Autonomous Engine
   const isTestRun =
     process.env.NODE_ENV === "test" ||
     process.env.VITEST === "true" ||
     typeof process.env.VITEST === "string";
 
   if (!isTestRun) {
-    // Add a small delay before starting autonomous engine to allow server to fully initialize
     setTimeout(() => {
       autonomousEngine.start();
     }, 2000);
   }
 
-  // ============================================================================
-  // LEARN PLATFORM - Courses, articles, videos, progress tracking
-  // ============================================================================
+  // Learn Platform
   console.log("📚 Registering Learn routes...");
   app.use("/api/learn", learnRouter);
   console.log("✅ Learn routes registered at /api/learn");
 
-  // ============================================================================
-  // COMMUNITY PLATFORM - Real-time posts, reactions, comments, experts
-  // ============================================================================
+  // Community
   console.log("👥 Registering Community routes...");
   app.use("/api/community", communityRouter);
   console.log("✅ Community routes registered at /api/community");
 
-  // ============================================================================
-  // CHAT SYSTEM - Real-time messaging between farmers and experts
-  // ============================================================================
+  // Chat
   console.log("💬 Registering Chat routes...");
   app.use("/api/chat", chatRouter);
   console.log("✅ Chat routes registered at /api/chat");
 
-  // ============================================================================
-  // USER PRESENCE - Online/offline status tracking
-  // ============================================================================
+  // Presence
   console.log("👤 Registering Presence routes...");
   app.use("/api/presence", presenceRouter);
   console.log("✅ Presence routes registered at /api/presence");
 
-  // ============================================================================
-  // NOTIFICATIONS - User notifications for interactions
-  // ============================================================================
+  // Notifications
   console.log("🔔 Registering Notifications routes...");
   app.use("/api/notifications", notificationsRouter);
   console.log("✅ Notifications routes registered at /api/notifications");
 
-  // ============================================================================
-  // CHATBOT - AI Support for Farmers (using configured provider - default: Groq)
-  // ============================================================================
+  // Chatbot
   console.log("🤖 Registering Chatbot routes...");
   app.use("/api/chatbot", chatbotRouter);
   console.log("✅ Chatbot routes registered at /api/chatbot");
 
-  //disease detection route
+  // Disease Detection
   console.log("🌿 Registering Disease Detection routes...");
   app.use("/api/disease", diseaseRouter);
   console.log("✅ Disease routes registered at /api/disease");
 
-  // Stress detection route
+  // Stress Detection
   console.log("🌱 Registering Stress Detection routes...");
   app.use("/api/stress", stressRouter);
   console.log("✅ Stress routes registered at /api/stress");
 
-  // ============================================================================
-  // YIELD PREDICTION & TRACKING - ML-based yield prediction and harvest tracking
-  // ============================================================================
+  // Yield Prediction & Tracking
   console.log("🌾 Registering Yield routes...");
   const yieldRoutes = require("./routes/yield");
   app.post("/api/yields/predict", yieldRoutes.predictYield);
@@ -170,49 +180,23 @@ export function createServer() {
   app.put("/api/yields/:id/harvest", yieldRoutes.logHarvest);
   console.log("✅ Yield routes registered at /api/yields");
 
-  // ============================================================================
-  // AI RECOMMENDATIONS PROXY - Forward requests to Python FastAPI backend
-  // ============================================================================
-
+  // AI Recommendations proxy
   app.post("/api/recommendations/predict", async (req, res) => {
     try {
-      console.log(
-        "📤 Forwarding recommendation request to Python AI backend...",
-      );
-
-      // Forward request to Python FastAPI
-      const response = await fetch(
-        `${PYTHON_AI_URL}/api/recommendations/predict`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(req.body),
-        },
-      );
+      const response = await fetch(`${PYTHON_AI_URL}/api/recommendations/predict`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(req.body),
+      });
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(
-          "❌ Python AI backend error:",
-          response.status,
-          errorText,
-        );
-        return res.status(response.status).json({
-          error: "AI recommendation service error",
-          details: errorText,
-        });
+        return res.status(response.status).json({ error: "AI recommendation service error", details: errorText });
       }
 
       const data = await response.json();
-      console.log(
-        `✅ Received ${data.recommendations?.length || 0} recommendations from AI`,
-      );
-
       res.json(data);
     } catch (error) {
-      console.error("❌ Failed to connect to Python AI backend:", error);
       res.status(503).json({
         error: "AI recommendation service unavailable",
         message: "Please ensure Python backend is running on port 8000",
@@ -221,16 +205,11 @@ export function createServer() {
     }
   });
 
-  // Health check for Python AI backend
   app.get("/api/recommendations/health", async (_req, res) => {
     try {
       const response = await fetch(`${PYTHON_AI_URL}/health`);
       const data = await response.json();
-      res.json({
-        express_status: "healthy",
-        python_ai_status: response.ok ? "healthy" : "unhealthy",
-        python_ai_details: data,
-      });
+      res.json({ express_status: "healthy", python_ai_status: response.ok ? "healthy" : "unhealthy", python_ai_details: data });
     } catch (error) {
       res.status(503).json({
         express_status: "healthy",
@@ -240,5 +219,6 @@ export function createServer() {
     }
   });
 
-  return app;
+  // Return both app and httpServer so the entry point can listen on httpServer
+  return { app, httpServer, io };
 }

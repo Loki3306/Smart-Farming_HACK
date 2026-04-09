@@ -2,9 +2,9 @@
 Delete the old regime to fix duplicate constraint violation
 """
 from app.db.regime_db import RegimeDatabase
-from app.services.supabase_client import get_supabase_client
+from app.db.regime_db import RegimeDatabase
 
-db = RegimeDatabase(get_supabase_client())
+db = RegimeDatabase()  # Uses Neon internally
 
 # The farmer ID that has the duplicate
 farmer_id = '666c19f9-af42-4361-b252-505b16974b89'

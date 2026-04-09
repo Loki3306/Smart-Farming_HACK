@@ -1,4 +1,4 @@
-import { db } from "../db/supabase";
+import { db } from "../db/supabase"; // backed by Neon via neon.ts
 import {
   autonomousStateStore,
   type FarmAutomationState,

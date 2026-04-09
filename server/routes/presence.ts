@@ -1,7 +1,10 @@
 import { Router, Request, Response } from "express";
-import { supabase } from "../db/supabase";
+import { query } from "../db/neon";
 
 const router = Router();
+
+// In-memory presence store for ultra-fast reads (Socket.IO will replace this)
+const presenceCache = new Map<string, { status: string; last_seen: string | null; updated_at: string }>();
 
 // =====================================================
 // USER PRESENCE ENDPOINTS
@@ -9,38 +12,29 @@ const router = Router();
 
 /**
  * GET /api/presence/:userId
- * Get user's presence status
  */
 router.get("/:userId", async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
 
-    const { data: presence, error } = await supabase
-      .from("user_presence")
-      .select("*")
-      .eq("user_id", userId)
-      .single();
-
-    if (error && error.code !== "PGRST116") {
-      // PGRST116 is "not found" error
-      throw error;
+    // Check in-memory cache first
+    if (presenceCache.has(userId)) {
+      return res.json({ user_id: userId, ...presenceCache.get(userId) });
     }
 
-    // If no presence record, user is offline
-    if (!presence) {
-      return res.json({
-        user_id: userId,
-        status: "offline",
-        last_seen: null,
-      });
+    const result = await query(
+      `SELECT * FROM user_presence WHERE user_id = $1 LIMIT 1`,
+      [userId],
+    );
+
+    if (!result.rows[0]) {
+      return res.json({ user_id: userId, status: "offline", last_seen: null });
     }
 
-    res.json(presence);
+    res.json(result.rows[0]);
   } catch (error: any) {
     console.error("Error fetching user presence:", error);
-    res
-      .status(500)
-      .json({ error: error.message || "Failed to fetch user presence" });
+    res.status(500).json({ error: error.message || "Failed to fetch user presence" });
   }
 });
 
@@ -52,156 +46,130 @@ router.put("/", async (req: Request, res: Response) => {
   try {
     const { user_id, status } = req.body;
 
-    if (!user_id) {
-      return res.status(400).json({ error: "user_id is required" });
-    }
-
+    if (!user_id) return res.status(400).json({ error: "user_id is required" });
     if (!status || !["online", "offline", "away"].includes(status)) {
-      return res.status(400).json({
-        error: "status must be one of: online, offline, away",
-      });
+      return res.status(400).json({ error: "status must be one of: online, offline, away" });
     }
 
-    // Upsert presence
-    const { data: presence, error } = await supabase
-      .from("user_presence")
-      .upsert(
-        {
-          user_id,
-          status,
-          last_seen: status === "offline" ? new Date().toISOString() : null,
-          updated_at: new Date().toISOString(),
-        },
-        {
-          onConflict: "user_id",
-        },
-      )
-      .select()
-      .single();
+    const now = new Date().toISOString();
+    const last_seen = status === "offline" ? now : null;
 
-    if (error) throw error;
+    const result = await query(
+      `INSERT INTO user_presence (user_id, status, last_seen, updated_at)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (user_id) DO UPDATE
+       SET status = $2, last_seen = $3, updated_at = $4
+       RETURNING *`,
+      [user_id, status, last_seen, now],
+    );
 
-    res.json(presence);
+    // Update in-memory cache
+    presenceCache.set(user_id, { status, last_seen, updated_at: now });
+
+    res.json(result.rows[0]);
   } catch (error: any) {
     console.error("Error updating presence:", error);
-    res
-      .status(500)
-      .json({ error: error.message || "Failed to update presence" });
+    res.status(500).json({ error: error.message || "Failed to update presence" });
   }
 });
 
 /**
  * POST /api/presence/heartbeat
- * Send heartbeat to keep user online
  */
 router.post("/heartbeat", async (req: Request, res: Response) => {
   try {
     const { user_id } = req.body;
+    if (!user_id) return res.status(400).json({ error: "user_id is required" });
 
-    if (!user_id) {
-      return res.status(400).json({ error: "user_id is required" });
-    }
+    const now = new Date().toISOString();
 
-    // Update last activity timestamp
-    const { error } = await supabase.from("user_presence").upsert(
-      {
-        user_id,
-        status: "online",
-        updated_at: new Date().toISOString(),
-      },
-      {
-        onConflict: "user_id",
-      },
+    await query(
+      `INSERT INTO user_presence (user_id, status, updated_at)
+       VALUES ($1, 'online', $2)
+       ON CONFLICT (user_id) DO UPDATE
+       SET status = 'online', updated_at = $2`,
+      [user_id, now],
     );
 
-    if (error) throw error;
+    // Update in-memory cache
+    presenceCache.set(user_id, {
+      status: "online",
+      last_seen: null,
+      updated_at: now,
+    });
 
     res.json({ success: true });
   } catch (error: any) {
     console.error("Error sending heartbeat:", error);
-    res
-      .status(500)
-      .json({ error: error.message || "Failed to send heartbeat" });
+    res.status(500).json({ error: error.message || "Failed to send heartbeat" });
   }
 });
 
 /**
  * GET /api/presence/bulk
- * Get presence status for multiple users
  */
 router.get("/bulk", async (req: Request, res: Response) => {
   try {
     const { user_ids } = req.query;
+    if (!user_ids) return res.status(400).json({ error: "user_ids is required" });
 
-    if (!user_ids) {
-      return res.status(400).json({ error: "user_ids is required" });
-    }
+    const userIdArray = (user_ids as string).split(",").filter((id) => id.trim());
+    if (userIdArray.length === 0) return res.json({ presence: [] });
 
-    const userIdArray = (user_ids as string)
-      .split(",")
-      .filter((id) => id.trim());
-
-    if (userIdArray.length === 0) {
-      return res.json({ presence: [] });
-    }
-
-    const { data: presenceList, error } = await supabase
-      .from("user_presence")
-      .select("*")
-      .in("user_id", userIdArray);
-
-    if (error) throw error;
-
-    // Create map for quick lookup
-    const presenceMap = new Map(
-      (presenceList || []).map((p) => [p.user_id, p]),
+    const result = await query(
+      `SELECT * FROM user_presence WHERE user_id = ANY($1)`,
+      [userIdArray],
     );
 
-    // Fill in offline status for users without presence records
-    const result = userIdArray.map((userId) => {
-      const presence = presenceMap.get(userId);
-      return (
-        presence || {
-          user_id: userId,
-          status: "offline",
-          last_seen: null,
-        }
-      );
-    });
+    const presenceMap = new Map(result.rows.map((p: any) => [p.user_id, p]));
 
-    res.json({ presence: result });
+    const presence = userIdArray.map((userId) =>
+      presenceMap.get(userId) || { user_id: userId, status: "offline", last_seen: null },
+    );
+
+    res.json({ presence });
   } catch (error: any) {
     console.error("Error fetching bulk presence:", error);
-    res
-      .status(500)
-      .json({ error: error.message || "Failed to fetch bulk presence" });
+    res.status(500).json({ error: error.message || "Failed to fetch bulk presence" });
   }
 });
 
 /**
  * POST /api/presence/cleanup
- * Run maintenance tasks (cleanup old typing indicators, update away/offline status)
- * Should be called periodically by a cron job or similar
+ * Run maintenance tasks
  */
 router.post("/cleanup", async (req: Request, res: Response) => {
   try {
-    // Run cleanup functions
-    const { data: typingCleanup } = await supabase.rpc(
-      "cleanup_old_typing_indicators",
-    );
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
 
-    const { data: awayCount } = await supabase.rpc("auto_set_away_status");
-
-    const { data: offlineCount } = await supabase.rpc(
-      "auto_set_offline_status",
-    );
+    const [typingResult, awayResult, offlineResult] = await Promise.all([
+      // Clear old typing indicators
+      query(
+        `DELETE FROM typing_indicators WHERE is_typing = true AND updated_at < $1`,
+        [fiveMinutesAgo],
+      ),
+      // Set away for users not seen in 30 min
+      query(
+        `UPDATE user_presence SET status = 'away'
+         WHERE status = 'online' AND updated_at < $1`,
+        [thirtyMinutesAgo],
+      ),
+      // Set offline for users not seen in 1 hour
+      query(
+        `UPDATE user_presence SET status = 'offline', last_seen = NOW()
+         WHERE status IN ('online', 'away') AND updated_at < $1`,
+        [oneHourAgo],
+      ),
+    ]);
 
     res.json({
       success: true,
       cleaned: {
-        typing_indicators: typingCleanup || 0,
-        set_away: awayCount || 0,
-        set_offline: offlineCount || 0,
+        typing_indicators: typingResult.rowCount,
+        set_away: awayResult.rowCount,
+        set_offline: offlineResult.rowCount,
       },
     });
   } catch (error: any) {

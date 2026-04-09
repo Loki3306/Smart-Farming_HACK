@@ -1,10 +1,11 @@
 /**
- * Supabase Service - Database operations with encryption
- * Handles farmer profile storage with encrypted sensitive data
+ * client/services/SupabaseService.ts
+ *
+ * Farmer profile service — previously used Supabase SDK directly.
+ * Now routes all DB writes through the backend API (/api/farms, /api/sensors, etc.)
+ * Falls back to localStorage when offline / unauthenticated.
  */
 
-import { SupabaseClient } from "@supabase/supabase-js";
-import supabase from "../lib/supabase";
 import {
   encryptData,
   decryptData,
@@ -13,29 +14,18 @@ import {
   maskEmail,
 } from "../lib/encryption";
 
-/**
- * Get or create Supabase client
- */
-function getSupabaseClient(): SupabaseClient | null {
-  return supabase;
-}
+// ── Types (unchanged) ──────────────────────────────────────────────────────
 
-/**
- * Farmer profile data interface
- */
 export interface FarmerProfile {
   id?: string;
   fullName: string;
-  phone: string; // Encrypted
-  email: string; // Encrypted
-  password?: string; // Hashed
+  phone: string;
+  email: string;
+  password?: string;
   experience: string;
   createdAt?: string;
 }
 
-/**
- * Farm data interface
- */
 export interface FarmProfile {
   id?: string;
   farmerId?: string;
@@ -51,9 +41,6 @@ export interface FarmProfile {
   createdAt?: string;
 }
 
-/**
- * Sensor data interface
- */
 export interface SensorProfile {
   id?: string;
   farmerId?: string;
@@ -64,112 +51,77 @@ export interface SensorProfile {
   createdAt?: string;
 }
 
+// ── Helpers ────────────────────────────────────────────────────────────────
+
+async function apiPost(path: string, body: object) {
+  const res = await fetch(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `API ${path} failed: ${res.status}`);
+  }
+  return res.json();
+}
+
+async function apiPut(path: string, body: object) {
+  const res = await fetch(path, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `API ${path} failed: ${res.status}`);
+  }
+  return res.json();
+}
+
+// ── Implementation ─────────────────────────────────────────────────────────
+
 /**
  * Save complete farmer onboarding data
  */
 export async function saveFarmerOnboarding(data: {
-  farmer: {
-    fullName: string;
-    phone: string;
-    email: string;
-    password?: string;
-    experience: string;
-  };
-  farm: {
-    farmName: string;
-    state: string;
-    city: string;
-    district: string;
-    village: string;
-    latitude: number;
-    longitude: number;
-    areaAcres: number;
-    soilType: string;
-  };
-  sensor: {
-    connected: boolean;
-    sensorId: string;
-  };
+  farmer: { fullName: string; phone: string; email: string; password?: string; experience: string };
+  farm: { farmName: string; state: string; city: string; district: string; village: string; latitude: number; longitude: number; areaAcres: number; soilType: string };
+  sensor: { connected: boolean; sensorId: string };
 }): Promise<{ success: boolean; farmerId?: string; error?: string }> {
-  const client = getSupabaseClient();
+  const hashedPassword = data.farmer.password ? hashPassword(data.farmer.password) : null;
 
-  // No encryption needed - phone is now plain text in database
-  const hashedPassword = data.farmer.password
-    ? hashPassword(data.farmer.password)
-    : null;
+  const farmerId = localStorage.getItem("user_id");
 
-  // If no Supabase, use localStorage fallback
-  if (!client) {
+  // Offline / pre-auth fallback
+  if (!farmerId) {
     try {
-      const farmerId = `local_${Date.now()}`;
-
+      const localId = `local_${Date.now()}`;
       const localData = {
-        farmer: {
-          id: farmerId,
-          fullName: data.farmer.fullName,
-          phone: data.farmer.phone, // Plain text
-          email: data.farmer.email, // Plain text
-          password: hashedPassword,
-          experience: data.farmer.experience,
-          createdAt: new Date().toISOString(),
-        },
-        farm: {
-          id: `farm_${Date.now()}`,
-          farmerId,
-          ...data.farm,
-          createdAt: new Date().toISOString(),
-        },
-        sensor: data.sensor.connected
-          ? {
-              id: `sensor_${Date.now()}`,
-              farmerId,
-              sensorId: data.sensor.sensorId,
-              sensorType: "smart-sensor",
-              status: "active",
-              mqttTopic: `farm/${farmerId}/sensors`,
-              createdAt: new Date().toISOString(),
-            }
-          : null,
+        farmer: { id: localId, fullName: data.farmer.fullName, phone: data.farmer.phone, email: data.farmer.email, password: hashedPassword, experience: data.farmer.experience, createdAt: new Date().toISOString() },
+        farm: { id: `farm_${Date.now()}`, farmerId: localId, ...data.farm, createdAt: new Date().toISOString() },
+        sensor: data.sensor.connected ? { id: `sensor_${Date.now()}`, farmerId: localId, sensorId: data.sensor.sensorId, sensorType: "smart-sensor", status: "active", mqttTopic: `farm/${localId}/sensors`, createdAt: new Date().toISOString() } : null,
       };
-
       localStorage.setItem("farmerProfile", JSON.stringify(localData));
-      localStorage.setItem("farmerId", farmerId);
+      localStorage.setItem("farmerId", localId);
       localStorage.setItem("farmerName", data.farmer.fullName);
-
-      console.log("[Supabase] Saved to localStorage (fallback mode)");
-      return { success: true, farmerId };
+      console.log("[Service] Saved to localStorage (offline mode)");
+      return { success: true, farmerId: localId };
     } catch (error) {
-      console.error("[Supabase] localStorage save error:", error);
       return { success: false, error: "Failed to save profile" };
     }
   }
 
   try {
-    // Get current user's farmer_id from localStorage (set during signup/login)
-    const farmerId = localStorage.getItem("user_id");
+    // 1. Update farmer record
+    await apiPut(`/api/farms/${farmerId}`, {
+      phone: data.farmer.phone,
+      experience: data.farmer.experience.substring(0, 50) || null,
+    }).catch((e) => console.warn("[Service] Farmer update:", e.message));
 
-    if (!farmerId) {
-      console.error("[Supabase] No user_id found in session");
-      return { success: false, error: "User not authenticated" };
-    }
-
-    // Update existing farmer record with phone (from onboarding)
-    // Phone should already be normalized to +91XXXXXXXXXX format
-    const { error: updateError } = await client
-      .from("farmers")
-      .update({
-        phone: data.farmer.phone, // Normalized format: +91XXXXXXXXXX
-        experience: data.farmer.experience.substring(0, 50) || null,
-      })
-      .eq("id", farmerId);
-
-    if (updateError) {
-      console.error("[Supabase] Farmer update error:", updateError);
-      // Continue anyway, farm data is more important
-    }
-
-    // Prepare farm data
-    const farmData = {
+    // 2. Create farm
+    await apiPost("/api/farms", {
+      farmer_id: farmerId,
       farm_name: data.farm.farmName.substring(0, 255),
       state: data.farm.state.substring(0, 100),
       city: data.farm.city.substring(0, 100),
@@ -179,97 +131,61 @@ export async function saveFarmerOnboarding(data: {
       longitude: data.farm.longitude,
       area_acres: data.farm.areaAcres,
       soil_type: data.farm.soilType.substring(0, 100),
-    };
+    }).catch((e) => console.warn("[Service] Farm insert:", e.message));
 
-    // Insert farm
-    const { error: farmError } = await client.from("farms").insert({
-      farmer_id: farmerId,
-      ...farmData,
-    });
-
-    if (farmError) {
-      console.error("[Supabase] Farm insert error:", farmError);
-      console.error("[Supabase] Failed farm data:", farmData);
-      // Don't fail completely, farmer was created
-    }
-
-    // Insert sensor if connected
+    // 3. Register sensor if connected
     if (data.sensor.connected) {
-      const { error: sensorError } = await client.from("sensors").insert({
+      await apiPost("/api/sensors", {
         farmer_id: farmerId,
         sensor_type: "smart-sensor",
         sensor_id: data.sensor.sensorId,
         status: "active",
         mqtt_topic: `farm/${farmerId}/sensors`,
-      });
-
-      if (sensorError) {
-        console.error("[Supabase] Sensor insert error:", sensorError);
-      }
+      }).catch((e) => console.warn("[Service] Sensor insert:", e.message));
     }
 
-    // Also save to localStorage for quick access
     localStorage.setItem("farmerId", farmerId);
     localStorage.setItem("farmerName", data.farmer.fullName);
 
-    console.log("[Supabase] Profile saved successfully:", farmerId);
+    console.log("[Service] Profile saved successfully:", farmerId);
     return { success: true, farmerId };
   } catch (error) {
-    console.error("[Supabase] Save error:", error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Database error",
-    };
+    console.error("[Service] Save error:", error);
+    return { success: false, error: error instanceof Error ? error.message : "Database error" };
   }
 }
 
 /**
  * Get farmer profile (decrypted)
  */
-export async function getFarmerProfile(
-  farmerId: string,
-): Promise<FarmerProfile | null> {
-  const client = getSupabaseClient();
-
-  if (!client) {
-    // Fallback to localStorage
+export async function getFarmerProfile(farmerId: string): Promise<FarmerProfile | null> {
+  // Offline fallback
+  const stored = localStorage.getItem("farmerProfile");
+  if (stored) {
     try {
-      const stored = localStorage.getItem("farmerProfile");
-      if (stored) {
-        const data = JSON.parse(stored);
-        return {
-          ...data.farmer,
-          phone: decryptData(data.farmer.phone),
-          email: decryptData(data.farmer.email),
-        };
+      const local = JSON.parse(stored);
+      if (local.farmer) {
+        return { ...local.farmer, phone: decryptData(local.farmer.phone), email: decryptData(local.farmer.email) };
       }
-    } catch (error) {
-      console.error("[Supabase] localStorage read error:", error);
-    }
-    return null;
+    } catch { /* ignore */ }
   }
 
   try {
-    const { data, error } = await client
-      .from("farmers")
-      .select("*")
-      .eq("id", farmerId)
-      .single();
-
-    if (error || !data) {
-      return null;
-    }
-
+    const res = await fetch(`/api/farms?farmer_id=${farmerId}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    const farmer = data.farmer || data;
+    if (!farmer) return null;
     return {
-      id: data.id,
-      fullName: data.name,
-      phone: decryptData(data.phone),
-      email: decryptData(data.email),
-      experience: data.experience,
-      createdAt: data.created_at,
+      id: farmer.id,
+      fullName: farmer.name,
+      phone: decryptData(farmer.phone),
+      email: decryptData(farmer.email),
+      experience: farmer.experience,
+      createdAt: farmer.created_at,
     };
   } catch (error) {
-    console.error("[Supabase] Get profile error:", error);
+    console.error("[Service] Get profile error:", error);
     return null;
   }
 }
@@ -277,15 +193,9 @@ export async function getFarmerProfile(
 /**
  * Get farmer profile with masked sensitive data (for display)
  */
-export async function getFarmerProfileMasked(farmerId: string): Promise<{
-  fullName: string;
-  phone: string;
-  email: string;
-  experience: string;
-} | null> {
+export async function getFarmerProfileMasked(farmerId: string) {
   const profile = await getFarmerProfile(farmerId);
   if (!profile) return null;
-
   return {
     fullName: profile.fullName,
     phone: maskPhone(profile.phone),
@@ -295,28 +205,12 @@ export async function getFarmerProfileMasked(farmerId: string): Promise<{
 }
 
 /**
- * Log action to database
+ * Log action to backend
  */
-export async function logAction(
-  farmerId: string,
-  action: string,
-  details: string,
-): Promise<void> {
-  const client = getSupabaseClient();
-
-  if (!client) {
-    // Fallback: log to console
-    console.log(`[Action Log] ${action}: ${details}`);
-    return;
-  }
-
+export async function logAction(farmerId: string, action: string, details: string): Promise<void> {
   try {
-    await client.from("action_logs").insert({
-      farmer_id: farmerId,
-      action,
-      details,
-    });
+    await apiPost("/api/sensors/action-logs", { farmer_id: farmerId, action, details });
   } catch (error) {
-    console.error("[Supabase] Log action error:", error);
+    console.log(`[Action Log] ${action}: ${details}`);
   }
 }

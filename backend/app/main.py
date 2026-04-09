@@ -22,7 +22,7 @@ from app.api import chatbot  # Import chatbot API router
 from app.api import regime_routes  # Import regime system API router
 from app.routes import farm_geometry  # Import farm geometry/mapping API router
 from app.db.regime_db import RegimeDatabase  # Regime database layer
-from app.services.supabase_client import get_supabase_client  # Supabase client
+from app.services.neon_client import get_connection  # Neon PostgreSQL connection pool
 from app.db.base import startup_db, shutdown_db  # Database lifecycle
 from app.locales import LocalizationManager  # I18n helper
 
@@ -943,8 +943,7 @@ async def startup_event():
     # Initialize Regime System database
     print("📊 Initializing Regime System database...")
     try:
-        supabase_client = get_supabase_client()
-        regime_db = RegimeDatabase(supabase_client)
+        regime_db = RegimeDatabase()  # Uses Neon via neon_client internally
         regime_routes.set_regime_db(regime_db)
         print("✅ Regime database initialized")
     except Exception as e:

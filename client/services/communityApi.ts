@@ -1,8 +1,7 @@
-import { RealtimeChannel } from "@supabase/supabase-js";
-import supabase from "../lib/supabase";
+import { getSocket } from "../lib/socket";
 
-// Export supabase for backward compatibility
-export { supabase };
+// Socket.IO replaces Supabase Realtime — type alias for backward compatibility
+type RealtimeChannel = ReturnType<typeof import('socket.io-client').io>;
 
 // ============================================================================
 // REQUEST CACHE - Prevents duplicate API calls
@@ -409,117 +408,55 @@ export const aiApi = {
 // ============================================================================
 
 export const realtime = {
-  /**
-   * Subscribe to new posts
-   */
-  subscribeToNewPosts(callback: (post: any) => void): RealtimeChannel {
-    return supabase
-      .channel("community-posts-insert")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "community_posts" },
-        (payload) => callback(payload.new),
-      )
-      .subscribe();
+  /** Subscribe to new posts via Socket.IO */
+  subscribeToNewPosts(callback: (post: any) => void): any {
+    const s = getSocket();
+    s.emit("community:subscribe");
+    s.on("community:newPost", callback);
+    return { _event: "community:newPost", _cb: callback };
   },
 
-  /**
-   * Subscribe to post updates (trending, expert replies)
-   */
-  subscribeToPostUpdates(callback: (post: any) => void): RealtimeChannel {
-    return supabase
-      .channel("community-posts-update")
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "community_posts" },
-        (payload) => callback(payload.new),
-      )
-      .subscribe();
+  /** Subscribe to post updates (no-op — handled via polling or react-query invalidation) */
+  subscribeToPostUpdates(callback: (post: any) => void): any {
+    return { _noop: true };
   },
 
-  /**
-   * Subscribe to reactions on posts
-   */
+  /** Subscribe to reactions on any post via Socket.IO */
   subscribeToReactions(
     callback: (reaction: any, eventType: "INSERT" | "DELETE") => void,
-  ): RealtimeChannel {
-    return supabase
-      .channel("community-reactions")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "post_reactions" },
-        (payload) => callback(payload.new, "INSERT"),
-      )
-      .on(
-        "postgres_changes",
-        { event: "DELETE", schema: "public", table: "post_reactions" },
-        (payload) => callback(payload.old, "DELETE"),
-      )
-      .subscribe();
+  ): any {
+    const s = getSocket();
+    const handler = (data: any) => callback(data, data.action === "added" ? "INSERT" : "DELETE");
+    s.on("community:reaction", handler);
+    return { _event: "community:reaction", _cb: handler };
   },
 
-  /**
-   * Subscribe to comments on a specific post
-   */
-  subscribeToComments(
-    postId: string,
-    callback: (comment: any) => void,
-  ): RealtimeChannel {
-    return supabase
-      .channel(`comments-${postId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "post_comments",
-          filter: `post_id=eq.${postId}`,
-        },
-        (payload) => callback(payload.new),
-      )
-      .subscribe();
+  /** Subscribe to comments on a specific post via Socket.IO */
+  subscribeToComments(postId: string, callback: (comment: any) => void): any {
+    const s = getSocket();
+    s.emit("community:subscribePost", postId);
+    s.on("community:newComment", callback);
+    return { _event: "community:newComment", _postId: postId, _cb: callback };
   },
 
-  /**
-   * Subscribe to expert follows
-   */
+  /** Subscribe to expert follows (no-op — use polling) */
   subscribeToFollows(
     callback: (follow: any, eventType: "INSERT" | "DELETE") => void,
-  ): RealtimeChannel {
-    return supabase
-      .channel("expert-follows")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "expert_follows" },
-        (payload) => callback(payload.new, "INSERT"),
-      )
-      .on(
-        "postgres_changes",
-        { event: "DELETE", schema: "public", table: "expert_follows" },
-        (payload) => callback(payload.old, "DELETE"),
-      )
-      .subscribe();
+  ): any {
+    return { _noop: true };
   },
 
-  /**
-   * Subscribe to community stats updates
-   */
-  subscribeToStats(callback: (stats: CommunityStats) => void): RealtimeChannel {
-    return supabase
-      .channel("community-stats")
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "community_stats" },
-        (payload) => callback(payload.new as CommunityStats),
-      )
-      .subscribe();
+  /** Subscribe to stats (no-op — use polling) */
+  subscribeToStats(callback: (stats: CommunityStats) => void): any {
+    return { _noop: true };
   },
 
-  /**
-   * Unsubscribe from a channel
-   */
-  unsubscribe(channel: RealtimeChannel): void {
-    supabase.removeChannel(channel);
+  /** Unsubscribe — remove Socket.IO listeners */
+  unsubscribe(channel: any): void {
+    if (!channel || channel._noop) return;
+    const s = getSocket();
+    if (channel._event && channel._cb) s.off(channel._event, channel._cb);
+    if (channel._postId) s.emit("community:unsubscribePost", channel._postId);
   },
 };
 
@@ -528,154 +465,47 @@ export const realtime = {
 // ============================================================================
 
 export const savedPostsApi = {
-  /**
-   * Get all saved posts for a user
-   */
   async getSavedPosts(userId: string): Promise<Post[]> {
-    const { data, error } = await supabase
-      .from("saved_posts")
-      .select(
-        `
-        post_id,
-        community_posts (
-          *,
-          author:farmers!community_posts_author_id_fkey (
-            id,
-            name,
-            location
-          )
-        )
-      `,
-      )
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false });
+    const r = await fetch(`/api/community/saved?user_id=${userId}`);
+    if (!r.ok) return [];
+    const data = await r.json();
+    return data.posts || [];
+  },
 
-    if (error) throw error;
+  async isSaved(userId: string, postId: string): Promise<boolean> {
+    const r = await fetch(`/api/community/saved/${postId}?user_id=${userId}`);
+    if (!r.ok) return false;
+    const data = await r.json();
+    return data.saved || false;
+  },
 
-    // Transform nested data
-    return (data || []).map((saved: any) => {
-      const post = saved.community_posts;
-      return {
-        ...post,
-        author: {
-          id: post.author.id,
-          name: post.author.name,
-          location: post.author.location,
-        },
-        reaction_counts: {
-          helpful: 0,
-          tried: 0,
-          didnt_work: 0,
-          new_idea: 0,
-        },
-        comment_count: 0,
-      };
+  async savePost(userId: string, postId: string): Promise<void> {
+    await fetch(`/api/community/saved`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: userId, post_id: postId }),
     });
   },
 
-  /**
-   * Check if a post is saved by user
-   */
-  async isSaved(userId: string, postId: string): Promise<boolean> {
-    const { data, error } = await supabase
-      .from("saved_posts")
-      .select("id")
-      .eq("user_id", userId)
-      .eq("post_id", postId)
-      .maybeSingle(); // Use maybeSingle() instead of single() to handle 0 rows
-
-    if (error && error.code !== "PGRST116") {
-      console.error("[SavedPosts] Error checking saved status:", error);
-      return false; // Return false instead of throwing
-    }
-    return !!data;
-  },
-
-  /**
-   * Save a post (bookmark)
-   */
-  async savePost(userId: string, postId: string): Promise<void> {
-    const { error } = await supabase
-      .from("saved_posts")
-      .insert({ user_id: userId, post_id: postId });
-
-    if (error) throw error;
-  },
-
-  /**
-   * Unsave a post (remove bookmark)
-   */
   async unsavePost(userId: string, postId: string): Promise<void> {
-    const { error } = await supabase
-      .from("saved_posts")
-      .delete()
-      .eq("user_id", userId)
-      .eq("post_id", postId);
-
-    if (error) throw error;
+    await fetch(`/api/community/saved/${postId}?user_id=${userId}`, { method: "DELETE" });
   },
 
-  /**
-   * Toggle save status for a post
-   */
   async toggleSave(userId: string, postId: string): Promise<boolean> {
     const isSaved = await this.isSaved(userId, postId);
-
-    if (isSaved) {
-      await this.unsavePost(userId, postId);
-      return false;
-    } else {
-      await this.savePost(userId, postId);
-      return true;
-    }
+    if (isSaved) { await this.unsavePost(userId, postId); return false; }
+    await this.savePost(userId, postId); return true;
   },
 
-  /**
-   * Get saved post IDs for a user (for checking saved status in bulk)
-   */
   async getSavedPostIds(userId: string): Promise<Set<string>> {
-    const { data, error } = await supabase
-      .from("saved_posts")
-      .select("post_id")
-      .eq("user_id", userId);
-
-    if (error) {
-      console.error("[SavedPosts] Error fetching saved post IDs:", error);
-      return new Set(); // Return empty set instead of throwing
-    }
-    return new Set((data || []).map((item: any) => item.post_id));
+    const r = await fetch(`/api/community/saved/ids?user_id=${userId}`);
+    if (!r.ok) return new Set();
+    const data = await r.json();
+    return new Set(data.ids || []);
   },
 
-  /**
-   * Subscribe to saved posts changes
-   */
-  subscribeSavedPosts(
-    userId: string,
-    callback: (savedPost: any, eventType: "INSERT" | "DELETE") => void,
-  ): RealtimeChannel {
-    return supabase
-      .channel(`saved-posts-${userId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "saved_posts",
-          filter: `user_id=eq.${userId}`,
-        },
-        (payload) => callback(payload.new, "INSERT"),
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "DELETE",
-          schema: "public",
-          table: "saved_posts",
-          filter: `user_id=eq.${userId}`,
-        },
-        (payload) => callback(payload.old, "DELETE"),
-      )
-      .subscribe();
+  subscribeSavedPosts(userId: string, callback: (sp: any, eventType: "INSERT" | "DELETE") => void): any {
+    return { _noop: true }; // No realtime needed, use polling
   },
 };
 
@@ -690,86 +520,30 @@ export type ShareMethod =
   | "download";
 
 export const sharingApi = {
-  /**
-   * Track a share action
-   */
-  async trackShare(
-    postId: string,
-    userId: string,
-    method: ShareMethod,
-  ): Promise<void> {
-    const { error } = await supabase.from("post_shares").insert({
-      post_id: postId,
-      user_id: userId,
-      share_method: method,
+  async trackShare(postId: string, userId: string, method: ShareMethod): Promise<void> {
+    await fetch(`/api/community/shares`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ post_id: postId, user_id: userId, share_method: method }),
     });
-
-    if (error) throw error;
   },
 
-  /**
-   * Get share count for a post
-   */
   async getShareCount(postId: string): Promise<number> {
-    const { count, error } = await supabase
-      .from("post_shares")
-      .select("*", { count: "exact", head: true })
-      .eq("post_id", postId);
-
-    if (error) throw error;
-    return count || 0;
+    const r = await fetch(`/api/community/shares/${postId}/count`);
+    if (!r.ok) return 0;
+    const data = await r.json();
+    return data.count || 0;
   },
 
-  /**
-   * Get share statistics for a post (by method)
-   */
   async getShareStats(postId: string): Promise<Record<ShareMethod, number>> {
-    const { data, error } = await supabase
-      .from("post_shares")
-      .select("share_method")
-      .eq("post_id", postId);
-
-    if (error) throw error;
-
-    const stats: Record<ShareMethod, number> = {
-      whatsapp: 0,
-      copy_link: 0,
-      native_share: 0,
-      download: 0,
-    };
-
-    (data || []).forEach((share: any) => {
-      if (share.share_method in stats) {
-        stats[share.share_method as ShareMethod]++;
-      }
-    });
-
-    return stats;
+    const r = await fetch(`/api/community/shares/${postId}`);
+    if (!r.ok) return { whatsapp: 0, copy_link: 0, native_share: 0, download: 0 };
+    const data = await r.json();
+    return data.stats || { whatsapp: 0, copy_link: 0, native_share: 0, download: 0 };
   },
 
-  /**
-   * Subscribe to share count changes for a post
-   */
-  subscribeToShares(
-    postId: string,
-    callback: (count: number) => void,
-  ): RealtimeChannel {
-    return supabase
-      .channel(`shares-${postId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "post_shares",
-          filter: `post_id=eq.${postId}`,
-        },
-        async () => {
-          const count = await sharingApi.getShareCount(postId);
-          callback(count);
-        },
-      )
-      .subscribe();
+  subscribeToShares(postId: string, callback: (count: number) => void): any {
+    return { _noop: true };
   },
 };
 

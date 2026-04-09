@@ -1,13 +1,16 @@
 """
-Regime System Database Layer
-Real Supabase integration for persistence
-Handles all CRUD operations for regimes, tasks, and audit logs
+backend/app/db/regime_db.py
+
+Regime System Database Layer — previously Supabase, now Neon PostgreSQL via psycopg2.
+All public method signatures are UNCHANGED so the API routes need no modification.
 """
 
-from typing import Optional, List, Dict, Any
-from datetime import datetime, date
+import json
 import logging
 import re
+from contextlib import contextmanager
+from datetime import datetime, date
+from typing import Optional, List, Dict, Any
 
 from app.services.regime_service import (
     Regime,
@@ -15,56 +18,58 @@ from app.services.regime_service import (
     RegimeStatus,
     TaskStatus,
     regime_to_dict,
-    task_to_dict
+    task_to_dict,
 )
+from app.services.neon_client import get_connection
 
 logger = logging.getLogger(__name__)
 
 # Valid trigger types allowed by database constraint
-VALID_TRIGGER_TYPES = {'auto_refresh', 'manual_update', 'disease_detected', 'weather_change', 'farmer_request'}
+VALID_TRIGGER_TYPES = {
+    "auto_refresh", "manual_update", "disease_detected",
+    "weather_change", "farmer_request",
+}
 
+
+# ---------------------------------------------------------------------------
+# Date/time helpers (unchanged)
+# ---------------------------------------------------------------------------
 
 def parse_datetime_safe(value: Optional[str]) -> Optional[datetime]:
     """
-    Parse datetime from PostgreSQL/Supabase safely.
+    Parse datetime from PostgreSQL safely.
     Handles various formats including truncated microseconds and timezones.
-    Python 3.9's fromisoformat() is strict about microsecond precision.
     """
     if not value:
         return None
-    
+
     value = str(value)
-    
-    # Handle 'Z' timezone indicator (Zulu time)
-    if value.endswith('Z'):
-        value = value[:-1] + '+00:00'
-    
-    # Try standard fromisoformat first
+
+    if value.endswith("Z"):
+        value = value[:-1] + "+00:00"
+
     try:
         return datetime.fromisoformat(value)
     except ValueError:
         pass
-    
-    # Handle truncated microseconds (PostgreSQL often returns 5 digits)
-    match = re.match(r'(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\.?(\d*)(\+.*)?$', value)
+
+    match = re.match(r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\.?(\d*)(\+.*)?$", value)
     if match:
         base = match.group(1)
-        frac = match.group(2) or '0'
-        tz = match.group(3) or ''
-        frac = frac[:6].ljust(6, '0')  # Pad to 6 digits
+        frac = match.group(2) or "0"
+        tz = match.group(3) or ""
+        frac = frac[:6].ljust(6, "0")
         try:
             return datetime.fromisoformat(f"{base}.{frac}{tz}")
         except ValueError:
-            # Try without timezone
             return datetime.fromisoformat(f"{base}.{frac}")
-    
-    # Last resort: try common formats
-    for fmt in ['%Y-%m-%dT%H:%M:%S.%f', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%d']:
+
+    for fmt in ["%Y-%m-%dT%H:%M:%S.%f", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%d"]:
         try:
             return datetime.strptime(value[:26], fmt)
         except ValueError:
             continue
-    
+
     raise ValueError(f"Cannot parse datetime: {value}")
 
 
@@ -72,606 +77,495 @@ def parse_date_safe(value: Optional[str]) -> Optional[date]:
     """Parse date from PostgreSQL safely."""
     if not value:
         return None
-    
-    # If it's a datetime string, parse and extract date
-    dt = parse_datetime_safe(value)
-    if dt:
-        return dt.date()
-    
-    # Try direct date parsing
     try:
         return date.fromisoformat(str(value)[:10])
     except ValueError:
-        raise ValueError(f"Cannot parse date: {value}")
+        dt = parse_datetime_safe(value)
+        return dt.date() if dt else None
 
+
+# ---------------------------------------------------------------------------
+# Row → Regime / RegimeTask reconstruction helpers
+# ---------------------------------------------------------------------------
+
+def _row_to_regime(row: dict, tasks: Optional[List[Any]] = None) -> Regime:
+    regime = Regime(
+        regime_id=row["regime_id"],
+        farmer_id=row["farmer_id"],
+        farm_id=row.get("farm_id"),
+        version=row["version"],
+        name=row["name"],
+        description=row["description"],
+        crop_stage=row["crop_stage"],
+        status=row["status"],
+        valid_from=parse_datetime_safe(str(row["valid_from"])) if row.get("valid_from") else None,
+        valid_until=parse_datetime_safe(str(row["valid_until"])) if row.get("valid_until") else None,
+        auto_refresh_enabled=row["auto_refresh_enabled"],
+        metadata=row.get("metadata") or {},
+        created_at=parse_datetime_safe(str(row["created_at"])) if row.get("created_at") else None,
+        updated_at=parse_datetime_safe(str(row["updated_at"])) if row.get("updated_at") else None,
+        tasks=tasks or [],
+    )
+    return regime
+
+
+def _row_to_task(row: dict) -> RegimeTask:
+    return RegimeTask(
+        task_id=row["task_id"],
+        regime_id=row["regime_id"],
+        parent_recommendation_id=row.get("parent_recommendation_id"),
+        task_type=row["task_type"],
+        task_name=row["task_name"],
+        description=row.get("description"),
+        timing_type=row.get("timing_type"),
+        timing_value=row.get("timing_value"),
+        timing_window_start=parse_date_safe(str(row["timing_window_start"])) if row.get("timing_window_start") else None,
+        timing_window_end=parse_date_safe(str(row["timing_window_end"])) if row.get("timing_window_end") else None,
+        duration_days=row.get("duration_days"),
+        quantity=row.get("quantity"),
+        priority=row.get("priority"),
+        confidence_score=row.get("confidence_score"),
+        status=row.get("status"),
+        dependencies=row.get("dependencies") or [],
+        farmer_notes=row.get("farmer_notes"),
+        completed_at=parse_datetime_safe(str(row["completed_at"])) if row.get("completed_at") else None,
+        overridden=row.get("overridden", False),
+        created_at=parse_datetime_safe(str(row["created_at"])) if row.get("created_at") else None,
+        updated_at=parse_datetime_safe(str(row["updated_at"])) if row.get("updated_at") else None,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Main class
+# ---------------------------------------------------------------------------
 
 class RegimeDatabase:
-    """Database operations for Regime System using Supabase"""
-    
-    def __init__(self, supabase_client):
+    """Database operations for Regime System using Neon PostgreSQL (psycopg2)."""
+
+    def __init__(self, supabase_client=None):
         """
-        Initialize with Supabase client
-        
-        Args:
-            supabase_client: Supabase Python client instance
+        Accepts supabase_client for API compatibility, but ignores it.
+        Connections are managed by neon_client.get_connection().
         """
-        self.supabase = supabase_client
-        logger.info("✓ RegimeDatabase initialized with Supabase client")
-    
+        logger.info("✓ RegimeDatabase initialized with Neon PostgreSQL")
+
     # ========================================================================
-    # Regime CRUD Operations
+    # Regime CRUD
     # ========================================================================
-    
+
     def save_regime(self, regime: Regime, farmer_id: str) -> str:
-        """
-        Save new regime to database.
-        
-        Steps:
-        1. Insert regime record into 'regimes' table
-        2. Insert task records into 'regime_tasks' table
-        3. Create initial version entry in 'regime_versions' table
-        4. Log creation in 'regime_audit_log' table
-        
-        Args:
-            regime: Regime object to save
-            farmer_id: Farmer UUID (for RLS and verification)
-        
-        Returns:
-            regime_id from database
-        
-        Raises:
-            Exception: If database operation fails
-        """
+        """Save new regime to database. Returns regime_id."""
         try:
             logger.info(f"Saving regime to database for farmer {farmer_id}")
-            
-            # Verify farmer_id matches
+
             if regime.farmer_id != farmer_id:
                 raise ValueError(f"Farmer ID mismatch: {regime.farmer_id} != {farmer_id}")
-            
-            # 1. Save regime record
-            regime_data = {
-                'farmer_id': regime.farmer_id,
-                'farm_id': regime.farm_id,
-                'version': regime.version,
-                'name': regime.name,
-                'description': regime.description,
-                'crop_stage': regime.crop_stage,
-                'status': regime.status,
-                'valid_from': regime.valid_from.isoformat(),
-                'valid_until': regime.valid_until.isoformat(),
-                'auto_refresh_enabled': regime.auto_refresh_enabled,
-                'metadata': regime.metadata,
-                'created_at': regime.created_at.isoformat(),
-                'updated_at': regime.updated_at.isoformat()
-            }
-            
-            response = self.supabase.table('regimes').insert(regime_data).execute()
-            regime_id = response.data[0]['regime_id']
-            logger.info(f"✓ Regime saved: {regime_id}")
-            
-            # 2. Save tasks
-            task_records = []
-            for i, task in enumerate(regime.tasks):
-                task.regime_id = regime_id
-                task_record = {
-                    'regime_id': regime_id,
-                    'parent_recommendation_id': task.parent_recommendation_id,
-                    'task_type': task.task_type,
-                    'task_name': task.task_name,
-                    'description': task.description,
-                    'timing_type': task.timing_type,
-                    'timing_value': task.timing_value,
-                    'timing_window_start': task.timing_window_start.isoformat() if task.timing_window_start else None,
-                    'timing_window_end': task.timing_window_end.isoformat() if task.timing_window_end else None,
-                    'duration_days': task.duration_days,
-                    'quantity': task.quantity,
-                    'priority': task.priority,
-                    'confidence_score': task.confidence_score,
-                    'status': task.status,
-                    'dependencies': task.dependencies if task.dependencies else [],
-                    'farmer_notes': task.farmer_notes,
-                    'completed_at': task.completed_at.isoformat() if task.completed_at else None,
-                    'overridden': task.overridden,
-                    'created_at': task.created_at.isoformat() if task.created_at else datetime.now().isoformat(),
-                    'updated_at': task.updated_at.isoformat() if task.updated_at else datetime.now().isoformat()
-                }
-                task_records.append(task_record)
-            
-            if task_records:
-                self.supabase.table('regime_tasks').insert(task_records).execute()
-                logger.info(f"✓ {len(task_records)} tasks saved")
-            
-            # 3. Create version entry
-            self._create_version_entry(
-                regime_id=regime_id,
-                version_number=regime.version,
-                changes_summary=f"Initial regime created with {len(regime.tasks)} tasks",
-                trigger_type='farmer_request',
-                tasks_snapshot=regime_to_dict(regime),
-                created_by='system'
-            )
-            
-            # 4. Log to audit trail
-            self._log_audit(
-                regime_id=regime_id,
-                action_type='regime_created',
-                actor='system',
-                details={
-                    'regime_name': regime.name,
-                    'task_count': len(regime.tasks),
-                    'crop_stage': regime.crop_stage
-                }
-            )
-            
+
+            with get_connection() as conn:
+                with conn.cursor() as cur:
+                    # 1. Insert regime
+                    cur.execute(
+                        """
+                        INSERT INTO regimes
+                          (farmer_id, farm_id, version, name, description, crop_stage,
+                           status, valid_from, valid_until, auto_refresh_enabled,
+                           metadata, created_at, updated_at)
+                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                        RETURNING regime_id
+                        """,
+                        (
+                            regime.farmer_id, regime.farm_id, regime.version,
+                            regime.name, regime.description, regime.crop_stage,
+                            regime.status,
+                            regime.valid_from.isoformat() if regime.valid_from else None,
+                            regime.valid_until.isoformat() if regime.valid_until else None,
+                            regime.auto_refresh_enabled,
+                            json.dumps(regime.metadata),
+                            regime.created_at.isoformat() if regime.created_at else None,
+                            regime.updated_at.isoformat() if regime.updated_at else None,
+                        ),
+                    )
+                    regime_id = cur.fetchone()[0]
+                    logger.info(f"✓ Regime saved: {regime_id}")
+
+                    # 2. Insert tasks
+                    if regime.tasks:
+                        for task in regime.tasks:
+                            task.regime_id = regime_id
+                            cur.execute(
+                                """
+                                INSERT INTO regime_tasks
+                                  (regime_id, parent_recommendation_id, task_type, task_name,
+                                   description, timing_type, timing_value, timing_window_start,
+                                   timing_window_end, duration_days, quantity, priority,
+                                   confidence_score, status, dependencies, farmer_notes,
+                                   completed_at, overridden, created_at, updated_at)
+                                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                                """,
+                                (
+                                    regime_id, task.parent_recommendation_id, task.task_type,
+                                    task.task_name, task.description, task.timing_type,
+                                    task.timing_value,
+                                    task.timing_window_start.isoformat() if task.timing_window_start else None,
+                                    task.timing_window_end.isoformat() if task.timing_window_end else None,
+                                    task.duration_days, task.quantity, task.priority,
+                                    task.confidence_score, task.status,
+                                    json.dumps(task.dependencies or []),
+                                    task.farmer_notes,
+                                    task.completed_at.isoformat() if task.completed_at else None,
+                                    task.overridden,
+                                    task.created_at.isoformat() if task.created_at else datetime.now().isoformat(),
+                                    task.updated_at.isoformat() if task.updated_at else datetime.now().isoformat(),
+                                ),
+                            )
+                        logger.info(f"✓ {len(regime.tasks)} tasks saved")
+
+                    # 3. Version entry
+                    self._create_version_entry_cur(
+                        cur, regime_id, regime.version,
+                        f"Initial regime created with {len(regime.tasks)} tasks",
+                        "farmer_request", regime_to_dict(regime), "system",
+                    )
+
+                    # 4. Audit log
+                    self._log_audit_cur(
+                        cur, regime_id, "regime_created", "system",
+                        {"regime_name": regime.name, "task_count": len(regime.tasks), "crop_stage": regime.crop_stage},
+                    )
+
             logger.info(f"✓ Regime {regime_id} fully saved to database")
             return regime_id
-            
+
         except Exception as e:
-            logger.error(f"Error saving regime: {str(e)}")
+            logger.error(f"Error saving regime: {e}")
             raise
-    
+
     def get_regime(self, regime_id: str, farmer_id: str) -> Optional[Regime]:
-        """
-        Retrieve regime with all nested data.
-        
-        Fetches from:
-        - 'regimes' table (main record)
-        - 'regime_tasks' table (all tasks)
-        
-        RLS policy ensures farmer_id matches.
-        
-        Args:
-            regime_id: Regime UUID
-            farmer_id: Farmer UUID (verified by RLS)
-        
-        Returns:
-            Regime object or None if not found
-        """
+        """Retrieve regime with all tasks. Returns None if not found."""
         try:
             logger.info(f"Retrieving regime {regime_id} for farmer {farmer_id}")
-            
-            # Fetch regime (RLS will enforce farmer_id)
-            regime_response = self.supabase.table('regimes') \
-                .select('*') \
-                .eq('regime_id', regime_id) \
-                .eq('farmer_id', farmer_id) \
-                .execute()
-            
-            if not regime_response.data:
-                logger.warning(f"Regime not found: {regime_id}")
-                return None
-            
-            regime_data = regime_response.data[0]
-            
-            # Fetch tasks
-            tasks_response = self.supabase.table('regime_tasks') \
-                .select('*') \
-                .eq('regime_id', regime_id) \
-                .order('timing_window_start', desc=False) \
-                .execute()
-            
-            # Reconstruct Regime object
-            regime = Regime(
-                regime_id=regime_data['regime_id'],
-                farmer_id=regime_data['farmer_id'],
-                farm_id=regime_data['farm_id'],
-                version=regime_data['version'],
-                name=regime_data['name'],
-                description=regime_data['description'],
-                crop_stage=regime_data['crop_stage'],
-                status=regime_data['status'],
-                valid_from=parse_datetime_safe(regime_data['valid_from']),
-                valid_until=parse_datetime_safe(regime_data['valid_until']),
-                auto_refresh_enabled=regime_data['auto_refresh_enabled'],
-                metadata=regime_data.get('metadata', {}),
-                created_at=parse_datetime_safe(regime_data['created_at']),
-                updated_at=parse_datetime_safe(regime_data['updated_at'])
-            )
-            
-            # Reconstruct tasks
-            tasks = []
-            for task_data in tasks_response.data:
-                task = RegimeTask(
-                    task_id=task_data['task_id'],
-                    regime_id=task_data['regime_id'],
-                    parent_recommendation_id=task_data['parent_recommendation_id'],
-                    task_type=task_data['task_type'],
-                    task_name=task_data['task_name'],
-                    description=task_data['description'],
-                    timing_type=task_data['timing_type'],
-                    timing_value=task_data['timing_value'],
-                    timing_window_start=parse_date_safe(task_data['timing_window_start']),
-                    timing_window_end=parse_date_safe(task_data['timing_window_end']),
-                    duration_days=task_data['duration_days'],
-                    quantity=task_data['quantity'],
-                    priority=task_data['priority'],
-                    confidence_score=task_data['confidence_score'],
-                    status=task_data['status'],
-                    dependencies=task_data['dependencies'] if task_data['dependencies'] else [],
-                    farmer_notes=task_data['farmer_notes'],
-                    completed_at=parse_datetime_safe(task_data['completed_at']),
-                    overridden=task_data['overridden'],
-                    created_at=parse_datetime_safe(task_data['created_at']),
-                    updated_at=parse_datetime_safe(task_data['updated_at'])
-                )
-                tasks.append(task)
-            
-            regime.tasks = tasks
+
+            with get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "SELECT * FROM regimes WHERE regime_id=%s AND farmer_id=%s",
+                        (regime_id, farmer_id),
+                    )
+                    desc = [d[0] for d in cur.description]
+                    row = cur.fetchone()
+                    if not row:
+                        logger.warning(f"Regime not found: {regime_id}")
+                        return None
+                    regime_row = dict(zip(desc, row))
+
+                    cur.execute(
+                        "SELECT * FROM regime_tasks WHERE regime_id=%s ORDER BY timing_window_start ASC",
+                        (regime_id,),
+                    )
+                    task_desc = [d[0] for d in cur.description]
+                    tasks = [_row_to_task(dict(zip(task_desc, r))) for r in cur.fetchall()]
+
+            regime = _row_to_regime(regime_row, tasks)
             logger.info(f"✓ Regime retrieved: {len(tasks)} tasks")
             return regime
-            
+
         except Exception as e:
-            logger.error(f"Error retrieving regime: {str(e)}")
+            logger.error(f"Error retrieving regime: {e}")
             raise
-    
+
     def update_regime(self, regime: Regime, farmer_id: str) -> str:
-        """
-        Update existing regime with new version.
-        
-        Steps:
-        1. Update regime record with new version number
-        2. Replace tasks with new task set
-        3. Create version entry in regime_versions table
-        4. Log update in audit trail
-        
-        Args:
-            regime: Updated Regime object (must have version incremented)
-            farmer_id: Farmer UUID
-        
-        Returns:
-            regime_id
-        """
+        """Update existing regime with new version. Returns regime_id."""
         try:
             logger.info(f"Updating regime {regime.regime_id} to version {regime.version}")
-            
-            # Verify farmer_id
+
             if regime.farmer_id != farmer_id:
                 raise ValueError(f"Farmer ID mismatch: {regime.farmer_id} != {farmer_id}")
-            
-            # 1. Update regime record
-            regime_data = {
-                'version': regime.version,
-                'status': regime.status,
-                'valid_until': regime.valid_until.isoformat(),
-                'metadata': regime.metadata,
-                'updated_at': regime.updated_at.isoformat()
-            }
-            
-            self.supabase.table('regimes') \
-                .update(regime_data) \
-                .eq('regime_id', regime.regime_id) \
-                .eq('farmer_id', farmer_id) \
-                .execute()
-            
-            # 2. Delete old tasks and insert new ones
-            self.supabase.table('regime_tasks') \
-                .delete() \
-                .eq('regime_id', regime.regime_id) \
-                .execute()
-            
-            task_records = []
-            for task in regime.tasks:
-                task.regime_id = regime.regime_id
-                task_record = {
-                    'regime_id': regime.regime_id,
-                    'parent_recommendation_id': task.parent_recommendation_id,
-                    'task_type': task.task_type,
-                    'task_name': task.task_name,
-                    'description': task.description,
-                    'timing_type': task.timing_type,
-                    'timing_value': task.timing_value,
-                    'timing_window_start': task.timing_window_start.isoformat() if task.timing_window_start else None,
-                    'timing_window_end': task.timing_window_end.isoformat() if task.timing_window_end else None,
-                    'duration_days': task.duration_days,
-                    'quantity': task.quantity,
-                    'priority': task.priority,
-                    'confidence_score': task.confidence_score,
-                    'status': task.status,
-                    'dependencies': task.dependencies if task.dependencies else [],
-                    'farmer_notes': task.farmer_notes,
-                    'completed_at': task.completed_at.isoformat() if task.completed_at else None,
-                    'overridden': task.overridden,
-                    'created_at': task.created_at.isoformat() if task.created_at else datetime.now().isoformat(),
-                    'updated_at': task.updated_at.isoformat() if task.updated_at else datetime.now().isoformat()
-                }
-                task_records.append(task_record)
-            
-            if task_records:
-                self.supabase.table('regime_tasks').insert(task_records).execute()
-                logger.info(f"✓ {len(task_records)} tasks updated")
-            
-            # 3. Create version entry
-            self._create_version_entry(
-                regime_id=regime.regime_id,
-                version_number=regime.version,
-                changes_summary=regime.metadata.get('last_updated', 'Updated'),
-                trigger_type=regime.metadata.get('trigger_type', 'manual_update'),
-                tasks_snapshot=regime_to_dict(regime),
-                created_by='system'
-            )
-            
-            # 4. Log update
-            self._log_audit(
-                regime_id=regime.regime_id,
-                action_type='regime_updated',
-                actor='system',
-                details={
-                    'new_version': regime.version,
-                    'task_count': len(regime.tasks),
-                    'trigger': regime.metadata.get('trigger_type', 'manual_update')
-                }
-            )
-            
+
+            with get_connection() as conn:
+                with conn.cursor() as cur:
+                    # 1. Update regime record
+                    cur.execute(
+                        """
+                        UPDATE regimes
+                        SET version=%s, status=%s, valid_until=%s, metadata=%s, updated_at=%s
+                        WHERE regime_id=%s AND farmer_id=%s
+                        """,
+                        (
+                            regime.version, regime.status,
+                            regime.valid_until.isoformat() if regime.valid_until else None,
+                            json.dumps(regime.metadata),
+                            regime.updated_at.isoformat() if regime.updated_at else datetime.now().isoformat(),
+                            regime.regime_id, farmer_id,
+                        ),
+                    )
+
+                    # 2. Replace tasks
+                    cur.execute("DELETE FROM regime_tasks WHERE regime_id=%s", (regime.regime_id,))
+
+                    for task in regime.tasks:
+                        task.regime_id = regime.regime_id
+                        cur.execute(
+                            """
+                            INSERT INTO regime_tasks
+                              (regime_id, parent_recommendation_id, task_type, task_name,
+                               description, timing_type, timing_value, timing_window_start,
+                               timing_window_end, duration_days, quantity, priority,
+                               confidence_score, status, dependencies, farmer_notes,
+                               completed_at, overridden, created_at, updated_at)
+                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                            """,
+                            (
+                                regime.regime_id, task.parent_recommendation_id, task.task_type,
+                                task.task_name, task.description, task.timing_type,
+                                task.timing_value,
+                                task.timing_window_start.isoformat() if task.timing_window_start else None,
+                                task.timing_window_end.isoformat() if task.timing_window_end else None,
+                                task.duration_days, task.quantity, task.priority,
+                                task.confidence_score, task.status,
+                                json.dumps(task.dependencies or []),
+                                task.farmer_notes,
+                                task.completed_at.isoformat() if task.completed_at else None,
+                                task.overridden,
+                                task.created_at.isoformat() if task.created_at else datetime.now().isoformat(),
+                                task.updated_at.isoformat() if task.updated_at else datetime.now().isoformat(),
+                            ),
+                        )
+
+                    logger.info(f"✓ {len(regime.tasks)} tasks updated")
+
+                    # 3. Version entry
+                    self._create_version_entry_cur(
+                        cur, regime.regime_id, regime.version,
+                        regime.metadata.get("last_updated", "Updated"),
+                        regime.metadata.get("trigger_type", "manual_update"),
+                        regime_to_dict(regime), "system",
+                    )
+
+                    # 4. Audit log
+                    self._log_audit_cur(
+                        cur, regime.regime_id, "regime_updated", "system",
+                        {
+                            "new_version": regime.version,
+                            "task_count": len(regime.tasks),
+                            "trigger": regime.metadata.get("trigger_type", "manual_update"),
+                        },
+                    )
+
             logger.info(f"✓ Regime {regime.regime_id} updated to version {regime.version}")
             return regime.regime_id
-            
+
         except Exception as e:
-            logger.error(f"Error updating regime: {str(e)}")
+            logger.error(f"Error updating regime: {e}")
             raise
-    
+
     def archive_regime(self, regime_id: str, farmer_id: str) -> None:
-        """
-        Archive a regime (soft delete).
-        
-        Args:
-            regime_id: Regime UUID
-            farmer_id: Farmer UUID
-        """
+        """Archive a regime (soft delete)."""
         try:
             logger.info(f"Archiving regime {regime_id}")
-            
-            self.supabase.table('regimes') \
-                .update({'status': RegimeStatus.ARCHIVED.value}) \
-                .eq('regime_id', regime_id) \
-                .eq('farmer_id', farmer_id) \
-                .execute()
-            
-            self._log_audit(
-                regime_id=regime_id,
-                action_type='regime_archived',
-                actor='system',
-                details={'archived_at': datetime.now().isoformat()}
-            )
-            
+
+            with get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "UPDATE regimes SET status=%s WHERE regime_id=%s AND farmer_id=%s",
+                        (RegimeStatus.ARCHIVED.value, regime_id, farmer_id),
+                    )
+                    self._log_audit_cur(
+                        cur, regime_id, "regime_archived", "system",
+                        {"archived_at": datetime.now().isoformat()},
+                    )
+
             logger.info(f"✓ Regime {regime_id} archived")
-            
+
         except Exception as e:
-            logger.error(f"Error archiving regime: {str(e)}")
+            logger.error(f"Error archiving regime: {e}")
             raise
-    
+
     def list_regimes(
         self,
         farmer_id: str,
         status: Optional[str] = None,
-        limit: int = 50
+        limit: int = 50,
     ) -> List[Regime]:
-        """
-        List all regimes for a farmer with optional filtering.
-        
-        Args:
-            farmer_id: Farmer UUID to filter by
-            status: Optional status filter (active, completed, archived)
-            limit: Maximum number of regimes to return
-        
-        Returns:
-            List of Regime objects with basic info (tasks not loaded for performance)
-        """
+        """List all regimes for a farmer (tasks not loaded for performance)."""
         try:
             logger.info(f"Listing regimes for farmer {farmer_id}, status={status}, limit={limit}")
-            
-            # Build query
-            query = self.supabase.table('regimes') \
-                .select('*') \
-                .eq('farmer_id', farmer_id)
-            
-            # Add status filter if provided
-            if status:
-                query = query.eq('status', status)
-            
-            # Execute with ordering and limit
-            response = query.order('created_at', desc=True).limit(limit).execute()
-            
-            # Convert to Regime objects (without tasks for performance)
-            regimes = []
-            for regime_data in response.data:
-                # Get task count for this regime
-                tasks_response = self.supabase.table('regime_tasks') \
-                    .select('task_id', count='exact') \
-                    .eq('regime_id', regime_data['regime_id']) \
-                    .execute()
-                
-                task_count = len(tasks_response.data) if tasks_response.data else 0
-                
-                regime = Regime(
-                    regime_id=regime_data['regime_id'],
-                    farmer_id=regime_data['farmer_id'],
-                    farm_id=regime_data.get('farm_id'),
-                    version=regime_data['version'],
-                    name=regime_data['name'],
-                    description=regime_data['description'],
-                    crop_stage=regime_data['crop_stage'],
-                    status=regime_data['status'],
-                    valid_from=parse_datetime_safe(regime_data['valid_from']),
-                    valid_until=parse_datetime_safe(regime_data['valid_until']),
-                    auto_refresh_enabled=regime_data['auto_refresh_enabled'],
-                    metadata=regime_data.get('metadata', {}),
-                    created_at=parse_datetime_safe(regime_data['created_at']),
-                    updated_at=parse_datetime_safe(regime_data['updated_at']),
-                    tasks=[]  # Don't load tasks for list view (performance)
-                )
-                
-                # Add task_count to metadata for frontend
-                regime.metadata['task_count'] = task_count
-                regimes.append(regime)
-            
+
+            with get_connection() as conn:
+                with conn.cursor() as cur:
+                    if status:
+                        cur.execute(
+                            "SELECT * FROM regimes WHERE farmer_id=%s AND status=%s ORDER BY created_at DESC LIMIT %s",
+                            (farmer_id, status, limit),
+                        )
+                    else:
+                        cur.execute(
+                            "SELECT * FROM regimes WHERE farmer_id=%s ORDER BY created_at DESC LIMIT %s",
+                            (farmer_id, limit),
+                        )
+
+                    desc = [d[0] for d in cur.description]
+                    regime_rows = [dict(zip(desc, r)) for r in cur.fetchall()]
+
+                    regimes = []
+                    for row in regime_rows:
+                        cur.execute(
+                            "SELECT COUNT(*) FROM regime_tasks WHERE regime_id=%s",
+                            (row["regime_id"],),
+                        )
+                        task_count = cur.fetchone()[0]
+                        regime = _row_to_regime(row, [])
+                        regime.metadata["task_count"] = task_count
+                        regimes.append(regime)
+
             logger.info(f"✓ Listed {len(regimes)} regimes for farmer {farmer_id}")
             return regimes
-            
+
         except Exception as e:
-            logger.error(f"Error listing regimes: {str(e)}")
+            logger.error(f"Error listing regimes: {e}")
             raise
-    
+
     # ========================================================================
     # Task Operations
     # ========================================================================
-    
+
     def update_task_status(
         self,
         regime_id: str,
         task_id: str,
         new_status: str,
         farmer_id: str,
-        farmer_notes: Optional[str] = None
+        farmer_notes: Optional[str] = None,
     ) -> None:
-        """
-        Update task status and log change.
-        
-        Args:
-            regime_id: Regime UUID
-            task_id: Task UUID
-            new_status: New task status
-            farmer_id: Farmer UUID
-            farmer_notes: Optional farmer notes
-        """
+        """Update task status and log change."""
         try:
             logger.info(f"Updating task {task_id} status to {new_status}")
-            
-            update_data = {
-                'status': new_status,
-                'updated_at': datetime.now().isoformat()
-            }
-            
-            if new_status == TaskStatus.COMPLETED.value:
-                update_data['completed_at'] = datetime.now().isoformat()
-            
-            if farmer_notes:
-                update_data['farmer_notes'] = farmer_notes
-            
-            self.supabase.table('regime_tasks') \
-                .update(update_data) \
-                .eq('task_id', task_id) \
-                .eq('regime_id', regime_id) \
-                .execute()
-            
-            self._log_audit(
-                regime_id=regime_id,
-                action_type='task_status_changed',
-                actor='farmer',
-                details={
-                    'task_id': task_id,
-                    'new_status': new_status,
-                    'notes': farmer_notes
-                }
-            )
-            
+            now = datetime.now().isoformat()
+
+            with get_connection() as conn:
+                with conn.cursor() as cur:
+                    if new_status == TaskStatus.COMPLETED.value:
+                        cur.execute(
+                            """
+                            UPDATE regime_tasks
+                            SET status=%s, updated_at=%s, completed_at=%s, farmer_notes=COALESCE(%s, farmer_notes)
+                            WHERE task_id=%s AND regime_id=%s
+                            """,
+                            (new_status, now, now, farmer_notes, task_id, regime_id),
+                        )
+                    else:
+                        cur.execute(
+                            """
+                            UPDATE regime_tasks
+                            SET status=%s, updated_at=%s, farmer_notes=COALESCE(%s, farmer_notes)
+                            WHERE task_id=%s AND regime_id=%s
+                            """,
+                            (new_status, now, farmer_notes, task_id, regime_id),
+                        )
+
+                    self._log_audit_cur(
+                        cur, regime_id, "task_status_changed", "farmer",
+                        {"task_id": task_id, "new_status": new_status, "notes": farmer_notes},
+                    )
+
             logger.info(f"✓ Task {task_id} status updated")
-            
+
         except Exception as e:
-            logger.error(f"Error updating task status: {str(e)}")
+            logger.error(f"Error updating task status: {e}")
             raise
-    
+
     # ========================================================================
     # History and Audit
     # ========================================================================
-    
+
     def get_regime_history(self, regime_id: str, farmer_id: str) -> List[Dict[str, Any]]:
-        """
-        Get version history for regime.
-        
-        Args:
-            regime_id: Regime UUID
-            farmer_id: Farmer UUID
-        
-        Returns:
-            List of version records
-        """
+        """Get version history for regime."""
         try:
-            response = self.supabase.table('regime_versions') \
-                .select('*') \
-                .eq('regime_id', regime_id) \
-                .order('version_number', desc=True) \
-                .execute()
-            
-            logger.info(f"✓ Retrieved {len(response.data)} versions")
-            return response.data
-            
+            with get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "SELECT * FROM regime_versions WHERE regime_id=%s ORDER BY version_number DESC",
+                        (regime_id,),
+                    )
+                    desc = [d[0] for d in cur.description]
+                    rows = [dict(zip(desc, r)) for r in cur.fetchall()]
+
+            logger.info(f"✓ Retrieved {len(rows)} versions")
+            return rows
+
         except Exception as e:
-            logger.error(f"Error retrieving history: {str(e)}")
+            logger.error(f"Error retrieving history: {e}")
             raise
-    
+
     def get_regime_audit_log(self, regime_id: str, farmer_id: str) -> List[Dict[str, Any]]:
-        """
-        Get audit trail for regime.
-        
-        Args:
-            regime_id: Regime UUID
-            farmer_id: Farmer UUID
-        
-        Returns:
-            List of audit log entries
-        """
+        """Get audit trail for regime."""
         try:
-            response = self.supabase.table('regime_audit_log') \
-                .select('*') \
-                .eq('regime_id', regime_id) \
-                .order('timestamp', desc=True) \
-                .execute()
-            
-            logger.info(f"✓ Retrieved {len(response.data)} audit entries")
-            return response.data
-            
+            with get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "SELECT * FROM regime_audit_log WHERE regime_id=%s ORDER BY timestamp DESC",
+                        (regime_id,),
+                    )
+                    desc = [d[0] for d in cur.description]
+                    rows = [dict(zip(desc, r)) for r in cur.fetchall()]
+
+            logger.info(f"✓ Retrieved {len(rows)} audit entries")
+            return rows
+
         except Exception as e:
-            logger.error(f"Error retrieving audit log: {str(e)}")
+            logger.error(f"Error retrieving audit log: {e}")
             raise
-    
+
     # ========================================================================
-    # Private Helper Methods
+    # Private helpers (use an open cursor, no commit — caller commits)
     # ========================================================================
-    
-    def _create_version_entry(
+
+    def _create_version_entry_cur(
         self,
+        cur,
         regime_id: str,
         version_number: int,
         changes_summary: str,
         trigger_type: str,
         tasks_snapshot: Dict[str, Any],
-        created_by: str = 'system'
+        created_by: str = "system",
     ) -> None:
-        """Create immutable version entry in regime_versions table"""
-        # Validate trigger_type against allowed values
         if trigger_type not in VALID_TRIGGER_TYPES:
             logger.warning(f"Invalid trigger_type '{trigger_type}', defaulting to 'manual_update'")
-            trigger_type = 'manual_update'
-        
-        version_data = {
-            'regime_id': regime_id,
-            'version_number': version_number,
-            'changes_summary': changes_summary,
-            'trigger_type': trigger_type,
-            'tasks_snapshot': tasks_snapshot,
-            'created_by': created_by,
-            'created_at': datetime.now().isoformat()
-        }
-        
-        self.supabase.table('regime_versions').insert(version_data).execute()
+            trigger_type = "manual_update"
+
+        cur.execute(
+            """
+            INSERT INTO regime_versions
+              (regime_id, version_number, changes_summary, trigger_type,
+               tasks_snapshot, created_by, created_at)
+            VALUES (%s,%s,%s,%s,%s,%s,%s)
+            """,
+            (
+                regime_id, version_number, changes_summary, trigger_type,
+                json.dumps(tasks_snapshot), created_by, datetime.now().isoformat(),
+            ),
+        )
         logger.info(f"✓ Version {version_number} entry created")
-    
-    def _log_audit(
-        self,
-        regime_id: str,
-        action_type: str,
-        actor: str,
-        details: Dict[str, Any]
+
+    def _log_audit_cur(
+        self, cur, regime_id: str, action_type: str, actor: str, details: Dict[str, Any]
     ) -> None:
-        """Append to immutable audit log"""
-        audit_data = {
-            'regime_id': regime_id,
-            'action_type': action_type,
-            'actor': actor,
-            'details': details,
-            'timestamp': datetime.now().isoformat()
-        }
-        
-        self.supabase.table('regime_audit_log').insert(audit_data).execute()
+        cur.execute(
+            """
+            INSERT INTO regime_audit_log (regime_id, action_type, actor, details, timestamp)
+            VALUES (%s,%s,%s,%s,%s)
+            """,
+            (regime_id, action_type, actor, json.dumps(details), datetime.now().isoformat()),
+        )
         logger.info(f"✓ Audit entry: {action_type}")
+
+    # Keep old private API for any existing callers
+    def _create_version_entry(self, regime_id, version_number, changes_summary, trigger_type, tasks_snapshot, created_by="system"):
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                self._create_version_entry_cur(cur, regime_id, version_number, changes_summary, trigger_type, tasks_snapshot, created_by)
+
+    def _log_audit(self, regime_id, action_type, actor, details):
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                self._log_audit_cur(cur, regime_id, action_type, actor, details)

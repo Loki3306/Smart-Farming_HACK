@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { db } from "../db/supabase";
+import { db } from "../db/supabase"; // backed by Neon via neon.ts
 
 // OpenWeatherMap API configuration
 const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY || "";

@@ -1,5 +1,5 @@
 import CONFIG from "../config";
-import supabase from "../lib/supabase";
+// supabase removed — auth handled by backend OTP API (/api/otp/*)
 import { encryptData, hashPassword } from "../lib/encryption";
 
 export interface SignupPayload {
