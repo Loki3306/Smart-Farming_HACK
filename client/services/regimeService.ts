@@ -76,7 +76,7 @@ class RegimeService {
       : null;
     return this.client.get("/api/regime", {
       params: { farmer_id: farmerId },
-    });
+    }) as Promise<any>;
   }
 
   /**
@@ -88,7 +88,7 @@ class RegimeService {
     );
     return this.client.get(`/api/regime/${regimeId}`, {
       params: { farmer_id: currentUser.id },
-    });
+    }) as Promise<any>;
   }
 
   /**
@@ -110,7 +110,7 @@ class RegimeService {
       farmer_id: data.farmer_id || currentUser.id,
       farm_id: farmId, // Can be null - no fallback to farmer_id
       recommendations: data.recommendations || [],
-    });
+    }) as Promise<any>;
   }
 
   /**
@@ -122,7 +122,7 @@ class RegimeService {
     );
     return this.client.patch(`/api/regime/${regimeId}/update`, data, {
       params: { farmer_id: currentUser.id },
-    });
+    }) as Promise<any>;
   }
 
   /**
@@ -134,7 +134,7 @@ class RegimeService {
     );
     return this.client.delete(`/api/regime/${regimeId}`, {
       params: { farmer_id: currentUser.id },
-    });
+    }) as Promise<any>;
   }
 
   /**
@@ -146,7 +146,7 @@ class RegimeService {
     );
     return this.client.get(`/api/regime/${regimeId}/history`, {
       params: { farmer_id: currentUser.id },
-    });
+    }) as Promise<any>;
   }
 
   /**
@@ -164,7 +164,7 @@ class RegimeService {
         farmer_id: currentUser.id,
         ...filters,
       },
-    });
+    }) as Promise<any>;
   }
 
   /**
@@ -188,7 +188,7 @@ class RegimeService {
       {
         params: { farmer_id: currentUser.id },
       },
-    );
+    ) as Promise<any>;
   }
 
   /**
@@ -202,14 +202,14 @@ class RegimeService {
         params: { format },
         responseType: "blob",
       },
-    );
+    ) as Promise<any>;
   }
 
   /**
    * Check health of regime API
    */
   async health() {
-    return this.client.get("/api/regime/health");
+    return this.client.get("/api/regime/health") as Promise<any>;
   }
 }
 

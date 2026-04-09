@@ -223,8 +223,8 @@ router.get("/satellite/:polygonId", async (req: Request, res: Response) => {
     const { polygonId } = req.params;
 
     const [vegetationHealth, soilMoisture] = await Promise.all([
-      getVegetationHealth(polygonId),
-      getSoilMoisture(polygonId).catch(() => null),
+      getVegetationHealth(polygonId as string),
+      getSoilMoisture(polygonId as string).catch(() => null),
     ]);
 
     return res.json({
@@ -289,7 +289,7 @@ router.get("/polygons", async (req: Request, res: Response) => {
 router.delete("/polygon/:polygonId", async (req: Request, res: Response) => {
   try {
     const { polygonId } = req.params;
-    await deletePolygon(polygonId);
+    await deletePolygon(polygonId as string);
 
     return res.json({
       success: true,

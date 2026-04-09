@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, forwardRef, ReactNode } from "react";
 import anime from "animejs";
-import { createRipple } from "../hooks/useAnime";
+import { createRipple } from "@/hooks/useAnime";
 
 // ============================================
 // GLASSMORPHIC CARD

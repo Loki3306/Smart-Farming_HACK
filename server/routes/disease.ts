@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import multer, { type Request as MulterRequest } from "multer";
+import multer from "multer";
 import axios from "axios";
 import FormData from "form-data";
 import fs from "fs";
@@ -36,7 +36,7 @@ try {
 router.post(
   "/predict",
   upload.single("image"),
-  async (req: MulterRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const crop = req.body.crop;
       const file = req.file;

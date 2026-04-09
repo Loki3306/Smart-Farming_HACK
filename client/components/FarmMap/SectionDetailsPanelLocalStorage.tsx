@@ -117,6 +117,8 @@ export const SectionDetailsPanelLocalStorage: React.FC<
         <button
           onClick={onClose}
           className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
+          title="Close"
+          aria-label="Close"
         >
           <X className="w-5 h-5" />
         </button>
@@ -126,11 +128,12 @@ export const SectionDetailsPanelLocalStorage: React.FC<
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {/* Section Name */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="sectionName" className="block text-sm font-medium text-gray-700 mb-2">
             Section Name
           </label>
           {isEditing ? (
             <input
+              id="sectionName"
               type="text"
               value={formData.name || ""}
               onChange={(e) =>
@@ -146,11 +149,12 @@ export const SectionDetailsPanelLocalStorage: React.FC<
 
         {/* Crop Type */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="cropType" className="block text-sm font-medium text-gray-700 mb-2">
             Crop Type
           </label>
           {isEditing ? (
             <select
+              id="cropType"
               value={formData.cropType || ""}
               onChange={(e) =>
                 setFormData({ ...formData, cropType: e.target.value })
@@ -176,11 +180,12 @@ export const SectionDetailsPanelLocalStorage: React.FC<
 
         {/* Soil Type */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="soilType" className="block text-sm font-medium text-gray-700 mb-2">
             Soil Type
           </label>
           {isEditing ? (
             <select
+              id="soilType"
               value={formData.soilType || ""}
               onChange={(e) =>
                 setFormData({ ...formData, soilType: e.target.value })
@@ -202,11 +207,12 @@ export const SectionDetailsPanelLocalStorage: React.FC<
 
         {/* Irrigation Type */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="irrigationType" className="block text-sm font-medium text-gray-700 mb-2">
             Irrigation Type
           </label>
           {isEditing ? (
             <select
+              id="irrigationType"
               value={formData.irrigationType || ""}
               onChange={(e) =>
                 setFormData({ ...formData, irrigationType: e.target.value })

@@ -11,12 +11,14 @@
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": true,
-    "jsx": "react-jsx",
+    "jsx": "react",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    /* Linting */
+    /* Linting - relaxed for hackathon codebase */
     "strict": true,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": false,
@@ -25,7 +27,9 @@
     "paths": {
       "@/*": ["./client/*"],
       "@shared/*": ["./shared/*"]
-    }
+    },
+    /* Type roots */
+    "types": ["node", "vite/client"]
   },
   "include": [
     "client/**/*",

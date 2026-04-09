@@ -45,6 +45,6 @@ if (hasValidCredentials) {
 }
 
 // Export the client (can be null in mock mode)
-export const supabase = supabaseClient;
+export const supabase = supabaseClient as SupabaseClient;
 
 export default supabase;

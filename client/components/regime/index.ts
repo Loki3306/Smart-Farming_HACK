@@ -8,9 +8,4 @@ export { default as RegimeDetail } from "./RegimeDetail";
 export { default as RegimeForm } from "./RegimeForm";
 export { default as RegimeTimeline } from "./RegimeTimeline";
 
-export type {
-  Regime,
-  RegimeTask,
-  CreateRegimeRequest,
-  UpdateRegimeRequest,
-} from "../../services/regimeService";
+// Types are defined locally in consuming components

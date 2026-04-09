@@ -529,16 +529,16 @@ router.get(
       if (!content) {
         const titleWords = normalizedTitle
           .split(/[\s&,()-]+/)
-          .filter((w) => w.length > 2);
+          .filter((w: string) => w.length > 2);
         let bestMatch = { key: "", value: null as any, score: 0 };
 
         for (const [key, value] of Object.entries(LESSON_RICH_CONTENT)) {
           const keyWords = key
             .toLowerCase()
             .split(/[\s&,()-]+/)
-            .filter((w) => w.length > 2);
-          const matches = titleWords.filter((tw) =>
-            keyWords.some((kw) => kw.includes(tw) || tw.includes(kw)),
+            .filter((w: string) => w.length > 2);
+          const matches = titleWords.filter((tw: string) =>
+            keyWords.some((kw: string) => kw.includes(tw) || tw.includes(kw)),
           );
           const score = matches.length;
           if (score >= 2 && score > bestMatch.score) {

@@ -27,7 +27,6 @@ import {
   Wifi,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useFarmContext } from "../context/FarmContext";
 import { IoTService, LiveSensorData } from "../../services/IoTService";
 
 // Types for historical data

@@ -167,7 +167,6 @@ export const Recommendations: React.FC = () => {
           phosphorus: sensorData.npk.phosphorus,
           potassium: sensorData.npk.potassium,
           ph: sensorData.pH,
-          ph: sensorData.pH,
           ec: sensorData.ec,
         },
         language: i18n.language || "en",

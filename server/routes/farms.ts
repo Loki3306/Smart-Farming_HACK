@@ -25,7 +25,7 @@ export const getFarms = async (req: Request, res: Response) => {
 export const getFarmById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const farm = await db.getFarmById(id);
+    const farm = await db.getFarmById(id as string);
 
     if (!farm) {
       return res.status(404).json({ error: "Farm not found" });
@@ -70,7 +70,7 @@ export const updateFarm = async (req: Request, res: Response) => {
     const { id } = req.params;
     const updates = req.body;
 
-    const farm = await db.updateFarm(id, updates);
+    const farm = await db.updateFarm(id as string, updates);
     res.json({ farm });
   } catch (error) {
     console.error("[Farms] Error updating farm:", error);

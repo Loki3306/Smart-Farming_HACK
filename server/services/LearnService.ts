@@ -57,7 +57,7 @@ export async function updateEnrollmentProgress(
       progress_percent: progress.progressPercent,
       lessons_completed: progress.completedLessons,
       status: status as any,
-      completion_date: status === "completed" ? new Date() : null,
+      completion_date: status === "completed" ? new Date() : undefined,
     });
 
     return progress;

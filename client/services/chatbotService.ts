@@ -43,9 +43,9 @@ class ChatbotService {
           window.crypto && (window.crypto as any).randomUUID
             ? (window.crypto as any).randomUUID()
             : `sess_${Date.now()}`;
-        localStorage.setItem(key, sid);
+        localStorage.setItem(key, sid as string);
       }
-      return sid;
+      return sid as string;
     } catch (e) {
       // Fallback
       return `sess_${Date.now()}`;

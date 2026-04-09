@@ -930,7 +930,7 @@ interface LessonNodeProps {
   lesson: Lesson;
   index: number;
   status: "completed" | "current" | "locked";
-  theme: (typeof LEVEL_THEMES)[0];
+  theme: ReturnType<typeof getLevelThemes>[0];
   isActive: boolean;
   isHindi: boolean;
   onClick: () => void;
@@ -1024,7 +1024,7 @@ const LessonNode: React.FC<LessonNodeProps> = ({
         <p
           className={`font-semibold text-sm ${isCompleted ? "text-green-700" : isCurrent ? "text-green-600" : "text-muted-foreground"}`}
         >
-          {isHindi ? theme.name : theme.nameEn}
+          {theme.key}
         </p>
         <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
           {lesson.title}

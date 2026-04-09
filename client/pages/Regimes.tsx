@@ -83,14 +83,14 @@ export default function RegimesPage() {
     refetch: refetchList,
   } = useQuery({
     queryKey: ["regimes"],
-    queryFn: () => regimeService.getRegimes(),
+    queryFn: () => regimeService.getRegimes() as Promise<Regime[]>,
     staleTime: 30000,
   });
 
   // Fetch selected regime details
   const { data: regimeDetail, isLoading: detailLoading } = useQuery({
     queryKey: ["regime", regimeId],
-    queryFn: () => regimeService.getRegime(regimeId!),
+    queryFn: () => regimeService.getRegime(regimeId!) as Promise<Regime>,
     enabled: !!regimeId && detailDrawer,
   });
 
@@ -286,7 +286,7 @@ export default function RegimesPage() {
               ),
               children: (
                 <RegimeCalendarView
-                  tasks={regimes.flatMap((r) => r.tasks || [])}
+                  tasks={regimes.flatMap((r) => (r.tasks || []) as any[])}
                   onTaskClick={(task) => {
                     const regime = regimes.find((r) =>
                       r.tasks?.some((t) => t.task_id === task.task_id),

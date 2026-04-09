@@ -215,7 +215,7 @@ async function seedLessons() {
   console.log(`📚 Found ${courses.length} courses.`);
 
   for (const course of courses) {
-    let lessonsToAdd = [];
+    let lessonsToAdd: any[] = [];
     const title = course.title.toLowerCase();
 
     // Determine which lessons to add based on title

@@ -218,7 +218,6 @@ export function CallWindow({
             playsInline
             controls={false}
             style={{ display: "none" }}
-            volume={1.0}
           />
         )}
 

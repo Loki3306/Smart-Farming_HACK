@@ -641,7 +641,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
               {sections.map((section) => (
                 <div
                   key={section.section_id}
-                  onClick={() => setSelectedSection(section.section_id)}
+                  onClick={() => handleSectionSelect(section.section_id)}
                   className={`p-2 rounded cursor-pointer transition ${
                     selectedSection === section.section_id
                       ? "bg-blue-100"

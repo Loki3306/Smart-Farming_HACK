@@ -105,7 +105,7 @@ export const SectionDetailsPanel: React.FC<SectionDetailsPanelProps> = ({
         sectionId,
       );
       if (neighbors.length === 0) {
-        toast.info("No neighboring sections found");
+        toast("No neighboring sections found", { icon: "ℹ️" });
       } else {
         const neighborsList = neighbors
           .map(
@@ -133,6 +133,8 @@ export const SectionDetailsPanel: React.FC<SectionDetailsPanelProps> = ({
         <button
           onClick={onClose}
           className="p-1 hover:bg-gray-100 rounded transition"
+          title="Close"
+          aria-label="Close"
         >
           <X className="w-5 h-5" />
         </button>
@@ -142,11 +144,12 @@ export const SectionDetailsPanel: React.FC<SectionDetailsPanelProps> = ({
       <div className="p-4 space-y-4">
         {/* Section Name */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="sectionName" className="block text-sm font-medium text-gray-700 mb-1">
             Section Name
           </label>
           {isEditing ? (
             <input
+              id="sectionName"
               type="text"
               value={formData.section_name || ""}
               onChange={(e) =>
@@ -161,12 +164,13 @@ export const SectionDetailsPanel: React.FC<SectionDetailsPanelProps> = ({
 
         {/* Display Color */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="displayColor" className="block text-sm font-medium text-gray-700 mb-1">
             Display Color
           </label>
           {isEditing ? (
             <div className="flex items-center gap-2">
               <input
+                id="displayColor"
                 type="color"
                 value={formData.display_color || "#3B82F6"}
                 onChange={(e) =>
@@ -204,11 +208,12 @@ export const SectionDetailsPanel: React.FC<SectionDetailsPanelProps> = ({
 
         {/* Crop Type */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="cropType" className="block text-sm font-medium text-gray-700 mb-1">
             Crop Type
           </label>
           {isEditing ? (
             <input
+              id="cropType"
               type="text"
               value={formData.crop_type || ""}
               onChange={(e) =>
@@ -226,11 +231,12 @@ export const SectionDetailsPanel: React.FC<SectionDetailsPanelProps> = ({
 
         {/* Soil Type */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="soilType" className="block text-sm font-medium text-gray-700 mb-1">
             Soil Type
           </label>
           {isEditing ? (
             <select
+              id="soilType"
               value={formData.soil_type || ""}
               onChange={(e) =>
                 setFormData({ ...formData, soil_type: e.target.value })
@@ -254,11 +260,12 @@ export const SectionDetailsPanel: React.FC<SectionDetailsPanelProps> = ({
 
         {/* Irrigation Type */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="irrigationType" className="block text-sm font-medium text-gray-700 mb-1">
             Irrigation Type
           </label>
           {isEditing ? (
             <select
+              id="irrigationType"
               value={formData.irrigation_type || ""}
               onChange={(e) =>
                 setFormData({ ...formData, irrigation_type: e.target.value })
@@ -282,11 +289,12 @@ export const SectionDetailsPanel: React.FC<SectionDetailsPanelProps> = ({
 
         {/* Planting Date */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="plantingDate" className="block text-sm font-medium text-gray-700 mb-1">
             Planting Date
           </label>
           {isEditing ? (
             <input
+              id="plantingDate"
               type="date"
               value={formData.planting_date || ""}
               onChange={(e) =>
@@ -305,11 +313,12 @@ export const SectionDetailsPanel: React.FC<SectionDetailsPanelProps> = ({
 
         {/* Expected Harvest Date */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="expectedHarvest" className="block text-sm font-medium text-gray-700 mb-1">
             Expected Harvest
           </label>
           {isEditing ? (
             <input
+              id="expectedHarvest"
               type="date"
               value={formData.expected_harvest_date || ""}
               onChange={(e) =>
@@ -372,11 +381,12 @@ export const SectionDetailsPanel: React.FC<SectionDetailsPanelProps> = ({
 
         {/* Notes */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
             Notes
           </label>
           {isEditing ? (
             <textarea
+              id="notes"
               value={formData.notes || ""}
               onChange={(e) =>
                 setFormData({ ...formData, notes: e.target.value })

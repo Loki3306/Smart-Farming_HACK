@@ -110,7 +110,7 @@ export const getYieldBenchmark = async (req: Request, res: Response) => {
     const benchmarks = await supabase
       .from("yield_benchmarks")
       .select("*")
-      .ilike("crop_type", cropType)
+      .ilike("crop_type", cropType as string)
       .limit(5);
 
     if (benchmarks.data && benchmarks.data.length > 0) {

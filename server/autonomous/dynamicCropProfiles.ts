@@ -68,7 +68,7 @@ function loadCrops(): Record<string, DatasetEntry> {
     cachedCrops = {};
   }
 
-  return cachedCrops;
+  return cachedCrops as Record<string, DatasetEntry>;
 }
 
 function toBand(v: unknown, fallback: [number, number]): [number, number] {

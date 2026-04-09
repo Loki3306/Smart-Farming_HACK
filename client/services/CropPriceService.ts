@@ -125,7 +125,7 @@ class CropPriceService {
   /**
    * Map commodity name to folder name
    */
-  mapCommodityToFolder(commodity: string): string {
+  mapCommodityToFolder(commodity: string): string | null {
     const mapping: { [key: string]: string } = {
       rice: "rice",
       paddy: "rice",

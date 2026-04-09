@@ -313,7 +313,7 @@ export const IrrigationLayoutMap: React.FC<IrrigationLayoutMapProps> = ({
           bounds.getSouthWest().lng +
           (bounds.getNorthEast().lng - bounds.getSouthWest().lng) *
             (k / numTestPoints);
-        if (isPointInPolygon(lat, testLng, coords)) {
+        if (isPointInPolygon(lat, testLng, coords as [number, number][])) {
           linePoints.push([lat, testLng]);
         }
       }
@@ -410,7 +410,7 @@ export const IrrigationLayoutMap: React.FC<IrrigationLayoutMapProps> = ({
             ((col + 0.5) / numCols);
 
         // Only place sprinkler if it's inside the polygon
-        if (isPointInPolygon(lat, lng, coords)) {
+        if (isPointInPolygon(lat, lng, coords as [number, number][])) {
           // Draw sprinkler coverage circle
           L.circle([lat, lng], {
             radius: coverageRadius,
@@ -461,6 +461,8 @@ export const IrrigationLayoutMap: React.FC<IrrigationLayoutMapProps> = ({
           <button
             onClick={onClose}
             className="p-2 hover:bg-white/50 dark:hover:bg-gray-700 rounded-xl transition-colors"
+            title="Close"
+            aria-label="Close"
           >
             <X className="w-6 h-6 text-gray-600 dark:text-gray-400" />
           </button>

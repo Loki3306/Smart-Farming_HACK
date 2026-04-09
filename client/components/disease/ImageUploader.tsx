@@ -47,7 +47,7 @@ export default function ImageUploader({
         onDrop={onDrop}
         onDragOver={(e) => e.preventDefault()}
         className={`rounded-2xl border-2 border-dashed p-6 text-center transition-shadow ${disabled ? "opacity-60" : "hover:shadow-lg"}`}
-        aria-disabled={disabled}
+        aria-disabled={disabled ? true : undefined}
       >
         {!preview ? (
           <div>
@@ -70,6 +70,8 @@ export default function ImageUploader({
               accept="image/*"
               className="hidden"
               onChange={onSelect}
+              title="Upload leaf image"
+              aria-label="Upload leaf image"
             />
           </div>
         ) : (
@@ -109,6 +111,8 @@ export default function ImageUploader({
                   accept="image/*"
                   className="hidden"
                   onChange={onSelect}
+                  title="Upload leaf image"
+                  aria-label="Upload leaf image"
                 />
               </div>
             </div>

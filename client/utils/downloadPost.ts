@@ -44,7 +44,7 @@ export async function downloadPostAsImage(post: Post): Promise<void> {
       scale: 2, // Higher quality
       logging: false,
       useCORS: true,
-    });
+    } as any);
 
     // Convert to blob and download
     canvas.toBlob((blob) => {

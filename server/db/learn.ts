@@ -1112,7 +1112,7 @@ export async function updatePurchase(
 // USER LEARNING STATS
 // ============================================================================
 
-export async function getUserStats(userId: string) {
+export async function getUserStats(userId: string): Promise<any> {
   const { data, error } = await supabase
     .from("user_learning_stats")
     .select("*")
@@ -1139,7 +1139,7 @@ export async function getUserStats(userId: string) {
 
 export async function createUserStats(
   stats: Omit<UserLearningStats, "id" | "created_at" | "updated_at">,
-) {
+): Promise<any> {
   const { data, error } = await supabase
     .from("user_learning_stats")
     .insert([stats])

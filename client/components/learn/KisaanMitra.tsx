@@ -486,8 +486,11 @@ export const KisaanMitra: React.FC<KisaanMitraProps> = ({
             <div className="bg-card rounded-2xl shadow-xl border-2 border-green-300 p-4 relative">
               {/* Close button */}
               <button
+                type="button"
                 onClick={handleDismiss}
                 className="absolute -top-2 -right-2 w-6 h-6 bg-muted hover:bg-muted rounded-full flex items-center justify-center transition-colors"
+                title="Close"
+                aria-label="Close"
               >
                 <X className="w-4 h-4 text-muted-foreground" />
               </button>
@@ -501,6 +504,7 @@ export const KisaanMitra: React.FC<KisaanMitraProps> = ({
               {/* Skip typing button */}
               {isTyping && (
                 <button
+                  type="button"
                   onClick={() => {
                     setDisplayedText(fullText);
                     setIsTyping(false);
@@ -531,6 +535,7 @@ export const KisaanMitra: React.FC<KisaanMitraProps> = ({
             <div className="space-y-1">
               {/* Language Toggle Button */}
               <button
+                type="button"
                 onClick={async () => {
                   const newLanguage = language === "hi" ? "en" : "hi";
                   await setLanguage(newLanguage);
@@ -558,6 +563,7 @@ export const KisaanMitra: React.FC<KisaanMitraProps> = ({
               </button>
 
               <button
+                type="button"
                 onClick={() => {
                   const tips = KISAAN_DIALOGUES.tip;
                   typeText(
@@ -575,6 +581,7 @@ export const KisaanMitra: React.FC<KisaanMitraProps> = ({
                 </span>
               </button>
               <button
+                type="button"
                 onClick={() => {
                   typeText(
                     currentLanguage === "hindi"
@@ -593,6 +600,7 @@ export const KisaanMitra: React.FC<KisaanMitraProps> = ({
                 </span>
               </button>
               <button
+                type="button"
                 onClick={() => {
                   typeText(
                     currentLanguage === "hindi"
