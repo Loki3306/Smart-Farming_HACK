@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { callService, CallType, Call } from "@/services/callService";
-import { supabase } from "@/lib/supabase";
+import { getSocket } from "@/lib/socket";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -15,32 +15,21 @@ export function useCallManagement() {
   useEffect(() => {
     if (!user?.id) return;
 
-    const channel = supabase
-      .channel(`incoming-calls:${user.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "calls",
-          filter: `receiver_id=eq.${user.id}`,
-        },
-        (payload) => {
-          const call = payload.new as Call;
-          if (call.status === "ringing") {
-            setIncomingCall(call);
+    const socket = getSocket();
+    if (!socket.connected) socket.connect();
 
-            // TODO: Add ringtone audio file to /public/ringtone.mp3
-            // const audio = new Audio('/ringtone.mp3');
-            // audio.loop = true;
-            // audio.play().catch(console.error);
-          }
-        },
-      )
-      .subscribe();
+    socket.emit("calls:subscribe", user.id);
+
+    const handleIncoming = (call: Call) => {
+        if (call.status === "ringing") {
+            setIncomingCall(call);
+        }
+    };
+
+    socket.on("call:incoming", handleIncoming);
 
     return () => {
-      supabase.removeChannel(channel);
+      socket.off("call:incoming", handleIncoming);
     };
   }, [user?.id]);
 
@@ -58,13 +47,9 @@ export function useCallManagement() {
         );
 
         // Fetch call details
-        const { data, error } = await supabase
-          .from("calls")
-          .select("*")
-          .eq("id", callId)
-          .single();
-
-        if (error) throw error;
+        const response = await fetch(`/api/chat/calls/${callId}`);
+        if (!response.ok) throw new Error("Failed to fetch call details");
+        const data = await response.json();
 
         setActiveCall(data as Call);
         setIsInCall(true);
@@ -90,13 +75,14 @@ export function useCallManagement() {
     if (!incomingCall || !user?.id) return;
 
     try {
-      // Update call status in database
-      const { error } = await supabase.rpc("update_call_status", {
-        p_call_id: incomingCall.id,
-        p_status: "accepted",
+      // Update call status in database via API
+      const response = await fetch(`/api/chat/calls/${incomingCall.id}/status`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "accepted" })
       });
 
-      if (error) throw error;
+      if (!response.ok) throw new Error("Failed to update status");
 
       setActiveCall(incomingCall);
       setIncomingCall(null);
@@ -116,12 +102,13 @@ export function useCallManagement() {
     if (!incomingCall) return;
 
     try {
-      const { error } = await supabase.rpc("update_call_status", {
-        p_call_id: incomingCall.id,
-        p_status: "rejected",
+      const response = await fetch(`/api/chat/calls/${incomingCall.id}/status`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "rejected" })
       });
 
-      if (error) throw error;
+      if (!response.ok) throw new Error("Failed to update status");
 
       setIncomingCall(null);
     } catch (error) {

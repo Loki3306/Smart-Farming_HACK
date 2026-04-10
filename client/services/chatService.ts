@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { getSocket } from "@/lib/socket";
 
 // =====================================================
 // TYPES & INTERFACES
@@ -278,43 +278,10 @@ export const chatService = {
    */
   async getOnlineFarmers(currentUserId: string): Promise<OnlineFarmer[]> {
     try {
-      const { data, error } = await supabase
-        .from("farmers")
-        .select(
-          `
-          id,
-          name,
-          phone,
-          email,
-          user_presence (
-            status,
-            last_seen
-          )
-        `,
-        )
-        .neq("id", currentUserId)
-        .order("name", { ascending: true });
-
-      if (error) throw error;
-
-      // Map to OnlineFarmer format and sort by online status
-      const farmers: OnlineFarmer[] = (data || []).map((farmer: any) => ({
-        id: farmer.id,
-        name: farmer.name,
-        phone: farmer.phone,
-        email: farmer.email,
-        status: farmer.user_presence?.[0]?.status || "offline",
-        last_seen:
-          farmer.user_presence?.[0]?.last_seen || new Date().toISOString(),
-      }));
-
-      // Sort by status (online first, then away, then offline) and then by name
-      return farmers.sort((a, b) => {
-        const statusOrder = { online: 0, away: 1, offline: 2 };
-        const statusDiff = statusOrder[a.status] - statusOrder[b.status];
-        if (statusDiff !== 0) return statusDiff;
-        return a.name.localeCompare(b.name);
-      });
+      const response = await fetch(`/api/chat/online-farmers?current_user_id=${currentUserId}`);
+      if (!response.ok) throw new Error("Failed to fetch online farmers");
+      const data = await response.json();
+      return data.farmers || [];
     } catch (error) {
       console.error("Failed to fetch online farmers:", error);
       return [];
@@ -328,31 +295,24 @@ export const chatService = {
     conversationId: string,
     callback: (message: Message) => void,
   ) {
-    const channel = supabase
-      .channel(`messages:${conversationId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-          filter: `conversation_id=eq.${conversationId}`,
-        },
-        (payload) => {
-          console.log("📨 New message received via realtime:", payload.new);
-          callback(payload.new as Message);
-        },
-      )
-      .subscribe((status) => {
-        console.log(
-          `🔌 Messages subscription status for ${conversationId}:`,
-          status,
-        );
-      });
+    const socket = getSocket();
+    if (!socket.connected) socket.connect();
+    socket.emit("chat:subscribe", conversationId);
+
+    const handler = (msg: Message) => {
+      // Check if it's the current conversation
+      if (msg.conversation_id === conversationId) {
+          console.log("📨 New message received via realtime:", msg);
+          callback(msg);
+      }
+    };
+    
+    socket.on("chat:message:new", handler);
 
     return () => {
       console.log(`🔌 Unsubscribing from messages:${conversationId}`);
-      supabase.removeChannel(channel);
+      socket.off("chat:message:new", handler);
+      socket.emit("chat:unsubscribe", conversationId);
     };
   },
 
@@ -363,24 +323,19 @@ export const chatService = {
     conversationId: string,
     callback: (message: Message) => void,
   ) {
-    const channel = supabase
-      .channel(`message-updates:${conversationId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "messages",
-          filter: `conversation_id=eq.${conversationId}`,
-        },
-        (payload) => {
-          callback(payload.new as Message);
-        },
-      )
-      .subscribe();
+    const socket = getSocket();
+    if (!socket.connected) socket.connect();
+    
+    const handler = (msg: Message) => {
+      if (msg.conversation_id === conversationId) {
+        callback(msg);
+      }
+    };
+
+    socket.on("chat:message:updated", handler);
 
     return () => {
-      supabase.removeChannel(channel);
+      socket.off("chat:message:updated", handler);
     };
   },
 
@@ -391,36 +346,18 @@ export const chatService = {
     userId: string,
     callback: (conversation: Conversation) => void,
   ) {
-    const channel = supabase
-      .channel(`conversations:${userId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "conversations",
-          filter: `farmer_id=eq.${userId}`,
-        },
-        (payload) => {
-          callback(payload.new as Conversation);
-        },
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "conversations",
-          filter: `expert_id=eq.${userId}`,
-        },
-        (payload) => {
-          callback(payload.new as Conversation);
-        },
-      )
-      .subscribe();
+    const socket = getSocket();
+    if (!socket.connected) socket.connect();
+    
+    // Server expects user to be joined to their own userId room for updates
+    const handler = (conv: Conversation) => {
+      callback(conv);
+    };
+
+    socket.on("chat:conversation:updated", handler);
 
     return () => {
-      supabase.removeChannel(channel);
+      socket.off("chat:conversation:updated", handler);
     };
   },
 
@@ -431,24 +368,23 @@ export const chatService = {
     conversationId: string,
     callback: (isTyping: boolean, userId: string) => void,
   ) {
-    const channel = supabase
-      .channel(`typing:${conversationId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "typing_indicators",
-          filter: `conversation_id=eq.${conversationId}`,
-        },
-        (payload: any) => {
-          callback(payload.new.is_typing, payload.new.user_id);
-        },
-      )
-      .subscribe();
+    const socket = getSocket();
+    if (!socket.connected) socket.connect();
+    
+    // Start listening on this conversation
+    socket.emit("chat:typing:subscribe", conversationId);
+    
+    const handler = (payload: { is_typing: boolean, user_id: string, conversation_id: string }) => {
+        if (payload.conversation_id === conversationId) {
+            callback(payload.is_typing, payload.user_id);
+        }
+    };
+
+    socket.on("chat:typing", handler);
 
     return () => {
-      supabase.removeChannel(channel);
+      socket.off("chat:typing", handler);
+      socket.emit("chat:typing:unsubscribe", conversationId);
     };
   },
 };

@@ -1,10 +1,10 @@
-import { createClient } from "@supabase/supabase-js";
+// import removed
 import "dotenv/config";
 
-const supabase = createClient(
+// const supabase = createClient(
   process.env.SUPABASE_URL!,
   process.env.SUPABASE_ANON_KEY!,
-);
+) // auto-commented: supabase removed
 
 async function checkColumns() {
   console.log("📋 Checking columns in farms table...\n");

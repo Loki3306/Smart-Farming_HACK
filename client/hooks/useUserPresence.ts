@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { supabase } from "@/lib/supabase";
+import { getSocket } from "@/lib/socket";
 import { useAuth } from "@/context/AuthContext";
 
 export type PresenceStatus = "online" | "offline" | "away";
@@ -21,15 +21,9 @@ export function useUserPresence(targetUserId?: string) {
   const fetchPresence = useCallback(async (userId: string) => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from("user_presence")
-        .select("*")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      if (error) {
-        console.error("Failed to fetch presence:", error);
-      } else if (data) {
+      const response = await fetch(`/api/presence/${userId}`);
+      if (response.ok) {
+        const data = await response.json();
         setPresence(data as UserPresence);
       }
     } catch (error) {
@@ -45,29 +39,27 @@ export function useUserPresence(targetUserId?: string) {
       if (!user?.id) return;
 
       try {
-        // Use Supabase directly for immediate update
-        const { error } = await supabase.from("user_presence").upsert(
-          {
-            user_id: user.id,
-            status,
-            last_seen: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-          {
-            onConflict: "user_id",
-          },
-        );
+        const response = await fetch(`/api/presence`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: user.id, status }),
+        });
 
-        if (error) {
-          console.error("Failed to update presence:", error);
+        if (!response.ok) {
+          console.error("Failed to update presence via API");
         } else {
+          const data = await response.json();
           // Update local state
           setPresence({
             user_id: user.id,
             status,
-            last_seen: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
+            last_seen: data.last_seen || new Date().toISOString(),
+            updated_at: data.updated_at || new Date().toISOString(),
           });
+          
+          // Also emit to socket for immediate broadcast
+          getSocket().connect();
+          if (status === "online") getSocket().emit("presence:online", user.id);
         }
       } catch (error) {
         console.error("Failed to update presence:", error);
@@ -81,17 +73,13 @@ export function useUserPresence(targetUserId?: string) {
     if (!user?.id) return;
 
     try {
-      // Use Supabase directly
-      await supabase.from("user_presence").upsert(
-        {
-          user_id: user.id,
-          status: "online",
-          updated_at: new Date().toISOString(),
-        },
-        {
-          onConflict: "user_id",
-        },
-      );
+      await fetch(`/api/presence/heartbeat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: user.id })
+      });
+      // Also socket heartbeat
+      getSocket().emit("presence:heartbeat", user.id);
     } catch (error) {
       console.error("Failed to send heartbeat:", error);
     }
@@ -109,42 +97,16 @@ export function useUserPresence(targetUserId?: string) {
 
       // Set offline on unmount or page unload
       const handleBeforeUnload = () => {
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as
-          | string
-          | undefined;
-        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as
-          | string
-          | undefined;
-        if (!supabaseUrl || !supabaseAnonKey) {
-          return;
-        }
-
-        // Use navigator.sendBeacon for reliable cleanup
-        const blob = new Blob(
-          [
-            JSON.stringify({
-              user_id: user.id,
-              status: "offline",
-              last_seen: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            }),
-          ],
-          { type: "application/json" },
-        );
-
         // Synchronous update using fetch with keepalive
-        fetch(`${supabaseUrl}/rest/v1/user_presence?user_id=eq.${user.id}`, {
-          method: "PATCH",
+        const apiUrl = import.meta.env.VITE_API_URL || "/api";
+        fetch(`${apiUrl}/presence`, {
+          method: "PUT",
           headers: {
-            apikey: supabaseAnonKey,
-            Authorization: `Bearer ${supabaseAnonKey}`,
             "Content-Type": "application/json",
-            Prefer: "return=minimal",
           },
           body: JSON.stringify({
-            status: "offline",
-            last_seen: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
+            user_id: user.id,
+            status: "offline"
           }),
           keepalive: true,
         }).catch(console.error);
@@ -176,24 +138,28 @@ export function useUserPresence(targetUserId?: string) {
   useEffect(() => {
     if (!targetUserId) return;
 
-    const channel = supabase
-      .channel(`presence:${targetUserId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "user_presence",
-          filter: `user_id=eq.${targetUserId}`,
-        },
-        (payload) => {
-          setPresence(payload.new as UserPresence);
-        },
-      )
-      .subscribe();
+    const socket = getSocket();
+    if (!socket.connected) socket.connect();
+    
+    // Fallback sync initial
+    fetchPresence(targetUserId);
+
+    const handler = (payload: any) => {
+      if (payload.user_id === targetUserId) {
+        setPresence((prev) => ({
+            ...prev,
+            user_id: targetUserId,
+            status: payload.status,
+            last_seen: payload.last_seen || prev?.last_seen || null,
+            updated_at: new Date().toISOString()
+        }));
+      }
+    };
+    
+    socket.on("presence:update", handler);
 
     return () => {
-      supabase.removeChannel(channel);
+      socket.off("presence:update", handler);
     };
   }, [targetUserId]);
 
@@ -247,19 +213,17 @@ export function useBulkPresence(userIds: string[]) {
     const fetchBulkPresence = async () => {
       try {
         setIsLoading(true);
-        const { data, error } = await supabase
-          .from("user_presence")
-          .select("*")
-          .in("user_id", userIds);
+        const response = await fetch(`/api/presence/bulk?user_ids=${userIds.join(",")}`);
 
-        if (error) {
-          console.error("Failed to fetch bulk presence:", error);
-        } else if (data) {
-          const map = new Map<string, UserPresence>();
-          data.forEach((p: UserPresence) => {
-            map.set(p.user_id, p);
-          });
-          setPresenceMap(map);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.presence) {
+              const map = new Map<string, UserPresence>();
+              data.presence.forEach((p: UserPresence) => {
+                  map.set(p.user_id, p);
+              });
+              setPresenceMap(map);
+          }
         }
       } catch (error) {
         console.error("Failed to fetch bulk presence:", error);
@@ -275,38 +239,29 @@ export function useBulkPresence(userIds: string[]) {
   useEffect(() => {
     if (userIds.length === 0) return;
 
-    // Create a single channel for all presence updates instead of one per user
-    const channelId = `bulk-presence:${userIds.slice(0, 5).join("-")}-${userIds.length}`;
-    const channel = supabase
-      .channel(channelId)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "user_presence",
-          // Filter for any of the userIds we care about
-          filter:
-            userIds.length <= 10
-              ? `user_id=in.(${userIds.join(",")})`
-              : undefined, // For large lists, filter client-side
-        },
-        (payload) => {
-          const newPresence = payload.new as UserPresence;
-          // Only update if this user is in our list
-          if (userIds.includes(newPresence.user_id)) {
+    const socket = getSocket();
+    if (!socket.connected) socket.connect();
+
+    const handler = (payload: any) => {
+        if (userIds.includes(payload.user_id)) {
             setPresenceMap((prev) => {
-              const newMap = new Map(prev);
-              newMap.set(newPresence.user_id, newPresence);
-              return newMap;
+                const newMap = new Map(prev);
+                const existing = newMap.get(payload.user_id);
+                newMap.set(payload.user_id, {
+                    user_id: payload.user_id,
+                    status: payload.status,
+                    last_seen: payload.last_seen || existing?.last_seen || null,
+                    updated_at: new Date().toISOString()
+                });
+                return newMap;
             });
-          }
-        },
-      )
-      .subscribe();
+        }
+    };
+
+    socket.on("presence:update", handler);
 
     return () => {
-      supabase.removeChannel(channel);
+      socket.off("presence:update", handler);
     };
   }, [userIds.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
 

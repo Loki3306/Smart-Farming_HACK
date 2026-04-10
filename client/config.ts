@@ -8,6 +8,7 @@ export const CONFIG = {
     LOGIN: "/auth/login",
     LOGOUT: "/auth/logout",
     GET_CURRENT_USER: "/auth/me",
+    UPDATE: "/auth/update",
   },
 };
 

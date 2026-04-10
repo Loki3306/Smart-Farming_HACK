@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+// import removed
 import "dotenv/config";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -13,7 +13,7 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
   process.exit(1);
 }
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+// const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY) // auto-commented: supabase removed
 
 async function runMigration() {
   console.log(

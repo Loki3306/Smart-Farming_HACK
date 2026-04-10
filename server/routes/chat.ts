@@ -404,4 +404,147 @@ router.get("/stats", async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * GET /api/chat/online-farmers
+ */
+router.get("/online-farmers", async (req: Request, res: Response) => {
+  try {
+    const { current_user_id } = req.query;
+    if (!current_user_id) return res.status(400).json({ error: "current_user_id is required" });
+
+    // Assuming neon is connected, we will join farmers with user_presence
+    const result = await query(
+      `SELECT f.id, f.name, f.phone, f.email,
+              p.status, p.last_seen
+       FROM farmers f
+       LEFT JOIN user_presence p ON p.user_id = f.id
+       WHERE f.id != $1
+       ORDER BY f.name ASC`,
+      [current_user_id]
+    );
+
+    const farmers = result.rows.map((farmer: any) => ({
+      id: farmer.id,
+      name: farmer.name,
+      phone: farmer.phone,
+      email: farmer.email,
+      status: farmer.status || "offline",
+      last_seen: farmer.last_seen || new Date().toISOString(),
+    }));
+
+    // Sort by status
+    farmers.sort((a, b) => {
+      const statusOrder: Record<string, number> = { online: 0, away: 1, offline: 2 };
+      const statusDiff = (statusOrder[a.status] ?? 2) - (statusOrder[b.status] ?? 2);
+      if (statusDiff !== 0) return statusDiff;
+      return a.name.localeCompare(b.name);
+    });
+
+    res.json({ farmers });
+  } catch (error: any) {
+    console.error("Error fetching online farmers:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /api/chat/user/:id
+ * Get a user's basic info like phone number
+ */
+router.get("/user/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const result = await query(
+      `SELECT id, name, phone, location FROM farmers WHERE id = $1 LIMIT 1`,
+      [id]
+    );
+    if (!result.rows[0]) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.json(result.rows[0]);
+  } catch (error: any) {
+    console.error("Error fetching user info:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /api/chat/calls/:id
+ */
+router.get("/calls/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const result = await query(
+      `SELECT * FROM calls WHERE id = $1 LIMIT 1`,
+      [id]
+    );
+    if (!result.rows[0]) return res.status(404).json({ error: "Call not found" });
+    res.json(result.rows[0]);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * PUT /api/chat/calls/:id/status
+ */
+router.put("/calls/:id/status", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    let updateQuery = `UPDATE calls SET status = $1, updated_at = NOW() `;
+    let values: any[] = [status, id];
+    
+    if (status === 'accepted') {
+       updateQuery += `, started_at = NOW() `;
+    } else if (status === 'ended' || status === 'rejected' || status === 'missed' || status === 'failed') {
+       updateQuery += `, ended_at = NOW(), duration_seconds = EXTRACT(EPOCH FROM (NOW() - COALESCE(started_at, NOW()))) `;
+    }
+    
+    updateQuery += ` WHERE id = $2 RETURNING *`;
+    
+    const result = await query(updateQuery, values);
+    
+    if (!result.rows[0]) return res.status(404).json({ error: "Call not found" });
+    res.json(result.rows[0]);
+  } catch (error: any) {
+      console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * POST /api/chat/calls
+ */
+router.post("/calls", async (req: Request, res: Response) => {
+    try {
+        const { conversation_id, caller_id, receiver_id, call_type } = req.body;
+        const result = await query(
+            `INSERT INTO calls (conversation_id, caller_id, receiver_id, call_type, status) 
+             VALUES ($1, $2, $3, $4, 'ringing') RETURNING *`,
+             [conversation_id, caller_id, receiver_id, call_type]
+        );
+        res.json({ id: result.rows[0].id });
+    } catch(err: any) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/**
+ * POST /api/chat/call_signaling
+ */
+router.post("/call_signaling", async (req: Request, res: Response) => {
+    try {
+        const { call_id, sender_id, receiver_id, signal_type, signal_data } = req.body;
+        await query(
+            `INSERT INTO call_signaling (call_id, sender_id, receiver_id, signal_type, signal_data)
+             VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+             [call_id, sender_id, receiver_id, signal_type, signal_data]
+        );
+        res.json({ success: true });
+    } catch(err: any){
+        res.status(500).json({ error: err.message });
+    }
+});
+
 export default router;

@@ -13,7 +13,6 @@ import { useCallManagement } from "@/hooks/useCallManagement";
 import { useAuth } from "@/context/AuthContext";
 import { Conversation } from "@/services/chatService";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabase";
 
 interface ChatWindowProps {
   conversation: Conversation | null;
@@ -98,15 +97,15 @@ export function ChatWindow({ conversation, onBack, onClose }: ChatWindowProps) {
   const confirmWhatsApp = async () => {
     if (!conversation?.other_user || !user) return;
 
-    // Fetch other user's phone number
-    const { data: otherUserData, error } = await supabase
-      .from("farmers")
-      .select("phone, name")
-      .eq("id", conversation.other_user.id)
-      .single();
-
-    if (error || !otherUserData?.phone) {
+    const response = await fetch(`/api/chat/user/${conversation.other_user.id}`);
+    if (!response.ok) {
       alert("Unable to get user's WhatsApp number. Please try again later.");
+      return;
+    }
+    const otherUserData = await response.json();
+
+    if (!otherUserData?.phone) {
+      alert("This user does not have a registered phone number.");
       return;
     }
 
@@ -120,13 +119,21 @@ export function ChatWindow({ conversation, onBack, onClose }: ChatWindowProps) {
       whatsappMessage = `Namaste ${firstName}, myself ${user.fullName}. Greetings! We got your contact from Krushi Unnati.`;
     } else {
       // Already talked - just redirect, add system message in our app
-      await supabase.from("messages").insert({
-        conversation_id: conversation.id,
-        sender_id: user.id,
-        receiver_id: conversation.other_user.id,
-        content: "📱 Conversation shifted to WhatsApp",
-        message_type: "system",
-      });
+      try {
+          await fetch(`/api/chat/messages`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                  conversation_id: conversation.id,
+                  sender_id: user.id,
+                  receiver_id: conversation.other_user.id,
+                  content: "📱 Conversation shifted to WhatsApp",
+                  message_type: "system"
+              })
+          });
+      } catch (error) {
+          console.error("Failed to insert system message:", error);
+      }
     }
 
     // Open WhatsApp

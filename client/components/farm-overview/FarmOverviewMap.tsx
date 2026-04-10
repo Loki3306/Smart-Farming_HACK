@@ -131,16 +131,16 @@ const FarmOverviewMap: React.FC<FarmOverviewMapProps> = ({
       });
 
       // Add hover effect
-      sectionLayer.on("mouseover", function () {
-        this.setStyle({
+      sectionLayer.on("mouseover", () => {
+        sectionLayer.setStyle({
           fillOpacity: 0.5,
           weight: 3,
         });
       });
 
-      sectionLayer.on("mouseout", function () {
+      sectionLayer.on("mouseout", () => {
         if (section.id !== selectedSectionId) {
-          this.setStyle({
+          sectionLayer.setStyle({
             fillOpacity: 0.3,
             weight: 2,
           });

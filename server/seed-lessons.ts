@@ -1,7 +1,7 @@
 import { config } from "dotenv";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
-import { createClient } from "@supabase/supabase-js";
+// import removed
 
 // Load environment variables
 const __filename = fileURLToPath(import.meta.url);
@@ -16,7 +16,7 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   process.exit(1);
 }
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY) // auto-commented: supabase removed
 
 const LESSON_TEMPLATES = {
   organic: [

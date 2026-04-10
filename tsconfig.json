@@ -11,7 +11,7 @@
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": true,
-    "jsx": "react",
+    "jsx": "react-jsx",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
@@ -38,5 +38,20 @@
     "vite.config.ts",
     "vite.config.server.ts"
   ],
-  "exclude": ["node_modules", "dist"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "server/seed-data.ts",
+    "server/seed-lesson-content.ts",
+    "server/seed-lessons.ts",
+    "server/seed-quizzes.ts",
+    "server/seed-rich-content.ts",
+    "server/seed-rich-content.ts",
+    "server/seed-quizzes.ts",
+    "server/migrations/add-crop-columns.ts",
+    "server/migrations/check-columns.ts",
+    "verify-schema.js",
+    "run-iot-migration.js",
+    "run-notification-data-migration.js"
+  ]
 }

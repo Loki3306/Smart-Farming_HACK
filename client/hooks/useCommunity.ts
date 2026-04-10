@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 // RealtimeChannel replaced by Socket.IO — using local type alias
-type RealtimeChannel = { _event?: string; _cb?: Function; _noop?: boolean; _postId?: string } | null;
+type RealtimeChannel = { _event?: string; _cb?: Function; _noop?: boolean; _postId?: string; unsubscribe?: () => void } | null;
 import {
   Post,
   Comment,

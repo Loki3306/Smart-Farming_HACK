@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { getSocket } from "@/lib/socket";
 
 // =====================================================
 // API NOTIFICATION TYPES
@@ -165,32 +165,19 @@ export const apiNotificationService = {
     userId: string,
     callback: (notification: ApiNotification) => void,
   ) {
-    const channel = supabase
-      .channel(`notifications:${userId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "notifications",
-          filter: `user_id=eq.${userId}`,
-        },
-        async (payload) => {
-          const { data } = await supabase
-            .from("notification_details")
-            .select("*")
-            .eq("id", payload.new.id)
-            .single();
+    const socket = getSocket();
+    
+    if (!socket.connected) socket.connect();
+    socket.emit("notifications:subscribe", userId);
 
-          if (data) {
-            callback(data as ApiNotification);
-          }
-        },
-      )
-      .subscribe();
+    const handler = (notification: ApiNotification) => {
+      callback(notification);
+    };
+
+    socket.on("notification:new", handler);
 
     return () => {
-      supabase.removeChannel(channel);
+      socket.off("notification:new", handler);
     };
   },
 };

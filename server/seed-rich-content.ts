@@ -1,7 +1,7 @@
 import { config } from "dotenv";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
-import { createClient } from "@supabase/supabase-js";
+// import removed
 import {
   FULL_COURSE_DEFINITIONS,
   findContentForCourse,
@@ -21,7 +21,7 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
   process.exit(1);
 }
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+// const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY) // auto-commented: supabase removed
 
 // ============================================
 // SEED COURSES WITH RICH CONTENT

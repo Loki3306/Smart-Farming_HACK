@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { getSocket } from "@/lib/socket";
 
 // WebRTC configuration with STUN/TURN servers
 const rtcConfiguration: RTCConfiguration = {
@@ -77,17 +77,25 @@ export class CallService {
       this.receiverId = receiverId;
 
       // Create call record
-      const { data, error } = await supabase.rpc("create_call", {
-        p_conversation_id: conversationId,
-        p_caller_id: callerId,
-        p_receiver_id: receiverId,
-        p_call_type: callType,
+      const response = await fetch(`/api/chat/calls`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+              conversation_id: conversationId,
+              caller_id: callerId,
+              receiver_id: receiverId,
+              call_type: callType,
+          })
       });
+      if (!response.ok) throw new Error("Failed to post call");
+      const data = await response.json();
 
-      if (error) throw error;
-
-      this.currentCallId = data;
-      return data;
+      this.currentCallId = data.id;
+      
+      // Also emit via socket just in case
+      getSocket().emit("calls:initiate", { call_id: data.id, receiver_id: receiverId });
+      
+      return data.id;
     } catch (error) {
       console.error("Failed to initiate call:", error);
       throw error;
@@ -249,15 +257,28 @@ export class CallService {
     if (!this.currentCallId || !this.userId) return;
 
     try {
-      const { error } = await supabase.from("call_signaling").insert({
-        call_id: this.currentCallId,
-        sender_id: this.userId,
-        receiver_id: receiverId,
-        signal_type: signalType,
-        signal_data: signalData,
+      const response = await fetch(`/api/chat/call_signaling`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+              call_id: this.currentCallId,
+              sender_id: this.userId,
+              receiver_id: receiverId,
+              signal_type: signalType,
+              signal_data: signalData,
+          })
       });
 
-      if (error) throw error;
+      if (!response.ok) throw new Error("Failed to send signaling message");
+      
+      // Emit via socket
+      getSocket().emit("call:signal", {
+          call_id: this.currentCallId,
+          receiver_id: receiverId,
+          signal_type: signalType,
+          signal_data: signalData
+      });
+      
     } catch (error) {
       console.error("Failed to send signal:", error);
       throw error;
@@ -270,24 +291,21 @@ export class CallService {
     userId: string,
     onSignal: (signal: SignalingMessage) => void,
   ): () => void {
-    const channel = supabase
-      .channel(`call-signaling:${callId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "call_signaling",
-          filter: `receiver_id=eq.${userId}`,
-        },
-        (payload) => {
-          onSignal(payload.new as SignalingMessage);
-        },
-      )
-      .subscribe();
+    const socket = getSocket();
+    if (!socket.connected) socket.connect();
+    
+    socket.emit("calls:subscribe_signaling", { call_id: callId, user_id: userId });
+
+    const handler = (payload: any) => {
+        if (payload.call_id === callId) {
+            onSignal(payload as SignalingMessage);
+        }
+    };
+
+    socket.on("call:signal", handler);
 
     return () => {
-      supabase.removeChannel(channel);
+      socket.off("call:signal", handler);
     };
   }
 
@@ -296,12 +314,13 @@ export class CallService {
     if (!this.currentCallId) return;
 
     try {
-      const { error } = await supabase.rpc("update_call_status", {
-        p_call_id: this.currentCallId,
-        p_status: status,
+      const response = await fetch(`/api/chat/calls/${this.currentCallId}/status`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status })
       });
 
-      if (error) throw error;
+      if (!response.ok) throw new Error("Failed to update call status");
     } catch (error) {
       console.error("Failed to update call status:", error);
     }

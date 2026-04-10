@@ -4,6 +4,7 @@ import {
   CourseEnrollment,
   Badge,
 } from "../types/learn.types";
+import { query } from "../db/neon";
 
 /**
  * LearnService - Business logic layer for Learn platform
@@ -158,12 +159,11 @@ const badgeCriteria: Record<
 
   quizzes_passed: async (userId: string, requiredCount: number) => {
     try {
-      const { data: attempts } = await db.supabase
-        .from("quiz_attempts")
-        .select("id")
-        .eq("user_id", userId)
-        .eq("passed", true);
-      return (attempts?.length || 0) >= requiredCount;
+      const attemptsResult = await query(
+        "SELECT id FROM quiz_attempts WHERE user_id = $1 AND passed = true",
+        [userId]
+      );
+      return (attemptsResult.rows.length || 0) >= requiredCount;
     } catch {
       return false;
     }
@@ -189,12 +189,11 @@ const badgeCriteria: Record<
 
   articles_read: async (userId: string, requiredCount: number) => {
     try {
-      const { data: progress } = await db.supabase
-        .from("lesson_progress")
-        .select("id")
-        .eq("user_id", userId)
-        .eq("status", "completed");
-      return (progress?.length || 0) >= requiredCount;
+      const progressResult = await query(
+        "SELECT id FROM lesson_progress WHERE user_id = $1 AND status = 'completed'",
+        [userId]
+      );
+      return (progressResult.rows.length || 0) >= requiredCount;
     } catch {
       return false;
     }
@@ -206,7 +205,7 @@ const badgeCriteria: Record<
  */
 export async function checkAndAwardBadges(userId: string) {
   try {
-    const { data: allBadges } = await db.supabase.from("badges").select("*");
+    const { data: allBadges } = await db.getBadges(1000);
 
     if (!allBadges) return [];
 
@@ -320,12 +319,12 @@ export async function calculateUserStats(userId: string) {
     }
 
     // Get quiz stats
-    const { data: quizzes } = await db.supabase
-      .from("quiz_attempts")
-      .select("passed")
-      .eq("user_id", userId);
+    const quizzesResult = await query(
+      "SELECT passed FROM quiz_attempts WHERE user_id = $1",
+      [userId]
+    );
 
-    const quizzesPassed = quizzes?.filter((q) => q.passed).length || 0;
+    const quizzesPassed = quizzesResult.rows.filter((q) => q.passed).length || 0;
 
     // Get badge count
     const { total: badgeCount } = await db.getUserBadges(userId, 1000, 0);
@@ -363,22 +362,29 @@ export async function getUserLearningDashboard(userId: string) {
     );
 
     // Get recent quizzes
-    const { data: recentQuizzes } = await db.supabase
-      .from("quiz_attempts")
-      .select("*, quizzes(*)")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(5);
+    const recentQuizzesResult = await query(
+      `SELECT qa.*, row_to_json(q.*) as quizzes 
+       FROM quiz_attempts qa 
+       LEFT JOIN quizzes q ON q.id = qa.quiz_id 
+       WHERE qa.user_id = $1 
+       ORDER BY qa.created_at DESC LIMIT 5`,
+      [userId]
+    );
+    const recentQuizzes = recentQuizzesResult.rows;
 
     // Get recent badges
     const { data: recentBadges } = await db.getUserBadges(userId, 5, 0);
 
     // Get roadmap progress
-    const { data: roadmapProgress } = await db.supabase
-      .from("user_roadmap_progress")
-      .select("*, learning_roadmaps(*)")
-      .eq("user_id", userId)
-      .order("started_at", { ascending: false });
+    const roadmapProgressResult = await query(
+      `SELECT urp.*, row_to_json(lr.*) as learning_roadmaps 
+       FROM user_roadmap_progress urp 
+       LEFT JOIN learning_roadmaps lr ON lr.id = urp.roadmap_id 
+       WHERE urp.user_id = $1 
+       ORDER BY urp.started_at DESC`,
+      [userId]
+    );
+    const roadmapProgress = roadmapProgressResult.rows;
 
     return {
       stats: {
@@ -551,13 +557,16 @@ export async function submitQuizAnswers(
  */
 export async function getQuizAttemptWithFeedback(attemptId: string) {
   try {
-    const attempt = await db.supabase
-      .from("quiz_attempts")
-      .select("*, quizzes(*)")
-      .eq("id", attemptId)
-      .single();
+    const attemptResult = await query(
+      `SELECT qa.*, row_to_json(q.*) as quizzes 
+       FROM quiz_attempts qa 
+       LEFT JOIN quizzes q ON q.id = qa.quiz_id 
+       WHERE qa.id = $1 LIMIT 1`,
+      [attemptId]
+    );
 
-    if (attempt.error) throw attempt.error;
+    if (attemptResult.rows.length === 0) throw new Error("Attempt not found");
+    const attempt = attemptResult.rows[0];
 
     const answers = await db.getAttemptAnswers(attemptId);
 
@@ -577,7 +586,7 @@ export async function getQuizAttemptWithFeedback(attemptId: string) {
     );
 
     return {
-      attempt: attempt.data,
+      attempt: attempt,
       answers: detailedAnswers,
     };
   } catch (error) {
@@ -837,16 +846,16 @@ export async function updateLearningStreak(userId: string) {
     const stats = await db.getUserStats(userId);
 
     // Get last activity date
-    const { data: lastActivity } = await db.supabase
-      .from("lesson_progress")
-      .select("updated_at")
-      .eq("user_id", userId)
-      .order("updated_at", { ascending: false })
-      .limit(1);
+    const lastActivityResult = await query(
+      "SELECT updated_at FROM lesson_progress WHERE user_id = $1 ORDER BY updated_at DESC LIMIT 1",
+      [userId]
+    );
 
-    if (!lastActivity || lastActivity.length === 0) {
+    if (lastActivityResult.rows.length === 0) {
       return stats;
     }
+
+    const lastActivity = lastActivityResult.rows;
 
     const lastDate = new Date(lastActivity[0].updated_at);
     const today = new Date();

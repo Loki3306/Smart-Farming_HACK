@@ -64,20 +64,15 @@ export function useCropThresholds(): UseCropThresholdsResult {
           return;
         }
 
+        // Fetch farm settings directly from backend instead of Supabase REST API
         const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/farm_settings?farmer_id=eq.${farmId}&select=crop`,
-          {
-            headers: {
-              apikey: import.meta.env.VITE_SUPABASE_ANON_KEY || "",
-              Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY || ""}`,
-            },
-          },
+          `/api/settings?farmer_id=${farmId}`
         );
 
         if (response.ok) {
           const data = await response.json();
-          if (data?.[0]?.crop) {
-            const crop = data[0].crop;
+          if (data?.settings?.crop) {
+            const crop = data.settings.crop;
             setCropName(crop);
             setThresholds(getCropThresholds(crop));
           }

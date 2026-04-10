@@ -557,4 +557,100 @@ router.post("/posts/:id/summarize", async (req: Request, res: Response) => {
   }
 });
 
+// ============================================================================
+// POST REPORTS ENDPOINTS
+// ============================================================================
+
+/**
+ * POST /api/community/posts/:id/report
+ */
+router.post("/posts/:id/report", async (req: Request, res: Response) => {
+  try {
+    const { id: post_id } = req.params;
+    const { reporter_id, reason, details } = req.body;
+
+    if (!reporter_id || !reason) {
+      return res.status(400).json({ error: "Missing required fields: reporter_id, reason" });
+    }
+
+    try {
+      await query(
+        `INSERT INTO post_reports (post_id, reporter_id, reason, details)
+         VALUES ($1, $2, $3, $4)`,
+        [post_id, reporter_id, reason, details || null]
+      );
+      res.status(201).json({ success: true });
+    } catch (dbError: any) {
+      if (dbError.code === "23505") { // Unique violation
+        return res.status(409).json({ error: "You have already reported this post" });
+      }
+      throw dbError;
+    }
+  } catch (error: any) {
+    console.error("Error reporting post:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /api/community/posts/:id/report-status
+ */
+router.get("/posts/:id/report-status", async (req: Request, res: Response) => {
+  try {
+    const { id: post_id } = req.params;
+    const { user_id } = req.query;
+
+    if (!user_id) return res.status(400).json({ error: "user_id is required" });
+
+    const result = await query(
+      `SELECT id FROM post_reports WHERE post_id = $1 AND reporter_id = $2`,
+      [post_id, user_id]
+    );
+
+    res.json({ reported: result.rows.length > 0 });
+  } catch (error: any) {
+    console.error("Error checking report status:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /api/community/posts/:id/report-count
+ */
+router.get("/posts/:id/report-count", async (req: Request, res: Response) => {
+  try {
+    const { id: post_id } = req.params;
+
+    const result = await query(
+      `SELECT COUNT(*) FROM post_reports WHERE post_id = $1 AND status = 'pending'`,
+      [post_id]
+    );
+
+    res.json({ count: parseInt(result.rows[0].count, 10) });
+  } catch (error: any) {
+    console.error("Error getting report count:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /api/community/reports
+ */
+router.get("/reports", async (req: Request, res: Response) => {
+  try {
+    const { user_id } = req.query;
+    if (!user_id) return res.status(400).json({ error: "user_id is required" });
+
+    const result = await query(
+      `SELECT * FROM post_reports WHERE reporter_id = $1 ORDER BY created_at DESC`,
+      [user_id]
+    );
+
+    res.json({ reports: result.rows });
+  } catch (error: any) {
+    console.error("Error fetching user reports:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;
