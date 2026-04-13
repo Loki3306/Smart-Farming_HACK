@@ -30,7 +30,7 @@ if not DATABASE_URL:
 
     encoded_password = quote_plus(SUPABASE_DB_PASSWORD)
     # Debug: show that encoding happened (masked)
-    print(f"🔑 Password encoding: raw={len(SUPABASE_DB_PASSWORD)} chars, encoded={len(encoded_password)} chars, has_percent={'%' in encoded_password}")
+    print(f" Password encoding: raw={len(SUPABASE_DB_PASSWORD)} chars, encoded={len(encoded_password)} chars, has_percent={'%' in encoded_password}")
 
     # Prefer explicit DB host/user if provided (most reliable)
     if SUPABASE_DB_HOST and SUPABASE_DB_USER:
@@ -68,7 +68,7 @@ def _log_db_target(db_url: str) -> None:
                     sslmode = kv.split("=", 1)[1]
                     break
         print(
-            "🔎 DB target:",
+                "DB target:",
             f"user={username}",
             f"host={hostname}",
             f"port={port}",
@@ -76,7 +76,7 @@ def _log_db_target(db_url: str) -> None:
             f"sslmode={sslmode or 'default'}",
         )
     except Exception:
-        print("🔎 DB target: unable to parse DATABASE_URL")
+        print(" DB target: unable to parse DATABASE_URL")
 
 
 if DATABASE_URL:
@@ -112,9 +112,9 @@ async def startup_db():
     try:
         if DATABASE_URL and not database.is_connected:
             await database.connect()
-            print("✅ Database connected")
+            print(" Database connected")
     except Exception as e:
-        print(f"⚠️  Database connection failed: {str(e)}")
+        print(f"  Database connection failed: {str(e)}")
         print("   Farm geometry endpoints will not work until database is configured")
 
 
@@ -123,7 +123,7 @@ async def shutdown_db():
     try:
         if database.is_connected:
             await database.disconnect()
-            print("✅ Database disconnected")
+            print(" Database disconnected")
     except Exception:
         pass
 

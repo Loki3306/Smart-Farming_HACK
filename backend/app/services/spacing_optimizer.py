@@ -104,15 +104,15 @@ class SpacingOptimizerService:
             
             if os.path.exists(model_path):
                 self.model = joblib.load(model_path)
-                print("[SpacingOptimizer] ✅ Model loaded successfully")
+                print("[SpacingOptimizer]  Model loaded successfully")
             else:
-                print(f"[SpacingOptimizer] ⚠️ Model not found at {model_path}")
+                print(f"[SpacingOptimizer]  Model not found at {model_path}")
             
             if os.path.exists(encoder_path):
                 self.crop_encoder = joblib.load(encoder_path)
-                print("[SpacingOptimizer] ✅ Encoder loaded successfully")
+                print("[SpacingOptimizer]  Encoder loaded successfully")
         except Exception as e:
-            print(f"[SpacingOptimizer] ❌ Error loading model: {e}")
+            print(f"[SpacingOptimizer]  Error loading model: {e}")
     
     def get_optimal_spacing(
         self,
@@ -222,7 +222,7 @@ class SpacingOptimizerService:
             return float(prediction)
             
         except Exception as e:
-            print(f"[SpacingOptimizer] ❌ Prediction error: {e}")
+            print(f"[SpacingOptimizer]  Prediction error: {e}")
             return self._simple_yield_estimate(crop_type, row_spacing_cm)
     
     def _simple_yield_estimate(self, crop_type: str, row_spacing_cm: float) -> float:

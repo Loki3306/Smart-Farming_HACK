@@ -33,8 +33,8 @@ if regimes.data:
         print(f'Deleting regime {regime_id}...')
         db.supabase.table('regimes').delete().eq('regime_id', regime_id).execute()
         
-        print('✅ Regime deleted successfully!')
+        print(' Regime deleted successfully!')
     else:
-        print('❌ Cancelled')
+        print(' Cancelled')
 else:
     print('No regimes found')

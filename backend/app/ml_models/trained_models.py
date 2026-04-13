@@ -36,9 +36,9 @@ class RealFertilizerModel:
             self.le_crop = pickle.load(open(os.path.join(MODELS_DIR, "fertilizer_le_crop.pkl"), "rb"))
             self.le_target = pickle.load(open(os.path.join(MODELS_DIR, "fertilizer_le_target.pkl"), "rb"))
             self.trained = True
-            print(f"✓ {self.model_name} loaded successfully")
+            print(f" {self.model_name} loaded successfully")
         except Exception as e:
-            print(f"⚠️ Failed to load Fertilizer model: {e}")
+            print(f" Failed to load Fertilizer model: {e}")
             self.trained = False
     
     def predict(self, nitrogen: float, phosphorus: float, potassium: float, 
@@ -127,9 +127,9 @@ class RealIrrigationModel:
             self.le_region = pickle.load(open(os.path.join(MODELS_DIR, "irrigation_le_region.pkl"), "rb"))
             self.le_target = pickle.load(open(os.path.join(MODELS_DIR, "irrigation_le_target.pkl"), "rb"))
             self.trained = True
-            print(f"✓ {self.model_name} loaded successfully")
+            print(f" {self.model_name} loaded successfully")
         except Exception as e:
-            print(f"⚠️ Failed to load Irrigation model: {e}")
+            print(f" Failed to load Irrigation model: {e}")
             self.trained = False
     
     def predict(self, moisture: float, temperature: float, humidity: float, 
@@ -225,9 +225,9 @@ class RealCropModel:
         try:
             self.model = pickle.load(open(os.path.join(MODELS_DIR, "crop_model.pkl"), "rb"))
             self.trained = True
-            print(f"✓ {self.model_name} loaded successfully")
+            print(f" {self.model_name} loaded successfully")
         except Exception as e:
-            print(f"⚠️ Failed to load Crop model: {e}")
+            print(f" Failed to load Crop model: {e}")
             self.trained = False
     
     def predict(self, nitrogen: float, phosphorus: float, potassium: float,

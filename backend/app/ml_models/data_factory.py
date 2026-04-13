@@ -39,7 +39,7 @@ CROP_PROFILES = {
 # 1=Sandy, 2=Loam, 3=Clay
 SOIL_MAP = {1: 'sandy', 2: 'loam', 3: 'clay'}
 
-print("🌱 Initializing DataFactory for Crop Model...")
+print(" Initializing DataFactory for Crop Model...")
 
 class DataFactory:
     """Generates synthetic agricultural data based on expert rulesets"""

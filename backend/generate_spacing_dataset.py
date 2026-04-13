@@ -142,7 +142,7 @@ def generate_spacing_dataset(n_samples=5000):
     return pd.DataFrame(data)
 
 if __name__ == '__main__':
-    print("🌱 Generating Row Spacing Dataset...")
+    print(" Generating Row Spacing Dataset...")
     
     # Generate dataset
     df = generate_spacing_dataset(5000)
@@ -151,16 +151,16 @@ if __name__ == '__main__':
     output_file = '../datasets/Smart_Farming_Crop_Yield_With_Spacing.csv'
     df.to_csv(output_file, index=False)
     
-    print(f"✅ Dataset created: {output_file}")
+    print(f" Dataset created: {output_file}")
     print(f"   Total samples: {len(df)}")
     print(f"   Crops: {df['crop_type'].unique().tolist()}")
-    print(f"\n📊 Spacing Statistics:")
+    print(f"\n Spacing Statistics:")
     print(df.groupby('crop_type')['row_spacing_cm'].agg(['mean', 'min', 'max']))
-    print(f"\n📈 Yield Statistics:")
+    print(f"\n Yield Statistics:")
     print(df.groupby('crop_type')['yield_kg_per_ha'].agg(['mean', 'min', 'max']))
     
     # Show correlation between spacing and yield
-    print(f"\n🔗 Correlation: Row Spacing vs Yield")
+    print(f"\n Correlation: Row Spacing vs Yield")
     for crop in df['crop_type'].unique():
         crop_data = df[df['crop_type'] == crop]
         corr = crop_data['row_spacing_cm'].corr(crop_data['yield_kg_per_ha'])

@@ -31,6 +31,7 @@ import notificationsRouter from "./routes/notifications.js";
 import chatbotRouter from "./routes/chatbot.js";
 import diseaseRouter from "./routes/disease.js";
 import stressRouter from "./routes/stress.js";
+import settingsRoutes from "./routes/settings.js";
 import { autonomousEngine } from "./autonomous/autonomousEngine.js";
 import * as yieldRoutes from "./routes/yield.js";
 
@@ -83,6 +84,14 @@ export function createServer() {
 
   app.get("/api/ping", (_req, res) => {
     res.json({ message: process.env.PING_MESSAGE ?? "ping" });
+  });
+
+  app.get("/api/auth/me", (_req, res) => {
+    return res.json({
+      id: "550e8400-e29b-41d4-a716-446655440000",
+      name: "Demo Farmer",
+      hasCompletedOnboarding: true,
+    });
   });
 
   app.get("/api/demo", handleDemo);
@@ -168,6 +177,11 @@ export function createServer() {
   console.log("🌱 Registering Stress Detection routes...");
   app.use("/api/stress", stressRouter);
   console.log("✅ Stress routes registered at /api/stress");
+
+  // Settings
+  console.log("⚙️ Registering Settings routes...");
+  app.use("/api/settings", settingsRoutes);
+  console.log("✅ Settings routes registered at /api/settings");
 
   // Yield Prediction & Tracking
   console.log("🌾 Registering Yield routes...");

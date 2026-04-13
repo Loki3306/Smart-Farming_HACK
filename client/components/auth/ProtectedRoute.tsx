@@ -1,5 +1,5 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 interface ProtectedRouteProps {
@@ -12,6 +12,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requireOnboarding = false,
 }) => {
   const { isAuthenticated, user, isLoading, isDemoUser } = useAuth();
+  const location = useLocation();
 
   // Debug: Log session status
   React.useEffect(() => {
@@ -44,9 +45,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // Not authenticated - redirect to login
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !user?.id) {
     console.log("[ProtectedRoute] Not authenticated, redirecting to login");
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
   // Check onboarding requirement
@@ -57,8 +58,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/onboarding" replace />;
   }
 
-  // Demo users cannot access onboarding flow
-  if (isDemoUser && requireOnboarding) {
+  // Demo users should not stay on onboarding page
+  if (isDemoUser && location.pathname === "/onboarding") {
     return <Navigate to="/dashboard" replace />;
   }
 

@@ -15,7 +15,7 @@ MODELS_DIR = os.path.join(BASE_DIR, "saved_models")
 os.makedirs(MODELS_DIR, exist_ok=True)
 
 def train_fertilizer_model():
-    print("\n🌾 Training Fertilizer Model...")
+    print("\n Training Fertilizer Model...")
     df = pd.read_csv(os.path.join(DATA_DIR, "Fertilizer Prediction.csv"))
     
     # Rename columns to standard format
@@ -43,10 +43,10 @@ def train_fertilizer_model():
     pickle.dump(le_crop, open(os.path.join(MODELS_DIR, "fertilizer_le_crop.pkl"), "wb"))
     pickle.dump(le_fert, open(os.path.join(MODELS_DIR, "fertilizer_le_target.pkl"), "wb"))
     
-    print(f"✅ Fertilizer Model Saved. Accuracy: {model.score(X, y):.2f}")
+    print(f" Fertilizer Model Saved. Accuracy: {model.score(X, y):.2f}")
 
 def train_crop_recommendation_model():
-    print("\n🌱 Training Crop Recommendation Model...")
+    print("\n Training Crop Recommendation Model...")
     df = pd.read_csv(os.path.join(DATA_DIR, "Crop_recommendation.csv"))
     
     X = df[['N', 'P', 'K', 'temperature', 'humidity', 'ph', 'rainfall']]
@@ -57,10 +57,10 @@ def train_crop_recommendation_model():
     
     pickle.dump(model, open(os.path.join(MODELS_DIR, "crop_model.pkl"), "wb"))
     
-    print(f"✅ Crop Model Saved. Accuracy: {model.score(X, y):.2f}")
+    print(f" Crop Model Saved. Accuracy: {model.score(X, y):.2f}")
 
 def train_irrigation_model():
-    print("\n💧 Training Irrigation Strategy Model...")
+    print("\n Training Irrigation Strategy Model...")
     # Use the rich Yield dataset which has 'irrigation_type'
     df = pd.read_csv(os.path.join(DATA_DIR, "Smart_Farming_Crop_Yield_2024.csv"))
     
@@ -93,13 +93,13 @@ def train_irrigation_model():
     pickle.dump(le_region, open(os.path.join(MODELS_DIR, "irrigation_le_region.pkl"), "wb"))
     pickle.dump(le_irrig, open(os.path.join(MODELS_DIR, "irrigation_le_target.pkl"), "wb"))
     
-    print(f"✅ Irrigation Model Saved. Accuracy: {model.score(X, y):.2f}")
+    print(f" Irrigation Model Saved. Accuracy: {model.score(X, y):.2f}")
 
 if __name__ == "__main__":
     try:
         train_fertilizer_model()
         train_crop_recommendation_model()
         train_irrigation_model()
-        print("\n🚀 All Real Models Trained & Saved Successfully!")
+        print("\n All Real Models Trained & Saved Successfully!")
     except Exception as e:
-        print(f"\n❌ Error during training: {e}")
+        print(f"\n Error during training: {e}")

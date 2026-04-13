@@ -19,7 +19,7 @@ for pkl_file in pkl_files:
     path = os.path.join(MODELS_DIR, pkl_file)
     if os.path.exists(path):
         size = os.path.getsize(path)
-        print(f'✅ {pkl_file}: {size:,} bytes')
+        print(f' {pkl_file}: {size:,} bytes')
         
         # Load and inspect
         model = pickle.load(open(path, 'rb'))
@@ -29,7 +29,7 @@ for pkl_file in pkl_files:
         print(f'   Trees: {model.n_estimators} decision trees')
         print()
     else:
-        print(f'❌ {pkl_file}: NOT FOUND')
+        print(f' {pkl_file}: NOT FOUND')
 
 # Step 2: Inspect Random Forest internals
 print('\n2. RANDOM FOREST FEATURE IMPORTANCE')
@@ -45,7 +45,7 @@ for name, importance in zip(feature_names, importances):
     bar = '█' * int(importance * 50)
     print(f'  {name:20s} {importance:6.1%} {bar}')
 
-print('\n💡 This shows what the model actually learned from training data!')
+print('\n This shows what the model actually learned from training data!')
 print('   - High importance = feature was crucial in decisions')
 print('   - Low importance = feature had little effect')
 
@@ -129,12 +129,12 @@ try:
     # If model is None, fallback gets triggered
     test_result = model_obj.predict(50, 30, 180, 6.5, 'Loamy', 'Rice')
     if 'error' in test_result and 'fallback' in test_result['error']:
-        print(f'  ⚠️  FALLBACK TRIGGERED: {test_result["error"]}')
+        print(f'    FALLBACK TRIGGERED: {test_result["error"]}')
     else:
-        print(f'  ✅ Real model used (no fallback)')
+        print(f'   Real model used (no fallback)')
         print(f'     Output: {test_result["recommendations"][0]["fertilizer"]}')
 except Exception as e:
-    print(f'  ⚠️  Error: {e}')
+    print(f'    Error: {e}')
 
 print('\n' + '=' * 80)
 print('CONCLUSION')

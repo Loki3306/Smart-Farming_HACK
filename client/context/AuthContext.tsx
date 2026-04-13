@@ -173,7 +173,7 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
     [],
   );
 
-  const isAuthenticated = user !== null;
+  const isAuthenticated = Boolean(user?.id);
 
   const value: AuthContextType = {
     user,

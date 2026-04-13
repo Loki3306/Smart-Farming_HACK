@@ -110,7 +110,7 @@ class MQTTIoTClient:
             data = json.loads(payload)
 
             # ========== TESTING: PRINT RAW MQTT PAYLOAD ==========
-            print(f"\n📨 RAW MQTT Message on topic '{msg.topic}':")
+            print(f"\n RAW MQTT Message on topic '{msg.topic}':")
             print(f"   Payload: {msg.payload.decode()}")
             # =====================================================
 
@@ -342,7 +342,7 @@ class MQTTIoTClient:
             
             if result.rc == mqtt.MQTT_ERR_SUCCESS:
                 logger.info(f"✅ Published actuation command: {action}={status} to {topic}")
-                print(f"\n🎛️  ACTUATION COMMAND PUBLISHED")
+                print(f"\n  ACTUATION COMMAND PUBLISHED")
                 print(f"   Topic: {topic}")
                 print(f"   Device: {device}")
                 print(f"   State: {'ON' if status else 'OFF'}")

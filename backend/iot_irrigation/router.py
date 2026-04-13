@@ -175,7 +175,7 @@ async def handle_sensor_data(sensor_data_or_dict: Union[SensorData, dict]):
     print(f"[MQTT] MQTT Farm ID:   {mqtt_farm_id}")
     print(f"[MQTT] Frontend ID:    {frontend_farm_id}")
     print(f"[DATA] Moisture:       {sensor_data.moisture}%")
-    print(f"[DATA] Temperature:    {sensor_data.temp}°C")
+    print(f"[DATA] Temperature:    {sensor_data.temp}C")
     print(f"[DATA] Humidity:       {sensor_data.humidity}%")
     print(f"[DATA] NPK Raw:        {sensor_data.npk}")
     

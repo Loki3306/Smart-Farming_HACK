@@ -22,7 +22,7 @@ try:
     HAS_SKLEARN = True
 except ImportError:
     HAS_SKLEARN = False
-    print("⚠️ sklearn not available - using pre-trained model only")
+    print(" sklearn not available - using pre-trained model only")
 
 
 @dataclass
@@ -81,10 +81,10 @@ class YieldPredictor:
                     self.feature_columns = data['feature_columns']
                     self.feature_importances = data.get('feature_importances', {})
                     self.is_trained = True
-                    print("✓ Loaded pre-trained yield prediction model")
+                    print(" Loaded pre-trained yield prediction model")
                     return True
         except Exception as e:
-            print(f"⚠️ Could not load yield model: {e}")
+            print(f" Could not load yield model: {e}")
         return False
     
     def _save_model(self):
@@ -98,9 +98,9 @@ class YieldPredictor:
                     'feature_columns': self.feature_columns,
                     'feature_importances': self.feature_importances,
                 }, f)
-            print(f"✓ Saved yield model to {self.model_path}")
+            print(f" Saved yield model to {self.model_path}")
         except Exception as e:
-            print(f"⚠️ Could not save model: {e}")
+            print(f" Could not save model: {e}")
     
     def train(self, csv_path: str) -> Dict:
         """Train the yield prediction model on the dataset"""
@@ -108,12 +108,12 @@ class YieldPredictor:
             return {'success': False, 'error': 'sklearn not installed'}
         
         print("\n" + "="*60)
-        print("🌾 TRAINING YIELD PREDICTION MODEL")
+        print(" TRAINING YIELD PREDICTION MODEL")
         print("="*60)
         
         # Load dataset
         df = pd.read_csv(csv_path)
-        print(f"📊 Loaded {len(df)} records from dataset")
+        print(f" Loaded {len(df)} records from dataset")
         
         # Define features
         feature_cols = [
@@ -149,7 +149,7 @@ class YieldPredictor:
         X_test_scaled = self.scaler.transform(X_test)
         
         # Train Random Forest model
-        print("🚀 Training XGBoost Model (Industry Standard)...")
+        print(" Training XGBoost Model (Industry Standard)...")
         self.model = xgb.XGBRegressor(
             n_estimators=500,        # Number of trees
             max_depth=8,             # Tree depth
@@ -181,9 +181,9 @@ class YieldPredictor:
         test_r2 = r2_score(y_test, test_pred)
         test_mae = mean_absolute_error(y_test, test_pred)
         
-        print(f"\n📈 XGBoost Model Performance:")
-        print(f"   Train R² Score: {train_r2:.4f}")
-        print(f"   Test R² Score: {test_r2:.4f} {'✅ EXCELLENT!' if test_r2 > 0.85 else '⚠️ Needs tuning' if test_r2 > 0.70 else '❌ Poor'}")
+        print(f"\n XGBoost Model Performance:")
+        print(f"   Train R Score: {train_r2:.4f}")
+        print(f"   Test R Score: {test_r2:.4f} {' EXCELLENT!' if test_r2 > 0.85 else ' Needs tuning' if test_r2 > 0.70 else ' Poor'}")
         print(f"   Test MAE: {test_mae:.2f} kg/hectare")
         
         # Get feature importances (XGBoost provides this!)
@@ -199,7 +199,7 @@ class YieldPredictor:
         if total_importance > 0:
             self.feature_importances = {k: v/total_importance for k, v in self.feature_importances.items()}
         
-        print(f"\n🎯 Top 5 Important Features:")
+        print(f"\n Top 5 Important Features:")
         sorted_features = sorted(
             self.feature_importances.items(), 
             key=lambda x: x[1], 
@@ -313,7 +313,7 @@ class YieldPredictor:
             )
             
         except Exception as e:
-            print(f"⚠️ Prediction error: {e}")
+            print(f" Prediction error: {e}")
             return self._fallback_prediction(crop_type, soil_moisture, soil_ph, temperature)
     
     def _calculate_confidence(
@@ -582,9 +582,9 @@ if not yield_predictor.is_trained and HAS_SKLEARN:
         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
         csv_path = os.path.join(base_dir, 'datasets', 'Final_Real_Yield_Data.csv')
         if os.path.exists(csv_path):
-            print("🌾 Auto-training yield model...")
+            print(" Auto-training yield model...")
             train_yield_model(csv_path)
         else:
-            print(f"⚠️ Dataset not found at: {csv_path}")
+            print(f" Dataset not found at: {csv_path}")
     except Exception as e:
-        print(f"⚠️ Auto-training failed: {e}")
+        print(f" Auto-training failed: {e}")

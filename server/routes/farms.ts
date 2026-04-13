@@ -1,6 +1,26 @@
 import { Request, Response } from "express";
 import { db } from "../db/supabase.js";
 
+const UUID_V4_OR_V1_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+const DEFAULT_DEMO_FARMER_UUID =
+  process.env.DEMO_FARMER_ID || "550e8400-e29b-41d4-a716-446655440000";
+
+function normalizeFarmerId(rawFarmerId: string): string | null {
+  const candidate = (rawFarmerId || "").trim();
+
+  if (!candidate) return null;
+  if (UUID_V4_OR_V1_REGEX.test(candidate)) return candidate;
+
+  // Backward compatibility for legacy demo IDs from older client builds
+  if (candidate === "demo-user-123" || candidate === "demo-user") {
+    return DEFAULT_DEMO_FARMER_UUID;
+  }
+
+  return null;
+}
+
 // GET /api/farms - Get all farms for authenticated user
 export const getFarms = async (req: Request, res: Response) => {
   try {
@@ -10,7 +30,14 @@ export const getFarms = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "farmerId is required" });
     }
 
-    const farms = await db.getFarms(farmerId as string);
+    const normalizedFarmerId = normalizeFarmerId(farmerId as string);
+    if (!normalizedFarmerId) {
+      return res.status(400).json({
+        error: "Invalid farmerId. Expected a UUID.",
+      });
+    }
+
+    const farms = await db.getFarms(normalizedFarmerId);
     res.json({ farms });
   } catch (error) {
     console.error("[Farms] Error fetching farms:", error);
@@ -52,6 +79,15 @@ export const createFarm = async (req: Request, res: Response) => {
         error: "farmer_id and farm_name are required",
       });
     }
+
+    const normalizedFarmerId = normalizeFarmerId(String(farmData.farmer_id));
+    if (!normalizedFarmerId) {
+      return res.status(400).json({
+        error: "Invalid farmer_id. Expected a UUID.",
+      });
+    }
+
+    farmData.farmer_id = normalizedFarmerId;
 
     const farm = await db.createFarm(farmData);
     res.status(201).json({ farm });

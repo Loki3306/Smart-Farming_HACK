@@ -125,7 +125,7 @@ def save_bootstrap_dataset(output_path: str = None):
     df = generate_synthetic_data()
     df.to_csv(output_path, index=False)
     
-    print(f"✅ Bootstrap dataset generated: {output_path}")
+    print(f" Bootstrap dataset generated: {output_path}")
     print(f"   Samples: {len(df)}")
     print(f"   Features: {len(df.columns)}")
     print(f"   Date Range: {df['timestamp'].min()} to {df['timestamp'].max()}")

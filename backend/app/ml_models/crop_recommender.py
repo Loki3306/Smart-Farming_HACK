@@ -31,16 +31,16 @@ class CropRecommender:
     def _load_or_train(self):
         """Load existing model or trigger training pipeline"""
         if os.path.exists(MODEL_PATH) and os.path.exists(SCALER_PATH):
-            print("🧠 Loading existing Crop Recommendation Model...")
+            print(" Loading existing Crop Recommendation Model...")
             self.model = joblib.load(MODEL_PATH)
             self.scaler = joblib.load(SCALER_PATH)
         else:
-            print("⚠️ Model not found. Starting training pipeline...")
+            print(" Model not found. Starting training pipeline...")
             self.train()
 
     def train(self):
         """Train Random Forest model on synthetic data"""
-        print("🚜 Generating training data...")
+        print(" Generating training data...")
         df = DataFactory.generate_dataset(num_samples=10000)
         
         # Features & Target
@@ -56,20 +56,20 @@ class CropRecommender:
         X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
         
         # Train
-        print("🧠 Training Random Forest Classifier (n_estimators=100)...")
+        print(" Training Random Forest Classifier (n_estimators=100)...")
         self.model = RandomForestClassifier(n_estimators=100, random_state=42)
         self.model.fit(X_train, y_train)
         
         # Metrics
         y_pred = self.model.predict(X_test)
         acc = accuracy_score(y_test, y_pred)
-        print(f"✅ Training Complete. Accuracy: {acc:.4f}")
+        print(f" Training Complete. Accuracy: {acc:.4f}")
         
         # Save artifacts
         os.makedirs("app/ml_models", exist_ok=True)
         joblib.dump(self.model, MODEL_PATH)
         joblib.dump(self.scaler, SCALER_PATH)
-        print("💾 Model saved to disk.")
+        print(" Model saved to disk.")
 
     def predict(self, features: dict):
         """

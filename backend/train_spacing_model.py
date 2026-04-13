@@ -12,13 +12,13 @@ from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 import joblib
 import os
 
-print("🌱 Training Yield Prediction Model with Row Spacing...")
+print(" Training Yield Prediction Model with Row Spacing...")
 
 # Load the spacing-enhanced dataset
 dataset_path = '../datasets/Smart_Farming_Crop_Yield_With_Spacing.csv'
 df = pd.read_csv(dataset_path)
 
-print(f"✅ Loaded dataset: {len(df)} samples")
+print(f" Loaded dataset: {len(df)} samples")
 print(f"   Crops: {df['crop_type'].unique().tolist()}")
 print(f"   Features: {df.columns.tolist()}")
 
@@ -54,11 +54,11 @@ X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
 
-print(f"\n📊 Training set: {len(X_train)} samples")
+print(f"\n Training set: {len(X_train)} samples")
 print(f"   Test set: {len(X_test)} samples")
 
 # Train XGBoost model
-print("\n🚀 Training XGBoost model...")
+print("\n Training XGBoost model...")
 
 model = xgb.XGBRegressor(
     objective='reg:squarederror',
@@ -82,11 +82,11 @@ train_r2 = r2_score(y_train, y_pred_train)
 test_r2 = r2_score(y_test, y_pred_test)
 test_mae = mean_absolute_error(y_test, y_pred_test)
 
-print(f"\n📈 Model Performance:")
+print(f"\n Model Performance:")
 print(f"   Train RMSE: {train_rmse:.2f} kg/ha")
 print(f"   Test RMSE:  {test_rmse:.2f} kg/ha")
-print(f"   Train R²:   {train_r2:.4f}")
-print(f"   Test R²:    {test_r2:.4f}")
+print(f"   Train R:   {train_r2:.4f}")
+print(f"   Test R:    {test_r2:.4f}")
 print(f"   Test MAE:   {test_mae:.2f} kg/ha")
 
 # Feature importance
@@ -95,11 +95,11 @@ feature_importance = pd.DataFrame({
     'importance': model.feature_importances_
 }).sort_values('importance', ascending=False)
 
-print(f"\n🎯 Top 10 Important Features:")
+print(f"\n Top 10 Important Features:")
 print(feature_importance.head(10).to_string(index=False))
 
 # Test spacing impact prediction
-print(f"\n🧪 Testing Spacing Impact Prediction:")
+print(f"\n Testing Spacing Impact Prediction:")
 
 # Example: Rice with different spacings
 test_conditions = {
@@ -132,12 +132,12 @@ for spacing in spacings_to_test:
     pred = model.predict(X_test_single)[0]
     predictions.append(pred)
     
-    print(f"      {spacing}cm × {spacing}cm: {pred:.0f} kg/ha")
+    print(f"      {spacing}cm  {spacing}cm: {pred:.0f} kg/ha")
 
 optimal_idx = np.argmax(predictions)
 optimal_spacing = spacings_to_test[optimal_idx]
-print(f"\n   ✅ Optimal spacing: {optimal_spacing}cm × {optimal_spacing}cm")
-print(f"   📈 Yield improvement: {((predictions[optimal_idx] / predictions[0]) - 1) * 100:.1f}%")
+print(f"\n    Optimal spacing: {optimal_spacing}cm  {optimal_spacing}cm")
+print(f"    Yield improvement: {((predictions[optimal_idx] / predictions[0]) - 1) * 100:.1f}%")
 
 # Save model
 model_dir = 'app/ml_models/compiled_models'
@@ -150,14 +150,14 @@ joblib.dump(model, model_path)
 encoder_path = os.path.join(model_dir, 'crop_type_encoder.pkl')
 joblib.dump(le, encoder_path)
 
-print(f"\n✅ Model saved to: {model_path}")
-print(f"✅ Encoder saved to: {encoder_path}")
+print(f"\n Model saved to: {model_path}")
+print(f" Encoder saved to: {encoder_path}")
 
 # Save feature list for later use
 feature_list_path = os.path.join(model_dir, 'spacing_features.txt')
 with open(feature_list_path, 'w') as f:
     f.write('\n'.join(feature_cols))
 
-print(f"✅ Feature list saved to: {feature_list_path}")
+print(f" Feature list saved to: {feature_list_path}")
 
-print(f"\n🎉 Training complete! Model ready for spacing-based predictions.")
+print(f"\n Training complete! Model ready for spacing-based predictions.")

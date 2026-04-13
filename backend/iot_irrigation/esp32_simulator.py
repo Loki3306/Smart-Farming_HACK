@@ -29,14 +29,14 @@ gpio_states = {
 def on_connect(client, userdata, flags, rc):
     """Callback when connected to MQTT broker"""
     if rc == 0:
-        print(f"✅ ESP32 Connected to MQTT broker at {MQTT_BROKER}:{MQTT_PORT}")
-        print(f"📡 Publishing telemetry to: {TELEMETRY_TOPIC}")
-        print(f"📥 Subscribed to commands: {COMMAND_TOPIC}")
+        print(f" ESP32 Connected to MQTT broker at {MQTT_BROKER}:{MQTT_PORT}")
+        print(f" Publishing telemetry to: {TELEMETRY_TOPIC}")
+        print(f" Subscribed to commands: {COMMAND_TOPIC}")
         
         # Subscribe to command topic
         client.subscribe(COMMAND_TOPIC, qos=1)
     else:
-        print(f"❌ Connection failed with code {rc}")
+        print(f" Connection failed with code {rc}")
 
 def on_message(client, userdata, msg):
     """Callback when command message is received"""
@@ -45,7 +45,7 @@ def on_message(client, userdata, msg):
         data = json.loads(payload)
         
         print(f"\n{'='*70}")
-        print(f"📥 COMMAND RECEIVED on {msg.topic}")
+        print(f" COMMAND RECEIVED on {msg.topic}")
         print(f"{'='*70}")
         print(f"   Type: {data.get('type')}")
         print(f"   Device: {data.get('device')}")
@@ -61,21 +61,21 @@ def on_message(client, userdata, msg):
                 # Update GPIO state
                 gpio_states[device] = (state == 1)
                 
-                print(f"\n🔌 GPIO UPDATE:")
+                print(f"\n GPIO UPDATE:")
                 print(f"   Device: {device}")
                 print(f"   GPIO: {'18' if device == 'irrigation' else '19'}")
                 print(f"   State: {'ON (HIGH)' if gpio_states[device] else 'OFF (LOW)'}")
-                print(f"   LED: {'🟢 GLOWING' if gpio_states[device] else '⚫ OFF'}")
+                print(f"   LED: {' GLOWING' if gpio_states[device] else ' OFF'}")
                 
                 # Send acknowledgement back to backend
                 send_acknowledgement(client, device, gpio_states[device])
             else:
-                print(f"⚠️ Unknown device: {device}")
+                print(f" Unknown device: {device}")
         
         print(f"{'='*70}\n")
         
     except Exception as e:
-        print(f"❌ Error processing command: {e}")
+        print(f" Error processing command: {e}")
 
 def send_acknowledgement(client, device, state):
     """Send acknowledgement to backend via telemetry"""
@@ -88,7 +88,7 @@ def send_acknowledgement(client, device, state):
     
     client.publish(TELEMETRY_TOPIC, json.dumps(ack_payload), qos=1)
     
-    print(f"✅ Acknowledgement sent: {device}={ack_payload[device]}")
+    print(f" Acknowledgement sent: {device}={ack_payload[device]}")
 
 def generate_sensor_data():
     """Generate simulated sensor data"""
@@ -120,15 +120,15 @@ def publish_sensor_data(client):
     result = client.publish(TELEMETRY_TOPIC, payload, qos=1)
     
     if result.rc == mqtt.MQTT_ERR_SUCCESS:
-        print(f"\n📨 Telemetry Published:")
-        print(f"   💧 Moisture: {data['moisture']}%")
-        print(f"   🌡️  Temp: {data['temp']}°C")
-        print(f"   💨 Humidity: {data['humidity']}%")
-        print(f"   🧂 EC: {data['ec_salinity']} dS/m")
-        print(f"   🌬️  Wind: {data['wind_speed']} km/h")
-        print(f"   🧪 pH: {data['soil_ph']}")
-        print(f"   🔌 Irrigation LED: {'🟢' if gpio_states['irrigation'] else '⚫'}")
-        print(f"   🔌 Fertilization LED: {'🟢' if gpio_states['fertilization'] else '⚫'}")
+        print(f"\n Telemetry Published:")
+        print(f"    Moisture: {data['moisture']}%")
+        print(f"     Temp: {data['temp']}C")
+        print(f"    Humidity: {data['humidity']}%")
+        print(f"    EC: {data['ec_salinity']} dS/m")
+        print(f"     Wind: {data['wind_speed']} km/h")
+        print(f"    pH: {data['soil_ph']}")
+        print(f"    Irrigation LED: {'' if gpio_states['irrigation'] else ''}")
+        print(f"    Fertilization LED: {'' if gpio_states['fertilization'] else ''}")
 
 def main():
     """Main ESP32 simulator"""
@@ -151,12 +151,12 @@ def main():
     
     # Connect to broker
     try:
-        print(f"\n🔌 Connecting to MQTT broker...")
+        print(f"\n Connecting to MQTT broker...")
         client.connect(MQTT_BROKER, MQTT_PORT, 60)
         client.loop_start()
         time.sleep(1)
         
-        print("\n🚀 ESP32 Simulator Running")
+        print("\n ESP32 Simulator Running")
         print("   - Publishing sensor data every 3 seconds")
         print("   - Listening for actuation commands")
         print("   - Press Ctrl+C to stop\n")
@@ -170,13 +170,13 @@ def main():
             time.sleep(3)
             
     except KeyboardInterrupt:
-        print("\n\n🛑 ESP32 Simulator stopped by user")
+        print("\n\n ESP32 Simulator stopped by user")
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f" Error: {e}")
     finally:
         client.loop_stop()
         client.disconnect()
-        print("✅ Disconnected from MQTT broker")
+        print(" Disconnected from MQTT broker")
 
 if __name__ == "__main__":
     main()

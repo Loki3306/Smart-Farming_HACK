@@ -43,7 +43,7 @@ const mockUsers: Map<string, User & { password: string }> = new Map();
 
 // Demo user
 const DEMO_USER: User = {
-  id: "demo-user-123",
+  id: "35596319-ef8f-4e76-a0cb-cbd88742a05d",
   phone: "+1-555-000-0000",
   email: "demo@irrigate.farm",
   fullName: "Demo Farmer",
@@ -57,7 +57,7 @@ const DEMO_USER: User = {
 
 // Add a default test user for demo
 mockUsers.set("test@example.com", {
-  id: "user-001",
+  id: "550e8400-e29b-41d4-a716-446655440000",
   email: "test@example.com",
   fullName: "Test Farmer",
   phone: "555-1234",
@@ -72,6 +72,62 @@ mockUsers.set("test@example.com", {
 });
 
 class AuthServiceClass {
+  private normalizeUser(rawUser: any): User | null {
+    if (!rawUser || typeof rawUser !== "object") {
+      return null;
+    }
+
+    const id = typeof rawUser.id === "string" ? rawUser.id : "";
+    if (!id) {
+      return null;
+    }
+
+    const fullName =
+      typeof rawUser.fullName === "string"
+        ? rawUser.fullName
+        : typeof rawUser.name === "string"
+          ? rawUser.name
+          : "Demo Farmer";
+
+    const experienceLevel: User["experienceLevel"] =
+      rawUser.experienceLevel === "beginner" ||
+      rawUser.experienceLevel === "intermediate" ||
+      rawUser.experienceLevel === "experienced"
+        ? rawUser.experienceLevel
+        : "beginner";
+
+    return {
+      id,
+      phone: typeof rawUser.phone === "string" ? rawUser.phone : "",
+      email: typeof rawUser.email === "string" ? rawUser.email : undefined,
+      fullName,
+      country: typeof rawUser.country === "string" ? rawUser.country : "India",
+      state: typeof rawUser.state === "string" ? rawUser.state : "Maharashtra",
+      experienceLevel,
+      preferredLanguage:
+        typeof rawUser.preferredLanguage === "string"
+          ? rawUser.preferredLanguage
+          : undefined,
+      hasCompletedOnboarding: Boolean(rawUser.hasCompletedOnboarding),
+      createdAt: rawUser.createdAt ? new Date(rawUser.createdAt) : new Date(),
+      isDemoUser: Boolean(rawUser.isDemoUser),
+      isFirstLogin: Boolean(rawUser.isFirstLogin),
+    };
+  }
+
+  private cacheSession(user: User, token?: string): void {
+    localStorage.setItem("current_user", JSON.stringify(user));
+    localStorage.setItem("user_id", user.id);
+    localStorage.setItem(
+      "onboarding_completed",
+      user.hasCompletedOnboarding ? "true" : "false",
+    );
+
+    if (token) {
+      localStorage.setItem("auth_token", token);
+    }
+  }
+
   async signup(payload: SignupPayload): Promise<AuthResponse> {
     const response = await fetch(
       `${CONFIG.API_BASE_URL}${CONFIG.AUTH_ENDPOINTS.SIGNUP || "/api/auth/signup"}`,
@@ -110,7 +166,19 @@ class AuthServiceClass {
       throw new Error(error.message || "Login failed");
     }
 
-    return response.json();
+    const data = await response.json();
+    const normalizedUser = this.normalizeUser(data.user ?? data);
+
+    if (!normalizedUser) {
+      throw new Error("Login succeeded but user payload is invalid");
+    }
+
+    this.cacheSession(normalizedUser, data.token);
+
+    return {
+      user: normalizedUser,
+      token: data.token,
+    };
   }
 
   async logout(): Promise<void> {
@@ -154,27 +222,41 @@ class AuthServiceClass {
       throw new Error("Failed to update profile");
     }
 
-    const updatedUser = await response.json();
+    const data = await response.json();
+    const updatedUser = this.normalizeUser(data.user ?? data);
     if (updatedUser) {
-        localStorage.setItem("current_user", JSON.stringify(updatedUser));
+      this.cacheSession(updatedUser);
     }
+
+    if (!updatedUser) {
+      throw new Error("Invalid profile response from server");
+    }
+
     return updatedUser;
   }
 
   async getCurrentUser(): Promise<User | null> {
     const cachedUser = localStorage.getItem("current_user");
-    const userId = localStorage.getItem("user_id");
 
-    if (cachedUser && userId) {
+    if (cachedUser) {
       try {
-        const user = JSON.parse(cachedUser) as User;
+        const parsedUser = JSON.parse(cachedUser);
+        const user = this.normalizeUser(parsedUser);
+
+        if (!user) {
+          throw new Error("Cached user is invalid");
+        }
+
         const onboardingCompleted =
           localStorage.getItem("onboarding_completed") === "true";
-        return {
+        const hydratedUser: User = {
           ...user,
           hasCompletedOnboarding:
             onboardingCompleted || user.hasCompletedOnboarding,
         };
+
+        this.cacheSession(hydratedUser);
+        return hydratedUser;
       } catch (error) {
         console.error("Failed to parse cached user:", error);
       }
@@ -193,7 +275,13 @@ class AuthServiceClass {
     }
 
     const data = await response.json();
-    return data.user || null;
+    const currentUser = this.normalizeUser(data.user ?? data);
+    if (!currentUser) {
+      return null;
+    }
+
+    this.cacheSession(currentUser, data.token);
+    return currentUser;
   }
 
   getDemoUser(): User {

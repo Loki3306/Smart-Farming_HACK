@@ -124,7 +124,7 @@ except ImportError as e:
     initialize_mqtt = None
     shutdown_mqtt = None
 except Exception as e:
-    print(f"⚠️ IoT Irrigation module error: {type(e).__name__}: {e}")
+    print(f" IoT Irrigation module error: {type(e).__name__}: {e}")
     import traceback
     traceback.print_exc()
 
@@ -137,7 +137,7 @@ try:
 except ImportError as e:
     print(f"[ERROR] Product Recommendations import error: {e}")
 except Exception as e:
-    print(f"⚠️ Product Recommendations error: {type(e).__name__}: {e}")
+    print(f" Product Recommendations error: {type(e).__name__}: {e}")
     import traceback
     traceback.print_exc()
 
@@ -150,7 +150,7 @@ try:
 except ImportError as e:
     print(f"[ERROR] Row Spacing import error: {e}")
 except Exception as e:
-    print(f"⚠️ Row Spacing error: {type(e).__name__}: {e}")
+    print(f" Row Spacing error: {type(e).__name__}: {e}")
     import traceback
     traceback.print_exc()
 
@@ -249,9 +249,9 @@ class ModelLoader:
             try:
                 mod = importlib.import_module(module_path)
                 self.models[name] = mod
-                print(f"✓ Loaded model: {name}")
+                print(f" Loaded model: {name}")
             except Exception as e:
-                print(f"⚠ Could not load {name}: {e}")
+                print(f" Could not load {name}: {e}")
                 self.models[name] = None
         
         self.loaded = True
@@ -311,15 +311,15 @@ class RecommendationEngine:
         Uses rule-based logic + ML models (when available).
         """
         print("\n" + "="*70)
-        print("🤖 AI RECOMMENDATION ENGINE STARTED")
+        print(" AI RECOMMENDATION ENGINE STARTED")
         print("="*70)
-        print(f"📋 Request Details:")
+        print(f" Request Details:")
         print(f"   Farm ID: {farm_id}")
-        print(f"   🌾 Crop Type: '{crop_type}'")
-        print(f"   🏞️  Soil Type: {soil_type}")
-        print(f"   🌡️  Sensor Data:")
+        print(f"    Crop Type: '{crop_type}'")
+        print(f"     Soil Type: {soil_type}")
+        print(f"     Sensor Data:")
         print(f"      - Moisture: {sensor_data.moisture}%")
-        print(f"      - Temperature: {sensor_data.temperature}°C")
+        print(f"      - Temperature: {sensor_data.temperature}C")
         print(f"      - pH: {sensor_data.ph}")
         print(f"      - NPK: N={sensor_data.nitrogen}, P={sensor_data.phosphorus}, K={sensor_data.potassium}")
         
@@ -328,14 +328,14 @@ class RecommendationEngine:
         rec_id_counter = 1
         
         # Validate crop type first
-        print(f"\n🔍 Step 1: Validating crop type...")
+        print(f"\n Step 1: Validating crop type...")
         is_valid, validation_msg = RecommendationEngine.validate_crop_type(crop_type)
-        print(f"   Validation result: {'✅ VALID' if is_valid else '❌ INVALID'}")
+        print(f"   Validation result: {' VALID' if is_valid else ' INVALID'}")
         if validation_msg:
             print(f"   Message: {validation_msg}")
         
         if not is_valid:
-            print(f"\n⚠️  STOPPING: Crop not configured properly")
+            print(f"\n  STOPPING: Crop not configured properly")
             recommendations.append(Recommendation(
                 id="config_error",
                 type="general",
@@ -352,7 +352,7 @@ class RecommendationEngine:
         
         # Add info message for unsupported crops
         if validation_msg and crop_type.lower() not in RecommendationEngine.SUPPORTED_CROPS:
-            print(f"\n💡 Info: Crop '{crop_type}' not in optimized list, using general recommendations")
+            print(f"\n Info: Crop '{crop_type}' not in optimized list, using general recommendations")
             recommendations.append(Recommendation(
                 id="crop_info",
                 type="general",
@@ -373,9 +373,9 @@ class RecommendationEngine:
             'optimal_ph': (6.0, 7.5)
         })
         
-        print(f"\n🎯 Step 2: Using optimal conditions for {crop_type}:")
+        print(f"\n Step 2: Using optimal conditions for {crop_type}:")
         print(f"   Moisture range: {optimal_conditions['optimal_moisture'][0]}-{optimal_conditions['optimal_moisture'][1]}%")
-        print(f"   Temperature range: {optimal_conditions['optimal_temp'][0]}-{optimal_conditions['optimal_temp'][1]}°C")
+        print(f"   Temperature range: {optimal_conditions['optimal_temp'][0]}-{optimal_conditions['optimal_temp'][1]}C")
         print(f"   pH range: {optimal_conditions['optimal_ph'][0]}-{optimal_conditions['optimal_ph'][1]}")
         
         # Calculate deterministic confidence factor based on crop type and data quality
@@ -384,14 +384,14 @@ class RecommendationEngine:
         data_quality_score = min(100, (sensor_data.moisture + sensor_data.temperature + sensor_data.nitrogen) / 3)
         base_confidence_adjustment = (crop_confidence_factor * 2) - 1  # -1 to +0.8 range
         
-        print(f"\n🔬 Step 3: Loading ML Models...")
+        print(f"\n Step 3: Loading ML Models...")
         # Use ML models if available
         trained_models = model_loader.models.get('trained_models')  # Real ML models
         agronomist_agent = model_loader.models.get('agronomist')
         meteorologist_agent = model_loader.models.get('meteorologist')
-        print(f"   Trained ML Models: {'✅ Loaded' if trained_models else '❌ Not available'}")
-        print(f"   Agronomist Agent: {'✅ Loaded' if agronomist_agent else '❌ Not available'}")
-        print(f"   Meteorologist Agent: {'✅ Loaded' if meteorologist_agent else '❌ Not available'}")
+        print(f"   Trained ML Models: {' Loaded' if trained_models else ' Not available'}")
+        print(f"   Agronomist Agent: {' Loaded' if agronomist_agent else ' Not available'}")
+        print(f"   Meteorologist Agent: {' Loaded' if meteorologist_agent else ' Not available'}")
         
         # Get ML predictions if models are loaded
         ml_fertilizer_recs = []
@@ -400,7 +400,7 @@ class RecommendationEngine:
         # Try trained ML models first (REAL predictions)
         if trained_models:
             try:
-                print(f"   🤖 Using REAL ML model predictions...")
+                print(f"    Using REAL ML model predictions...")
                 ml_result = trained_models.get_fertilizer_prediction(
                     sensor_data.nitrogen,
                     sensor_data.phosphorus,
@@ -411,10 +411,10 @@ class RecommendationEngine:
                 )
                 ml_fertilizer_recs = ml_result.get('recommendations', [])
                 ml_confidence_scores['fertilizer'] = ml_result.get('model_confidence', 85)
-                print(f"   ✓ ML Model returned {len(ml_fertilizer_recs)} fertilizer recommendations")
-                print(f"   ✓ Model confidence: {ml_confidence_scores['fertilizer']:.1f}%")
+                print(f"    ML Model returned {len(ml_fertilizer_recs)} fertilizer recommendations")
+                print(f"    Model confidence: {ml_confidence_scores['fertilizer']:.1f}%")
             except Exception as e:
-                print(f"⚠️ Trained ML model error: {e}")
+                print(f" Trained ML model error: {e}")
         
         # Fallback to old fertilizer model if trained models fail
         # Custom fallback logic if needed
@@ -431,9 +431,9 @@ class RecommendationEngine:
                     sensor_data.humidity,
                     sensor_data.rainfall if sensor_data.rainfall else 0
                 )
-                print(f"   ✅ Agronomist analysis returned {len(agronomist_analysis.get('alerts', []))} alerts")
+                print(f"    Agronomist analysis returned {len(agronomist_analysis.get('alerts', []))} alerts")
             except Exception as e:
-                print(f"⚠️ Agronomist agent error: {e}")
+                print(f" Agronomist agent error: {e}")
         
         weather_analysis = None
         if meteorologist_agent:
@@ -446,7 +446,7 @@ class RecommendationEngine:
                     weather_condition=weather_condition or "Clear"
                 )
             except Exception as e:
-                print(f"⚠️ Meteorologist agent error: {e}")
+                print(f" Meteorologist agent error: {e}")
         
         # --- CROP SUITABILITY CHECK (NEW: ML-based crop analysis) ---
         crop_suitability = None
@@ -462,7 +462,7 @@ class RecommendationEngine:
                     sensor_data.ph,
                     sensor_data.rainfall if sensor_data.rainfall else 0
                 )
-                print(f"   🌱 Crop Suitability for {crop_type}: {crop_suitability.get('suitability', 0):.1f}%")
+                print(f"    Crop Suitability for {crop_type}: {crop_suitability.get('suitability', 0):.1f}%")
                 
                 # Add crop suitability recommendation if score is low AND there's a significantly better alternative
                 suitability_score = crop_suitability.get('suitability', 50)
@@ -493,7 +493,7 @@ class RecommendationEngine:
                     ))
                     rec_id_counter += 1
             except Exception as e:
-                print(f"⚠️ Crop suitability check error: {e}")
+                print(f" Crop suitability check error: {e}")
         
 
         # --- FERTILIZER RECOMMENDATIONS (Enhanced with REAL ML) ---
@@ -681,7 +681,7 @@ class RecommendationEngine:
         # Crop-specific moisture thresholds
         min_moisture, max_moisture = optimal_conditions['optimal_moisture']
         
-        print(f"\n💧 Step 4: Analyzing Irrigation for {crop_type}...")
+        print(f"\n Step 4: Analyzing Irrigation for {crop_type}...")
         print(f"   Current moisture: {sensor_data.moisture:.1f}%")
         print(f"   Optimal range for {crop_type}: {min_moisture}-{max_moisture}%")
         
@@ -695,13 +695,13 @@ class RecommendationEngine:
                     sensor_data.humidity,
                     crop_type
                 )
-                print(f"   🤖 ML Irrigation Model: {ml_irrigation_result['water_amount_mm']:.1f}mm needed")
-                print(f"   🤖 Model Confidence: {ml_irrigation_result['confidence']:.1f}%")
+                print(f"    ML Irrigation Model: {ml_irrigation_result['water_amount_mm']:.1f}mm needed")
+                print(f"    Model Confidence: {ml_irrigation_result['confidence']:.1f}%")
             except Exception as e:
-                print(f"   ⚠️ ML irrigation model error: {e}")
+                print(f"    ML irrigation model error: {e}")
         
         if sensor_data.moisture < min_moisture:
-            print(f"   🚨 LOW MOISTURE DETECTED: {sensor_data.moisture:.1f}% < {min_moisture}%")
+            print(f"    LOW MOISTURE DETECTED: {sensor_data.moisture:.1f}% < {min_moisture}%")
             print(f"   Generating HIGH priority irrigation recommendation")
             
             # Use ML model water amount if available, otherwise calculate
@@ -734,7 +734,7 @@ class RecommendationEngine:
             ))
             rec_id_counter += 1
         elif sensor_data.moisture > max_moisture:
-            print(f"   ⚠️ HIGH MOISTURE: {sensor_data.moisture:.1f}% > {max_moisture}%")
+            print(f"    HIGH MOISTURE: {sensor_data.moisture:.1f}% > {max_moisture}%")
             print(f"   Generating reduce irrigation recommendation")
             pause_days = 3 if weather_condition and 'rain' in weather_condition.lower() else 5
             recommendations.append(Recommendation(
@@ -919,7 +919,7 @@ class RecommendationEngine:
         priority_order = {"high": 0, "medium": 1, "low": 2}
         recommendations.sort(key=lambda x: priority_order.get(x.priority, 3))
         
-        print(f"\n✅ Step 5: Recommendation Generation Complete")
+        print(f"\n Step 5: Recommendation Generation Complete")
         print(f"   Total recommendations: {len(recommendations)}")
         for idx, rec in enumerate(recommendations, 1):
             print(f"   {idx}. [{rec.priority.upper()}] {rec.type}: {rec.title} (confidence: {rec.confidence:.1f}%)")
@@ -935,22 +935,22 @@ class RecommendationEngine:
 @app.on_event("startup")
 async def startup_event():
     """Load models and initialize database when API starts"""
-    print("🚀 Starting Smart Farming AI Backend...")
-    print("📦 Loading ML models...")
+    print(" Starting Smart Farming AI Backend...")
+    print(" Loading ML models...")
     status = model_loader.load_models()
-    print(f"✅ Models loaded: {sum(status.values())}/{len(status)}")
+    print(f" Models loaded: {sum(status.values())}/{len(status)}")
     
     # Initialize Regime System database
-    print("📊 Initializing Regime System database...")
+    print(" Initializing Regime System database...")
     try:
         regime_db = RegimeDatabase()  # Uses Neon via neon_client internally
         regime_routes.set_regime_db(regime_db)
-        print("✅ Regime database initialized")
+        print(" Regime database initialized")
     except Exception as e:
-        print(f"⚠️ Warning: Could not initialize regime database: {e}")
+        print(f" Warning: Could not initialize regime database: {e}")
         print("   Regime endpoints will be unavailable until database is configured")
     
-    print("✅ API ready!")
+    print(" API ready!")
 
 
 @app.get("/", tags=["Root"])
@@ -1008,8 +1008,8 @@ async def predict_recommendations(request: RecommendationRequest):
     ```
     """
     try:
-        print(f"⚠️ RECEIVED PREDICT REQUEST: farm_id={request.farm_id} lang={request.language}")
-        print(f"⚠️ Sensor data: {request.sensor_data}")
+        print(f" RECEIVED PREDICT REQUEST: farm_id={request.farm_id} lang={request.language}")
+        print(f" Sensor data: {request.sensor_data}")
         
         # Generate recommendations
         recommendations = RecommendationEngine.generate_recommendations(
@@ -1052,10 +1052,10 @@ async def models_status():
 try:
     from app.ml_models.yield_predictor import get_yield_prediction, yield_predictor
     YIELD_MODEL_LOADED = True
-    print("✓ Yield prediction model loaded")
+    print(" Yield prediction model loaded")
 except Exception as e:
     YIELD_MODEL_LOADED = False
-    print(f"⚠️ Could not load yield model: {e}")
+    print(f" Could not load yield model: {e}")
 
 
 class YieldPredictionRequest(BaseModel):

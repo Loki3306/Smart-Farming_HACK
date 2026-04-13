@@ -44,16 +44,16 @@ def send_command(action, state):
         return response.status_code == 200
         
     except requests.exceptions.ConnectionError:
-        print(f"❌ ERROR: Cannot connect to {BASE_URL}")
+        print(f" ERROR: Cannot connect to {BASE_URL}")
         print(f"   Make sure backend is running!")
         return False
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f" Error: {e}")
         return False
 
 def main():
     print("\n" + "="*70)
-    print("🎛️  AUTOMATED ACTUATION TEST - EVERY 30 SECONDS")
+    print("  AUTOMATED ACTUATION TEST - EVERY 30 SECONDS")
     print("="*70)
     print(f"Backend: {BASE_URL}")
     print(f"Farm ID: {FARM_ID}")
@@ -78,9 +78,9 @@ def main():
             timestamp = datetime.now().strftime("%H:%M:%S")
             
             print(f"\n{'='*70}")
-            print(f"🔄 CYCLE #{cycle} - {timestamp}")
+            print(f" CYCLE #{cycle} - {timestamp}")
             print(f"{'='*70}")
-            print(f"Action: Turn {'🟢 ON' if state else '⚫ OFF'} both systems\n")
+            print(f"Action: Turn {' ON' if state else ' OFF'} both systems\n")
             
             # Send irrigation command
             success1 = send_command("irrigation", state)
@@ -92,24 +92,24 @@ def main():
             success2 = send_command("fertilization", state)
             
             # Display status
-            print(f"\n📊 Status:")
-            print(f"   Irrigation:     {'✅ Success' if success1 else '❌ Failed'}")
-            print(f"   Fertilization:  {'✅ Success' if success2 else '❌ Failed'}")
+            print(f"\n Status:")
+            print(f"   Irrigation:     {' Success' if success1 else ' Failed'}")
+            print(f"   Fertilization:  {' Success' if success2 else ' Failed'}")
             
             # Wait for next cycle
             next_time = datetime.fromtimestamp(time.time() + INTERVAL).strftime('%H:%M:%S')
-            print(f"\n⏳ Waiting {INTERVAL} seconds...")
+            print(f"\n Waiting {INTERVAL} seconds...")
             print(f"   Next cycle at: {next_time}")
             
             time.sleep(INTERVAL)
             
     except KeyboardInterrupt:
         print(f"\n\n{'='*70}")
-        print("🛑 SCRIPT STOPPED BY USER")
+        print(" SCRIPT STOPPED BY USER")
         print(f"{'='*70}")
         print(f"Total cycles completed: {cycle}")
-        print(f"Final state: {'🟢 ON' if state else '⚫ OFF'}")
-        print("\n✅ Exiting...\n")
+        print(f"Final state: {' ON' if state else ' OFF'}")
+        print("\n Exiting...\n")
 
 if __name__ == "__main__":
     main()

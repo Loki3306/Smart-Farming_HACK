@@ -28,7 +28,7 @@ def execute_postgis_setup():
         result = supabase.rpc('exec_sql', {
             'query': 'CREATE EXTENSION IF NOT EXISTS postgis;'
         }).execute()
-        print("✓ PostGIS extension enabled")
+        print(" PostGIS extension enabled")
         
         # Step 2: Verify PostGIS version
         print("\n[2/4] Verifying PostGIS installation...")
@@ -38,26 +38,26 @@ def execute_postgis_setup():
         }).execute()
         
         if version_check.data:
-            print(f"✓ PostGIS installed: {version_check.data}")
+            print(f" PostGIS installed: {version_check.data}")
         else:
-            print("✓ PostGIS extension enabled (version check requires query access)")
+            print(" PostGIS extension enabled (version check requires query access)")
         
         # Step 3: Verify SRID 4326 exists
         print("\n[3/4] Verifying spatial reference system (SRID 4326)...")
         srid_check = supabase.rpc('exec_sql', {
             'query': "SELECT COUNT(*) as count FROM spatial_ref_sys WHERE srid = 4326;"
         }).execute()
-        print("✓ SRID 4326 (WGS 84) verified")
+        print(" SRID 4326 (WGS 84) verified")
         
         # Step 4: Test basic PostGIS function
         print("\n[4/4] Testing PostGIS functions...")
         test_query = supabase.rpc('exec_sql', {
             'query': "SELECT ST_GeomFromText('POINT(0 0)', 4326) IS NOT NULL as test;"
         }).execute()
-        print("✓ PostGIS functions working")
+        print(" PostGIS functions working")
         
         print("\n" + "=" * 70)
-        print("✅ PostGIS setup completed successfully!")
+        print(" PostGIS setup completed successfully!")
         print("=" * 70)
         print("\nNext steps:")
         print("1. PostGIS is ready for geometric operations")
@@ -66,7 +66,7 @@ def execute_postgis_setup():
         print("4. Ready to run next migration: 011_add_geometry_columns.sql")
         
     except Exception as e:
-        print(f"\n❌ Error during PostGIS setup: {str(e)}")
+        print(f"\n Error during PostGIS setup: {str(e)}")
         print("\nNote: If Supabase doesn't expose exec_sql RPC, you need to:")
         print("1. Go to Supabase Dashboard")
         print("2. Navigate to SQL Editor")

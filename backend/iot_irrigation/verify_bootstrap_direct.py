@@ -11,7 +11,7 @@ from app.ml_models.advanced_models import advanced_ml
 from app.agents.agronomy_expert import agronomy_expert
 
 print("\n" + "="*60)
-print("🧪 BOOTSTRAP AI VERIFICATION (Direct)")
+print(" BOOTSTRAP AI VERIFICATION (Direct)")
 print("="*60)
 
 # Check 1: Bootstrap Status
@@ -34,22 +34,22 @@ analysis = agronomy_expert.get_comprehensive_analysis(
 
 if "digital_twin_forecast" in analysis:
     forecast = analysis["digital_twin_forecast"]
-    print(f"   ✅ Digital Twin Active")
+    print(f"    Digital Twin Active")
     for f in forecast["forecasts"]:
         print(f"      T+{f['horizon_hours']}h: {f['predicted_moisture']}%")
 else:
-    print(f"   ❌ Digital Twin NOT found")
+    print(f"    Digital Twin NOT found")
 
 # Check 3: Test Soil Stress Index
 print("\n[3/5] Testing Soil Stress Index (SSI)...")
 if "soil_stress_index" in analysis:
     ssi = analysis["soil_stress_index"]
-    print(f"   ✅ SSI: {ssi['ssi']} ({ssi['level']})")
+    print(f"    SSI: {ssi['ssi']} ({ssi['level']})")
     print(f"      Moisture Stress: {ssi['components']['moisture_stress']}%")
     print(f"      Salinity Stress: {ssi['components']['salinity_stress']}%")
     print(f"      pH Stress: {ssi['components']['ph_stress']}%")
 else:
-    print(f"   ❌ SSI NOT found")
+    print(f"    SSI NOT found")
 
 # Check 4: Test Safety Lock
 print("\n[4/5] Testing Safety Lock (High Wind)...")
@@ -64,11 +64,11 @@ analysis_wind = agronomy_expert.get_comprehensive_analysis(
 
 if "safety_lock" in analysis_wind:
     lock = analysis_wind["safety_lock"]
-    print(f"   ✅ Safety Lock: {lock['status']}")
+    print(f"    Safety Lock: {lock['status']}")
     print(f"      Reason: {lock['reason']}")
     print(f"      Blocked: {lock['blocked_operations']}")
 else:
-    print(f"   ❌ Safety Lock NOT found")
+    print(f"    Safety Lock NOT found")
 
 # Check 5: Test Nutrient Lockout
 print("\n[5/5] Testing Nutrient Lockout (Acidic pH)...")
@@ -85,14 +85,14 @@ if "soil_health" in analysis_lockout:
     soil = analysis_lockout["soil_health"]
     if "rules" in soil:
         rules = soil["rules"]
-        print(f"   ✅ Nutrient Lockout Active")
+        print(f"    Nutrient Lockout Active")
         print(f"      Status: {rules.get('nutrient_status', 'UNKNOWN')}")
         print(f"      Reason: {rules.get('reason', 'N/A')}")
         print(f"      P Available: {rules.get('phosphorus_available_ppm', 0)} ppm")
     else:
-        print(f"   ⚠️ Rules not found in soil_health")
+        print(f"    Rules not found in soil_health")
 else:
-    print(f"   ❌ Soil Health NOT found")
+    print(f"    Soil Health NOT found")
 
 # Check 6: Test Incremental Learning
 print("\n[6/6] Testing Incremental Learning Buffer...")
@@ -116,14 +116,14 @@ print(f"   Final Buffer: {final_buffer_size}/{advanced_ml.BUFFER_SIZE}")
 print(f"   Packets Added: {final_buffer_size - initial_buffer_size}")
 
 print("\n" + "="*60)
-print("✅ VERIFICATION COMPLETE")
+print(" VERIFICATION COMPLETE")
 print("="*60)
 
 # Summary
-print("\n📊 SUMMARY:")
+print("\n SUMMARY:")
 print(f"   Bootstrap Status: {'ACTIVE' if advanced_ml.is_bootstrapped else 'GRADUATED'}")
 print(f"   Models Loaded: {'YES' if advanced_ml.models_loaded else 'NO'}")
-print(f"   Digital Twin: {'✅' if 'digital_twin_forecast' in analysis else '❌'}")
-print(f"   SSI: {'✅' if 'soil_stress_index' in analysis else '❌'}")
-print(f"   Safety Lock: {'✅' if 'safety_lock' in analysis_wind else '❌'}")
+print(f"   Digital Twin: {'' if 'digital_twin_forecast' in analysis else ''}")
+print(f"   SSI: {'' if 'soil_stress_index' in analysis else ''}")
+print(f"   Safety Lock: {'' if 'safety_lock' in analysis_wind else ''}")
 print(f"   Learning Buffer: {final_buffer_size}/{advanced_ml.BUFFER_SIZE} packets")

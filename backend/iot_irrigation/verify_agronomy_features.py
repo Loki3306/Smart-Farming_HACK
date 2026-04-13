@@ -11,7 +11,7 @@ TOPIC = "farm/telemetry"
 FARM_ID = "farm_001"
 
 def on_connect(client, userdata, flags, rc):
-    print(f"🔌 Connected to MQTT Broker with result code {rc}")
+    print(f" Connected to MQTT Broker with result code {rc}")
 
 client = mqtt.Client(client_id="verifier_bot")
 client.on_connect = on_connect
@@ -27,7 +27,7 @@ def send_packet(name, data):
         **data
     }
     client.publish(TOPIC, json.dumps(payload))
-    print(f"\n📨 SENT TEST PACKET: [{name}]")
+    print(f"\n SENT TEST PACKET: [{name}]")
     print(json.dumps(data, indent=2))
     time.sleep(5) # Wait for backend to process
 
@@ -77,6 +77,6 @@ send_packet("PHASE 1 - HIGH WATER DEMAND", {
     "npk": 350
 })
 
-print("\n✅ Verification Sequence Complete. Check Backend Logs for 'AI Decision Broadcast'.")
+print("\n Verification Sequence Complete. Check Backend Logs for 'AI Decision Broadcast'.")
 client.loop_stop()
 client.disconnect()
