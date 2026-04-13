@@ -1,5 +1,5 @@
 // Irrigation Course Content
-import { LessonContent } from "./lesson-content";
+import { LessonContent } from "./lesson-content.js";
 
 // ===========================================
 // IRRIGATION COURSE CONTENT
@@ -248,3 +248,4 @@ export const IRRIGATION_CONTENT: LessonContent[] = [
     },
   },
 ];
+

@@ -5,7 +5,7 @@
  */
 
 import { Server, Socket } from "socket.io";
-import { query } from "../db/neon";
+import { query } from "../db/neon.js";
 
 // In-memory presence store: userId → { status, socketId, last_seen }
 const onlineUsers = new Map<string, { status: string; socketId: string; last_seen: string }>();
@@ -86,3 +86,4 @@ export function registerPresenceSocket(io: Server) {
 export function getOnlineCount() {
   return onlineUsers.size;
 }
+

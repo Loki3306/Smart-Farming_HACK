@@ -2,16 +2,20 @@ import express, { Router, Request, Response } from "express";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { fileURLToPath } from "node:url";
 import {
   createFarmPolygon,
   getVegetationHealth,
   getSoilMoisture,
   listPolygons,
   deletePolygon,
-} from "../services/agromonitoring";
-import { detectPlantStress, quickStressCheck } from "../services/plantid";
+} from "../services/agromonitoring.js";
+import { detectPlantStress, quickStressCheck } from "../services/plantid.js";
 
 const router: Router = express.Router();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Configure multer for file uploads
 const upload = multer({
@@ -305,3 +309,5 @@ router.delete("/polygon/:polygonId", async (req: Request, res: Response) => {
 });
 
 export default router;
+
+

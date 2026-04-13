@@ -4,7 +4,7 @@
  */
 
 import { Request, Response } from "express";
-import { query } from "../db/neon";
+import { query } from "../db/neon.js";
 
 // Python backend URL for ML predictions
 const PYTHON_AI_URL = process.env.PYTHON_AI_URL || "http://127.0.0.1:8000";
@@ -381,3 +381,4 @@ function generateFallbackPrediction(data: any) {
     timestamp: new Date().toISOString(), source: "fallback",
   };
 }
+

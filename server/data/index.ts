@@ -1,16 +1,16 @@
 // All Course Content - Central Index
 // Export all course content from a single file
 
-export * from "./lesson-content";
-export * from "./irrigation-content";
-export * from "./pest-soil-content";
-export * from "./equipment-content";
+export * from "./lesson-content.js";
+export * from "./irrigation-content.js";
+export * from "./pest-soil-content.js";
+export * from "./equipment-content.js";
 
 // Content map for easy lookup by course slug/type
-import { ORGANIC_FARMING_CONTENT, LessonContent } from "./lesson-content";
-import { IRRIGATION_CONTENT } from "./irrigation-content";
-import { PEST_CONTROL_CONTENT, SOIL_HEALTH_CONTENT } from "./pest-soil-content";
-import { EQUIPMENT_CONTENT, SMART_FARMING_CONTENT } from "./equipment-content";
+import { ORGANIC_FARMING_CONTENT, LessonContent } from "./lesson-content.js";
+import { IRRIGATION_CONTENT } from "./irrigation-content.js";
+import { PEST_CONTROL_CONTENT, SOIL_HEALTH_CONTENT } from "./pest-soil-content.js";
+import { EQUIPMENT_CONTENT, SMART_FARMING_CONTENT } from "./equipment-content.js";
 
 export const COURSE_CONTENT_MAP: Record<string, LessonContent[]> = {
   "organic-farming": ORGANIC_FARMING_CONTENT,
@@ -136,3 +136,4 @@ export const FULL_COURSE_DEFINITIONS = [
     content: SMART_FARMING_CONTENT,
   },
 ];
+

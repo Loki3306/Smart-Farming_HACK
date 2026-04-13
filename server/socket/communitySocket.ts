@@ -4,7 +4,7 @@
  */
 
 import { Server, Socket } from "socket.io";
-import { query } from "../db/neon";
+import { query } from "../db/neon.js";
 
 export function registerCommunitySocket(io: Server) {
   io.on("connection", (socket: Socket) => {
@@ -105,3 +105,4 @@ export function registerCommunitySocket(io: Server) {
 export function broadcastNewPost(io: Server, post: any) {
   io.to("community:feed").emit("community:newPost", post);
 }
+

@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { query } from "../db/neon";
+import { query } from "../db/neon.js";
 
 const router = Router();
 
@@ -179,3 +179,4 @@ router.post("/cleanup", async (req: Request, res: Response) => {
 });
 
 export default router;
+

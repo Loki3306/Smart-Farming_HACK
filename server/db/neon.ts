@@ -3,7 +3,7 @@
  * Replaces @supabase/supabase-js as the database client.
  *
  * Usage:
- *   import { query } from './neon';
+ *   import { query } from './neon.js';
  *   const result = await query('SELECT * FROM farms WHERE farmer_id = $1', [farmerId]);
  */
 
@@ -102,3 +102,4 @@ export async function withTransaction<T>(
 }
 
 export default { query, getClient, withTransaction };
+

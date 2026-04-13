@@ -1,5 +1,5 @@
 // Pest Control & Soil Health Course Content
-import { LessonContent } from "./lesson-content";
+import { LessonContent } from "./lesson-content.js";
 
 // ===========================================
 // PEST CONTROL COURSE CONTENT
@@ -361,3 +361,4 @@ export const SOIL_HEALTH_CONTENT: LessonContent[] = [
     },
   },
 ];
+

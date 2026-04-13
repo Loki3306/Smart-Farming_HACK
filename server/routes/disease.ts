@@ -4,9 +4,13 @@ import axios from "axios";
 import FormData from "form-data";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "node:url";
 
 const router = Router();
 const upload = multer({ dest: "uploads/" });
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Load disease information database
 interface DiseaseInfo {
@@ -22,14 +26,27 @@ interface DiseaseDatabase {
   };
 }
 
-let diseaseDatabase: DiseaseDatabase = {};
-try {
-  const dbPath = path.join(__dirname, "../data/disease-info.json");
-  const fileContent = fs.readFileSync(dbPath, "utf-8");
-  diseaseDatabase = JSON.parse(fileContent) as DiseaseDatabase;
-  console.log("✅ Disease database loaded successfully");
-} catch (error) {
-  console.warn("⚠️ Disease info database not found, will rely on chatbot only");
+let diseaseDatabase: DiseaseDatabase | null = null;
+let diseaseDatabaseMissing = false;
+
+async function getDiseaseDatabase(): Promise<DiseaseDatabase> {
+  if (diseaseDatabase) return diseaseDatabase;
+  if (diseaseDatabaseMissing) return {};
+
+  try {
+    const dbPath = path.join(__dirname, "../data/disease-info.json");
+    const fileContent = await fs.promises.readFile(dbPath, "utf-8");
+    diseaseDatabase = JSON.parse(fileContent) as DiseaseDatabase;
+    console.log("✅ Disease database loaded successfully");
+  } catch (error) {
+    diseaseDatabaseMissing = true;
+    diseaseDatabase = {};
+    console.warn(
+      "⚠️ Disease info database not found, will rely on chatbot only",
+    );
+  }
+
+  return diseaseDatabase;
 }
 
 // POST /predict: expects form-data with 'crop' (string) and 'image' (file)
@@ -119,9 +136,10 @@ router.post("/info", async (req: Request, res: Response) => {
     }
 
     // Try to get from disease database first (FALLBACK)
+    const database = await getDiseaseDatabase();
     const diseaseKey = normalizeDiseaseKey(disease);
-    if (diseaseDatabase[diseaseKey] && diseaseDatabase[diseaseKey][language]) {
-      const dbData = diseaseDatabase[diseaseKey][language];
+    if (database[diseaseKey] && database[diseaseKey][language]) {
+      const dbData = database[diseaseKey][language];
       console.log(`✅ Using disease database for ${disease} in ${language}`);
 
       // Cache the database result

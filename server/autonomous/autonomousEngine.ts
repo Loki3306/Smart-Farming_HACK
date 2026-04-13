@@ -1,10 +1,10 @@
-import { db } from "../db/supabase"; // backed by Neon via neon.ts
+import { db } from "../db/supabase.js"; // backed by Neon via neon.ts
 import {
   autonomousStateStore,
   type FarmAutomationState,
-} from "./autonomousState";
-import { writeSensorCommand } from "../services/commandFile";
-import { getDynamicCropProfile } from "./dynamicCropProfiles";
+} from "./autonomousState.js";
+import { writeSensorCommand } from "../services/commandFile.js";
+import { getDynamicCropProfile } from "./dynamicCropProfiles.js";
 
 type CropProfile = {
   moistureOptimal: [number, number];
@@ -375,3 +375,5 @@ export class AutonomousEngine {
 }
 
 export const autonomousEngine = new AutonomousEngine();
+
+

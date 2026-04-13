@@ -1,5 +1,5 @@
 // Farm Equipment & Technology Course Content
-import { LessonContent } from "./lesson-content";
+import { LessonContent } from "./lesson-content.js";
 
 // ===========================================
 // FARM EQUIPMENT COURSE CONTENT
@@ -408,3 +408,4 @@ export const SMART_FARMING_CONTENT: LessonContent[] = [
     },
   },
 ];
+

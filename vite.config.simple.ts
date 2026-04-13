@@ -8,6 +8,33 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     port: 5173, // Different port to avoid conflict
+    proxy: {
+      "/api": {
+        target: "http://localhost:3000",
+        changeOrigin: true,
+      },
+      "/socket.io": {
+        target: "http://localhost:3000",
+        ws: true,
+        changeOrigin: true,
+      },
+      "/health": {
+        target: "http://localhost:3000",
+        changeOrigin: true,
+      },
+    },
+    watch: {
+      ignored: [
+        "**/node_modules/**",
+        "**/Agricultural-crops/**",
+        "**/crop_dataset/**",
+        "**/datasets/**",
+        "**/disease_model/**",
+        "**/training/**",
+        "**/uploads/**",
+        "**/venv*/**",
+      ],
+    },
   },
   plugins: [
     react(),

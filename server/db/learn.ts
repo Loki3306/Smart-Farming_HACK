@@ -6,7 +6,7 @@
  * All exported function signatures are UNCHANGED.
  */
 
-import { query as pgQuery } from "./neon";
+import { query as pgQuery } from "./neon.js";
 import {
   Course,
   CourseLesson,
@@ -1252,3 +1252,4 @@ export async function getUserLearningProgress(userId: string) {
     recentBadges: badgesResult.rows as (UserBadge & { badges: Badge })[],
   };
 }
+

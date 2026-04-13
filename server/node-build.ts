@@ -1,5 +1,5 @@
 import path from "path";
-import { createServer } from "./index";
+import { createServer } from "./index.js";
 import * as express from "express";
 
 const { app, httpServer } = createServer();
@@ -38,3 +38,4 @@ process.on("SIGINT", () => {
   console.log("🛑 Received SIGINT, shutting down gracefully");
   httpServer.close(() => process.exit(0));
 });
+

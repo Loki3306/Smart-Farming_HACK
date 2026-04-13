@@ -5,7 +5,7 @@
  * The exported `db` object interface is UNCHANGED so no routes need modification.
  */
 
-import { query } from "./neon";
+import { query } from "./neon.js";
 
 // ============================================================================
 // Database helper functions
@@ -190,3 +190,4 @@ export const db = {
     return result.rows[0];
   },
 };
+

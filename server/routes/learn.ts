@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
-import * as db from "../db/learn";
-import { query } from "../db/neon";
+import * as db from "../db/learn.js";
+import { query } from "../db/neon.js";
 import {
   Course,
   Article,
@@ -569,7 +569,7 @@ router.get(
       }
 
       // Import and find matching content - use dynamic import for the ts file
-      const contentModule = await import("../data/lesson-rich-content");
+      const contentModule = await import("../data/lesson-rich-content.js");
       const LESSON_RICH_CONTENT =
         contentModule.LESSON_RICH_CONTENT || contentModule.default;
 
@@ -2869,3 +2869,4 @@ router.get("/lessons/:lessonId/quiz", async (req: Request, res: Response) => {
 });
 
 export default router;
+

@@ -4,7 +4,7 @@
  */
 
 import { Server, Socket } from "socket.io";
-import { query } from "../db/neon";
+import { query } from "../db/neon.js";
 
 export function registerNotificationSocket(io: Server) {
   io.on("connection", (socket: Socket) => {
@@ -61,3 +61,4 @@ export async function pushNotification(
     console.error("[Notification Socket] Error pushing notification:", error.message);
   }
 }
+

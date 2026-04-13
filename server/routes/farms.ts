@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { db } from "../db/supabase";
+import { db } from "../db/supabase.js";
 
 // GET /api/farms - Get all farms for authenticated user
 export const getFarms = async (req: Request, res: Response) => {
@@ -80,3 +80,4 @@ export const updateFarm = async (req: Request, res: Response) => {
     });
   }
 };
+

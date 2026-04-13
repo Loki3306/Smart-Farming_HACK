@@ -4,9 +4,9 @@ import express from "express";
 import cors from "cors";
 import { Server as SocketIOServer } from "socket.io";
 
-import { handleDemo } from "./routes/demo";
-import { sendOtp, verifyOtp } from "./routes/otp";
-import { getFarms, getFarmById, createFarm, updateFarm } from "./routes/farms";
+import { handleDemo } from "./routes/demo.js";
+import { sendOtp, verifyOtp } from "./routes/otp.js";
+import { getFarms, getFarmById, createFarm, updateFarm } from "./routes/farms.js";
 import {
   getLatestSensorData,
   saveSensorData,
@@ -17,27 +17,28 @@ import {
   triggerFertilizer,
   setAutonomous,
   getAutonomous,
-} from "./routes/sensors";
+} from "./routes/sensors.js";
 import {
   getCurrentWeather,
   getForecast,
   getHistoricalWeather,
-} from "./routes/weather";
-import learnRouter from "./routes/learn";
-import communityRouter from "./routes/community";
-import chatRouter from "./routes/chat";
-import presenceRouter from "./routes/presence";
-import notificationsRouter from "./routes/notifications";
-import chatbotRouter from "./routes/chatbot";
-import diseaseRouter from "./routes/disease";
-import stressRouter from "./routes/stress";
-import { autonomousEngine } from "./autonomous/autonomousEngine";
+} from "./routes/weather.js";
+import learnRouter from "./routes/learn.js";
+import communityRouter from "./routes/community.js";
+import chatRouter from "./routes/chat.js";
+import presenceRouter from "./routes/presence.js";
+import notificationsRouter from "./routes/notifications.js";
+import chatbotRouter from "./routes/chatbot.js";
+import diseaseRouter from "./routes/disease.js";
+import stressRouter from "./routes/stress.js";
+import { autonomousEngine } from "./autonomous/autonomousEngine.js";
+import * as yieldRoutes from "./routes/yield.js";
 
 // Socket.IO handlers
-import { registerChatSocket } from "./socket/chatSocket";
-import { registerPresenceSocket } from "./socket/presenceSocket";
-import { registerNotificationSocket } from "./socket/notificationSocket";
-import { registerCommunitySocket } from "./socket/communitySocket";
+import { registerChatSocket } from "./socket/chatSocket.js";
+import { registerPresenceSocket } from "./socket/presenceSocket.js";
+import { registerNotificationSocket } from "./socket/notificationSocket.js";
+import { registerCommunitySocket } from "./socket/communitySocket.js";
 
 // Python AI Backend Configuration
 const PYTHON_AI_URL = process.env.PYTHON_AI_URL || "http://localhost:8000";
@@ -120,7 +121,9 @@ export function createServer() {
     process.env.VITEST === "true" ||
     typeof process.env.VITEST === "string";
 
-  if (!isTestRun) {
+  const enableEngine = process.env.ENABLE_ENGINE === "true";
+
+  if (!isTestRun && enableEngine) {
     setTimeout(() => {
       autonomousEngine.start();
     }, 2000);
@@ -168,7 +171,6 @@ export function createServer() {
 
   // Yield Prediction & Tracking
   console.log("🌾 Registering Yield routes...");
-  const yieldRoutes = require("./routes/yield");
   app.post("/api/yields/predict", yieldRoutes.predictYield);
   app.get("/api/yields/optimize/:cropType", yieldRoutes.getOptimizationTips);
   app.get("/api/yields/benchmark/:cropType", yieldRoutes.getYieldBenchmark);
@@ -222,3 +224,5 @@ export function createServer() {
   // Return both app and httpServer so the entry point can listen on httpServer
   return { app, httpServer, io };
 }
+
+

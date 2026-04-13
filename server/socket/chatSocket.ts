@@ -4,7 +4,7 @@
  */
 
 import { Server, Socket } from "socket.io";
-import { query } from "../db/neon";
+import { query } from "../db/neon.js";
 
 export function registerChatSocket(io: Server) {
   io.on("connection", (socket: Socket) => {
@@ -94,3 +94,4 @@ export function registerChatSocket(io: Server) {
     );
   });
 }
+

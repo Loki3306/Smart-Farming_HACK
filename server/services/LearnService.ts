@@ -1,10 +1,10 @@
-import * as db from "../db/learn";
+import * as db from "../db/learn.js";
 import {
   UserLearningStats,
   CourseEnrollment,
   Badge,
 } from "../types/learn.types";
-import { query } from "../db/neon";
+import { query } from "../db/neon.js";
 
 /**
  * LearnService - Business logic layer for Learn platform
@@ -887,3 +887,4 @@ export async function updateLearningStreak(userId: string) {
     throw error;
   }
 }
+

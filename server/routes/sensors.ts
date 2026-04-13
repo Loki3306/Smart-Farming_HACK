@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { db } from "../db/supabase";
-import { writeSensorCommand } from "../services/commandFile";
-import { autonomousEngine } from "../autonomous/autonomousEngine";
-import { applyOfflineDriftToLatestReading } from "../services/sensorDrift";
-import { getRainSignal } from "../services/openWeather";
+import { db } from "../db/supabase.js";
+import { writeSensorCommand } from "../services/commandFile.js";
+import { autonomousEngine } from "../autonomous/autonomousEngine.js";
+import { applyOfflineDriftToLatestReading } from "../services/sensorDrift.js";
+import { getRainSignal } from "../services/openWeather.js";
 
 // GET /api/sensors/latest - Get latest sensor readings for a farm
 export const getLatestSensorData = async (req: Request, res: Response) => {
@@ -329,3 +329,4 @@ export const getAutonomous = async (req: Request, res: Response) => {
     });
   }
 };
+
