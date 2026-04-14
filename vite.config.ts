@@ -13,6 +13,15 @@ export default defineConfig(({ mode }) => ({
       allow: [".", "./client", "./shared"],
       deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "server/**"],
     },
+    proxy: {
+      // Proxy all /python-api requests to the FastAPI backend
+      // This eliminates CORS issues when dev server (port 5000) calls backend (port 8000)
+      "/python-api": {
+        target: "http://localhost:8000",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/python-api/, ""),
+      },
+    },
   },
   build: {
     outDir: "dist/spa",

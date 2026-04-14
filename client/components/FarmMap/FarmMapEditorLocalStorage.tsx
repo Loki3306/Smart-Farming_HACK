@@ -193,7 +193,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
           feet: false,
           nautic: false,
           shapeOptions: {
-            color: "#3B82F6",
+            color: "#5ba3d0",
             weight: 3,
             fillOpacity: 0.2,
           },
@@ -355,7 +355,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
       );
 
       const boundaryLayer = L.polygon(coords, {
-        color: "#3B82F6",
+        color: "#5ba3d0",
         weight: 3,
         fillOpacity: 0.1,
       });
@@ -481,7 +481,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
         className: "water-source-marker",
         html: `
           <div style="
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            background: linear-gradient(135deg, #5ba3d0 0%, #4a9cc9 100%);
             width: 32px;
             height: 32px;
             border-radius: 50%;
@@ -520,7 +520,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
       marker.bindPopup(`
         <div style="padding: 8px; min-width: 150px;">
           <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5ba3d0" stroke-width="2">
               <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
             </svg>
             <strong style="color: #1f2937; font-size: 14px;">${source.name}</strong>
@@ -567,7 +567,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
           },
         );
       } else {
-        toast("No water sources found in this area", { icon: "ℹ️" });
+        toast("No water sources found in this area", { icon: "ℹ" });
       }
     } catch (error) {
       console.error("Error fetching water sources:", error);
@@ -721,7 +721,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
     isDrawingBoundaryRef.current = true;
     setIsDrawingSection(false);
     isDrawingSectionRef.current = false;
-    toast("Click on the map to draw farm boundary", { icon: "ℹ️" });
+    toast("Click on the map to draw farm boundary", { icon: "ℹ" });
   };
 
   // Start drawing section
@@ -730,7 +730,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
     isDrawingSectionRef.current = true;
     setIsDrawingBoundary(false);
     isDrawingBoundaryRef.current = false;
-    toast("Click on the map to draw a new section", { icon: "✏️" });
+    toast("Click on the map to draw a new section", { icon: "✎" });
   };
 
   // Get user location
@@ -782,7 +782,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
           onClick={startDrawingBoundary}
           className={`px-4 py-2 rounded-lg shadow-lg font-medium transition-all ${
             isDrawingBoundary
-              ? "bg-blue-600 text-white"
+              ? "bg-primary text-white"
               : "bg-white text-gray-700 hover:bg-gray-50"
           }`}
         >
@@ -814,7 +814,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
         <button
           onClick={fetchAndDisplayWaterSources}
           disabled={isFetchingWater}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg font-medium transition-all flex items-center gap-2 disabled:opacity-50"
+          className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg shadow-lg font-medium transition-all flex items-center gap-2 disabled:opacity-50"
         >
           <Droplets
             className={`w-4 h-4 ${isFetchingWater ? "animate-pulse" : ""}`}

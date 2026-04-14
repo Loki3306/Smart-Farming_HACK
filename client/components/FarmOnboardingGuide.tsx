@@ -21,7 +21,7 @@ interface FarmGuideMessage {
 const farmSetupMessages: FarmGuideMessage[] = [
   // Step 1: Farmer Info
   {
-    greeting: "Let's set up your farm! 🌾",
+    greeting: "Let's set up your farm!",
     mainMessage:
       "Excited to get started? I'll help you set up your farm profile. First, let me know your name and experience level. No need to be shy - whether you've been farming for decades or just starting out, we're here to help. Your experience helps me give you the right advice.",
     tips: [
@@ -32,12 +32,12 @@ const farmSetupMessages: FarmGuideMessage[] = [
     fieldToWatch: "fullName",
     reactions: {
       onFocus: "Go ahead, I'm listening...",
-      onValid: "Great! Nice to know you better 👍",
+      onValid: "Great! Nice to know you better",
     },
   },
   // Step 2: Phone + OTP Verification
   {
-    greeting: "Verify your number 📱",
+    greeting: "Verify your number",
     mainMessage:
       "Your mobile number is your lifeline to the farm! I'll send alerts about weather, irrigation needs, and important updates. Let's verify it's really you with a quick OTP code.",
     tips: [
@@ -48,13 +48,13 @@ const farmSetupMessages: FarmGuideMessage[] = [
     fieldToWatch: "phoneNumber",
     reactions: {
       onFocus: "Type your number carefully...",
-      onValid: "Number looks good! Now verify with OTP 🔐",
-      onAction: "OTP sent! Check your phone 📲",
+      onValid: "Number looks good! Now verify with OTP",
+      onAction: "OTP sent! Check your phone",
     },
   },
   // Step 3: Farm Location
   {
-    greeting: "Where is your farm? 🗺️",
+    greeting: "Where is your farm?",
     mainMessage:
       "Now the exciting part - let's find your farm! Use the GPS button to automatically capture your location, or enter it manually. This helps us give you hyperlocal weather forecasts and connect you with nearby farmers.",
     tips: [
@@ -63,17 +63,17 @@ const farmSetupMessages: FarmGuideMessage[] = [
       "Enter the total area of your land",
       "Select your soil type for better recommendations",
     ],
-    encouragement: "Your land, your legacy - let's map it! 🌍",
+    encouragement: "Your land, your legacy - let's map it!",
     fieldToWatch: "farmName",
     reactions: {
       onFocus: "What do you call your farm?",
-      onValid: "Beautiful name! Your farm has identity now 🌻",
+      onValid: "Beautiful name! Your farm has identity now",
       onAction: "Getting GPS location... Stand still!",
     },
   },
   // Step 4: Sensor Connection
   {
-    greeting: "Connect your sensors 🔌",
+    greeting: "Connect your sensors",
     mainMessage:
       "Want real-time data from your farm? If you have IoT sensors, connect them now. Don't have sensors yet? No worries - you can skip this and add them later. The app works great either way!",
     tips: [
@@ -83,15 +83,15 @@ const farmSetupMessages: FarmGuideMessage[] = [
     ],
     encouragement: "Smart farming = smart decisions!",
     reactions: {
-      onAction: "Connecting to sensor... Please wait 🔄",
+      onAction: "Connecting to sensor... Please wait",
     },
   },
   // Step 5: Review & Complete
   {
-    greeting: "Almost there! 🎉",
+    greeting: "Almost there!",
     mainMessage:
       "Look at what we've built together! Review all your details below. Everything look good? Click 'Complete Setup' and let's start this farming journey. Your dashboard is waiting with live weather, AI recommendations, and more!",
-    encouragement: "Welcome to the future of farming! 🚀",
+    encouragement: "Welcome to the future of farming!",
   },
 ];
 
@@ -321,7 +321,7 @@ export const FarmOnboardingGuide = ({
                         }}
                         className="inline-block mr-1"
                       >
-                        ✨
+                        ★
                       </motion.div>
                       <span className="text-sm font-medium">
                         {reactionText}

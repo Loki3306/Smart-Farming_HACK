@@ -340,6 +340,31 @@ export const ProductRecommendationCard: React.FC<
                 </div>
               </div>
             )}
+
+            {(onViewInMarketplace || onFindDealers) && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
+                {onViewInMarketplace && (
+                  <Button
+                    onClick={onViewInMarketplace}
+                    className="bg-emerald-600 hover:bg-emerald-700"
+                  >
+                    <ShoppingBag className="w-4 h-4 mr-2" />
+                    View in Marketplace
+                  </Button>
+                )}
+
+                {onFindDealers && (
+                  <Button
+                    variant="outline"
+                    onClick={onFindDealers}
+                    className="border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                  >
+                    <MapPin className="w-4 h-4 mr-2" />
+                    Find Dealers
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

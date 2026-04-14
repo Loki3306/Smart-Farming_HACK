@@ -394,7 +394,7 @@ const IrrigationPlannerPage: React.FC = () => {
       case "in-progress":
         return "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400";
       case "completed":
-        return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400";
+        return "bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400";
       default:
         return "bg-gray-100 text-gray-700";
     }
@@ -410,7 +410,7 @@ const IrrigationPlannerPage: React.FC = () => {
   // Loading skeleton
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-teal-50/50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 md:p-6">
+      <div className="min-h-screen bg-gradient-to-br from-sky-50/50 via-white to-teal-50/50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 md:p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="animate-pulse">
             <div className="h-12 w-64 bg-gray-200 dark:bg-gray-700 rounded-2xl mb-2" />
@@ -434,7 +434,7 @@ const IrrigationPlannerPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-teal-50/50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 md:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-sky-50/50 via-white to-teal-50/50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 md:p-6">
       <Toaster position="top-right" />
 
       <div ref={containerRef} className="max-w-7xl mx-auto space-y-6">
@@ -442,8 +442,8 @@ const IrrigationPlannerPage: React.FC = () => {
         <div className="mb-6">
           <div className="flex items-center justify-between gap-3 mb-2">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Droplets className="w-8 h-8 text-blue-600" />
+              <div className="p-2 bg-sky-100 rounded-lg">
+                <Droplets className="w-8 h-8 text-sky-600" />
               </div>
               <div>
                 <h1 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white">
@@ -457,7 +457,7 @@ const IrrigationPlannerPage: React.FC = () => {
 
             {/* Region Selector - Modern Pill Style */}
             <div className="flex items-center gap-3 px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-sm border border-white/20">
-              <MapPin className="w-5 h-5 text-blue-500" />
+              <MapPin className="w-5 h-5 text-sky-500" />
               <select
                 value={selectedRegion}
                 onChange={(e) => handleRegionChange(e.target.value)}
@@ -483,7 +483,7 @@ const IrrigationPlannerPage: React.FC = () => {
                 : null;
             return (
               <div className="flex items-center gap-2 mt-3 text-sm">
-                <span className="px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full font-medium flex items-center gap-1.5">
+                <span className="px-3 py-1.5 bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400 rounded-full font-medium flex items-center gap-1.5">
                   <IndianRupee className="w-3.5 h-3.5" />
                   2026 Prices
                 </span>
@@ -516,7 +516,7 @@ const IrrigationPlannerPage: React.FC = () => {
             </p>
             <button
               onClick={() => navigate("/farm-mapping")}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold rounded-2xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transform hover:scale-105 transition-all duration-300"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-semibold rounded-2xl shadow-lg shadow-sky-500/25 hover:shadow-sky-500/40 transform hover:scale-105 transition-all duration-300"
             >
               <MapPin className="w-5 h-5" />
               Go to Farm Mapping
@@ -532,7 +532,7 @@ const IrrigationPlannerPage: React.FC = () => {
               onClick={() => setActiveTab("create")}
               className={`animate-tab opacity-0 px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center gap-2 ${
                 activeTab === "create"
-                  ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/25"
+                  ? "bg-gradient-to-r from-sky-500 to-cyan-500 text-white shadow-lg shadow-sky-500/25"
                   : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
               }`}
             >
@@ -543,7 +543,7 @@ const IrrigationPlannerPage: React.FC = () => {
               onClick={() => setActiveTab("saved")}
               className={`animate-tab opacity-0 px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center gap-2 ${
                 activeTab === "saved"
-                  ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/25"
+                  ? "bg-gradient-to-r from-sky-500 to-cyan-500 text-white shadow-lg shadow-sky-500/25"
                   : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
               }`}
             >
@@ -551,7 +551,7 @@ const IrrigationPlannerPage: React.FC = () => {
               <span className="hidden sm:inline">Saved Plans</span>
               {savedPlans.length > 0 && (
                 <span
-                  className={`px-2 py-0.5 text-xs rounded-full ${activeTab === "saved" ? "bg-white/20" : "bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400"}`}
+                  className={`px-2 py-0.5 text-xs rounded-full ${activeTab === "saved" ? "bg-white/20" : "bg-sky-100 dark:bg-sky-900/50 text-sky-600 dark:text-sky-400"}`}
                 >
                   {savedPlans.length}
                 </span>
@@ -568,7 +568,7 @@ const IrrigationPlannerPage: React.FC = () => {
               {/* Step 1: Select Section */}
               <div className="animate-card opacity-0 bg-white dark:bg-gray-800 rounded-3xl shadow-sm p-6 hover:shadow-lg transition-shadow duration-300">
                 <div className="flex items-center gap-3 mb-5">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/25">
+                  <div className="w-10 h-10 bg-gradient-to-br from-sky-500 to-cyan-500 rounded-2xl flex items-center justify-center text-white font-bold shadow-lg shadow-sky-500/25">
                     1
                   </div>
                   <div>
@@ -588,8 +588,8 @@ const IrrigationPlannerPage: React.FC = () => {
                       onClick={() => handleSectionSelect(section)}
                       className={`p-4 rounded-2xl border-2 cursor-pointer transition-all duration-300 group ${
                         selectedSection?.id === section.id
-                          ? "border-blue-400 bg-blue-50 dark:bg-blue-900/30 shadow-md"
-                          : "border-transparent bg-gray-50 dark:bg-gray-700/50 hover:border-blue-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          ? "border-sky-400 bg-sky-50 dark:bg-sky-900/30 shadow-md"
+                          : "border-transparent bg-gray-50 dark:bg-gray-700/50 hover:border-sky-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                       }`}
                     >
                       <div className="flex items-center gap-3">
@@ -609,7 +609,7 @@ const IrrigationPlannerPage: React.FC = () => {
                           </p>
                         </div>
                         {selectedSection?.id === section.id && (
-                          <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                          <div className="w-6 h-6 bg-sky-500 rounded-full flex items-center justify-center">
                             <Check className="w-4 h-4 text-white" />
                           </div>
                         )}
@@ -627,7 +627,7 @@ const IrrigationPlannerPage: React.FC = () => {
                   <div
                     className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold shadow-lg ${
                       selectedSection
-                        ? "bg-gradient-to-br from-cyan-500 to-blue-500 text-white shadow-cyan-500/25"
+                        ? "bg-gradient-to-br from-cyan-500 to-sky-500 text-white shadow-cyan-500/25"
                         : "bg-gray-100 dark:bg-gray-700 text-gray-400"
                     }`}
                   >
@@ -658,9 +658,9 @@ const IrrigationPlannerPage: React.FC = () => {
                   </div>
                 ) : (
                   <>
-                    <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/30 rounded-xl mb-4">
+                    <div className="flex items-center gap-2 px-3 py-2 bg-sky-50 dark:bg-sky-900/30 rounded-xl mb-4">
                       <span className="text-lg">💡</span>
-                      <p className="text-xs text-blue-700 dark:text-blue-400">
+                      <p className="text-xs text-sky-700 dark:text-sky-400">
                         Select multiple for backup
                       </p>
                     </div>
@@ -701,10 +701,10 @@ const IrrigationPlannerPage: React.FC = () => {
                                   )}
                                 </div>
                                 <div
-                                  className={`p-2 rounded-xl ${isSelected ? "bg-cyan-100 dark:bg-cyan-800/50" : "bg-blue-50 dark:bg-blue-900/30"}`}
+                                  className={`p-2 rounded-xl ${isSelected ? "bg-cyan-100 dark:bg-cyan-800/50" : "bg-sky-50 dark:bg-sky-900/30"}`}
                                 >
                                   <Droplets
-                                    className={`w-4 h-4 ${isSelected ? "text-cyan-600" : "text-blue-500"}`}
+                                    className={`w-4 h-4 ${isSelected ? "text-cyan-600" : "text-sky-500"}`}
                                   />
                                 </div>
                                 <div className="flex-1 min-w-0">
@@ -733,7 +733,7 @@ const IrrigationPlannerPage: React.FC = () => {
                         onClick={() =>
                           setShowAllWaterSources(!showAllWaterSources)
                         }
-                        className="w-full mt-3 py-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 font-medium transition-colors flex items-center justify-center gap-2"
+                        className="w-full mt-3 py-2 text-sm text-sky-600 dark:text-sky-400 hover:text-sky-700 font-medium transition-colors flex items-center justify-center gap-2"
                       >
                         {showAllWaterSources ? (
                           <>
@@ -813,7 +813,7 @@ const IrrigationPlannerPage: React.FC = () => {
                             key={rec.method}
                             className={`rounded-2xl overflow-hidden transition-all duration-300 ${
                               expandedMethod === rec.method
-                                ? "border-2 border-blue-400 shadow-lg shadow-blue-500/10"
+                                ? "border-2 border-sky-400 shadow-lg shadow-sky-500/10"
                                 : "border-2 border-transparent bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700"
                             }`}
                           >
@@ -831,7 +831,7 @@ const IrrigationPlannerPage: React.FC = () => {
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                   <div
-                                    className={`p-2.5 rounded-xl ${expandedMethod === rec.method ? "bg-blue-100 dark:bg-blue-900/50" : "bg-white dark:bg-gray-600"} text-blue-600 shadow-sm`}
+                                    className={`p-2.5 rounded-xl ${expandedMethod === rec.method ? "bg-sky-100 dark:bg-sky-900/50" : "bg-white dark:bg-gray-600"} text-sky-600 shadow-sm`}
                                   >
                                     {getMethodIconComponent(rec.method)}
                                   </div>
@@ -839,7 +839,7 @@ const IrrigationPlannerPage: React.FC = () => {
                                     <p className="font-semibold text-gray-800 dark:text-white">
                                       {getMethodDisplayName(rec.method)}
                                     </p>
-                                    <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                                    <p className="text-sm font-medium text-sky-600 dark:text-sky-400">
                                       {formatCurrency(rec.estimatedCost.total)}
                                     </p>
                                   </div>
@@ -856,10 +856,10 @@ const IrrigationPlannerPage: React.FC = () => {
                                     </span>
                                   )}
                                   <div
-                                    className={`p-1 rounded-full ${expandedMethod === rec.method ? "bg-blue-100 dark:bg-blue-900/50" : ""}`}
+                                    className={`p-1 rounded-full ${expandedMethod === rec.method ? "bg-sky-100 dark:bg-sky-900/50" : ""}`}
                                   >
                                     {expandedMethod === rec.method ? (
-                                      <ChevronUp className="w-4 h-4 text-blue-600" />
+                                      <ChevronUp className="w-4 h-4 text-sky-600" />
                                     ) : (
                                       <ChevronDown className="w-4 h-4 text-gray-400" />
                                     )}
@@ -914,7 +914,7 @@ const IrrigationPlannerPage: React.FC = () => {
                                 {/* Cons */}
                                 <div className="mb-4">
                                   <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 mb-2">
-                                    ⚠ Consider
+                                    Consider
                                   </p>
                                   <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1.5">
                                     {rec.cons.slice(0, 2).map((con, i) => (
@@ -942,7 +942,7 @@ const IrrigationPlannerPage: React.FC = () => {
                                   <button
                                     onClick={() => handleCreatePlan(rec.method)}
                                     disabled={isCreatingPlan}
-                                    className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white rounded-xl font-semibold transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg shadow-blue-500/20"
+                                    className="w-full py-3 bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-700 hover:to-sky-600 text-white rounded-xl font-semibold transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg shadow-sky-500/20"
                                   >
                                     {isCreatingPlan ? (
                                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -984,8 +984,8 @@ const IrrigationPlannerPage: React.FC = () => {
 
             {savedPlans.length === 0 ? (
               <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-12 text-center animate-fade-in">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-900/50 dark:to-blue-800/30 flex items-center justify-center">
-                  <FileText className="w-10 h-10 text-blue-500" />
+                <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-sky-100 to-sky-50 dark:from-sky-900/50 dark:to-sky-800/30 flex items-center justify-center">
+                  <FileText className="w-10 h-10 text-sky-500" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
                   No Saved Plans
@@ -995,7 +995,7 @@ const IrrigationPlannerPage: React.FC = () => {
                 </p>
                 <button
                   onClick={() => setActiveTab("create")}
-                  className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white rounded-2xl font-semibold transition-all hover:scale-105 shadow-lg shadow-blue-500/30"
+                  className="px-8 py-3 bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-700 hover:to-sky-600 text-white rounded-2xl font-semibold transition-all hover:scale-105 shadow-lg shadow-sky-500/30"
                 >
                   Create New Plan
                 </button>
@@ -1013,7 +1013,7 @@ const IrrigationPlannerPage: React.FC = () => {
                         placeholder="Search plans by section, water source, or method..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-800 dark:text-white placeholder-gray-400"
+                        className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all text-gray-800 dark:text-white placeholder-gray-400"
                       />
                       {searchQuery && (
                         <button
@@ -1031,7 +1031,7 @@ const IrrigationPlannerPage: React.FC = () => {
                       <select
                         value={filterStatus}
                         onChange={(e) => setFilterStatus(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none text-gray-800 dark:text-white"
+                        className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all appearance-none text-gray-800 dark:text-white"
                       >
                         <option value="all">All Status</option>
                         <option value="draft">Draft</option>
@@ -1045,7 +1045,7 @@ const IrrigationPlannerPage: React.FC = () => {
                   {/* Results Count */}
                   <div className="mt-4 flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
                     <span className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                      <span className="w-2 h-2 rounded-full bg-sky-500"></span>
                       Showing{" "}
                       <strong className="text-gray-800 dark:text-white">
                         {filteredPlans.length}
@@ -1058,7 +1058,7 @@ const IrrigationPlannerPage: React.FC = () => {
                           setSearchQuery("");
                           setFilterStatus("all");
                         }}
-                        className="text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 rounded-lg"
+                        className="text-sky-600 hover:text-sky-700 font-semibold flex items-center gap-1.5 px-3 py-1.5 bg-sky-50 dark:bg-sky-900/30 rounded-lg"
                       >
                         <RefreshCw className="w-4 h-4" />
                         Clear Filters
@@ -1092,7 +1092,7 @@ const IrrigationPlannerPage: React.FC = () => {
                         <div className="p-5 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-750">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4 flex-1">
-                              <div className="p-3 bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-900/50 dark:to-blue-800/30 rounded-xl text-blue-600 transition-transform hover:scale-105">
+                              <div className="p-3 bg-gradient-to-br from-sky-100 to-sky-50 dark:from-sky-900/50 dark:to-sky-800/30 rounded-xl text-sky-600 transition-transform hover:scale-105">
                                 {getMethodIconComponent(plan.method)}
                               </div>
                               <div className="flex-1">
@@ -1108,7 +1108,7 @@ const IrrigationPlannerPage: React.FC = () => {
                                 </div>
                                 <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mt-1.5">
                                   <span className="flex items-center gap-1.5">
-                                    <Droplets className="w-4 h-4 text-blue-500" />
+                                    <Droplets className="w-4 h-4 text-sky-500" />
                                     {plan.waterSourceName}
                                   </span>
                                   <span className="flex items-center gap-1.5">
@@ -1132,7 +1132,7 @@ const IrrigationPlannerPage: React.FC = () => {
                               {/* Quick Actions */}
                               <button
                                 onClick={() => handleDuplicatePlan(plan)}
-                                className="p-2.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl transition-all"
+                                className="p-2.5 text-gray-500 hover:text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/30 rounded-xl transition-all"
                                 title="Duplicate Plan"
                               >
                                 <Copy className="w-5 h-5" />
@@ -1143,7 +1143,7 @@ const IrrigationPlannerPage: React.FC = () => {
                                     expandedPlan === plan.id ? null : plan.id,
                                   )
                                 }
-                                className="p-2.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl transition-all"
+                                className="p-2.5 text-gray-500 hover:text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/30 rounded-xl transition-all"
                               >
                                 {expandedPlan === plan.id ? (
                                   <ChevronUp className="w-5 h-5" />
@@ -1172,7 +1172,7 @@ const IrrigationPlannerPage: React.FC = () => {
                               <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                                 Total Cost
                               </p>
-                              <p className="font-bold text-blue-600 dark:text-blue-400 text-sm">
+                              <p className="font-bold text-sky-600 dark:text-sky-400 text-sm">
                                 {formatCurrency(plan.estimatedCost.total)}
                               </p>
                             </div>
@@ -1211,17 +1211,17 @@ const IrrigationPlannerPage: React.FC = () => {
                             {/* Cost Breakdown */}
                             <div className="mb-5">
                               <h4 className="font-semibold text-gray-700 dark:text-gray-200 mb-3 flex items-center gap-2">
-                                <div className="p-1.5 rounded-lg bg-blue-100 dark:bg-blue-900/50">
-                                  <IndianRupee className="w-4 h-4 text-blue-600" />
+                                <div className="p-1.5 rounded-lg bg-sky-100 dark:bg-sky-900/50">
+                                  <IndianRupee className="w-4 h-4 text-sky-600" />
                                 </div>
                                 Cost Breakdown
                               </h4>
                               <div className="grid grid-cols-3 gap-4">
-                                <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-900/30 dark:to-blue-800/20 border border-blue-200/50 dark:border-blue-700/30 rounded-xl hover:scale-[1.02] transition-transform">
-                                  <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
+                                <div className="text-center p-4 bg-gradient-to-br from-sky-50 to-sky-100/50 dark:from-sky-900/30 dark:to-sky-800/20 border border-sky-200/50 dark:border-sky-700/30 rounded-xl hover:scale-[1.02] transition-transform">
+                                  <p className="text-sm text-sky-700 dark:text-sky-300 font-medium">
                                     Materials
                                   </p>
-                                  <p className="font-bold text-blue-900 dark:text-blue-100 text-lg">
+                                  <p className="font-bold text-sky-900 dark:text-sky-100 text-lg">
                                     {formatCurrency(
                                       plan.estimatedCost.materials,
                                     )}
@@ -1319,18 +1319,18 @@ const IrrigationPlannerPage: React.FC = () => {
 
                             {/* Recommendations */}
                             {plan.recommendations.length > 0 && (
-                              <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30 rounded-xl">
-                                <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-2 flex items-center gap-2">
+                              <div className="mb-4 p-4 bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800/30 rounded-xl">
+                                <h4 className="font-semibold text-sky-800 dark:text-sky-300 mb-2 flex items-center gap-2">
                                   <Sprout className="w-4 h-4" />
                                   Implementation Tips
                                 </h4>
-                                <ul className="text-sm text-blue-700 dark:text-blue-400 space-y-1.5">
+                                <ul className="text-sm text-sky-700 dark:text-sky-400 space-y-1.5">
                                   {plan.recommendations.map((rec, idx) => (
                                     <li
                                       key={idx}
                                       className="flex items-start gap-2"
                                     >
-                                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />
+                                      <span className="w-1.5 h-1.5 rounded-full bg-sky-500 mt-1.5 flex-shrink-0" />
                                       {rec}
                                     </li>
                                   ))}
@@ -1349,7 +1349,7 @@ const IrrigationPlannerPage: React.FC = () => {
                                       .value as StoredIrrigationPlan["status"],
                                   )
                                 }
-                                className="px-4 py-2.5 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-gray-700 dark:text-white"
+                                className="px-4 py-2.5 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-colors text-gray-700 dark:text-white"
                               >
                                 <option value="draft">Draft</option>
                                 <option value="approved">Approved</option>

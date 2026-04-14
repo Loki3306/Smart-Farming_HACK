@@ -40,7 +40,7 @@ const FarmStats: React.FC<FarmStatsProps> = ({ onEditClick }) => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-md p-4 text-white">
+        <div className="bg-gradient-to-br from-sky-500 to-sky-600 rounded-lg shadow-md p-4 text-white">
           <div className="flex items-center gap-3">
             <div className="bg-white bg-opacity-20 rounded-lg p-3">
               <Grid3x3 className="w-6 h-6" />

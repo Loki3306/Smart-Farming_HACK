@@ -608,11 +608,11 @@ export const CoursePlayer: React.FC = () => {
                       </div>
                     )}
                     {currentLesson.description && (
-                      <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                        <h4 className="font-medium text-blue-900 mb-2">
+                      <div className="mt-4 p-4 bg-sky-50 rounded-lg border border-sky-100">
+                        <h4 className="font-medium text-sky-900 mb-2">
                           What you'll learn:
                         </h4>
-                        <p className="text-blue-800">
+                        <p className="text-sky-800">
                           {currentLesson.description}
                         </p>
                       </div>
@@ -645,8 +645,8 @@ export const CoursePlayer: React.FC = () => {
                           {currentLesson.description ||
                             "Lesson content will be displayed here."}
                         </p>
-                        <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                          <p className="text-sm text-blue-800">
+                        <div className="mt-6 p-4 bg-sky-50 rounded-lg border border-sky-100">
+                          <p className="text-sm text-sky-800">
                             💡 <strong>Coming Soon:</strong> Rich interactive
                             content with tips, examples, and step-by-step guides
                             will be available here!
@@ -812,7 +812,7 @@ export const CoursePlayer: React.FC = () => {
                           <Trophy className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
                         </motion.div>
                         <h2 className="text-2xl font-bold text-green-800 mb-2">
-                          🎉 Congratulations!
+                          Congratulations!
                         </h2>
                         <p className="text-green-700 mb-4 max-w-md mx-auto">
                           You've completed{" "}
@@ -848,7 +848,7 @@ export const CoursePlayer: React.FC = () => {
 
                         {!badgeEarned && (
                           <p className="text-green-600 mb-6">
-                            You've earned recognition for your achievement! 🏆
+                            You've earned recognition for your achievement!
                           </p>
                         )}
 

@@ -38,7 +38,7 @@ class RegimeService {
 
   constructor() {
     this.baseUrl =
-      import.meta.env.VITE_PYTHON_AI_URL || "http://localhost:8000";
+      import.meta.env.VITE_PYTHON_AI_URL || "/python-api";
     this.client = axios.create({
       baseURL: this.baseUrl,
       timeout: 30000,

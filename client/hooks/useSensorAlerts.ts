@@ -134,7 +134,7 @@ export function useSensorAlerts() {
       if (canSendAlert("moisture_low")) {
         addAlert({
           type: "irrigation",
-          title: "⚠️ Low Soil Moisture Warning",
+          title: "Low Soil Moisture Warning",
           message: `Soil moisture at ${moisture.toFixed(1)}%. Consider irrigating soon.`,
           priority: "medium",
         });
@@ -143,7 +143,7 @@ export function useSensorAlerts() {
       if (canSendAlert("moisture_critical_high")) {
         addAlert({
           type: "alert",
-          title: "🚨 Critical: Soil Too Wet!",
+          title: "Critical: Soil Too Wet!",
           message: `Moisture at ${moisture.toFixed(1)}%! Risk of root rot and waterlogging.`,
           priority: "high",
         });
@@ -152,7 +152,7 @@ export function useSensorAlerts() {
       if (canSendAlert("moisture_high")) {
         addAlert({
           type: "alert",
-          title: "⚠️ High Moisture Warning",
+          title: "High Moisture Warning",
           message: `Soil moisture at ${moisture.toFixed(1)}%. Monitor for overwatering.`,
           priority: "medium",
         });
@@ -164,7 +164,7 @@ export function useSensorAlerts() {
       if (canSendAlert("nitrogen_critical")) {
         addAlert({
           type: "crop",
-          title: "🚨 Critical: Nitrogen Deficiency!",
+          title: "Critical: Nitrogen Deficiency!",
           message: `Nitrogen at ${nitrogen} mg/kg. Immediate fertilization required.`,
           priority: "high",
         });
@@ -173,7 +173,7 @@ export function useSensorAlerts() {
       if (canSendAlert("nitrogen_low")) {
         addAlert({
           type: "crop",
-          title: "⚠️ Low Nitrogen Levels",
+          title: "Low Nitrogen Levels",
           message: `Nitrogen at ${nitrogen} mg/kg. Consider applying nitrogen fertilizer.`,
           priority: "medium",
         });
@@ -185,7 +185,7 @@ export function useSensorAlerts() {
       if (canSendAlert("phosphorus_critical")) {
         addAlert({
           type: "crop",
-          title: "🚨 Critical: Phosphorus Deficiency!",
+          title: "Critical: Phosphorus Deficiency!",
           message: `Phosphorus at ${phosphorus} mg/kg. Root development may be affected.`,
           priority: "high",
         });
@@ -194,7 +194,7 @@ export function useSensorAlerts() {
       if (canSendAlert("phosphorus_low")) {
         addAlert({
           type: "crop",
-          title: "⚠️ Low Phosphorus Levels",
+          title: "Low Phosphorus Levels",
           message: `Phosphorus at ${phosphorus} mg/kg. Consider applying phosphorus fertilizer.`,
           priority: "medium",
         });
@@ -206,7 +206,7 @@ export function useSensorAlerts() {
       if (canSendAlert("potassium_critical")) {
         addAlert({
           type: "crop",
-          title: "🚨 Critical: Potassium Deficiency!",
+          title: "Critical: Potassium Deficiency!",
           message: `Potassium at ${potassium} mg/kg. Plant immunity may be compromised.`,
           priority: "high",
         });
@@ -215,7 +215,7 @@ export function useSensorAlerts() {
       if (canSendAlert("potassium_low")) {
         addAlert({
           type: "crop",
-          title: "⚠️ Low Potassium Levels",
+          title: "Low Potassium Levels",
           message: `Potassium at ${potassium} mg/kg. Consider applying potassium fertilizer.`,
           priority: "medium",
         });
@@ -227,7 +227,7 @@ export function useSensorAlerts() {
       if (canSendAlert("ph_low")) {
         addAlert({
           type: "alert",
-          title: "⚠️ Soil Too Acidic",
+          title: "Soil Too Acidic",
           message: `pH at ${ph.toFixed(1)}. Consider applying lime to raise pH.`,
           priority: "medium",
         });
@@ -236,7 +236,7 @@ export function useSensorAlerts() {
       if (canSendAlert("ph_high")) {
         addAlert({
           type: "alert",
-          title: "⚠️ Soil Too Alkaline",
+          title: "Soil Too Alkaline",
           message: `pH at ${ph.toFixed(1)}. Consider applying sulfur to lower pH.`,
           priority: "medium",
         });

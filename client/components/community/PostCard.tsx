@@ -17,6 +17,12 @@ import {
   Bookmark,
   Send,
   Loader2,
+  Sprout,
+  HelpCircle,
+  AlertTriangle,
+  Image,
+  ThumbsUp,
+  Lightbulb,
 } from "lucide-react";
 import type {
   Post as ApiPost,
@@ -52,6 +58,25 @@ interface PostCardProps {
   ) => Promise<void>;
   hasReported?: boolean;
 }
+
+const getReactionIcon = (iconName: string) => {
+  switch (iconName) {
+    case "Sprout":
+      return <Sprout className="w-4 h-4" />;
+    case "ThumbsUp":
+      return <ThumbsUp className="w-4 h-4" />;
+    case "AlertTriangle":
+      return <AlertTriangle className="w-4 h-4" />;
+    case "Lightbulb":
+      return <Lightbulb className="w-4 h-4" />;
+    case "HelpCircle":
+      return <HelpCircle className="w-4 h-4" />;
+    case "Image":
+      return <Image className="w-4 h-4" />;
+    default:
+      return null;
+  }
+};
 
 export const PostCard: React.FC<PostCardProps> = ({
   post,
@@ -252,15 +277,15 @@ export const PostCard: React.FC<PostCardProps> = ({
                 variant="outline"
                 className="text-xs bg-green-50 text-green-700 border-green-200"
               >
-                🌾 {post.crop}
+                {post.crop}
               </Badge>
             )}
             {post.method && (
               <Badge
                 variant="outline"
-                className="text-xs bg-blue-50 text-blue-700 border-blue-200"
+                className="text-xs bg-sky-50 text-sky-700 border-sky-200"
               >
-                ⚙️ {post.method}
+                {post.method}
               </Badge>
             )}
             {post.tags?.slice(0, 3).map((tag) => (
@@ -279,12 +304,12 @@ export const PostCard: React.FC<PostCardProps> = ({
             <div className="text-sm text-muted-foreground mb-3 flex items-center gap-2">
               <div className="flex -space-x-1">
                 {topReactions.map((r) => (
-                  <span
+                  <div
                     key={r.type}
                     className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs border-2 border-white"
                   >
-                    {REACTION_CONFIG[r.type]?.emoji}
-                  </span>
+                    {getReactionIcon(REACTION_CONFIG[r.type]?.icon || "")}
+                  </div>
                 ))}
               </div>
               <span>
@@ -317,7 +342,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                           : "hover:bg-muted text-muted-foreground hover:text-foreground"
                       }`}
                     >
-                      <span>{REACTION_CONFIG[reactionType]?.emoji}</span>
+                      {getReactionIcon(REACTION_CONFIG[reactionType]?.icon || "")}
                       <span className="font-medium">{count}</span>
                     </motion.button>
                   );

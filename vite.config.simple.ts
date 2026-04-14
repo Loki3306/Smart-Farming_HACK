@@ -22,6 +22,12 @@ export default defineConfig({
         target: "http://localhost:3000",
         changeOrigin: true,
       },
+      // Proxy all Python FastAPI requests → avoids CORS issues in browser
+      "/python-api": {
+        target: "http://localhost:8000",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/python-api/, ""),
+      },
     },
     watch: {
       ignored: [

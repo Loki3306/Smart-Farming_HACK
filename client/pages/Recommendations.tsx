@@ -94,7 +94,7 @@ export const Recommendations: React.FC = () => {
   const getTypeColor = (type: string) => {
     switch (type) {
       case "irrigation":
-        return "text-blue-500 bg-blue-100";
+        return "text-sky-500 bg-sky-100";
       case "fertilizer":
         return "text-green-500 bg-green-100";
       case "pest":
@@ -199,7 +199,7 @@ export const Recommendations: React.FC = () => {
         requestPayload,
       );
       console.log(
-        "[Recommendations] 🌾 CROP TYPE BEING SENT:",
+        "[Recommendations] CROP TYPE BEING SENT:",
         requestPayload.crop_type,
       );
 
@@ -212,7 +212,7 @@ export const Recommendations: React.FC = () => {
       if (!response.ok) {
         const errorText = await response.text();
         console.error(
-          "[Recommendations] ❌ API Error:",
+          "[Recommendations] API Error:",
           response.status,
           errorText,
         );
@@ -221,11 +221,11 @@ export const Recommendations: React.FC = () => {
 
       const data = await response.json();
       console.log(
-        "[Recommendations] ✅ Received response from AI backend:",
+        "[Recommendations] Received response from AI backend:",
         data,
       );
       console.log(
-        "[Recommendations] 📊 Number of recommendations:",
+        "[Recommendations] Number of recommendations:",
         data.recommendations?.length,
       );
 
@@ -246,7 +246,7 @@ export const Recommendations: React.FC = () => {
       if (user?.id && mappedRecommendations.length > 0) {
         try {
           console.log(
-            "[Recommendations] 🔄 Creating/updating regime from recommendations...",
+            "[Recommendations] Creating/updating regime from recommendations...",
           );
 
           const regimeData = {
@@ -307,7 +307,7 @@ export const Recommendations: React.FC = () => {
                 updateError.response?.status === 404
               ) {
                 console.warn(
-                  "[Recommendations] ⚠️ Regime not found, creating new one instead",
+                  "[Recommendations] Regime not found, creating new one instead",
                 );
                 regime = await regimeService.createRegime(regimeData);
                 toast({
@@ -333,13 +333,13 @@ export const Recommendations: React.FC = () => {
           }
 
           console.log(
-            "[Recommendations] ✅ Regime operation successful:",
+            "[Recommendations] Regime operation successful:",
             regime,
           );
           setRegimeCreated(true);
         } catch (error) {
           console.error(
-            "[Recommendations] ❌ Failed to create/update regime:",
+            "[Recommendations] Failed to create/update regime:",
             error,
           );
           // Don't block the UI if regime creation fails
@@ -354,8 +354,8 @@ export const Recommendations: React.FC = () => {
           ).length;
           const message =
             highPriorityCount > 0
-              ? `🤖 ${mappedRecommendations.length} new recommendations (${highPriorityCount} high priority)`
-              : `🤖 ${mappedRecommendations.length} new farming recommendations available`;
+              ? `${mappedRecommendations.length} new recommendations (${highPriorityCount} high priority)`
+              : `${mappedRecommendations.length} new farming recommendations available`;
 
           const notification = await apiNotificationService.createNotification(
             user.id,
@@ -368,7 +368,7 @@ export const Recommendations: React.FC = () => {
           );
 
           console.log(
-            "[Recommendations] ✅ Notification created successfully",
+            "[Recommendations] Notification created successfully",
             notification,
           );
 
@@ -378,7 +378,7 @@ export const Recommendations: React.FC = () => {
           );
         } catch (error) {
           console.error(
-            "[Recommendations] ❌ Failed to create notification:",
+            "[Recommendations] Failed to create notification:",
             error,
           );
         }
@@ -435,7 +435,7 @@ export const Recommendations: React.FC = () => {
       }
 
       if (!farmId) {
-        console.log("[Recommendations] ⚠️ No farm ID in localStorage");
+        console.log("[Recommendations] No farm ID in localStorage");
         setLoadingFarm(false);
         return;
       }
@@ -449,7 +449,7 @@ export const Recommendations: React.FC = () => {
         if (response.ok) {
           const result = await response.json();
           const farm = result.farm;
-          console.log("[Recommendations] ✅ Farm data loaded:", {
+          console.log("[Recommendations] Farm data loaded:", {
             crop_type: farm.crop_type,
             soil_type: farm.soil_type,
             farm_id: farm.id,
@@ -465,12 +465,12 @@ export const Recommendations: React.FC = () => {
           });
         } else {
           console.error(
-            "[Recommendations] ❌ Failed to fetch farm data:",
+            "[Recommendations] Failed to fetch farm data:",
             response.status,
           );
         }
       } catch (error) {
-        console.error("[Recommendations] ❌ Error loading farm data:", error);
+        console.error("[Recommendations] Error loading farm data:", error);
       } finally {
         setLoadingFarm(false);
       }
@@ -577,7 +577,7 @@ export const Recommendations: React.FC = () => {
             data-tour-id="reco-stats"
           >
             <Card className="p-4 text-center flex-1">
-              <Database className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+              <Database className="w-8 h-8 text-sky-500 mx-auto mb-2" />
               <p className="text-sm font-medium">
                 {t("emptyState.sensorAnalysis")}
               </p>
@@ -802,7 +802,7 @@ export const Recommendations: React.FC = () => {
                         )}{" "}
                         {t("detail.priority")}
                       </span>
-                      <span className="text-xs px-2 py-1 rounded-full font-medium bg-blue-100 text-blue-700">
+                      <span className="text-xs px-2 py-1 rounded-full font-medium bg-sky-100 text-sky-700">
                         {t(
                           `types.${selectedRecommendation.type}`,
                           selectedRecommendation.type

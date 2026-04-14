@@ -173,7 +173,7 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
             <h2
               className={`text-2xl font-bold mb-2 ${passed ? "text-green-800" : "text-orange-800"}`}
             >
-              {passed ? "🎉 Excellent Work!" : "💪 Keep Learning!"}
+              {passed ? "Excellent Work!" : "Keep Learning!"}
             </h2>
             <p
               className={`mb-6 ${passed ? "text-green-700" : "text-orange-700"}`}
@@ -357,20 +357,20 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
                 exit={{ opacity: 0, height: 0 }}
               >
                 <Card
-                  className={`p-4 mb-6 ${isCorrect ? "bg-green-50 border-green-200" : "bg-blue-50 border-blue-200"}`}
+                  className={`p-4 mb-6 ${isCorrect ? "bg-green-50 border-green-200" : "bg-sky-50 border-sky-200"}`}
                 >
                   <div className="flex items-start gap-3">
                     <AlertCircle
-                      className={`w-5 h-5 mt-0.5 flex-shrink-0 ${isCorrect ? "text-green-600" : "text-blue-600"}`}
+                      className={`w-5 h-5 mt-0.5 flex-shrink-0 ${isCorrect ? "text-green-600" : "text-sky-600"}`}
                     />
                     <div>
                       <h4
-                        className={`font-semibold mb-1 ${isCorrect ? "text-green-800" : "text-blue-800"}`}
+                        className={`font-semibold mb-1 ${isCorrect ? "text-green-800" : "text-sky-800"}`}
                       >
                         {isCorrect ? "✓ Correct!" : "Explanation"}
                       </h4>
                       <p
-                        className={`text-sm ${isCorrect ? "text-green-700" : "text-blue-700"}`}
+                        className={`text-sm ${isCorrect ? "text-green-700" : "text-sky-700"}`}
                       >
                         {currentQuestion.explanation}
                       </p>

@@ -114,7 +114,7 @@ export const SoilMoisture: React.FC = () => {
 
     const unsubscribe = IoTService.onMessage((data: LiveSensorData) => {
       console.log(
-        "%c[SoilMoisture] 🔥 RECEIVED LIVE IOT DATA",
+        "%c[SoilMoisture] RECEIVED LIVE IOT DATA",
         "background: #ff6600; color: #fff; font-weight: bold; padding: 4px;",
       );
       console.log("[SoilMoisture] Data object:", data);
@@ -145,7 +145,7 @@ export const SoilMoisture: React.FC = () => {
     if (moisture >= max + 10)
       return {
         label: t("soil.status.tooWet"),
-        color: "text-blue-600",
+        color: "text-sky-600",
         warning: "Risk of root rot",
         icon: Droplets,
       };
@@ -215,7 +215,7 @@ export const SoilMoisture: React.FC = () => {
     if (ph >= max)
       return {
         label: t("soil.status.slightlyAlkaline"),
-        color: "text-blue-600",
+        color: "text-sky-600",
         icon: Info,
       };
     if (ph >= min)
@@ -426,8 +426,8 @@ export const SoilMoisture: React.FC = () => {
 
         {/* Wind Speed */}
         <div className="flex items-center gap-3 p-3 bg-amber-100/40 dark:bg-amber-800/20 backdrop-blur-sm rounded-xl border border-amber-200/30 dark:border-amber-700/30 hover:bg-amber-100/60 dark:hover:bg-amber-800/30 transition-all duration-300">
-          <div className="w-10 h-10 rounded-full bg-blue-500/15 dark:bg-blue-500/25 flex items-center justify-center">
-            <Wind className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+          <div className="w-10 h-10 rounded-full bg-sky-500/15 dark:bg-sky-500/25 flex items-center justify-center">
+            <Wind className="w-5 h-5 text-sky-600 dark:text-sky-400" />
           </div>
           <div>
             <div className="text-xs text-muted-foreground">Wind Speed</div>
@@ -439,8 +439,8 @@ export const SoilMoisture: React.FC = () => {
 
         {/* pH Level */}
         <div className="flex items-center gap-3 p-3 bg-amber-100/40 dark:bg-amber-800/20 backdrop-blur-sm rounded-xl border border-amber-200/30 dark:border-amber-700/30 hover:bg-amber-100/60 dark:hover:bg-amber-800/30 transition-all duration-300">
-          <div className="w-10 h-10 rounded-full bg-blue-500/15 dark:bg-blue-500/25 flex items-center justify-center">
-            <span className="text-blue-600 dark:text-blue-400 font-bold text-sm">
+          <div className="w-10 h-10 rounded-full bg-sky-500/15 dark:bg-sky-500/25 flex items-center justify-center">
+            <span className="text-sky-600 dark:text-sky-400 font-bold text-sm">
               pH
             </span>
           </div>

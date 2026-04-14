@@ -280,7 +280,7 @@ export default function QuizPlayer() {
                   <Trophy className="w-12 h-12 text-green-600" />
                 </div>
                 <h1 className="text-3xl font-bold text-green-700 mb-2">
-                  🎉 Congratulations!
+                  Congratulations!
                 </h1>
                 <p className="text-muted-foreground">You passed the quiz!</p>
               </>
@@ -576,9 +576,9 @@ export default function QuizPlayer() {
 
                   {/* Hint */}
                   {currentQuestion.hint && (
-                    <div className="mt-4 p-3 bg-blue-50 rounded-lg flex items-start gap-2">
-                      <HelpCircle className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
-                      <p className="text-sm text-blue-700">
+                    <div className="mt-4 p-3 bg-sky-50 rounded-lg flex items-start gap-2">
+                      <HelpCircle className="w-5 h-5 text-sky-500 flex-shrink-0 mt-0.5" />
+                      <p className="text-sm text-sky-700">
                         {currentQuestion.hint}
                       </p>
                     </div>

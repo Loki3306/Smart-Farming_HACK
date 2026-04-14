@@ -80,7 +80,7 @@ class IoTServiceClass {
       this.ws = new WebSocket(wsUrl);
 
       this.ws.onopen = () => {
-        console.log("[IoTService] ✅ WebSocket connected successfully!");
+        console.log("[IoTService] WebSocket connected successfully!");
         this.reconnectAttempts = 0;
         this.updateStatus(true);
 
@@ -118,18 +118,18 @@ class IoTServiceClass {
 
             // ========== CRITICAL: NPK VALUE DEBUGGING ==========
             console.log("\n" + "=".repeat(70));
-            console.log("🎯 FRONTEND RECEIVED SENSOR DATA");
+            console.log("FRONTEND RECEIVED SENSOR DATA");
             console.log("=".repeat(70));
-            console.log("📍 Farm ID:       ", sensorData.farm_id);
-            console.log("💧 Moisture:      ", sensorData.moisture + "%");
-            console.log("🌡️  Temperature:   ", sensorData.temp + "°C");
+            console.log("Farm ID:       ", sensorData.farm_id);
+            console.log("Moisture:      ", sensorData.moisture + "%");
+            console.log("Temperature:   ", sensorData.temp + "°C");
             console.log("💨 Humidity:      ", sensorData.humidity + "%");
             console.log(
-              "🌬️ Wind Speed:    ",
+              "Wind Speed:    ",
               sensorData.wind_speed ? sensorData.wind_speed + " km/h" : "N/A",
             );
             console.log(
-              "🟢 NPK RAW VALUE: ",
+              "NPK RAW VALUE: ",
               sensorData.npk,
               " (TYPE:",
               typeof sensorData.npk,
@@ -181,13 +181,13 @@ class IoTServiceClass {
             window.dispatchEvent(
               new CustomEvent("iot-data", { detail: message }),
             );
-            console.log(`[IoTService] ⚠️ Alert: ${message.type}`);
+            console.log(`[IoTService] Alert: ${message.type}`);
           } else if (message.type === "notification") {
             // Generic notification handling (Toast/Alert)
             window.dispatchEvent(
               new CustomEvent("iot-notification", { detail: message }),
             );
-            console.log(`[IoTService] 🔔 Notification: ${message.message}`);
+            console.log(`[IoTService] Notification: ${message.message}`);
           }
         } catch (error) {
           console.error("[IoTService] Error parsing message:", error);
@@ -195,7 +195,7 @@ class IoTServiceClass {
       };
 
       this.ws.onerror = (error) => {
-        console.error("[IoTService] ❌ WebSocket error:", error);
+        console.error("[IoTService] WebSocket error:", error);
         this.updateStatus(false);
       };
 

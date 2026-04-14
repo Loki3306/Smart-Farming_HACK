@@ -65,6 +65,18 @@ export default {
           DEFAULT: "hsl(var(--sage))",
           dark: "hsl(var(--sage-dark))",
         },
+        sky: {
+          DEFAULT: "hsl(var(--havens-sky))",
+          50: "hsl(200 70% 95%)",
+          100: "hsl(200 70% 90%)",
+          200: "hsl(200 70% 85%)",
+          300: "hsl(200 70% 75%)",
+          500: "hsl(200 70% 55%)",
+          600: "hsl(200 70% 40%)",
+          700: "hsl(200 70% 35%)",
+          800: "hsl(200 70% 25%)",
+          900: "hsl(200 70% 15%)",
+        },
       },
       borderRadius: {
         xl: "1.25rem",

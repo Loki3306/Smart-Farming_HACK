@@ -105,7 +105,7 @@ export const SectionDetailsPanel: React.FC<SectionDetailsPanelProps> = ({
         sectionId,
       );
       if (neighbors.length === 0) {
-        toast("No neighboring sections found", { icon: "ℹ️" });
+        toast("No neighboring sections found", { icon: "info" });
       } else {
         const neighborsList = neighbors
           .map(
@@ -155,7 +155,7 @@ export const SectionDetailsPanel: React.FC<SectionDetailsPanelProps> = ({
               onChange={(e) =>
                 setFormData({ ...formData, section_name: e.target.value })
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-primary"
             />
           ) : (
             <p className="text-gray-900">{section.section_name}</p>
@@ -172,7 +172,7 @@ export const SectionDetailsPanel: React.FC<SectionDetailsPanelProps> = ({
               <input
                 id="displayColor"
                 type="color"
-                value={formData.display_color || "#3B82F6"}
+                value={formData.display_color || "#5ba3d0"}
                 onChange={(e) =>
                   setFormData({ ...formData, display_color: e.target.value })
                 }
@@ -196,9 +196,9 @@ export const SectionDetailsPanel: React.FC<SectionDetailsPanelProps> = ({
         </div>
 
         {/* Area Information */}
-        <div className="p-3 bg-blue-50 rounded">
+        <div className="p-3 bg-sky-50 rounded">
           <p className="text-sm font-medium text-gray-700">Area</p>
-          <p className="text-lg font-semibold text-blue-600">
+          <p className="text-lg font-semibold text-sky-600">
             {section.area_acres?.toFixed(2)} acres
           </p>
           <p className="text-xs text-gray-600">
@@ -220,7 +220,7 @@ export const SectionDetailsPanel: React.FC<SectionDetailsPanelProps> = ({
                 setFormData({ ...formData, crop_type: e.target.value })
               }
               placeholder="e.g., Wheat, Rice, Corn"
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-primary"
             />
           ) : (
             <p className="text-gray-900">
@@ -241,7 +241,7 @@ export const SectionDetailsPanel: React.FC<SectionDetailsPanelProps> = ({
               onChange={(e) =>
                 setFormData({ ...formData, soil_type: e.target.value })
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-primary"
             >
               <option value="">Select soil type</option>
               <option value="clay">Clay</option>
@@ -270,7 +270,7 @@ export const SectionDetailsPanel: React.FC<SectionDetailsPanelProps> = ({
               onChange={(e) =>
                 setFormData({ ...formData, irrigation_type: e.target.value })
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-primary"
             >
               <option value="">Select irrigation type</option>
               <option value="drip">Drip Irrigation</option>
@@ -300,7 +300,7 @@ export const SectionDetailsPanel: React.FC<SectionDetailsPanelProps> = ({
               onChange={(e) =>
                 setFormData({ ...formData, planting_date: e.target.value })
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-primary"
             />
           ) : (
             <p className="text-gray-900">
@@ -327,7 +327,7 @@ export const SectionDetailsPanel: React.FC<SectionDetailsPanelProps> = ({
                   expected_harvest_date: e.target.value,
                 })
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-primary"
             />
           ) : (
             <p className="text-gray-900">
@@ -393,7 +393,7 @@ export const SectionDetailsPanel: React.FC<SectionDetailsPanelProps> = ({
               }
               rows={3}
               placeholder="Add notes about this section..."
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-primary"
             />
           ) : (
             <p className="text-gray-900 text-sm">
@@ -423,7 +423,7 @@ export const SectionDetailsPanel: React.FC<SectionDetailsPanelProps> = ({
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:bg-gray-400"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition disabled:bg-gray-400"
             >
               <Save className="w-4 h-4" />
               {isSaving ? "Saving..." : "Save Changes"}
@@ -442,7 +442,7 @@ export const SectionDetailsPanel: React.FC<SectionDetailsPanelProps> = ({
           <>
             <button
               onClick={() => setIsEditing(true)}
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+              className="w-full px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition"
             >
               Edit Section
             </button>

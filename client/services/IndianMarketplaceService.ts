@@ -43,7 +43,8 @@ export interface MarketplaceSeller {
 }
 
 class IndianMarketplaceService {
-  private baseUrl: string = 'http://localhost:8000';
+  // Use /python-api proxy (Vite proxies this to http://localhost:8000)
+  private baseUrl: string = '/python-api';
 
   /**
    * Search for products based on ML recommendation
@@ -89,7 +90,7 @@ class IndianMarketplaceService {
       const data: MarketplaceSearchResponse = await response.json();
       return data;
     } catch (error) {
-      console.error('❌ Marketplace search error:', error);
+      console.error('Marketplace search error:', error);
       throw error;
     }
   }
@@ -108,7 +109,7 @@ class IndianMarketplaceService {
       const data = await response.json();
       return data.categories;
     } catch (error) {
-      console.error('❌ Failed to fetch categories:', error);
+      console.error('Failed to fetch categories:', error);
       throw error;
     }
   }
@@ -127,7 +128,7 @@ class IndianMarketplaceService {
       const data = await response.json();
       return data.sellers;
     } catch (error) {
-      console.error('❌ Failed to fetch sellers:', error);
+      console.error('Failed to fetch sellers:', error);
       throw error;
     }
   }
@@ -139,10 +140,10 @@ class IndianMarketplaceService {
     try {
       const response = await fetch(`${this.baseUrl}/api/marketplace/health`);
       const data = await response.json();
-      console.log('✅ Marketplace health:', data);
+      console.log('Marketplace health:', data);
       return data.status === 'healthy';
     } catch (error) {
-      console.error('❌ Marketplace health check failed:', error);
+      console.error('Marketplace health check failed:', error);
       return false;
     }
   }

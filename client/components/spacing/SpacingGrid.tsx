@@ -122,7 +122,7 @@ export const SpacingGrid: FC<SpacingGridProps> = ({
               y1={gridSize - 30}
               x2={plantSpacing * scaleX * 1.5}
               y2={gridSize - 30}
-              stroke="#3b82f6"
+              stroke="#5ba3d0"
               strokeWidth="2"
               markerStart="url(#arrow-start-blue)"
               markerEnd="url(#arrow-end-blue)"
@@ -130,7 +130,7 @@ export const SpacingGrid: FC<SpacingGridProps> = ({
             <text
               x={plantSpacing * scaleX}
               y={gridSize - 15}
-              fill="#3b82f6"
+              fill="#5ba3d0"
               fontSize="12"
               fontWeight="bold"
               textAnchor="middle"
@@ -170,7 +170,7 @@ export const SpacingGrid: FC<SpacingGridProps> = ({
             refY="5"
             orient="auto"
           >
-            <polygon points="0,5 10,0 10,10" fill="#3b82f6" />
+            <polygon points="0,5 10,0 10,10" fill="#5ba3d0" />
           </marker>
           <marker
             id="arrow-end-blue"
@@ -180,7 +180,7 @@ export const SpacingGrid: FC<SpacingGridProps> = ({
             refY="5"
             orient="auto"
           >
-            <polygon points="10,5 0,0 0,10" fill="#3b82f6" />
+            <polygon points="10,5 0,0 0,10" fill="#5ba3d0" />
           </marker>
         </defs>
       </svg>
@@ -196,7 +196,7 @@ export const SpacingGrid: FC<SpacingGridProps> = ({
           <span>Row Spacing</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-0.5 bg-blue-500"></div>
+          <div className="w-4 h-0.5 bg-sky-500"></div>
           <span>Plant Spacing</span>
         </div>
       </div>

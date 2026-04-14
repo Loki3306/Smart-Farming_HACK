@@ -74,11 +74,11 @@ const LottieFarmScene: React.FC<LottieFarmSceneProps> = ({
       <div className="flex items-center justify-between mb-4 px-2">
         <div>
           <h2 className="text-lg font-bold bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
-            🌾 {cropName} Field
+            {cropName} Field
           </h2>
           <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
             <span
-              className={`w-2 h-2 rounded-full ${healthStatus === "healthy" ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" : healthStatus === "saturated" ? "bg-blue-500 animate-pulse" : "bg-red-500 animate-pulse"}`}
+              className={`w-2 h-2 rounded-full ${healthStatus === "healthy" ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" : healthStatus === "saturated" ? "bg-sky-500 animate-pulse" : "bg-red-500 animate-pulse"}`}
             ></span>
             Live Digital Twin
           </div>
@@ -162,7 +162,7 @@ const LottieFarmScene: React.FC<LottieFarmSceneProps> = ({
           <div className="flex gap-2">
             <div className="backdrop-blur-md bg-white/30 dark:bg-black/30 border border-white/20 p-2 rounded-xl flex flex-col items-center min-w-[60px] shadow-lg transform hover:scale-105 transition-transform cursor-default">
               <Droplets
-                className={`w-4 h-4 mb-1 ${isWet ? "text-blue-500" : isDry ? "text-amber-500" : "text-slate-500"}`}
+                className={`w-4 h-4 mb-1 ${isWet ? "text-sky-500" : isDry ? "text-amber-500" : "text-slate-500"}`}
               />
               <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
                 {Math.round(moisture)}%
@@ -187,7 +187,7 @@ const LottieFarmScene: React.FC<LottieFarmSceneProps> = ({
               healthStatus === "healthy"
                 ? "bg-emerald-500/20 border-emerald-500/30"
                 : healthStatus === "saturated"
-                  ? "bg-blue-500/20 border-blue-500/30"
+                  ? "bg-sky-500/20 border-sky-500/30"
                   : "bg-amber-500/20 border-amber-500/30"
             }`}
           >
@@ -196,7 +196,7 @@ const LottieFarmScene: React.FC<LottieFarmSceneProps> = ({
                 healthStatus === "healthy"
                   ? "text-emerald-600 dark:text-emerald-400"
                   : healthStatus === "saturated"
-                    ? "text-blue-600 dark:text-blue-400"
+                    ? "text-sky-600 dark:text-sky-400"
                     : "text-amber-600 dark:text-amber-400"
               }`}
             />
@@ -205,7 +205,7 @@ const LottieFarmScene: React.FC<LottieFarmSceneProps> = ({
                 healthStatus === "healthy"
                   ? "text-emerald-800 dark:text-emerald-200"
                   : healthStatus === "saturated"
-                    ? "text-blue-800 dark:text-blue-200"
+                    ? "text-sky-800 dark:text-sky-200"
                     : "text-amber-800 dark:text-amber-200"
               }`}
             >
@@ -225,7 +225,7 @@ const LottieFarmScene: React.FC<LottieFarmSceneProps> = ({
         </span>
         <div className="flex gap-3 items-center">
           {isWet && (
-            <span className="flex items-center gap-1 text-xs text-blue-500">
+            <span className="flex items-center gap-1 text-xs text-sky-500">
               <CloudRain size={12} /> Irrigating
             </span>
           )}

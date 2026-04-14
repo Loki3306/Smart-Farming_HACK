@@ -44,15 +44,43 @@ def get_connection_pool() -> pool.ThreadedConnectionPool:
 def get_connection():
     """Context manager: borrow a connection, return it when done."""
     conn_pool = get_connection_pool()
-    conn = conn_pool.getconn()
+    conn = None
+
+    # Poolers can occasionally hand back stale/closed connections.
+    # Retry a couple of times before resetting the pool.
+    for _ in range(2):
+        candidate = conn_pool.getconn()
+        if candidate and getattr(candidate, "closed", 1) == 0:
+            conn = candidate
+            break
+
+        try:
+            conn_pool.putconn(candidate, close=True)
+        except Exception:
+            pass
+
+    if conn is None:
+        reset_connection_pool()
+        conn_pool = get_connection_pool()
+        conn = conn_pool.getconn()
+
     try:
         yield conn
-        conn.commit()
+        if conn and getattr(conn, "closed", 1) == 0:
+            conn.commit()
     except Exception:
-        conn.rollback()
+        if conn and getattr(conn, "closed", 1) == 0:
+            conn.rollback()
         raise
     finally:
-        conn_pool.putconn(conn)
+        if conn is not None:
+            try:
+                if getattr(conn, "closed", 1) == 0:
+                    conn_pool.putconn(conn)
+                else:
+                    conn_pool.putconn(conn, close=True)
+            except Exception:
+                pass
 
 
 @contextmanager

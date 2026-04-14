@@ -88,7 +88,7 @@ export function IncomingCall({
             <span>Decline</span>
           </Button>
           <Button
-            className="flex-1 rounded-full bg-green-500 hover:bg-green-600"
+            className="flex-1 rounded-full bg-primary hover:bg-primary/90"
             style={{ height: "40px", fontSize: "12px" }}
             onClick={onAccept}
           >

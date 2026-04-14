@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Card } from "../ui/card";
+import { Settings, AlertCircle, CheckCircle, Droplets, AlertTriangle } from "lucide-react";
 
 interface CommandCenterProps {
   farmId: string;
@@ -78,7 +79,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ farmId }) => {
     setSuccess(null);
 
     try {
-      const response = await fetch("http://localhost:8000/iot/control", {
+      const response = await fetch("/python-api/iot/control", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -125,7 +126,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ farmId }) => {
       {/* Header */}
       <div className="p-6 border-b border-slate-700/50">
         <h3 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">
-          <span>🎛️</span> Control Center
+          <Settings className="w-6 h-6" /> Control Center
         </h3>
         <p className="text-sm text-slate-400">Hybrid Manual/Auto Control</p>
       </div>
@@ -134,14 +135,14 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ farmId }) => {
         {/* Alerts */}
         {error && (
           <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400">
-            <span className="text-xl">🚫</span>
+            <AlertCircle className="w-5 h-5 flex-shrink-0" />
             <span className="text-sm">{error}</span>
           </div>
         )}
 
         {success && (
           <div className="flex items-center gap-3 p-4 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400">
-            <span className="text-xl">✅</span>
+            <CheckCircle className="w-5 h-5 flex-shrink-0" />
             <span className="text-sm">{success}</span>
           </div>
         )}
@@ -150,7 +151,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ farmId }) => {
         <div className="bg-white/5 border border-white/10 rounded-xl p-5 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-2xl">💧</span>
+              <Droplets className="w-6 h-6 text-sky-400" />
               <h4 className="text-lg font-semibold text-white">
                 Irrigation System
               </h4>
@@ -188,7 +189,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ farmId }) => {
             <span
               className={`text-2xl ${actuationState.irrigation ? "animate-pulse" : ""}`}
             >
-              {actuationState.irrigation ? "🟢" : "⚫"}
+              {actuationState.irrigation ? "●" : "○"}
             </span>
             <span className="font-semibold text-white">
               {actuationState.irrigation ? "ACTIVE" : "INACTIVE"}
@@ -203,14 +204,14 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ farmId }) => {
                 onClick={() => sendCommand("irrigation", true)}
                 disabled={loading.irrigation || actuationState.irrigation}
               >
-                {loading.irrigation ? "⏳" : "▶️"} Turn ON
+                {loading.irrigation ? "↻" : "▶"} Turn ON
               </button>
               <button
                 className="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                 onClick={() => sendCommand("irrigation", false)}
                 disabled={loading.irrigation || !actuationState.irrigation}
               >
-                {loading.irrigation ? "⏳" : "⏹️"} Turn OFF
+                {loading.irrigation ? "↻" : "■"} Turn OFF
               </button>
             </div>
           )}
@@ -219,7 +220,6 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ farmId }) => {
           {controlMode.irrigation === "auto" && (
             <div className="p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg">
               <div className="flex items-center gap-2 text-purple-300">
-                <span className="text-xl">🤖</span>
                 <span className="text-sm">
                   Auto mode: System will activate when moisture &lt; 35%
                 </span>
@@ -232,7 +232,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ farmId }) => {
         <div className="bg-white/5 border border-white/10 rounded-xl p-5 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-2xl">🌿</span>
+              <span className="text-2xl">�</span> {/* Leaf for fertilization */}
               <h4 className="text-lg font-semibold text-white">
                 Fertilization System
               </h4>
@@ -273,7 +273,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ farmId }) => {
             <span
               className={`text-2xl ${actuationState.fertilization ? "animate-pulse" : ""}`}
             >
-              {actuationState.fertilization ? "🟢" : "⚫"}
+              {actuationState.fertilization ? "●" : "○"}
             </span>
             <span className="font-semibold text-white">
               {actuationState.fertilization ? "ACTIVE" : "INACTIVE"}
@@ -288,7 +288,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ farmId }) => {
                 onClick={() => sendCommand("fertilization", true)}
                 disabled={loading.fertilization || actuationState.fertilization}
               >
-                {loading.fertilization ? "⏳" : "▶️"} Turn ON
+                {loading.fertilization ? "↻" : "▶"} Turn ON
               </button>
               <button
                 className="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
@@ -297,7 +297,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ farmId }) => {
                   loading.fertilization || !actuationState.fertilization
                 }
               >
-                {loading.fertilization ? "⏳" : "⏹️"} Turn OFF
+                {loading.fertilization ? "↻" : "■"} Turn OFF
               </button>
             </div>
           )}
@@ -306,13 +306,12 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ farmId }) => {
           {controlMode.fertilization === "auto" && (
             <div className="p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg space-y-2">
               <div className="flex items-center gap-2 text-purple-300">
-                <span className="text-xl">🤖</span>
                 <span className="text-sm">
                   Auto mode: System will activate when NPK is low
                 </span>
               </div>
               <div className="text-xs text-yellow-400 font-medium flex items-center gap-1">
-                <span>⚠️</span>
+                <span>Note:</span>
                 <span>Blocked if wind &gt; 20 km/h</span>
               </div>
             </div>

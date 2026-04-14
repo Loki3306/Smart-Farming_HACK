@@ -299,36 +299,36 @@ export const SectionDetailsPanelLocalStorage: React.FC<
               };
 
               return (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="bg-sky-50 border border-sky-200 rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-3">
-                    <Droplets className="w-5 h-5 text-blue-600" />
-                    <label className="text-sm font-medium text-blue-900">
+                    <Droplets className="w-5 h-5 text-sky-600" />
+                    <label className="text-sm font-medium text-sky-900">
                       Nearest Water Source
                     </label>
                   </div>
 
                   <div className="space-y-2 text-sm">
                     <div>
-                      <span className="text-blue-700 font-medium">
+                      <span className="text-sky-700 font-medium">
                         {waterSource.name}
                       </span>
-                      <span className="text-blue-600 ml-2">
+                      <span className="text-sky-600 ml-2">
                         ({typeLabels[waterSource.type]})
                       </span>
                     </div>
 
-                    <div className="text-blue-800">
+                    <div className="text-sky-800">
                       <strong>Distance:</strong> {distanceM}m ({distanceKm}km)
                     </div>
 
-                    <div className="text-blue-800">
+                    <div className="text-sky-800">
                       <strong>Suggestion:</strong>{" "}
                       {getIrrigationRecommendation(
                         section.nearestWaterSource.distance,
                       )}
                     </div>
 
-                    <div className="text-xs text-blue-600 mt-2 pt-2 border-t border-blue-200">
+                    <div className="text-xs text-sky-600 mt-2 pt-2 border-t border-sky-200">
                       Source: OpenStreetMap
                     </div>
                   </div>

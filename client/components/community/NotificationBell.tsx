@@ -39,17 +39,17 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ userId }) => {
       case "comment":
         return "💬";
       case "reply":
-        return "↩️";
+        return "↻";
       case "mention":
         return "@";
       case "share":
-        return "🔄";
+        return "⇄";
       case "follow":
         return "👤";
       case "message":
-        return "✉️";
+        return "✉";
       default:
-        return "🔔";
+        return "●";
     }
   };
 

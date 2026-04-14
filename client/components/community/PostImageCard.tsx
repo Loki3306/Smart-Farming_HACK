@@ -53,12 +53,12 @@ export const PostImageCard: React.FC<PostImageCardProps> = ({ post }) => {
       <div className="flex flex-wrap gap-3 mb-6">
         {post.crop && (
           <span className="px-3 py-1.5 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-            🌾 {post.crop}
+            {post.crop}
           </span>
         )}
         {post.method && (
-          <span className="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-            ⚙️ {post.method}
+          <span className="px-3 py-1.5 bg-sky-100 text-sky-800 rounded-full text-sm font-medium">
+            {post.method}
           </span>
         )}
       </div>
@@ -68,7 +68,7 @@ export const PostImageCard: React.FC<PostImageCardProps> = ({ post }) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-white text-xl">🌱</span>
+              <span className="text-white text-xl">�</span>
             </div>
             <div>
               <p className="font-bold text-gray-900">Krushi Unnati</p>
@@ -92,7 +92,7 @@ export const PostImageCard: React.FC<PostImageCardProps> = ({ post }) => {
               <span>👍 {post.reaction_counts.helpful} helpful</span>
             )}
             {post.reaction_counts.tried > 0 && (
-              <span>🌱 {post.reaction_counts.tried} tried this</span>
+              <span>{post.reaction_counts.tried} tried this</span>
             )}
             {post.comment_count > 0 && (
               <span>💬 {post.comment_count} comments</span>

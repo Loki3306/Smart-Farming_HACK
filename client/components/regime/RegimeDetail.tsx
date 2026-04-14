@@ -85,7 +85,7 @@ export default function RegimeDetail({
   const getStatusIcon = (status: string) => {
     const icons: Record<string, any> = {
       completed: <CheckCircleOutlined className="text-green-500" />,
-      in_progress: <ClockCircleOutlined className="text-blue-500" />,
+      in_progress: <ClockCircleOutlined className="text-sky-500" />,
       pending: <ClockCircleOutlined className="text-gray-400" />,
       failed: <ExclamationCircleOutlined className="text-red-500" />,
       skipped: <ExclamationCircleOutlined className="text-yellow-500" />,
@@ -244,11 +244,11 @@ export default function RegimeDetail({
                     {task.priority} priority
                   </Tag>
                   <span className="text-gray-500">
-                    📅 Day {task.timing_value}{" "}
+                    Day {task.timing_value}{" "}
                     {task.timing_type && `(${task.timing_type})`}
                   </span>
                   <span className="text-gray-500">
-                    📊 Confidence: {task.confidence_score}%
+                    Confidence: {task.confidence_score}%
                   </span>
                   {task.quantity && (
                     <span className="text-gray-500">
@@ -258,7 +258,7 @@ export default function RegimeDetail({
                 </div>
 
                 {task.farmer_notes && (
-                  <div className="mt-3 p-2 bg-blue-50 rounded text-sm text-gray-700">
+                  <div className="mt-3 p-2 bg-sky-50 rounded text-sm text-gray-700">
                     <strong>Notes:</strong> {task.farmer_notes}
                   </div>
                 )}

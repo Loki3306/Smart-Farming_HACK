@@ -44,7 +44,7 @@ const DEMO_FARMERS = [
     id: "3",
     name: "Arjun Patel",
     phone: "+919876543212",
-    icon: "🟢",
+    icon: "●",
     description: "Optimal Conditions",
     scenario: "Perfect soil health, just monitoring",
   },
@@ -213,7 +213,7 @@ export function FarmerSwitcher({ className }: FarmerSwitcherProps) {
           )}
         >
           <div className="flex items-center gap-2">
-            <Users className="h-4 w-4 text-blue-600" />
+            <Users className="h-4 w-4 text-sky-600" />
             <span className="font-semibold text-sm hidden sm:inline">
               Demo Mode
             </span>
@@ -251,7 +251,7 @@ export function FarmerSwitcher({ className }: FarmerSwitcherProps) {
 
           {/* Original User Info */}
           {originalUser && !isOnOriginalAccount && (
-            <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded flex items-center justify-between">
+            <div className="text-xs text-sky-600 bg-sky-50 p-2 rounded flex items-center justify-between">
               <div>
                 Original:{" "}
                 <span className="font-semibold">{originalUser.name}</span>
@@ -261,7 +261,7 @@ export function FarmerSwitcher({ className }: FarmerSwitcherProps) {
                 size="sm"
                 onClick={handleRestoreOriginal}
                 disabled={switching}
-                className="h-7 px-2 text-blue-600 hover:text-blue-700 hover:bg-blue-100"
+                className="h-7 px-2 text-sky-600 hover:text-sky-700 hover:bg-sky-100"
               >
                 <RotateCcw className="h-3 w-3 mr-1" />
                 Restore

@@ -105,7 +105,7 @@ export const Profile: React.FC = () => {
                       "Experienced Farmer"}
                   </p>
                   {user?.isDemoUser && (
-                    <span className="inline-block mt-2 px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full">
+                    <span className="inline-block mt-2 px-3 py-1 bg-sky-100 text-sky-700 text-sm rounded-full">
                       Demo Account
                     </span>
                   )}
@@ -209,7 +209,7 @@ export const Profile: React.FC = () => {
                           </span>
                         ) : (
                           <span className="text-orange-600">
-                            ⚠ Onboarding Pending
+                            Onboarding Pending
                           </span>
                         )}
                       </p>

@@ -213,7 +213,7 @@ const StickyFarmCycle = ({ onComplete }: { onComplete: () => void }) => {
 
   const phases = [
     { icon: Sprout, label: "Sowing", color: "bg-amber-500" },
-    { icon: Droplets, label: "Irrigation", color: "bg-blue-500" },
+    { icon: Droplets, label: "Irrigation", color: "bg-sky-500" },
     { icon: FlaskConical, label: "Fertilizing", color: "bg-purple-500" },
     { icon: Sun, label: "Growing", color: "bg-green-500" },
     { icon: Wheat, label: "Harvesting", color: "bg-orange-500" },
@@ -407,7 +407,7 @@ const StickyFarmCycle = ({ onComplete }: { onComplete: () => void }) => {
                       Journey Complete
                     </p>
                     <p className="text-[10px] text-white/70 mt-1">
-                      Grow Sustainable 🌱
+                      Grow Sustainable
                     </p>
                   </motion.div>
 
@@ -769,7 +769,7 @@ export const Landing = () => {
       title: "Sense",
       description:
         "IoT sensors continuously monitor soil moisture, temperature, and humidity across your fields in real-time.",
-      color: "from-blue-500 to-cyan-500",
+      color: "from-sky-500 to-cyan-500",
     },
     {
       icon: Brain,
@@ -1095,7 +1095,7 @@ export const Landing = () => {
                   ease: "easeInOut",
                   delay: 0.2,
                 }}
-                className="hidden lg:flex absolute -top-6 -right-6 w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl shadow-lg items-center justify-center z-10"
+                className="hidden lg:flex absolute -top-6 -right-6 w-12 h-12 bg-gradient-to-br from-sky-500 to-cyan-500 rounded-2xl shadow-lg items-center justify-center z-10"
               >
                 <Droplets className="w-6 h-6 text-white" />
               </motion.div>

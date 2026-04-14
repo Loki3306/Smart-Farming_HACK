@@ -142,7 +142,7 @@ class WeatherServiceClass {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           console.log(
-            `[Weather] ✅ GPS Location detected: ${position.coords.latitude}, ${position.coords.longitude}`,
+            `[Weather] GPS Location detected: ${position.coords.latitude}, ${position.coords.longitude}`,
           );
 
           // Cache the location
@@ -159,7 +159,7 @@ class WeatherServiceClass {
         },
         (error) => {
           console.warn(
-            `[Weather] ⚠️  Could not get GPS location: ${error.message}`,
+            `[Weather] Could not get GPS location: ${error.message}`,
           );
           console.warn(
             "[Weather] Falling back to farm location. To enable GPS:",

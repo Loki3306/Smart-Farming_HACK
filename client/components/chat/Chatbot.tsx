@@ -117,7 +117,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({
           }
         }}
         className={cn(
-          "fixed bottom-6 left-6 z-50 h-14 w-14 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow",
+          "fixed bottom-6 left-6 z-50 h-14 w-14 rounded-full bg-gradient-to-br from-primary to-primary/80 text-white shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow",
           isDragging && "shadow-2xl cursor-grabbing",
           !isDragging && "cursor-grab",
         )}
@@ -142,7 +142,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({
           onDragStart={() => setIsDragging(true)}
           onDragEnd={() => setIsDragging(false)}
           className={cn(
-            "flex flex-col border border-green-100 rounded-2xl shadow-xl overflow-hidden",
+            "flex flex-col border border-primary/20 rounded-2xl shadow-xl overflow-hidden",
             "bg-[#f9f9f6]",
             floating
               ? "fixed bottom-6 left-6 z-50 cursor-grab active:cursor-grabbing"
@@ -152,7 +152,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({
           )}
         >
           {/* Header */}
-          <div className="bg-[#3b7a3c] text-white p-4 flex items-center justify-between rounded-t-2xl">
+          <div className="bg-primary text-white p-4 flex items-center justify-between rounded-t-2xl">
             <div className="flex items-center gap-3">
               {/* Farmer avatar icon (SVG) */}
               <span className="inline-flex items-center justify-center rounded-full bg-white/20 border border-white/30 w-10 h-10">
@@ -262,10 +262,10 @@ export const Chatbot: React.FC<ChatbotProps> = ({
                         झटपट सुझाव / Quick Tips:
                       </p>
                       <ul className="text-xs text-gray-700 space-y-0.5 list-disc list-inside">
-                        <li>🌱 फसल का नाम लिखें (Crop name)</li>
-                        <li>🐛 समस्या बताएं (Problem)</li>
-                        <li>💸 सस्ता उपाय? (Low-cost?)</li>
-                        <li>🗣️ हिंदी/English दोनों चलेगा</li>
+                        <li>फसल का नाम लिखें (Crop name)</li>
+                        <li>समस्या बताएं (Problem)</li>
+                        <li>सस्ता उपाय? (Low-cost?)</li>
+                        <li>हिंदी/English दोनों चलेगा</li>
                       </ul>
                     </div>
                   </div>

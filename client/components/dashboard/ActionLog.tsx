@@ -14,7 +14,7 @@ export const ActionLog: React.FC = () => {
   const getIcon = (type: string) => {
     switch (type) {
       case "irrigation":
-        return <Droplet className="w-4 h-4 text-blue-500 dark:text-blue-400" />;
+        return <Droplet className="w-4 h-4 text-sky-500 dark:text-sky-400" />;
       case "fertilization":
         return <Leaf className="w-4 h-4 text-green-500 dark:text-green-400" />;
       default:
@@ -39,10 +39,10 @@ export const ActionLog: React.FC = () => {
     switch (type) {
       case "irrigation":
         return {
-          bg: "bg-blue-100/50 dark:bg-blue-800/30",
-          border: "border-blue-200/50 dark:border-blue-700/40",
+          bg: "bg-sky-100/50 dark:bg-sky-800/30",
+          border: "border-sky-200/50 dark:border-sky-700/40",
           badge:
-            "bg-blue-200/60 dark:bg-blue-700/50 text-blue-700 dark:text-blue-300",
+            "bg-sky-200/60 dark:bg-sky-700/50 text-sky-700 dark:text-sky-300",
         };
       case "fertilization":
         return {

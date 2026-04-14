@@ -121,7 +121,7 @@ const getPostTypeConfig = (t: any) => ({
   success: {
     icon: CheckCircle2,
     label: t("postTypes.success.label"),
-    emoji: "🌱",
+    emoji: "Sprout",
     color: "bg-green-100 text-green-700 border-green-200",
     badgeColor: "bg-green-500",
     description: t("postTypes.success.description"),
@@ -134,9 +134,9 @@ const getPostTypeConfig = (t: any) => ({
   question: {
     icon: HelpCircle,
     label: t("postTypes.question.label"),
-    emoji: "❓",
-    color: "bg-blue-100 text-blue-700 border-blue-200",
-    badgeColor: "bg-blue-500",
+    emoji: "HelpCircle",
+    color: "bg-sky-100 text-sky-700 border-sky-200",
+    badgeColor: "bg-sky-500",
     description: t("postTypes.question.description"),
     prompts: {
       crop: t("postTypes.question.cropPrompt"),
@@ -147,7 +147,7 @@ const getPostTypeConfig = (t: any) => ({
   problem: {
     icon: AlertTriangle,
     label: t("postTypes.problem.label"),
-    emoji: "⚠️",
+    emoji: "AlertTriangle",
     color: "bg-amber-100 text-amber-700 border-amber-200",
     badgeColor: "bg-amber-500",
     description: t("postTypes.problem.description"),
@@ -184,12 +184,12 @@ const getReactionConfig = (
     countText: t("reactions.helpful.countText"),
   },
   tried: {
-    emoji: "🌱",
+    emoji: "Sprout",
     label: t("reactions.tried.label"),
     countText: t("reactions.tried.countText"),
   },
   didnt_work: {
-    emoji: "⚠️",
+    emoji: "AlertTriangle",
     label: t("reactions.didntWork.label"),
     countText: t("reactions.didntWork.countText"),
   },
@@ -553,10 +553,10 @@ export const Community: React.FC = () => {
       // Don't show toast for copy_link - ShareDialog handles it
       if (method !== "copy_link") {
         const methodLabels: Record<ShareMethod, string> = {
-          whatsapp: "📱 WhatsApp",
-          copy_link: "📋 Link",
-          native_share: "📤 Share",
-          download: "💾 Download",
+          whatsapp: "WhatsApp",
+          copy_link: "Link",
+          native_share: "Share",
+          download: "Download",
         };
 
         toast({
@@ -1239,14 +1239,14 @@ export const Community: React.FC = () => {
                                       className="text-xs"
                                     >
                                       {report.reason === "spam"
-                                        ? "🚫 Spam"
+                                        ? "Spam"
                                         : report.reason === "inappropriate"
-                                          ? "⚠️ Inappropriate"
+                                          ? "Inappropriate"
                                           : report.reason === "misinformation"
-                                            ? "❌ Misinformation"
+                                            ? "Misinformation"
                                             : report.reason === "harassment"
-                                              ? "🛡️ Harassment"
-                                              : "📝 Other"}
+                                              ? "Harassment"
+                                              : "Other"}
                                     </Badge>
                                   </div>
 
@@ -1314,7 +1314,7 @@ export const Community: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <div className="p-1.5 rounded-lg bg-white shadow-sm text-blue-500">
+                    <div className="p-1.5 rounded-lg bg-white shadow-sm text-sky-500">
                       <TrendingUp className="w-4 h-4" />
                     </div>
                     <div className="flex-1 min-w-0">

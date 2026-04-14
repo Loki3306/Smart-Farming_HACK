@@ -121,7 +121,7 @@ export const ArticleDetail: React.FC = () => {
                 <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-foreground">
                   {article.category}
                 </span>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                <span className="text-xs px-2 py-0.5 rounded-full bg-sky-100 text-sky-700">
                   {article.language}
                 </span>
               </div>

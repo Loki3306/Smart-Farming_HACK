@@ -90,7 +90,7 @@ export const Notifications: React.FC = () => {
   const getRecommendationTypeColor = (type: string) => {
     switch (type) {
       case "irrigation":
-        return "text-blue-500 bg-blue-100";
+        return "text-sky-500 bg-sky-100";
       case "fertilizer":
         return "text-green-500 bg-green-100";
       case "pest":
@@ -158,7 +158,7 @@ export const Notifications: React.FC = () => {
         return "text-red-500 bg-red-100";
       case "comment":
       case "reply":
-        return "text-blue-500 bg-blue-100";
+        return "text-sky-500 bg-sky-100";
       case "mention":
         return "text-purple-500 bg-purple-100";
       case "share":

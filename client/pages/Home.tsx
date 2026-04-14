@@ -95,10 +95,10 @@ export const Home: React.FC = () => {
       toast({
         title:
           data.level === "error"
-            ? "🚨 Critical Alert"
+            ? "Critical Alert"
             : data.level === "warning"
-              ? "⚠️ Warning"
-              : "ℹ️ Notification",
+              ? "Warning"
+              : "Notification",
         description: data.message,
         variant:
           data.level === "error" || data.level === "warning"
@@ -386,7 +386,7 @@ export const Home: React.FC = () => {
                       <Sunset className="w-4 h-4 text-orange-300" />
                     )}
                     {timeOfDay === "Night" && (
-                      <Moon className="w-4 h-4 text-blue-200" />
+                      <Moon className="w-4 h-4 text-sky-200" />
                     )}
                     <span>
                       {t(`greeting.${timeOfDay.toLowerCase()}`).replace(
@@ -487,7 +487,7 @@ export const Home: React.FC = () => {
             </span>
             <span className="hidden sm:inline text-border">•</span>
             <span className="flex items-center gap-1.5">
-              <Link className="w-4 h-4 text-blue-500" />{" "}
+              <Link className="w-4 h-4 text-sky-500" />{" "}
               {t("footer.blockchain")}
             </span>
             <span className="hidden sm:inline text-border">•</span>

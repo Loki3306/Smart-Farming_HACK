@@ -59,7 +59,7 @@ export const SoilAnalyticsCard: React.FC<SoilAnalyticsProps> = ({
       ideal: 150,
       color: "#eab308",
     },
-    { name: "Potassium (K)", value: potassium, ideal: 150, color: "#3b82f6" },
+    { name: "Potassium (K)", value: potassium, ideal: 150, color: "#5ba3d0" },
   ];
 
   // Soil health radar data
@@ -132,7 +132,7 @@ export const SoilAnalyticsCard: React.FC<SoilAnalyticsProps> = ({
   // Get health status
   const getHealthStatus = (score: number) => {
     if (score >= 80) return { status: "Excellent", color: "bg-primary/20 text-primary border-primary/30" };
-    if (score >= 60) return { status: "Good", color: "bg-blue-500/20 text-blue-500 border-blue-500/30" };
+    if (score >= 60) return { status: "Good", color: "bg-sky-500/20 text-sky-500 border-sky-500/30" };
     if (score >= 40) return { status: "Fair", color: "bg-amber-500/20 text-amber-500 border-amber-500/30" };
     return { status: "Poor", color: "bg-destructive/20 text-destructive border-destructive/30" };
   };

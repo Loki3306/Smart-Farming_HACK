@@ -2,37 +2,37 @@ import type { PostType } from "@/services/communityApi";
 
 export const POST_TYPE_CONFIG: Record<
   PostType,
-  { label: string; emoji: string; color: string }
+  { label: string; icon: string; color: string }
 > = {
   success: {
     label: "Success Story",
-    emoji: "🌱",
-    color: "bg-green-50 text-green-700",
+    icon: "Sprout",
+    color: "bg-primary/10 text-primary",
   },
   question: {
     label: "Question",
-    emoji: "❓",
-    color: "bg-blue-50 text-blue-700",
+    icon: "HelpCircle",
+    color: "bg-sky-50 text-sky-700",
   },
   problem: {
     label: "Problem",
-    emoji: "⚠️",
+    icon: "AlertTriangle",
     color: "bg-amber-50 text-amber-700",
   },
   update: {
     label: "Field Update",
-    emoji: "📸",
-    color: "bg-purple-50 text-purple-700",
+    icon: "Image",
+    color: "bg-secondary/10 text-secondary",
   },
 };
 
 export const REACTION_CONFIG = {
-  helpful: { emoji: "👍", label: "Helpful", countText: "found this helpful" },
-  tried: { emoji: "🌱", label: "Tried", countText: "tried this" },
+  helpful: { icon: "ThumbsUp", label: "Helpful", countText: "found this helpful" },
+  tried: { icon: "Sprout", label: "Tried", countText: "tried this" },
   didnt_work: {
-    emoji: "⚠️",
+    icon: "AlertTriangle",
     label: "Didn't work",
     countText: "said didn't work",
   },
-  new_idea: { emoji: "💡", label: "New idea", countText: "got new ideas" },
+  new_idea: { icon: "Lightbulb", label: "New idea", countText: "got new ideas" },
 };

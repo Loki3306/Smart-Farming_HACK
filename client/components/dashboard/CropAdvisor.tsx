@@ -77,7 +77,7 @@ export const CropAdvisor: React.FC<CropAdvisorProps> = ({ sensorData }) => {
         rainfall: 120.0, // Default or from weather API
       };
 
-      const response = await fetch("http://localhost:8000/iot/recommend-crop", {
+      const response = await fetch("/python-api/iot/recommend-crop", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -263,7 +263,7 @@ export const CropAdvisor: React.FC<CropAdvisorProps> = ({ sensorData }) => {
             {financials && (
               <div className="bg-card border border-border text-foreground p-6 rounded-xl shadow-sm mb-6">
                 <h4 className="text-lg font-bold mb-4 flex items-center gap-2">
-                  <span className="text-2xl">💸</span> Financial Forecast (
+                  <span className="text-2xl">�</span> Financial Forecast (
                   {(financials as any).area_acres || 5} acres)
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
@@ -351,7 +351,7 @@ export const CropAdvisor: React.FC<CropAdvisorProps> = ({ sensorData }) => {
             {roadmap && (
               <div className="bg-card p-6 rounded-xl border border-border">
                 <h4 className="text-lg font-bold mb-4 flex items-center gap-2 text-foreground">
-                  🗓️ Season Roadmap ({viewingCandidate?.crop})
+                  Season Roadmap ({viewingCandidate?.crop})
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {Object.entries(roadmap).map(([phase, plan], idx) => (

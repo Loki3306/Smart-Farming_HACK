@@ -241,7 +241,7 @@ export const Farm: React.FC = () => {
       });
 
       if (response.ok) {
-        console.log("[Farm] ✅ Farm data saved successfully");
+        console.log("[Farm] Farm data saved successfully");
 
         // Re-fetch persisted farm data from backend to verify save survives refresh.
         const refreshed = await fetch(`/api/farms/${farmId}`);
@@ -269,7 +269,7 @@ export const Farm: React.FC = () => {
 
         setIsEditing(false);
       } else {
-        console.error("[Farm] ❌ Failed to save farm data");
+        console.error("[Farm] Failed to save farm data");
       }
     } catch (error) {
       console.error("[Farm] Error saving farm data:", error);

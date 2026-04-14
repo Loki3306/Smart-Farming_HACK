@@ -120,7 +120,7 @@ export function ActiveFarmers({
             onClick={() => setFilterType("online")}
             className="flex-1"
           >
-            <div className="w-2 h-2 rounded-full bg-green-500 mr-2" />
+            <div className="w-2 h-2 rounded-full bg-primary mr-2" />
             Online Only
           </Button>
         </div>
@@ -167,7 +167,7 @@ export function ActiveFarmers({
                       <div className="relative">
                         <Avatar className="h-10 w-10">
                           <AvatarImage src={undefined} alt={farmer.name} />
-                          <AvatarFallback className="bg-green-100 text-green-700">
+                          <AvatarFallback className="bg-primary text-primary-foreground">
                             {getInitials(farmer.name)}
                           </AvatarFallback>
                         </Avatar>
@@ -206,7 +206,7 @@ export function ActiveFarmers({
                       <div className="relative">
                         <Avatar className="h-10 w-10">
                           <AvatarImage src={undefined} alt={farmer.name} />
-                          <AvatarFallback className="bg-yellow-100 text-yellow-700">
+                          <AvatarFallback className="bg-secondary text-secondary-foreground">
                             {getInitials(farmer.name)}
                           </AvatarFallback>
                         </Avatar>

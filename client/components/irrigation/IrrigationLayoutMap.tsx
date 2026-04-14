@@ -132,7 +132,7 @@ export const IrrigationLayoutMap: React.FC<IrrigationLayoutMapProps> = ({
       <div class="text-sm">
         <strong class="text-base">${waterSource.name}</strong><br/>
         <span class="text-gray-600 capitalize">${waterSource.type.replace("_", " ")}</span><br/>
-        <span class="text-blue-600">Water Source</span>
+        <span class="text-sky-600">Water Source</span>
       </div>
     `);
 
@@ -168,7 +168,7 @@ export const IrrigationLayoutMap: React.FC<IrrigationLayoutMapProps> = ({
 
       // Main pipeline
       const mainPipeline = L.polyline(pipelineCoords, {
-        color: "#2563eb",
+        color: "#5ba3d0",
         weight: 5,
         opacity: 0.8,
         dashArray: "10, 5",
@@ -179,7 +179,7 @@ export const IrrigationLayoutMap: React.FC<IrrigationLayoutMapProps> = ({
         <strong class="text-base">Main Pipeline</strong><br/>
         <span class="text-gray-600">Length: ${Math.round(distance)}m</span><br/>
         <span class="text-gray-600">Method: ${method}</span><br/>
-        <span class="text-blue-600">Pipe Length: ${Math.round(pipeLength)}m</span>
+        <span class="text-sky-600">Pipe Length: ${Math.round(pipeLength)}m</span>
       </div>
     `);
 
@@ -204,7 +204,7 @@ export const IrrigationLayoutMap: React.FC<IrrigationLayoutMapProps> = ({
             height: 0;
             border-left: 8px solid transparent;
             border-right: 8px solid transparent;
-            border-bottom: 12px solid #2563eb;
+            border-bottom: 12px solid #5ba3d0;
             transform: rotate(${getAngle(waterSource.coordinates, sectionCentroid)}deg);
             animation: flowPulse 2s ease-in-out infinite;
             animation-delay: ${i * 0.2}s;
@@ -414,8 +414,8 @@ export const IrrigationLayoutMap: React.FC<IrrigationLayoutMapProps> = ({
           // Draw sprinkler coverage circle
           L.circle([lat, lng], {
             radius: coverageRadius,
-            color: "#3b82f6",
-            fillColor: "#3b82f6",
+            color: "#5ba3d0",
+            fillColor: "#5ba3d0",
             fillOpacity: 0.15,
             weight: 2,
             dashArray: "4, 4",
@@ -428,7 +428,7 @@ export const IrrigationLayoutMap: React.FC<IrrigationLayoutMapProps> = ({
               <div style="
                 width: 16px;
                 height: 16px;
-                background: #3b82f6;
+                background: #5ba3d0;
                 border: 3px solid white;
                 border-radius: 50%;
                 box-shadow: 0 2px 6px rgba(0,0,0,0.3);
@@ -448,10 +448,10 @@ export const IrrigationLayoutMap: React.FC<IrrigationLayoutMapProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-6xl max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-gray-800 dark:to-gray-750">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between bg-gradient-to-r from-sky-50 to-cyan-50 dark:from-gray-800 dark:to-gray-750">
           <div>
             <h2 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
-              <Droplets className="w-6 h-6 text-blue-500" />
+              <Droplets className="w-6 h-6 text-sky-500" />
               Irrigation Layout Visualization
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
@@ -482,7 +482,7 @@ export const IrrigationLayoutMap: React.FC<IrrigationLayoutMapProps> = ({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Ruler className="w-5 h-5 text-blue-500" />
+            <Ruler className="w-5 h-5 text-sky-500" />
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 Pipe Length
@@ -524,15 +524,15 @@ export const IrrigationLayoutMap: React.FC<IrrigationLayoutMapProps> = ({
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 border-2 border-white"></div>
+              <div className="w-4 h-4 rounded-full bg-gradient-to-br from-cyan-500 to-sky-600 border-2 border-white"></div>
               <span className="text-gray-600 dark:text-gray-400">
                 Water Source
               </span>
             </div>
             <div className="flex items-center gap-2">
               <div
-                className="w-4 h-1 bg-blue-600"
-                style={{ borderTop: "2px dashed #2563eb" }}
+                className="w-4 h-1 bg-sky-600"
+                style={{ borderTop: "2px dashed #5ba3d0" }}
               ></div>
               <span className="text-gray-600 dark:text-gray-400">
                 Main Pipeline

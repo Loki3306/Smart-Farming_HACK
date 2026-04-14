@@ -42,11 +42,11 @@ interface IndianMarketplaceProps {
 }
 
 const categoryIcons: Record<string, string> = {
-  fertilizer: '🧪',
-  seed: '🌱',
-  tool: '🔧',
-  pesticide: '🐛',
-  irrigation: '💧',
+  fertilizer: 'Beaker',
+  seed: 'Sprout',
+  tool: 'Wrench',
+  pesticide: 'AlertTriangle',
+  irrigation: 'Droplets',
 };
 
 const categoryNames: Record<string, string> = {
@@ -58,10 +58,10 @@ const categoryNames: Record<string, string> = {
 };
 
 const sellerLogos: Record<string, string> = {
-  'Flipkart': '🛒',
-  'Amazon.in': '📦',
-  'BigHaat': '🌾',
-  'AgroStar': '⭐',
+  'Flipkart': 'ShoppingCart',
+  'Amazon.in': 'Package',
+  'BigHaat': 'Leaf',
+  'AgroStar': 'Star',
 };
 
 export const IndianMarketplace: React.FC<IndianMarketplaceProps> = ({
@@ -95,11 +95,18 @@ export const IndianMarketplace: React.FC<IndianMarketplaceProps> = ({
       }
 
       const response = await fetch(
-        `http://localhost:8000/api/marketplace/search?${params.toString()}`
+        `/python-api/api/marketplace/search?${params.toString()}`
       );
 
       if (!response.ok) {
         throw new Error(`Search failed with status ${response.status}`);
+      }
+
+      const contentType = response.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        throw new Error(
+          "Backend proxy not active. Please restart the Vite dev server (pnpm dev) and ensure FastAPI is running on port 8000."
+        );
       }
 
       const data: MarketplaceProduct = await response.json();
@@ -120,10 +127,10 @@ export const IndianMarketplace: React.FC<IndianMarketplaceProps> = ({
       {/* Header */}
       <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg shadow-sm p-6 mb-6 border border-green-200">
         <div className="flex items-center gap-3 mb-4">
-          <span className="text-4xl">{categoryIcons[category] || '🛒'}</span>
+          <ShoppingCart className="text-4xl text-primary" />
           <div>
             <h2 className="text-2xl font-bold text-gray-900">
-              🏪 Indian Market - {categoryNames[category]}
+              Indian Market - {categoryNames[category]}
             </h2>
             <p className="text-sm text-gray-600">
               सभी भारतीय कृषि बाज़ारों से सर्वश्रेष्ठ विकल्पों को ढूंढें
@@ -173,15 +180,15 @@ export const IndianMarketplace: React.FC<IndianMarketplaceProps> = ({
       {/* Search Results Info */}
       {searchData && !loading && (
         <div className="mb-6 flex flex-wrap gap-4 text-sm">
-          <div className="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg border border-blue-200">
-            📊 {searchData.total_found} कुल उत्पाद मिले
+          <div className="bg-sky-50 text-sky-700 px-4 py-2 rounded-lg border border-sky-200">
+            {searchData.total_found} कुल उत्पाद मिले
           </div>
           <div className="bg-purple-50 text-purple-700 px-4 py-2 rounded-lg border border-purple-200">
-            🏪 {searchData.source === 'cache' ? '💾 कैश से' : '🔍 ताज़ी खोज'}
+            {searchData.source === 'cache' ? 'कैश से' : 'ताज़ी खोज'}
           </div>
           {searchData.scrape_time && (
             <div className="bg-gray-50 text-gray-700 px-4 py-2 rounded-lg border border-gray-200">
-              ⏱️ {new Date(searchData.scrape_time).toLocaleTimeString('en-IN')}
+              {new Date(searchData.scrape_time).toLocaleTimeString('en-IN')}
             </div>
           )}
         </div>

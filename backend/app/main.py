@@ -177,7 +177,7 @@ try:
     from app.routes.marketplace import router as marketplace_router
     app.include_router(marketplace_router, tags=["Indian Marketplace"])
     print("[SUCCESS] Indian Marketplace module loaded successfully")
-    print("   ✅ Marketplace is INDEPENDENT from ML system")
+    print("   [OK] Marketplace is INDEPENDENT from ML system")
 except ImportError as e:
     print(f"[ERROR] Marketplace import error: {e}")
 except Exception as e:

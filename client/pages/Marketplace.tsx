@@ -25,6 +25,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { cropPriceService, type CropData } from "@/services/CropPriceService";
+import { IndianMarketplace } from "@/components/IndianMarketplace";
 import {
   Dialog,
   DialogContent,
@@ -59,6 +60,13 @@ interface Listing {
   postedDate: Date;
 }
 
+interface RecommendationMarketplaceFilter {
+  product_id?: string;
+  product_name: string;
+  manufacturer?: string;
+  from?: string;
+}
+
 export const Marketplace: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"buy" | "sell" | "insurance">(
     "buy",
@@ -72,14 +80,38 @@ export const Marketplace: React.FC = () => {
   const [imageAttempts, setImageAttempts] = useState<Map<string, number>>(
     new Map(),
   );
+  const [recommendationFilter, setRecommendationFilter] =
+    useState<RecommendationMarketplaceFilter | null>(null);
   const [fertilizerProducts, setFertilizerProducts] = useState<any[]>([]);
   const [loadingFertilizers, setLoadingFertilizers] = useState(false);
+  // Live marketplace search state (direct search from buy tab)
+  const [liveSearchTerm, setLiveSearchTerm] = useState("");
+  const [liveSearchCategory, setLiveSearchCategory] = useState<"fertilizer" | "seed" | "pesticide" | "irrigation" | "tool">("fertilizer");
 
   // Load crop data on mount
   useEffect(() => {
     loadCropData();
     loadFertilizerProducts();
+
+    const rawFilter = sessionStorage.getItem("marketplace_filter");
+    if (!rawFilter) return;
+
+    try {
+      const parsedFilter = JSON.parse(rawFilter) as RecommendationMarketplaceFilter;
+      if (parsedFilter?.product_name) {
+        setRecommendationFilter(parsedFilter);
+        setSelectedCategory("fertilizers");
+        setSearchQuery(parsedFilter.product_name);
+      }
+    } catch (error) {
+      console.warn("[Marketplace] Failed to parse recommendation filter:", error);
+    }
   }, []);
+
+  const clearRecommendationFilter = () => {
+    sessionStorage.removeItem("marketplace_filter");
+    setRecommendationFilter(null);
+  };
 
   const loadCropData = async () => {
     setLoading(true);
@@ -97,7 +129,7 @@ export const Marketplace: React.FC = () => {
     setLoadingFertilizers(true);
     try {
       const response = await fetch(
-        "http://localhost:8000/api/recommendations/products/fertilizers",
+        "/python-api/api/recommendations/products/fertilizers",
       );
       if (response.ok) {
         const products = await response.json();
@@ -134,7 +166,7 @@ export const Marketplace: React.FC = () => {
       location: "Nashik, Maharashtra",
       rating: 4.5,
       reviews: 128,
-      image: "🌾",
+      image: "Wheat",
       organic: false,
       inStock: true,
     },
@@ -148,7 +180,7 @@ export const Marketplace: React.FC = () => {
       location: "Pune, Maharashtra",
       rating: 4.8,
       reviews: 89,
-      image: "🌿",
+      image: "Leaf",
       organic: true,
       inStock: true,
     },
@@ -162,7 +194,7 @@ export const Marketplace: React.FC = () => {
       location: "Mumbai, Maharashtra",
       rating: 4.3,
       reviews: 45,
-      image: "🧴",
+      image: "Beaker",
       organic: true,
       inStock: true,
     },
@@ -176,7 +208,7 @@ export const Marketplace: React.FC = () => {
       location: "Jalgaon, Maharashtra",
       rating: 4.7,
       reviews: 234,
-      image: "💧",
+      image: "Droplets",
       organic: false,
       inStock: true,
     },
@@ -190,7 +222,7 @@ export const Marketplace: React.FC = () => {
       location: "Nagpur, Maharashtra",
       rating: 4.6,
       reviews: 67,
-      image: "🍅",
+      image: "Tomato",
       organic: true,
       inStock: true,
     },
@@ -204,7 +236,7 @@ export const Marketplace: React.FC = () => {
       location: "Ludhiana, Punjab",
       rating: 4.4,
       reviews: 156,
-      image: "🌾",
+      image: "Wheat",
       organic: false,
       inStock: false,
     },
@@ -331,9 +363,9 @@ export const Marketplace: React.FC = () => {
         <>
           {/* Insurance Providers Section */}
           <div className="space-y-6">
-            <Card className="p-6 bg-gradient-to-r from-blue-50 to-green-50 border-2 border-blue-200">
+            <Card className="p-6 bg-gradient-to-r from-sky-50 to-green-50 border-2 border-sky-200">
               <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
-                <Shield className="w-6 h-6 text-blue-600" />
+                <Shield className="w-6 h-6 text-sky-600" />
                 Protect Your Crops with Insurance
               </h2>
               <p className="text-muted-foreground">
@@ -489,18 +521,18 @@ export const Marketplace: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: 0.2 }}
               >
-                <Card className="h-full hover:shadow-xl transition-all border-2 border-blue-200 relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 bg-blue-500 text-white text-xs px-3 py-1 font-semibold">
+                <Card className="h-full hover:shadow-xl transition-all border-2 border-sky-200 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 bg-sky-500 text-white text-xs px-3 py-1 font-semibold">
                     AGGREGATOR
                   </div>
                   <div className="p-6 space-y-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-sky-500 to-sky-600 flex items-center justify-center">
                         <Package className="w-7 h-7 text-white" />
                       </div>
                       <div>
                         <h3 className="font-bold text-xl">1Silverbullet</h3>
-                        <p className="text-sm text-blue-600 font-medium">
+                        <p className="text-sm text-sky-600 font-medium">
                           Compare Multiple Plans
                         </p>
                       </div>
@@ -513,21 +545,21 @@ export const Marketplace: React.FC = () => {
 
                     <div className="space-y-2">
                       <div className="flex items-start gap-2">
-                        <Check className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <Check className="w-4 h-4 text-sky-600 mt-0.5 flex-shrink-0" />
                         <span className="text-sm">
                           Multi-provider comparison
                         </span>
                       </div>
                       <div className="flex items-start gap-2">
-                        <Check className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <Check className="w-4 h-4 text-sky-600 mt-0.5 flex-shrink-0" />
                         <span className="text-sm">Best price guarantee</span>
                       </div>
                       <div className="flex items-start gap-2">
-                        <Check className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <Check className="w-4 h-4 text-sky-600 mt-0.5 flex-shrink-0" />
                         <span className="text-sm">Instant policy issuance</span>
                       </div>
                       <div className="flex items-start gap-2">
-                        <Check className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <Check className="w-4 h-4 text-sky-600 mt-0.5 flex-shrink-0" />
                         <span className="text-sm">Scalable API platform</span>
                       </div>
                     </div>
@@ -543,7 +575,7 @@ export const Marketplace: React.FC = () => {
                         rel="noopener noreferrer"
                         className="w-full"
                       >
-                        <Button className="w-full gap-2 bg-blue-600 hover:bg-blue-700">
+                        <Button className="w-full gap-2 bg-sky-600 hover:bg-sky-700">
                           Explore API
                           <ExternalLink className="w-4 h-4" />
                         </Button>
@@ -562,7 +594,7 @@ export const Marketplace: React.FC = () => {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div className="space-y-2">
-                  <p className="font-medium">🌧️ Weather Protection</p>
+                  <p className="font-medium">Weather Protection</p>
                   <p className="text-muted-foreground">
                     Coverage against drought, flood, cyclone, and unseasonal
                     rainfall.
@@ -576,14 +608,14 @@ export const Marketplace: React.FC = () => {
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <p className="font-medium">🏛️ Government Support</p>
+                  <p className="font-medium">Government Support</p>
                   <p className="text-muted-foreground">
                     PMFBY subsidizes 95% of premium for small farmers (up to 2
                     hectares).
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <p className="font-medium">🚀 Fast Claims</p>
+                  <p className="font-medium">Fast Claims</p>
                   <p className="text-muted-foreground">
                     Satellite and AI-based assessment ensures quick claim
                     settlement.
@@ -606,7 +638,7 @@ export const Marketplace: React.FC = () => {
                       <th className="text-center py-3 font-semibold text-orange-600">
                         PMFBY
                       </th>
-                      <th className="text-center py-3 font-semibold text-blue-600">
+                      <th className="text-center py-3 font-semibold text-sky-600">
                         1Silverbullet
                       </th>
                     </tr>
@@ -621,7 +653,7 @@ export const Marketplace: React.FC = () => {
                         <Check className="w-5 h-5 text-orange-600 mx-auto" />
                       </td>
                       <td className="text-center">
-                        <Check className="w-5 h-5 text-blue-600 mx-auto" />
+                        <Check className="w-5 h-5 text-sky-600 mx-auto" />
                       </td>
                     </tr>
                     <tr className="border-b">
@@ -631,7 +663,7 @@ export const Marketplace: React.FC = () => {
                       </td>
                       <td className="text-center text-muted-foreground">-</td>
                       <td className="text-center">
-                        <Check className="w-5 h-5 text-blue-600 mx-auto" />
+                        <Check className="w-5 h-5 text-sky-600 mx-auto" />
                       </td>
                     </tr>
                     <tr className="border-b">
@@ -643,7 +675,7 @@ export const Marketplace: React.FC = () => {
                         <Check className="w-5 h-5 text-orange-600 mx-auto" />
                       </td>
                       <td className="text-center">
-                        <Check className="w-5 h-5 text-blue-600 mx-auto" />
+                        <Check className="w-5 h-5 text-sky-600 mx-auto" />
                       </td>
                     </tr>
                     <tr className="border-b">
@@ -676,6 +708,44 @@ export const Marketplace: React.FC = () => {
         </>
       ) : activeTab === "buy" ? (
         <>
+          {/* AI-Powered Live Search Panel */}
+          {(recommendationFilter?.from === "recommendations" || liveSearchTerm) && (
+            <div className="space-y-4" data-tour-id="market-recommendation-results">
+              <Card className="p-4 md:p-6 border-2 border-primary/30 bg-gradient-to-r from-primary/10 to-green-50">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                  <div>
+                    <h2 className="text-lg font-semibold text-foreground">
+                      {recommendationFilter?.from === "recommendations"
+                        ? "Personalized Marketplace Results"
+                        : "Live AI Search Results"}
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                      Showing live Flipkart/Amazon/BigHaat/AgroStar offers for{" "}
+                      <span className="font-medium text-foreground">
+                        {recommendationFilter?.product_name || liveSearchTerm}
+                      </span>
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      clearRecommendationFilter();
+                      setLiveSearchTerm("");
+                    }}
+                  >
+                    Clear Live Search
+                  </Button>
+                </div>
+              </Card>
+
+              <IndianMarketplace
+                recommendation={recommendationFilter?.product_name || liveSearchTerm}
+                category={liveSearchCategory}
+              />
+            </div>
+          )}
+
           {/* Search and Filters */}
           <div
             className="flex flex-col md:flex-row gap-4"
@@ -685,11 +755,41 @@ export const Marketplace: React.FC = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Search for seeds, fertilizers, equipment..."
+                placeholder="Search fertilizers, seeds, pesticides… (press Enter for live AI search)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-lg border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && searchQuery.trim().length >= 3) {
+                    const catMap: Record<string, "fertilizer" | "seed" | "pesticide" | "irrigation" | "tool"> = {
+                      fertilizers: "fertilizer", seeds: "seed",
+                      pesticides: "pesticide", equipment: "tool",
+                      all: "fertilizer", produce: "fertilizer",
+                    };
+                    clearRecommendationFilter();
+                    setLiveSearchCategory(catMap[selectedCategory] ?? "fertilizer");
+                    setLiveSearchTerm(searchQuery.trim());
+                  }
+                }}
+                className="w-full pl-10 pr-36 py-3 rounded-lg border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary"
               />
+              <button
+                onClick={() => {
+                  if (searchQuery.trim().length >= 3) {
+                    const catMap: Record<string, "fertilizer" | "seed" | "pesticide" | "irrigation" | "tool"> = {
+                      fertilizers: "fertilizer", seeds: "seed",
+                      pesticides: "pesticide", equipment: "tool",
+                      all: "fertilizer", produce: "fertilizer",
+                    };
+                    clearRecommendationFilter();
+                    setLiveSearchCategory(catMap[selectedCategory] ?? "fertilizer");
+                    setLiveSearchTerm(searchQuery.trim());
+                  }
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors flex items-center gap-1.5"
+              >
+                <Search className="w-3.5 h-3.5" />
+                AI Search
+              </button>
             </div>
           </div>
 
@@ -792,7 +892,7 @@ export const Marketplace: React.FC = () => {
                             </span>
                           )}
                           {crop.brand && (
-                            <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700 font-medium">
+                            <span className="text-xs px-2 py-1 rounded-full bg-sky-100 text-sky-700 font-medium">
                               {crop.brand}
                             </span>
                           )}
