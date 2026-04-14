@@ -17,6 +17,16 @@ from .mqtt_client import MQTTIoTClient
 
 logger = logging.getLogger(__name__)
 
+MQTT_CONSOLE_LOGGING_ENABLED = os.getenv("MQTT_CONSOLE_LOGGING", "false").lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
+
+if not MQTT_CONSOLE_LOGGING_ENABLED:
+    logger.setLevel(logging.WARNING)
+
 # Initialize router
 router = APIRouter(prefix="/iot", tags=["IoT Irrigation"])
 
@@ -168,28 +178,26 @@ async def handle_sensor_data(sensor_data_or_dict: Union[SensorData, dict]):
     frontend_farm_id = map_farm_id(mqtt_farm_id)  # Map to frontend UUID
     now = datetime.utcnow()
     
-    # ========== TESTING: PRINT RECEIVED VALUES ==========
-    print("\n" + "="*70)
-    print(f"[MQTT] MQTT MESSAGE RECEIVED - {now.strftime('%H:%M:%S')}")
-    print("="*70)
-    print(f"[MQTT] MQTT Farm ID:   {mqtt_farm_id}")
-    print(f"[MQTT] Frontend ID:    {frontend_farm_id}")
-    print(f"[DATA] Moisture:       {sensor_data.moisture}%")
-    print(f"[DATA] Temperature:    {sensor_data.temp}C")
-    print(f"[DATA] Humidity:       {sensor_data.humidity}%")
-    print(f"[DATA] NPK Raw:        {sensor_data.npk}")
-    
-    # Advanced Sensors (if present)
-    if sensor_data.ec_salinity:
-        print(f"[DATA] Salinity (EC):   {sensor_data.ec_salinity} dS/m")
-    if sensor_data.wind_speed:
-        print(f"[DATA] Wind Speed:     {sensor_data.wind_speed} km/h")
-    if sensor_data.soil_ph:
-        print(f"[DATA] Soil pH:        {sensor_data.soil_ph}")
-        
-    print(f"[TIME] Timestamp:      {sensor_data.timestamp}")
-    print("="*70 + "\n")
-    # ====================================================
+    if MQTT_CONSOLE_LOGGING_ENABLED:
+        print("\n" + "="*70)
+        print(f"[MQTT] MQTT MESSAGE RECEIVED - {now.strftime('%H:%M:%S')}")
+        print("="*70)
+        print(f"[MQTT] MQTT Farm ID:   {mqtt_farm_id}")
+        print(f"[MQTT] Frontend ID:    {frontend_farm_id}")
+        print(f"[DATA] Moisture:       {sensor_data.moisture}%")
+        print(f"[DATA] Temperature:    {sensor_data.temp}C")
+        print(f"[DATA] Humidity:       {sensor_data.humidity}%")
+        print(f"[DATA] NPK Raw:        {sensor_data.npk}")
+
+        if sensor_data.ec_salinity:
+            print(f"[DATA] Salinity (EC):   {sensor_data.ec_salinity} dS/m")
+        if sensor_data.wind_speed:
+            print(f"[DATA] Wind Speed:     {sensor_data.wind_speed} km/h")
+        if sensor_data.soil_ph:
+            print(f"[DATA] Soil pH:        {sensor_data.soil_ph}")
+
+        print(f"[TIME] Timestamp:      {sensor_data.timestamp}")
+        print("="*70 + "\n")
 
     # Store latest data in memory (use both IDs for compatibility)
     latest_sensor_data[mqtt_farm_id] = sensor_data

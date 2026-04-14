@@ -7,6 +7,7 @@ import asyncio
 import json
 import logging
 import uuid
+import os
 from typing import Callable, Dict, Optional
 from datetime import datetime
 import paho.mqtt.client as mqtt
@@ -15,6 +16,21 @@ from pydantic import ValidationError
 from .models import SensorData
 
 logger = logging.getLogger(__name__)
+
+MQTT_CONSOLE_LOGGING_ENABLED = os.getenv("MQTT_CONSOLE_LOGGING", "false").lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
+
+if not MQTT_CONSOLE_LOGGING_ENABLED:
+    logger.setLevel(logging.WARNING)
+
+
+def _mqtt_print(*args, **kwargs):
+    if MQTT_CONSOLE_LOGGING_ENABLED:
+        print(*args, **kwargs)
 
 
 class MQTTIoTClient:
@@ -32,7 +48,6 @@ class MQTTIoTClient:
         password: Optional[str] = None,
         client_id: Optional[str] = None
     ):
-        import os
         # Environment-driven configuration (Priority: Env Var > Arg > Default)
         self.broker_host = broker_host or os.getenv("MQTT_BROKER_HOST", "e17116d0063a4e08bab15c1ff2a00fcc.s1.eu.hivemq.cloud")
         self.broker_port = int(broker_port or os.getenv("MQTT_BROKER_PORT", "8883"))
@@ -57,12 +72,12 @@ class MQTTIoTClient:
 
     def on_connect(self, client, userdata, flags, rc):
         """Callback when connected to MQTT broker"""
-        print(f"\n[CONNECT] MQTT on_connect callback triggered with rc={rc}")
+        _mqtt_print(f"\n[CONNECT] MQTT on_connect callback triggered with rc={rc}")
         
         if rc == 0:
             self.is_connected = True
             logger.info(f"[SUCCESS] Connected to MQTT broker at {self.broker_host}:{self.broker_port}")
-            print(f"[SUCCESS] MQTT Connection SUCCESS!")
+            _mqtt_print(f"[SUCCESS] MQTT Connection SUCCESS!")
             
             # Subscribe to telemetry topic
             client.subscribe(self.telemetry_topic, qos=1)
@@ -79,7 +94,7 @@ class MQTTIoTClient:
             })
             client.publish("farm/system/status", success_msg, qos=1)
             logger.info("[PUB] Published backend online message")
-            print("[PUB] Backend online message sent to MQTT")
+            _mqtt_print("[PUB] Backend online message sent to MQTT")
         else:
             self.is_connected = False
             error_messages = {
@@ -92,7 +107,7 @@ class MQTTIoTClient:
             }
             error_msg = error_messages.get(rc, f"Unknown error code: {rc}")
             logger.error(f"[ERROR] Failed to connect to MQTT broker. {error_msg}")
-            print(f"[ERROR] MQTT Connection FAILED: {error_msg}")
+            _mqtt_print(f"[ERROR] MQTT Connection FAILED: {error_msg}")
 
     def on_disconnect(self, client, userdata, rc):
         """Callback when disconnected from MQTT broker"""
@@ -110,8 +125,8 @@ class MQTTIoTClient:
             data = json.loads(payload)
 
             # ========== TESTING: PRINT RAW MQTT PAYLOAD ==========
-            print(f"\n RAW MQTT Message on topic '{msg.topic}':")
-            print(f"   Payload: {msg.payload.decode()}")
+            _mqtt_print(f"\n RAW MQTT Message on topic '{msg.topic}':")
+            _mqtt_print(f"   Payload: {msg.payload.decode()}")
             # =====================================================
 
             # Parse JSON payload
@@ -160,9 +175,12 @@ class MQTTIoTClient:
 
     def on_log(self, client, userdata, level, buf):
         """Callback for internal MQTT client logging"""
+        if not MQTT_CONSOLE_LOGGING_ENABLED:
+            return
+
         # Only log warnings and errors to avoid spam, unless debugging
         if level >= mqtt.MQTT_LOG_NOTICE:
-            print(f"[LOG] MQTT Log: {buf}")
+            _mqtt_print(f"[LOG] MQTT Log: {buf}")
             logger.info(f"[LOG] MQTT Log: {buf}")
 
     def start(self):
@@ -209,7 +227,7 @@ class MQTTIoTClient:
             # Start network loop in background thread IMMEDIATELY
             # This is the "No-Fail" bridge
             self.client.loop_start()
-            print("[INFO] MQTT loop started.")
+            _mqtt_print("[INFO] MQTT loop started.")
 
             # Wait briefly for the logical MQTT connection (on_connect)
             # This helps avoid immediate 503s on startup
@@ -342,11 +360,11 @@ class MQTTIoTClient:
             
             if result.rc == mqtt.MQTT_ERR_SUCCESS:
                 logger.info(f"✅ Published actuation command: {action}={status} to {topic}")
-                print(f"\n  ACTUATION COMMAND PUBLISHED")
-                print(f"   Topic: {topic}")
-                print(f"   Device: {device}")
-                print(f"   State: {'ON' if status else 'OFF'}")
-                print(f"   Payload: {payload}")
+                _mqtt_print(f"\n  ACTUATION COMMAND PUBLISHED")
+                _mqtt_print(f"   Topic: {topic}")
+                _mqtt_print(f"   Device: {device}")
+                _mqtt_print(f"   State: {'ON' if status else 'OFF'}")
+                _mqtt_print(f"   Payload: {payload}")
                 return True
             else:
                 logger.error(f"❌ Failed to publish actuation command. Error code: {result.rc}")

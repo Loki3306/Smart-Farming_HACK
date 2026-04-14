@@ -86,6 +86,10 @@ export function createServer() {
     res.json({ message: process.env.PING_MESSAGE ?? "ping" });
   });
 
+  app.get("/api/blockchain/audit-trail", (_req, res) => {
+    return res.json([]);
+  });
+
   app.get("/api/auth/me", (_req, res) => {
     return res.json({
       id: "550e8400-e29b-41d4-a716-446655440000",
@@ -156,6 +160,9 @@ export function createServer() {
   // Presence
   console.log("👤 Registering Presence routes...");
   app.use("/api/presence", presenceRouter);
+  app.put("/api/presence", (_req, res) => {
+    return res.json({ success: true });
+  });
   console.log("✅ Presence routes registered at /api/presence");
 
   // Notifications
