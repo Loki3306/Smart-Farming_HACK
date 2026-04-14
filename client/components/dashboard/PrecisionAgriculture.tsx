@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useFarmContext } from "@/context/FarmContext";
+import {
+  Beaker,
+  Droplets,
+  Wind,
+  AlertTriangle,
+  CheckCircle,
+  Zap,
+  TrendingUp,
+  Leaf,
+} from "lucide-react";
 
 interface SoilChemistry {
   nitrogen: number;
@@ -88,7 +98,7 @@ export const PrecisionAgriculture: React.FC<PrecisionAgricultureProps> = ({
       setRecommendations((prev) => [
         ...new Set([
           ...prev,
-          "⚠️ Nutrient Locked zone detected due to pH extremes",
+          "Nutrient Locked zone detected due to pH extremes",
         ]),
       ]);
     }
@@ -197,7 +207,7 @@ export const PrecisionAgriculture: React.FC<PrecisionAgricultureProps> = ({
           if (payload.event === "PREEMPTIVE_IRRIGATION") {
             setRecommendations((prev) => [
               ...prev.filter((r) => !r.includes("Predicted moisture loss")),
-              `🔮 PREEMPTIVE: ${payload.reason} (Critical in ${payload.time_to_critical_hours?.toFixed(1) || "?"}h)`,
+              `PREEMPTIVE: ${payload.reason} (Critical in ${payload.time_to_critical_hours?.toFixed(1) || "?"}h)`,
             ]);
           }
         } else if (data.subsystem === "NUTRIENT") {
@@ -216,7 +226,7 @@ export const PrecisionAgriculture: React.FC<PrecisionAgricultureProps> = ({
           if (payload.is_locked) {
             setRecommendations((prev) => [
               ...prev.filter((r) => !r.includes("Nutrient Lockout")),
-              `🔒 NUTRIENT LOCKOUT: ${payload.reason}`,
+              `NUTRIENT LOCKOUT: ${payload.reason}`,
             ]);
           }
 
@@ -226,7 +236,7 @@ export const PrecisionAgriculture: React.FC<PrecisionAgricultureProps> = ({
             payload.nutrient_logic.action_priority !== "Low"
           ) {
             setRecommendations((prev) => {
-              const newRec = `💊 AGRONOMIST Rx: ${payload.nutrient_logic.recommended_fix} (${payload.nutrient_logic.ph_status} pH)`;
+              const newRec = `AGRONOMIST Rx: ${payload.nutrient_logic.recommended_fix} (${payload.nutrient_logic.ph_status} pH)`;
               // Avoid duplicates
               if (prev.includes(newRec)) return prev;
               return [...prev, newRec];
@@ -257,33 +267,48 @@ export const PrecisionAgriculture: React.FC<PrecisionAgricultureProps> = ({
   const [digitalTwin, setDigitalTwin] = useState<any>(null);
   const [soilStress, setSoilStress] = useState<any>(null);
 
-  const getWindSafetyColor = (riskLevel: string): string => {
+  const getWindSafetyColorClass = (riskLevel: string): string => {
     switch (riskLevel) {
       case "low":
-        return "#10b981";
+        return "text-primary";
       case "moderate":
-        return "#f59e0b";
+        return "text-muted-foreground";
       case "high":
-        return "#ef4444";
+        return "text-destructive";
       case "extreme":
-        return "#991b1b";
+        return "text-destructive";
       default:
-        return "#6b7280";
+        return "text-muted-foreground";
+    }
+  };
+
+  const getWindSafetyBgClass = (riskLevel: string): string => {
+    switch (riskLevel) {
+      case "low":
+        return "bg-primary border-primary";
+      case "moderate":
+        return "bg-muted text-muted-foreground border-border";
+      case "high":
+        return "bg-destructive border-destructive text-destructive-foreground";
+      case "extreme":
+        return "bg-destructive border-destructive text-destructive-foreground";
+      default:
+        return "bg-muted border-border text-muted-foreground";
     }
   };
 
   const getET0Color = (et0: number): string => {
-    if (et0 > 6) return "#ef4444"; // High water demand
-    if (et0 > 4) return "#f59e0b"; // Moderate
-    return "#10b981"; // Low
+    if (et0 > 6) return "hsl(var(--destructive))"; // High water demand
+    if (et0 > 4) return "hsl(var(--muted-foreground))"; // Moderate
+    return "hsl(var(--primary))"; // Low
   };
 
-  // Helper to render Disease Risk Tile
+  // Helper to render Disease Tile
   const DiseaseTile = ({ level, label, prob }: any) => {
     const colors = {
-      LOW_RISK: "bg-green-100 text-green-800 border-green-200",
-      HIGH_RISK: "bg-red-100 text-red-800 border-red-200",
-      UNKNOWN: "bg-gray-100 text-gray-800 border-gray-200",
+      LOW_RISK: "bg-primary/10 text-primary border-primary/20",
+      HIGH_RISK: "bg-destructive/10 text-destructive border-destructive/20",
+      UNKNOWN: "bg-muted text-muted-foreground border-border",
     };
     const c = colors[level as keyof typeof colors] || colors["UNKNOWN"];
     return (
@@ -304,12 +329,12 @@ export const PrecisionAgriculture: React.FC<PrecisionAgricultureProps> = ({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-lg shadow-lg p-6 relative"
+        className="bg-card rounded-lg shadow-lg p-6 relative border border-border"
       >
-        <h3 className="text-xl font-bold mb-4 text-gray-800 flex items-center gap-2">
-          <span>🧪</span> Soil Chemistry
+        <h3 className="text-xl font-bold mb-4 text-foreground flex items-center gap-2">
+          <Beaker className="w-5 h-5 text-primary" /> Soil Chemistry
           {(soilData as any)?.isLocked && (
-            <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded border border-red-200">
+            <span className="text-xs bg-destructive/10 text-destructive px-2 py-0.5 rounded border border-destructive/20">
               LOCKED
             </span>
           )}
@@ -327,78 +352,93 @@ export const PrecisionAgriculture: React.FC<PrecisionAgricultureProps> = ({
             >
               <div>
                 <div className="flex justify-between text-sm mb-1">
-                  <span>🟢 Nitrogen (N)</span>
-                  <span className="font-semibold">
+                  <span className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full bg-primary/80"></span>
+                    Nitrogen (N)
+                  </span>
+                  <span className="font-semibold text-foreground">
                     {soilData.nitrogen.toFixed(0)} ppm
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-3">
+                <div className="w-full bg-muted rounded-full h-3">
                   <div
-                    className="bg-green-500 h-3 rounded-full transition-all duration-500"
-                    style={{
-                      width: `${Math.min((soilData.nitrogen / 150) * 100, 100)}%`,
-                    }}
+                    className="bg-primary/80 h-3 rounded-full transition-all duration-500"
+                    style={
+                      {
+                        width: `${Math.min((soilData.nitrogen / 150) * 100, 100)}%`,
+                      } as React.CSSProperties
+                    }
                   />
                 </div>
               </div>
 
-              <div>
+              <div className="mt-3">
                 <div className="flex justify-between text-sm mb-1">
-                  <span>🟡 Phosphorus (P)</span>
-                  <span className="font-semibold">
+                  <span className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full bg-primary/60"></span>
+                    Phosphorus (P)
+                  </span>
+                  <span className="font-semibold text-foreground">
                     {soilData.phosphorus.toFixed(0)} ppm
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-3">
+                <div className="w-full bg-muted rounded-full h-3">
                   <div
-                    className="bg-yellow-500 h-3 rounded-full transition-all duration-500"
-                    style={{
-                      width: `${Math.min((soilData.phosphorus / 150) * 100, 100)}%`,
-                    }}
+                    className="bg-primary/60 h-3 rounded-full transition-all duration-500"
+                    style={
+                      {
+                        width: `${Math.min((soilData.phosphorus / 150) * 100, 100)}%`,
+                      } as React.CSSProperties
+                    }
                   />
                 </div>
                 {analysis?.soil_health?.nutrients.p_locked && (
-                  <p className="text-xs text-red-600 mt-1">
-                    ⚠️ Phosphorus locked (low pH)
+                  <p className="text-xs text-destructive mt-1 flex items-center gap-1">
+                    <AlertTriangle className="w-3 h-3" /> Phosphorus locked (low pH)
                   </p>
                 )}
               </div>
 
-              <div>
+              <div className="mt-3">
                 <div className="flex justify-between text-sm mb-1">
-                  <span>🔵 Potassium (K)</span>
-                  <span className="font-semibold">
+                  <span className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full bg-primary/40 text-primary"></span>
+                    Potassium (K)
+                  </span>
+                  <span className="font-semibold text-foreground">
                     {soilData.potassium.toFixed(0)} ppm
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-3">
+                <div className="w-full bg-muted rounded-full h-3">
                   <div
-                    className="bg-blue-500 h-3 rounded-full transition-all duration-500"
-                    style={{
-                      width: `${Math.min((soilData.potassium / 150) * 100, 100)}%`,
-                    }}
+                    className="bg-primary/40 h-3 rounded-full transition-all duration-500"
+                    style={
+                      {
+                        width: `${Math.min((soilData.potassium / 150) * 100, 100)}%`,
+                      } as React.CSSProperties
+                    }
                   />
                 </div>
               </div>
             </div>
 
             {/* pH and Salinity */}
-            <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t">
+            <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-border">
               <div className="text-center">
                 <div
-                  className={`text-2xl font-bold ${
+                  className={`text-xl font-bold ${
                     soilData.ph == null
-                      ? "text-gray-400"
+                      ? "text-muted-foreground"
                       : soilData.ph < 5.8 || soilData.ph > 7.5
-                        ? "text-red-500"
+                        ? "text-destructive"
                         : soilData.ph < 6.0 || soilData.ph > 7.0
-                          ? "text-yellow-500"
-                          : "text-green-500"
+                          ? "text-muted-foreground"
+                          : "text-primary"
                   }`}
                 >
                   {soilData.ph != null ? soilData.ph.toFixed(1) : "N/A"}
                 </div>
-                <div className="text-xs font-bold text-gray-600">
+                <div className="text-xs text-muted-foreground">
                   {soilData.ph == null
                     ? "Unknown"
                     : soilData.ph > 7.5
@@ -413,26 +453,28 @@ export const PrecisionAgriculture: React.FC<PrecisionAgricultureProps> = ({
                 </div>
                 {soilData.ph != null &&
                   (soilData.ph < 5.5 || soilData.ph > 7.5) && (
-                    <div className="text-xs text-red-600 font-extrabold mt-1 border border-red-200 bg-red-50 px-1 rounded animate-pulse">
-                      ⚠️ LOCKOUT ZONE
+                    <div className="text-[10px] uppercase font-bold tracking-wider text-destructive mt-1 border border-destructive/20 bg-destructive/10 px-1 rounded inline-block animate-pulse">
+                      LOCKOUT ZONE
                     </div>
                   )}
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-orange-600">
+                <div className="text-xl font-bold text-foreground">
                   {soilData.salinity != null
                     ? soilData.salinity.toFixed(2)
                     : "N/A"}
                 </div>
-                <div className="text-xs text-gray-600">EC (dS/m)</div>
+                <div className="text-xs text-muted-foreground">EC (dS/m)</div>
               </div>
             </div>
 
             {(soilData as any)?.isLocked && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="bg-white/90 p-4 rounded-xl border border-red-200 shadow-xl transform rotate-[-5deg]">
-                  <div className="text-4xl text-center">🔒</div>
-                  <div className="text-red-700 font-bold text-center">
+                <div className="bg-background/90 p-4 rounded-xl border border-destructive/30 shadow-xl transform rotate-[-5deg]">
+                  <div className="flex justify-center mb-2">
+                    <Zap className="w-8 h-8 text-destructive" />
+                  </div>
+                  <div className="text-destructive font-bold text-center">
                     NUTRIENT
                     <br />
                     LOCKOUT
@@ -443,15 +485,15 @@ export const PrecisionAgriculture: React.FC<PrecisionAgricultureProps> = ({
 
             {/* Salinity Alert */}
             {analysis?.soil_health?.salinity.is_stressed && (
-              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm font-semibold text-red-800">
-                  🚨 Salinity Stress Detected
+              <div className="mt-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                <p className="text-sm font-semibold text-destructive flex items-center gap-1">
+                  <AlertTriangle className="w-4 h-4"/> Salinity Stress Detected
                 </p>
-                <p className="text-xs text-red-600 mt-1">
+                <p className="text-xs text-destructive/80 mt-1">
                   Leaching Requirement:{" "}
                   {analysis.soil_health.salinity.lr_percent.toFixed(1)}%
                 </p>
-                <p className="text-xs text-red-600">
+                <p className="text-xs text-destructive/80">
                   Action:{" "}
                   {analysis.soil_health.salinity.action
                     .replace("_", " ")
@@ -472,10 +514,10 @@ export const PrecisionAgriculture: React.FC<PrecisionAgricultureProps> = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="bg-white rounded-lg shadow-lg p-6"
+        className="bg-card rounded-lg shadow-lg p-6 border border-border"
       >
-        <h3 className="text-xl font-bold mb-4 text-gray-800 flex items-center gap-2">
-          <span>💧</span> Water Demand
+        <h3 className="text-xl font-bold mb-4 text-foreground flex items-center gap-2">
+          <Droplets className="w-5 h-5 text-primary" /> Water Demand
         </h3>
 
         {atmospheric ? (
@@ -531,16 +573,16 @@ export const PrecisionAgriculture: React.FC<PrecisionAgricultureProps> = ({
 
             {/* Water Demand Level */}
             <div className="mt-4 text-center">
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-muted-foreground">
                 Daily Evapotranspiration (ET₀)
               </div>
               <div
-                className={`mt-2 px-4 py-2 rounded-full text-white font-semibold ${
+                className={`mt-2 px-4 py-2 rounded-full font-semibold ${
                   atmospheric.et0 > 6
-                    ? "bg-red-500"
+                    ? "bg-destructive text-destructive-foreground"
                     : atmospheric.et0 > 4
-                      ? "bg-yellow-500"
-                      : "bg-green-500"
+                      ? "bg-muted text-muted-foreground border border-border"
+                      : "bg-primary text-primary-foreground"
                 }`}
               >
                 {atmospheric.et0 > 6
@@ -553,24 +595,24 @@ export const PrecisionAgriculture: React.FC<PrecisionAgricultureProps> = ({
 
             {/* PREDICTIVE WATER BUDGET FORECAST */}
             {waterForecast && (
-              <div className="mt-4 w-full p-3 bg-blue-50 rounded-lg border border-blue-100">
+              <div className="mt-4 w-full p-3 bg-primary/10 rounded-lg border border-primary/20">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs font-bold text-blue-800">
+                  <span className="text-xs font-bold text-primary">
                     24H FORECAST
                   </span>
-                  <span className="text-xs text-blue-600">
+                  <span className="text-xs text-primary/80">
                     ML Confidence: 92%
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Predicted Loss:</span>
-                  <span className="font-bold text-red-500">
+                  <span className="text-muted-foreground">Predicted Loss:</span>
+                  <span className="font-bold text-destructive">
                     -{waterForecast.loss24h?.toFixed(1) || "?"}%
                   </span>
                 </div>
                 {waterForecast.event === "PREEMPTIVE_IRRIGATION" && (
-                  <div className="mt-2 text-xs bg-red-100 text-red-700 p-1 rounded text-center font-bold">
-                    ⚡ PREEMPTIVE TRIGGER
+                  <div className="mt-2 text-xs bg-destructive/10 text-destructive p-1 rounded text-center font-bold flex items-center justify-center gap-1">
+                    <Zap className="w-3 h-3" /> PREEMPTIVE TRIGGER
                   </div>
                 )}
               </div>
@@ -578,25 +620,25 @@ export const PrecisionAgriculture: React.FC<PrecisionAgricultureProps> = ({
 
             {/* DIGITAL TWIN FORECAST */}
             {digitalTwin && digitalTwin.forecasts && (
-              <div className="mt-4 w-full p-3 bg-purple-50 rounded-lg border border-purple-100">
-                <div className="text-xs font-bold text-purple-800 mb-2">
-                  🔮 DIGITAL TWIN FORECAST
+              <div className="mt-4 w-full p-3 bg-primary/5 rounded-lg border border-border">
+                <div className="text-xs font-bold text-foreground mb-2 flex items-center gap-1">
+                  <TrendingUp className="w-3 h-3 text-primary" /> DIGITAL TWIN FORECAST
                 </div>
                 <div className="space-y-1">
                   {digitalTwin.forecasts.map((f: any, i: number) => (
                     <div key={i} className="flex justify-between text-xs">
-                      <span className="text-gray-600">
+                      <span className="text-muted-foreground">
                         T+{f.horizon_hours}h:
                       </span>
                       <span
-                        className={`font-semibold ${f.predicted_moisture < 30 ? "text-red-600" : "text-green-600"}`}
+                        className={`font-semibold ${f.predicted_moisture < 30 ? "text-destructive" : "text-primary"}`}
                       >
                         {f.predicted_moisture}%
                       </span>
                     </div>
                   ))}
                 </div>
-                <div className="text-xs text-gray-500 mt-2 italic">
+                <div className="text-xs text-muted-foreground mt-2 italic">
                   Physics-based projection
                 </div>
               </div>
@@ -604,26 +646,26 @@ export const PrecisionAgriculture: React.FC<PrecisionAgricultureProps> = ({
 
             {/* SOIL STRESS INDEX */}
             {soilStress && (
-              <div className="mt-4 w-full p-3 bg-orange-50 rounded-lg border border-orange-100">
+              <div className="mt-4 w-full p-3 bg-muted/50 rounded-lg border border-border">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs font-bold text-orange-800">
+                  <span className="text-xs font-bold text-foreground">
                     SOIL STRESS INDEX
                   </span>
                   <span
                     className={`text-lg font-bold ${
                       soilStress.level === "CRITICAL"
-                        ? "text-red-600"
+                        ? "text-destructive"
                         : soilStress.level === "HIGH"
-                          ? "text-orange-600"
+                          ? "text-destructive/80"
                           : soilStress.level === "MODERATE"
-                            ? "text-yellow-600"
-                            : "text-green-600"
+                            ? "text-muted-foreground"
+                            : "text-primary"
                     }`}
                   >
                     {soilStress.ssi}
                   </span>
                 </div>
-                <div className="text-xs text-gray-600 space-y-1">
+                <div className="text-xs text-muted-foreground space-y-1">
                   <div className="flex justify-between">
                     <span>Moisture:</span>
                     <span>{soilStress.components?.moisture_stress || 0}%</span>
@@ -642,11 +684,11 @@ export const PrecisionAgriculture: React.FC<PrecisionAgricultureProps> = ({
 
             {/* Irrigation Recommendation */}
             {!waterForecast && !digitalTwin && (
-              <div className="mt-6 p-4 bg-blue-50 rounded-lg w-full">
-                <p className="text-sm font-semibold text-blue-800">
-                  💡 Recommendation
+              <div className="mt-6 p-4 bg-primary/10 rounded-lg w-full">
+                <p className="text-sm font-semibold text-primary flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4" /> Recommendation
                 </p>
-                <p className="text-xs text-blue-600 mt-1">
+                <p className="text-xs text-primary/80 mt-1">
                   {atmospheric.et0 > 6
                     ? "Increase irrigation frequency. High water loss detected."
                     : atmospheric.et0 > 4
@@ -668,10 +710,10 @@ export const PrecisionAgriculture: React.FC<PrecisionAgricultureProps> = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="bg-white rounded-lg shadow-lg p-6"
+        className="bg-card rounded-lg shadow-lg p-6 border border-border"
       >
-        <h3 className="text-xl font-bold mb-4 text-gray-800 flex items-center gap-2">
-          <span>🌬️</span> Environmental Safety
+        <h3 className="text-xl font-bold mb-4 text-foreground flex items-center gap-2">
+          <Wind className="w-5 h-5 text-primary" /> Environmental Safety
         </h3>
 
         {atmospheric ? (
@@ -679,21 +721,17 @@ export const PrecisionAgriculture: React.FC<PrecisionAgricultureProps> = ({
             {/* Wind Speed Indicator */}
             <div className="text-center">
               <div
-                className="text-5xl font-bold mb-2"
-                style={{ color: getWindSafetyColor(atmospheric.riskLevel) }}
+                className={`text-4xl font-bold mb-2 ${getWindSafetyColorClass(atmospheric.riskLevel)}`}
               >
                 {atmospheric.windSpeed.toFixed(1)}
               </div>
-              <div className="text-sm text-gray-600">km/h Wind Speed</div>
+              <div className="text-sm text-muted-foreground">km/h Wind Speed</div>
             </div>
 
             {/* Risk Level Badge */}
             <div className="flex justify-center">
               <div
-                className="px-6 py-3 rounded-full text-white font-bold text-lg"
-                style={{
-                  backgroundColor: getWindSafetyColor(atmospheric.riskLevel),
-                }}
+                className={`px-4 py-1.5 rounded-full text-white font-bold text-sm border-2 ${getWindSafetyBgClass(atmospheric.riskLevel)}`}
               >
                 {atmospheric.riskLevel.toUpperCase()} RISK
               </div>
@@ -703,19 +741,21 @@ export const PrecisionAgriculture: React.FC<PrecisionAgricultureProps> = ({
             <div
               className={`p-4 rounded-lg ${
                 atmospheric.isSafeForSpraying
-                  ? "bg-green-50 border-green-200"
-                  : "bg-red-50 border-red-200"
+                  ? "bg-primary/10 border-primary/20"
+                  : "bg-destructive/10 border-destructive/20"
               } border-2`}
             >
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-2xl">
-                  {atmospheric.isSafeForSpraying ? "✅" : "🚫"}
-                </span>
+                {atmospheric.isSafeForSpraying ? (
+                  <CheckCircle className="w-6 h-6 text-primary" />
+                ) : (
+                  <AlertTriangle className="w-6 h-6 text-destructive" />
+                )}
                 <span
                   className={`font-bold ${
                     atmospheric.isSafeForSpraying
-                      ? "text-green-800"
-                      : "text-red-800"
+                      ? "text-primary"
+                      : "text-destructive"
                   }`}
                 >
                   {atmospheric.isSafeForSpraying
@@ -726,10 +766,10 @@ export const PrecisionAgriculture: React.FC<PrecisionAgricultureProps> = ({
 
               {!atmospheric.isSafeForSpraying && (
                 <div className="mt-3 space-y-1">
-                  <p className="text-sm font-semibold text-red-700">
-                    ⚠️ Blocked Operations:
+                  <p className="text-sm font-semibold text-destructive flex items-center gap-1">
+                    <AlertTriangle className="w-4 h-4" /> Blocked Operations:
                   </p>
-                  <ul className="text-xs text-red-600 ml-4 list-disc">
+                  <ul className="text-xs text-destructive ml-4 list-disc">
                     <li>Pesticide/Herbicide Spraying</li>
                     <li>Liquid Fertilizer Application</li>
                   </ul>
@@ -738,16 +778,16 @@ export const PrecisionAgriculture: React.FC<PrecisionAgricultureProps> = ({
             </div>
 
             {/* DISEASE RISK MATRIX (Phase 3) */}
-            <div className="border-t pt-4 mt-2">
-              <h4 className="text-sm font-bold text-gray-700 mb-2">
-                🦠 Disease Infection Matrix
+            <div className="border-t border-border pt-4 mt-2">
+              <h4 className="text-sm font-bold text-foreground mb-2 flex items-center gap-1">
+                <Leaf className="w-4 h-4 text-primary" /> Disease Infection Matrix
               </h4>
               <div className="flex gap-2">
                 <DiseaseTile
                   level={diseaseRisk?.level || "UNKNOWN"}
                   label="Fungal Risk"
                 />
-                <div className="flex flex-col justify-center text-xs text-gray-500">
+                <div className="flex flex-col justify-center text-xs text-muted-foreground">
                   <span>LWD: {diseaseRisk?.lwd || 0}h</span>
                 </div>
               </div>
@@ -764,18 +804,18 @@ export const PrecisionAgriculture: React.FC<PrecisionAgricultureProps> = ({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="lg:col-span-3 bg-white rounded-lg shadow-lg p-6 border-l-4 border-purple-500"
+          className="lg:col-span-3 bg-card rounded-lg shadow-lg p-6 border-l-4 border-l-primary border border-border"
         >
-          <h3 className="text-lg font-bold mb-3 text-gray-800 flex items-center gap-2">
-            <span>🤖</span> AI Recommendations
+          <h3 className="text-lg font-bold mb-3 text-foreground flex items-center gap-2">
+            <Zap className="w-5 h-5 text-primary" /> AI Recommendations
           </h3>
           <div className="grid gap-2">
             {recommendations.map((rec, index) => (
               <div
                 key={index}
-                className="flex items-start gap-2 text-sm text-gray-700 bg-purple-50 p-2 rounded"
+                className="flex items-start gap-2 text-sm text-foreground bg-primary/5 p-2 rounded"
               >
-                <span className="text-purple-600 mt-0.5">•</span>
+                <span className="text-primary mt-0.5">•</span>
                 {rec}
               </div>
             ))}
