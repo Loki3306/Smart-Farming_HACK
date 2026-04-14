@@ -75,6 +75,7 @@ import type {
 import { PostCard } from "@/components/community/PostCard";
 import NotificationBell from "@/components/community/NotificationBell";
 import { useTranslation } from "react-i18next";
+import { DEMO_USER } from "@/constants/demoUser";
 
 // ==================== TYPES ====================
 
@@ -262,7 +263,7 @@ const transformExpert = (apiExpert: ApiExpert): Expert => ({
 
 export const Community: React.FC = () => {
   const { user } = useAuth();
-  const userId = user?.id || "demo-user";
+  const userId = user?.id || DEMO_USER.id;
   const { t } = useTranslation("community");
 
   // Get localized configs

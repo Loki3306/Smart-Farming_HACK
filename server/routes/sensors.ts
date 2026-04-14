@@ -8,29 +8,36 @@ import { getRainSignal } from "../services/openWeather.js";
 // GET /api/sensors/latest - Get latest sensor readings for a farm
 export const getLatestSensorData = async (req: Request, res: Response) => {
   try {
-    const { farmId } = req.query;
+    const farmId =
+      typeof req.query?.farmId === "string" ? req.query.farmId.trim() : "";
 
     if (!farmId) {
       return res.status(400).json({ error: "farmId is required" });
     }
 
-    const sensorData = await db.getLatestSensorData(farmId as string);
+    const sensorData = await db.getLatestSensorData(farmId);
 
     // Return null if no data exists (don't throw 404)
     if (!sensorData) {
       return res.json({ sensorData: null });
     }
 
-    const farmIdStr = farmId as string;
+    const farmIdStr = farmId;
+    const sensorFarmerId =
+      typeof sensorData?.farmer_id === "string" && sensorData.farmer_id.trim()
+        ? sensorData.farmer_id
+        : null;
+    const sensorTimestamp =
+      typeof sensorData?.timestamp === "string" ? sensorData.timestamp : null;
 
     const [farm, settings, actionLogs] = await Promise.all([
       db.getFarmById(farmIdStr).catch(() => null),
-      db.getFarmSettings(sensorData.farmer_id as string).catch(() => null),
-      typeof sensorData.timestamp === "string"
+      sensorFarmerId ? db.getFarmSettings(sensorFarmerId).catch(() => null) : null,
+      sensorFarmerId && sensorTimestamp
         ? db
             .getActionLogsSince(
-              sensorData.farmer_id as string,
-              sensorData.timestamp,
+              sensorFarmerId,
+              sensorTimestamp,
             )
             .catch(() => [])
         : Promise.resolve([]),
@@ -62,7 +69,10 @@ export const getLatestSensorData = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("[Sensors] Error fetching sensor data:", error);
+    console.error("[Sensors] Error fetching latest sensor data", {
+      farmId: req.query?.farmId,
+      error,
+    });
     res.status(500).json({
       error: "Failed to fetch sensor data",
       details: error instanceof Error ? error.message : "Unknown error",

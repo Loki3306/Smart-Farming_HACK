@@ -135,6 +135,26 @@ def _row_to_task(row: dict) -> RegimeTask:
     )
 
 
+def _normalize_array_param(value: Any) -> List[Any]:
+    """Normalize runtime values to a native Python list for PostgreSQL array columns."""
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    if isinstance(value, tuple):
+        return list(value)
+    if isinstance(value, str):
+        raw = value.strip()
+        if not raw or raw in {"[]", "{}"}:
+            return []
+        try:
+            parsed = json.loads(raw)
+            return parsed if isinstance(parsed, list) else []
+        except json.JSONDecodeError:
+            return []
+    return []
+
+
 # ---------------------------------------------------------------------------
 # Main class
 # ---------------------------------------------------------------------------
@@ -210,7 +230,7 @@ class RegimeDatabase:
                                     task.timing_window_end.isoformat() if task.timing_window_end else None,
                                     task.duration_days, task.quantity, task.priority,
                                     task.confidence_score, task.status,
-                                    json.dumps(task.dependencies or []),
+                                    _normalize_array_param(task.dependencies),
                                     task.farmer_notes,
                                     task.completed_at.isoformat() if task.completed_at else None,
                                     task.overridden,
@@ -322,7 +342,7 @@ class RegimeDatabase:
                                 task.timing_window_end.isoformat() if task.timing_window_end else None,
                                 task.duration_days, task.quantity, task.priority,
                                 task.confidence_score, task.status,
-                                json.dumps(task.dependencies or []),
+                                _normalize_array_param(task.dependencies),
                                 task.farmer_notes,
                                 task.completed_at.isoformat() if task.completed_at else None,
                                 task.overridden,

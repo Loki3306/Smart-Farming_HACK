@@ -40,6 +40,11 @@ export const DeviceHealthCard: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
+  const isUuid = (value: string) =>
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      value,
+    );
+
   const [devices, setDevices] = useState<IoTDevice[]>([]);
 
   // Generate realistic demo devices
@@ -94,7 +99,7 @@ export const DeviceHealthCard: React.FC = () => {
       try {
         const farmId = localStorage.getItem("current_farm_id");
         // Try fetching real data first
-        if (farmId) {
+        if (farmId && isUuid(farmId)) {
           const response = await fetch(`/api/sensors/latest?farmId=${farmId}`);
           if (response.ok) {
             const result = await response.json();

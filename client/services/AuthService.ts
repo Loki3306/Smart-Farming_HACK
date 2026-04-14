@@ -1,6 +1,7 @@
 import CONFIG from "../config";
 // supabase removed — auth handled by backend OTP API (/api/otp/*)
 import { encryptData, hashPassword } from "../lib/encryption";
+import { DEMO_USER } from "../constants/demoUser";
 
 export interface SignupPayload {
   phone: string;
@@ -42,11 +43,11 @@ export interface AuthResponse {
 const mockUsers: Map<string, User & { password: string }> = new Map();
 
 // Demo user
-const DEMO_USER: User = {
-  id: "35596319-ef8f-4e76-a0cb-cbd88742a05d",
+const DEMO_AUTH_USER: User = {
+  id: DEMO_USER.id,
   phone: "+1-555-000-0000",
   email: "demo@irrigate.farm",
-  fullName: "Demo Farmer",
+  fullName: DEMO_USER.name,
   country: "United States",
   state: "California",
   experienceLevel: "intermediate",
@@ -285,7 +286,7 @@ class AuthServiceClass {
   }
 
   getDemoUser(): User {
-    return DEMO_USER;
+    return DEMO_AUTH_USER;
   }
 
   private generateMockToken(userId: string): string {

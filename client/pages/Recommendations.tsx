@@ -71,6 +71,11 @@ export const Recommendations: React.FC = () => {
   const [analysisComplete, setAnalysisComplete] = useState(false);
   const [regimeCreated, setRegimeCreated] = useState(false);
 
+  const isUuid = (value: string) =>
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      value,
+    );
+
   const getTypeIcon = (type: string) => {
     switch (type) {
       case "irrigation":
@@ -150,13 +155,30 @@ export const Recommendations: React.FC = () => {
       return;
     }
 
+    const selectedFarmIdRaw =
+      farmData?.farm_id || localStorage.getItem("current_farm_id");
+    const selectedFarmId =
+      selectedFarmIdRaw && isUuid(selectedFarmIdRaw)
+        ? selectedFarmIdRaw
+        : null;
+
+    if (!selectedFarmId) {
+      toast({
+        title: "No Farm Selected",
+        description:
+          "Please select a valid farm before generating recommendations.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsAnalyzing(true);
     setAnalysisComplete(false);
 
     try {
       // Actual API call
       const requestPayload = {
-        farm_id: farmData?.farm_id || "farm_001",
+        farm_id: selectedFarmId,
         crop_type: farmData?.crop_type || "Unknown",
         soil_type: farmData?.soil_type || "Clay loam",
         sensor_data: {
@@ -229,7 +251,7 @@ export const Recommendations: React.FC = () => {
 
           const regimeData = {
             farmer_id: user.id,
-            farm_id: farmData?.farm_id || null, // Optional - can be null
+            farm_id: selectedFarmId,
             crop_type: farmData?.crop_type || cropType || "Unknown",
             crop_stage: "vegetative", // Could be calculated from sowing date
             sowing_date:
@@ -388,7 +410,29 @@ export const Recommendations: React.FC = () => {
   // Load farm data on mount
   useEffect(() => {
     const loadFarmData = async () => {
-      const farmId = localStorage.getItem("current_farm_id");
+      let farmId = localStorage.getItem("current_farm_id");
+      if (farmId && !isUuid(farmId)) {
+        localStorage.removeItem("current_farm_id");
+        farmId = null;
+      }
+
+      if (!farmId && user?.id) {
+        try {
+          const farmsResponse = await fetch(
+            `/api/farms?farmerId=${encodeURIComponent(user.id)}`,
+          );
+          if (farmsResponse.ok) {
+            const farmsResult = await farmsResponse.json();
+            const firstFarmId = farmsResult?.farms?.[0]?.id;
+            if (firstFarmId && isUuid(firstFarmId)) {
+              farmId = firstFarmId;
+              localStorage.setItem("current_farm_id", firstFarmId);
+            }
+          }
+        } catch (err) {
+          console.warn("[Recommendations] Could not resolve farmId from farms", err);
+        }
+      }
 
       if (!farmId) {
         console.log("[Recommendations] ⚠️ No farm ID in localStorage");

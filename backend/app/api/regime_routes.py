@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from datetime import datetime, date
 import logging
+import os
 
 from app.services.regime_service import (
     RegimeService,
@@ -34,8 +35,22 @@ _db: Optional[RegimeDatabase] = None
 
 def get_regime_db() -> RegimeDatabase:
     """Dependency for database access"""
+    global _db
+
     if _db is None:
-        raise HTTPException(status_code=500, detail="Database not initialized")
+        try:
+            # Fallback for cases where startup hooks were skipped.
+            neon_url = os.getenv("NEON_DATABASE_URL") or os.getenv("DATABASE_URL")
+            if not neon_url:
+                raise RuntimeError("Missing NEON_DATABASE_URL (or DATABASE_URL fallback)")
+            if not os.getenv("NEON_DATABASE_URL"):
+                os.environ["NEON_DATABASE_URL"] = neon_url
+
+            _db = RegimeDatabase()
+            logger.info("Regime DB lazily initialized in get_regime_db")
+        except Exception as e:
+            logger.exception("Failed to initialize regime DB in dependency: %s", e)
+            raise HTTPException(status_code=500, detail="Database not initialized")
     return _db
 
 def set_regime_db(db: RegimeDatabase) -> None:

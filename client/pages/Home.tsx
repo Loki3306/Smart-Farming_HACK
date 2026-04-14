@@ -58,6 +58,11 @@ export const Home: React.FC = () => {
   const [isRestoring, setIsRestoring] = useState(false);
   const [farmName, setFarmName] = useState<string>("Your Farm");
 
+  const isUuid = (value: string) =>
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      value,
+    );
+
   // Monitor sensor data and trigger alerts for critical conditions
   useSensorAlerts();
 
@@ -66,7 +71,7 @@ export const Home: React.FC = () => {
     const fetchFarmName = async () => {
       try {
         const farmId = localStorage.getItem("current_farm_id");
-        if (farmId) {
+        if (farmId && isUuid(farmId)) {
           const response = await fetch(`/api/farms/${farmId}`);
           if (response.ok) {
             const result = await response.json();

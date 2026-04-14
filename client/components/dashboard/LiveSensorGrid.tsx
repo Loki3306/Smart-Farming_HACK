@@ -96,37 +96,77 @@ export const LiveSensorGrid: React.FC = () => {
     lastUpdate: new Date(),
   });
 
-  useEffect(() => {
-    // DEMO HACK: Force the specific UUID that matches the backend mapping for "farm_001"
-    // This ensures data flows even if the user logged in with a different ID
-    const DEMO_FARM_ID = "80ac1084-67f8-4d05-ba21-68e3201213a8";
-    const farmId = DEMO_FARM_ID;
-
-    console.log(
-      "[LiveSensorGrid] 🔌 Connecting to IoT service for farm:",
-      farmId,
+  const isUuid = (value: string) =>
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      value,
     );
 
-    // Connect to WebSocket
-    IoTService.connect(farmId);
+  useEffect(() => {
+    let unsubscribeData = () => {};
+    let unsubscribeStatus = () => {};
+    let unsubscribeIrrigation = () => {};
 
-    // Subscribe to sensor data updates
-    const unsubscribeData = IoTService.onMessage((data) => {
-      console.log("[LiveSensorGrid] Received sensor data:", data);
-      setSensorData(data);
-    });
+    const setupIoT = async () => {
+      let farmId = localStorage.getItem("current_farm_id");
+      if (farmId && !isUuid(farmId)) {
+        localStorage.removeItem("current_farm_id");
+        farmId = null;
+      }
 
-    // Subscribe to status updates
-    const unsubscribeStatus = IoTService.onStatusChange((status) => {
-      console.log("[LiveSensorGrid] Status changed:", status);
-      setSystemStatus(status);
-    });
+      if (!farmId && user?.id) {
+        try {
+          const response = await fetch(
+            `/api/farms?farmerId=${encodeURIComponent(user.id)}`,
+          );
+          if (response.ok) {
+            const result = await response.json();
+            const resolvedFarmId = result?.farms?.[0]?.id;
+            if (resolvedFarmId && isUuid(resolvedFarmId)) {
+              farmId = resolvedFarmId;
+              localStorage.setItem("current_farm_id", resolvedFarmId);
+            }
+          }
+        } catch (error) {
+          console.warn("[LiveSensorGrid] Failed to resolve farm ID", error);
+        }
+      }
 
-    // Subscribe to irrigation events
-    const unsubscribeIrrigation = IoTService.onIrrigationEvent((event) => {
-      console.log("[LiveSensorGrid] Irrigation triggered:", event);
-      // You can show a toast notification here
-    });
+      if (!farmId) {
+        setSystemStatus({
+          isOnline: false,
+          lastUpdate: new Date(),
+        });
+        return;
+      }
+
+      console.log(
+        "[LiveSensorGrid] 🔌 Connecting to IoT service for farm:",
+        farmId,
+      );
+
+      // Connect to WebSocket
+      IoTService.connect(farmId);
+
+      // Subscribe to sensor data updates
+      unsubscribeData = IoTService.onMessage((data) => {
+        console.log("[LiveSensorGrid] Received sensor data:", data);
+        setSensorData(data);
+      });
+
+      // Subscribe to status updates
+      unsubscribeStatus = IoTService.onStatusChange((status) => {
+        console.log("[LiveSensorGrid] Status changed:", status);
+        setSystemStatus(status);
+      });
+
+      // Subscribe to irrigation events
+      unsubscribeIrrigation = IoTService.onIrrigationEvent((event) => {
+        console.log("[LiveSensorGrid] Irrigation triggered:", event);
+        // You can show a toast notification here
+      });
+    };
+
+    void setupIoT();
 
     // Cleanup on unmount
     return () => {
@@ -135,7 +175,7 @@ export const LiveSensorGrid: React.FC = () => {
       unsubscribeIrrigation();
       IoTService.disconnect();
     };
-  }, [user]);
+  }, [user?.id]);
 
   // Calculate NPK percentage (0-1023 -> 0-100%)
   const npkPercentage = sensorData

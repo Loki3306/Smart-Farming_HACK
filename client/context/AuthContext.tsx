@@ -11,6 +11,7 @@ import {
   LoginPayload,
   AuthService,
 } from "../services/AuthService";
+import { DEMO_USER } from "../constants/demoUser";
 
 interface AuthContextType {
   user: User | null;
@@ -58,12 +59,22 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
           setUser(currentUser);
           setIsDemoUser(currentUser.isDemoUser || false);
         } else {
-          console.log("[AuthContext] No user session found");
-          setUser(null);
+          console.log("[AuthContext] No user session found, using demo user");
+          const demoUser = AuthService.getDemoUser();
+          localStorage.setItem("current_user", JSON.stringify(demoUser));
+          localStorage.setItem("user_id", DEMO_USER.id);
+          localStorage.setItem("onboarding_completed", "true");
+          setUser(demoUser);
+          setIsDemoUser(true);
         }
       } catch (err) {
         console.error("[AuthContext] Failed to initialize auth:", err);
-        setUser(null);
+        const demoUser = AuthService.getDemoUser();
+        localStorage.setItem("current_user", JSON.stringify(demoUser));
+        localStorage.setItem("user_id", DEMO_USER.id);
+        localStorage.setItem("onboarding_completed", "true");
+        setUser(demoUser);
+        setIsDemoUser(true);
       } finally {
         setIsLoading(false);
       }
@@ -127,6 +138,9 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
 
   const skipLoginAsDemo = useCallback(() => {
     const demoUser = AuthService.getDemoUser();
+    localStorage.setItem("current_user", JSON.stringify(demoUser));
+    localStorage.setItem("user_id", DEMO_USER.id);
+    localStorage.setItem("onboarding_completed", "true");
     setUser(demoUser);
     setIsDemoUser(true);
     setError(null);

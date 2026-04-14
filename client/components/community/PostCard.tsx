@@ -25,6 +25,7 @@ import type {
 } from "@/services/communityApi";
 import { usePostReactions, usePostComments } from "@/hooks/useCommunity";
 import { POST_TYPE_CONFIG, REACTION_CONFIG } from "@/constants/community";
+import { DEMO_USER } from "@/constants/demoUser";
 import { useAuth } from "@/context/AuthContext";
 import { ShareDialog } from "./ShareDialog";
 import { PostMenu } from "./PostMenu";
@@ -78,7 +79,7 @@ export const PostCard: React.FC<PostCardProps> = ({
   const [localShareCount, setLocalShareCount] = useState(shareCount);
 
   const auth = useAuth();
-  const userId = auth?.user?.id || "demo-user";
+  const userId = auth?.user?.id || DEMO_USER.id;
   const config = POST_TYPE_CONFIG[post.post_type as PostType];
 
   const { reactionCounts, userReactions, toggleReaction } = usePostReactions(
