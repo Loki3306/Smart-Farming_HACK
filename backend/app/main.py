@@ -13,17 +13,23 @@ from contextlib import asynccontextmanager
 import importlib
 import sys
 import os
+import logging
+from pathlib import Path
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
+# Load environment variables deterministically:
+# 1) workspace root .env, 2) backend/.env as fallback.
+_backend_dir = Path(__file__).resolve().parents[1]
+_workspace_root = _backend_dir.parent
+load_dotenv(_workspace_root / ".env", override=False)
+load_dotenv(_backend_dir / ".env", override=False)
 
 from app.api import chatbot  # Import chatbot API router
 from app.api import regime_routes  # Import regime system API router
 from app.routes import farm_geometry  # Import farm geometry/mapping API router
 from app.db.regime_db import RegimeDatabase  # Regime database layer
 from app.services.neon_client import get_connection  # Neon PostgreSQL connection pool
-from app.db.base import startup_db, shutdown_db  # Database lifecycle
+from app.db.base import startup_db, shutdown_db, DATABASE_URL as BASE_DATABASE_URL  # Database lifecycle
 from app.locales import LocalizationManager  # I18n helper
 
 # Add backend/app to Python path for model imports
@@ -45,6 +51,10 @@ async def lifespan(app: FastAPI):
     """
     # Startup
     print("[INFO] Starting Smart Farming AI Backend...")
+
+    # Ensure startup hooks run even when lifespan is used.
+    await on_startup()
+    await startup_event()
     
     # Initialize MQTT client for IoT
     initialize_mqtt_func = None
@@ -78,6 +88,8 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"[WARNING] Error during MQTT shutdown: {e}")
 
+    await on_shutdown()
+
 # Initialize FastAPI app with lifespan
 app = FastAPI(
     title="Smart Farming AI Backend",
@@ -87,6 +99,11 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc"
 )
+
+logger = logging.getLogger(__name__)
+_base_db_initialized = False
+_models_initialized = False
+_regime_db_initialized = False
 
 # Configure CORS for frontend communication - Allow all origins
 app.add_middleware(
@@ -175,13 +192,23 @@ except Exception as e:
 @app.on_event("startup")
 async def on_startup():
     """Initialize database connections on startup"""
+    global _base_db_initialized
+    if _base_db_initialized:
+        return
+
     await startup_db()
+    _base_db_initialized = True
 
 
 @app.on_event("shutdown")
 async def on_shutdown():
     """Close database connections on shutdown"""
+    global _base_db_initialized
+    if not _base_db_initialized:
+        return
+
     await shutdown_db()
+    _base_db_initialized = False
 
 # ============================================================================
 # Pydantic Models (Request/Response schemas)
@@ -949,20 +976,48 @@ class RecommendationEngine:
 @app.on_event("startup")
 async def startup_event():
     """Load models and initialize database when API starts"""
+    global _models_initialized, _regime_db_initialized
+
     print(" Starting Smart Farming AI Backend...")
-    print(" Loading ML models...")
-    status = model_loader.load_models()
-    print(f" Models loaded: {sum(status.values())}/{len(status)}")
+    if not _models_initialized:
+        print(" Loading ML models...")
+        status = model_loader.load_models()
+        print(f" Models loaded: {sum(status.values())}/{len(status)}")
+        _models_initialized = True
     
     # Initialize Regime System database
-    print(" Initializing Regime System database...")
-    try:
-        regime_db = RegimeDatabase()  # Uses Neon via neon_client internally
-        regime_routes.set_regime_db(regime_db)
-        print(" Regime database initialized")
-    except Exception as e:
-        print(f" Warning: Could not initialize regime database: {e}")
-        print("   Regime endpoints will be unavailable until database is configured")
+    if not _regime_db_initialized:
+        print(" Initializing Regime System database...")
+        try:
+            neon_url = (
+                os.getenv("NEON_DATABASE_URL")
+                or os.getenv("DATABASE_URL")
+                or BASE_DATABASE_URL
+            )
+            if not neon_url:
+                raise RuntimeError(
+                    "Missing NEON_DATABASE_URL (or DATABASE_URL fallback) in environment"
+                )
+
+            if not os.getenv("NEON_DATABASE_URL"):
+                os.environ["NEON_DATABASE_URL"] = neon_url
+
+            # Connectivity check before wiring dependency.
+            with get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT 1")
+                    cur.fetchone()
+
+            regime_db = RegimeDatabase()  # Uses Neon via neon_client internally
+            regime_routes.set_regime_db(regime_db)
+            app.state.regime_db = regime_db
+            _regime_db_initialized = True
+            logger.info("Regime DB connected and initialized successfully")
+            print(" Regime database initialized")
+        except Exception as e:
+            logger.exception("Regime DB initialization failed: %s", e)
+            print(f" Warning: Could not initialize regime database: {e}")
+            print("   Regime endpoints will be unavailable until database is configured")
     
     print(" API ready!")
 

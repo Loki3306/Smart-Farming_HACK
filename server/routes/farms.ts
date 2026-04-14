@@ -52,7 +52,20 @@ export const getFarms = async (req: Request, res: Response) => {
 export const getFarmById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const farm = await db.getFarmById(id as string);
+
+    if (!id || typeof id !== "string") {
+      return res.status(400).json({ error: "Farm id is required" });
+    }
+
+    let farm;
+    try {
+      farm = await db.getFarmById(id);
+    } catch (error: any) {
+      if (error?.code === "PGRST116") {
+        return res.status(404).json({ error: "Farm not found" });
+      }
+      throw error;
+    }
 
     if (!farm) {
       return res.status(404).json({ error: "Farm not found" });
@@ -60,7 +73,10 @@ export const getFarmById = async (req: Request, res: Response) => {
 
     res.json({ farm });
   } catch (error) {
-    console.error("[Farms] Error fetching farm:", error);
+    console.error("[Farms] Error fetching farm by id", {
+      farmId: req.params?.id,
+      error,
+    });
     res.status(500).json({
       error: "Failed to fetch farm",
       details: error instanceof Error ? error.message : "Unknown error",

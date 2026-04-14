@@ -2,6 +2,31 @@ import { Router, Request, Response } from "express";
 import { query } from "../db/neon.js";
 
 const router = Router();
+const NOTIFICATION_COLUMNS = [
+  "n.id",
+  "n.user_id",
+  "n.actor_id",
+  "NULL::text AS type",
+  "n.message",
+  "NULL::uuid AS post_id",
+  "NULL::uuid AS comment_id",
+  "NULL::jsonb AS data",
+  "n.read",
+  "n.created_at",
+].join(", ");
+
+const NOTIFICATION_RETURNING_COLUMNS = [
+  "id",
+  "user_id",
+  "actor_id",
+  "NULL::text AS type",
+  "message",
+  "NULL::uuid AS post_id",
+  "NULL::uuid AS comment_id",
+  "NULL::jsonb AS data",
+  "read",
+  "created_at",
+].join(", ");
 
 // =====================================================
 // NOTIFICATION ENDPOINTS
@@ -16,7 +41,7 @@ router.get("/", async (req: Request, res: Response) => {
 
     if (!user_id) return res.status(400).json({ error: "user_id is required" });
 
-    let sql = `SELECT n.*, f.name as actor_name
+    let sql = `SELECT ${NOTIFICATION_COLUMNS}, f.name as actor_name
                FROM notifications n
                LEFT JOIN farmers f ON f.id = n.actor_id
                WHERE n.user_id = $1`;
@@ -72,13 +97,13 @@ router.post("/", async (req: Request, res: Response) => {
 
     const result = await query(
       `INSERT INTO notifications
-         (user_id, actor_id, type, message, post_id, comment_id, data, read)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, false)
-       RETURNING *`,
+         (user_id, actor_id, message, read)
+       VALUES ($1, $2, $3, false)
+       RETURNING ${NOTIFICATION_RETURNING_COLUMNS}`,
       [
-        user_id, actor_id || "system", type, message,
-        post_id || null, comment_id || null,
-        notificationData ? JSON.stringify(notificationData) : null,
+        user_id,
+        actor_id || "system",
+        message,
       ],
     );
 
@@ -101,7 +126,7 @@ router.put("/:id/read", async (req: Request, res: Response) => {
     const result = await query(
       `UPDATE notifications SET read = true
        WHERE id = $1 AND user_id = $2
-       RETURNING *`,
+       RETURNING ${NOTIFICATION_RETURNING_COLUMNS}`,
       [id, user_id],
     );
 

@@ -53,6 +53,9 @@ interface FarmContextType {
   // Action Log
   actionLog: ActionLogEntry[];
 
+  // Farms
+  farms: Array<{ id: string }>;
+
   // Methods
   refreshSensorData: () => Promise<void>;
   refreshWeather: () => Promise<void>;
@@ -119,6 +122,7 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [farms, setFarms] = useState<Array<{ id: string }>>([]);
 
   const actionLogsInitializedRef = React.useRef(false);
   const lastSeenActionLogTsRef = React.useRef<number>(0);
@@ -133,9 +137,16 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
   );
 
   const ensureCurrentFarmId = useCallback(async () => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      setFarms([]);
+      return;
+    }
 
     const existing = localStorage.getItem("current_farm_id");
+    if (existing && !isUuid(existing)) {
+      localStorage.removeItem("current_farm_id");
+    }
+
     if (existing && isUuid(existing)) {
       // Validate that this farm actually has readings; otherwise, pick another farm.
       try {
@@ -162,6 +173,7 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
       const farms: Array<{ id: string }> = Array.isArray(data?.farms)
         ? data.farms
         : [];
+      setFarms(farms);
 
       // Prefer a farm that already has sensor readings
       for (const farm of farms) {
@@ -187,6 +199,7 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
         localStorage.setItem("current_farm_id", firstFarmId);
       }
     } catch (e) {
+      setFarms([]);
       // If this fails, SensorService will gracefully fall back to mock data.
     }
   }, [isUuid, user?.id]);
@@ -442,6 +455,7 @@ export const FarmContextProvider: React.FC<FarmContextProviderProps> = ({
     weatherData,
     blockchainRecords,
     actionLog,
+    farms,
     loading,
     error,
     refreshSensorData,

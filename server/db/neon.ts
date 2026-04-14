@@ -4,15 +4,23 @@
  *
  * Usage:
  *   import { query } from './neon.js';
- *   const result = await query('SELECT * FROM farms WHERE farmer_id = $1', [farmerId]);
+ *   const result = await query('SELECT id, farmer_id, farm_name FROM farms WHERE farmer_id = $1', [farmerId]);
  */
 
 import { Pool, QueryResult } from "pg";
 
 let _pool: Pool | null = null;
+const globalNeon = globalThis as typeof globalThis & {
+  __neonSharedPool?: Pool;
+  __neonPoolInitialized?: boolean;
+};
 
 function getPool(): Pool {
   if (_pool) return _pool;
+  if (globalNeon.__neonSharedPool) {
+    _pool = globalNeon.__neonSharedPool;
+    return _pool;
+  }
 
   const connectionString = process.env.NEON_DATABASE_URL;
 
@@ -31,13 +39,15 @@ function getPool(): Pool {
     connectionTimeoutMillis: 10000, // Timeout new connections after 10s
   });
 
-  _pool.on("error", (err) => {
-    console.error("[Neon] Unexpected pool error:", err.message);
-  });
+  if (!globalNeon.__neonPoolInitialized) {
+    _pool.on("error", (err) => {
+      console.error("[Neon] Unexpected pool error:", err.message);
+    });
+    globalNeon.__neonPoolInitialized = true;
+    console.log("[Neon] Shared PostgreSQL pool initialized");
+  }
 
-  _pool.on("connect", () => {
-    console.log("[Neon] New client connected to Neon PostgreSQL");
-  });
+  globalNeon.__neonSharedPool = _pool;
 
   return _pool;
 }

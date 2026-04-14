@@ -171,7 +171,7 @@ export async function getFarmerProfile(farmerId: string): Promise<FarmerProfile 
   }
 
   try {
-    const res = await fetch(`/api/farms?farmer_id=${farmerId}`);
+    const res = await fetch(`/api/farms?farmerId=${farmerId}`);
     if (!res.ok) return null;
     const data = await res.json();
     const farmer = data.farmer || data;

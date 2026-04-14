@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import { query } from "../db/neon.js";
 
 const router = Router();
+const PRESENCE_COLUMNS = "user_id, status, updated_at";
 
 // In-memory presence store for ultra-fast reads (Socket.IO will replace this)
 const presenceCache = new Map<string, { status: string; updated_at: string }>();
@@ -24,7 +25,7 @@ router.get("/:userId", async (req: Request, res: Response) => {
     }
 
     const result = await query(
-      `SELECT * FROM user_presence WHERE user_id = $1 LIMIT 1`,
+      `SELECT ${PRESENCE_COLUMNS} FROM user_presence WHERE user_id = $1 LIMIT 1`,
       [userId],
     );
 
@@ -60,7 +61,7 @@ router.put("/", async (req: Request, res: Response) => {
          VALUES ($1, $2, $3)
          ON CONFLICT (user_id) DO UPDATE
          SET status = $2, updated_at = $3
-         RETURNING *`,
+         RETURNING ${PRESENCE_COLUMNS}`,
         [user_id, status, now],
       );
 
@@ -122,7 +123,7 @@ router.get("/bulk", async (req: Request, res: Response) => {
     if (userIdArray.length === 0) return res.json({ presence: [] });
 
     const result = await query(
-      `SELECT * FROM user_presence WHERE user_id = ANY($1)`,
+      `SELECT ${PRESENCE_COLUMNS} FROM user_presence WHERE user_id = ANY($1)`,
       [userIdArray],
     );
 
@@ -163,7 +164,7 @@ router.post("/cleanup", async (req: Request, res: Response) => {
       ),
       // Set offline for users not seen in 1 hour
       query(
-        `UPDATE user_presence SET status = 'offline', last_seen = NOW()
+        `UPDATE user_presence SET status = 'offline', updated_at = NOW()
          WHERE status IN ('online', 'away') AND updated_at < $1`,
         [oneHourAgo],
       ),

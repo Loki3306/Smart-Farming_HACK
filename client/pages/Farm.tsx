@@ -75,50 +75,60 @@ export const Farm: React.FC = () => {
   });
 
   const [usesDemoSensorData, setUsesDemoSensorData] = useState(false);
+  const [activeFarmId, setActiveFarmId] = useState<string | null>(null);
+
+  const isUuid = (value: string) =>
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      value,
+    );
 
   // Fetch farm data on mount and Connect WebSocket
   useEffect(() => {
     let unsubscribeIoT: (() => void) | undefined;
-    const farmId = localStorage.getItem("current_farm_id") || "farm_001";
+    const storedFarmId = localStorage.getItem("current_farm_id");
+    const farmId = storedFarmId && isUuid(storedFarmId) ? storedFarmId : null;
+    setActiveFarmId(farmId);
 
     const fetchFarmData = async () => {
       if (!user?.id) return;
       setLoading(true);
       try {
-        if (farmId) {
-          // Fetch farm details
-          const farmResponse = await fetch(`/api/farms/${farmId}`);
-          if (farmResponse.ok) {
-            const farmResult = await farmResponse.json();
-            const farm = farmResult.farm;
-            // ... (keep existing farm data set logic)
-            setFarmData({
-              farmName: farm.farm_name || "My Farm",
-              state: farm.state || "Maharashtra",
-              city: farm.city || "Nashik",
-              district: farm.district || "Nashik",
-              village: farm.village || "",
-              latitude: farm.latitude || null,
-              longitude: farm.longitude || null,
-              areaAcres: farm.area_acres || 5,
-              soilType: farm.soil_type || "black",
-              crop: farm.crop_type || "",
-              season: farm.season || "kharif",
-              waterSource: farm.water_source || "well",
-              irrigationType: farm.irrigation_type || "drip",
-            });
-          }
+        if (!farmId) {
+          return;
+        }
 
-          // Fetch INITIAL sensor data
-          const sensorResponse = await fetch(
-            `/api/sensors/latest?farmId=${farmId}`,
-          );
-          if (sensorResponse.ok) {
-            const sensorResult = await sensorResponse.json();
-            const sensor = sensorResult.sensorData;
-            if (sensor) {
-              updateSoilStatsFromSensor(sensor);
-            }
+        // Fetch farm details
+        const farmResponse = await fetch(`/api/farms/${farmId}`);
+        if (farmResponse.ok) {
+          const farmResult = await farmResponse.json();
+          const farm = farmResult.farm;
+          // ... (keep existing farm data set logic)
+          setFarmData({
+            farmName: farm.farm_name || "My Farm",
+            state: farm.state || "Maharashtra",
+            city: farm.city || "Nashik",
+            district: farm.district || "Nashik",
+            village: farm.village || "",
+            latitude: farm.latitude || null,
+            longitude: farm.longitude || null,
+            areaAcres: farm.area_acres || 5,
+            soilType: farm.soil_type || "black",
+            crop: farm.crop_type || "",
+            season: farm.season || "kharif",
+            waterSource: farm.water_source || "well",
+            irrigationType: farm.irrigation_type || "drip",
+          });
+        }
+
+        // Fetch INITIAL sensor data
+        const sensorResponse = await fetch(
+          `/api/sensors/latest?farmId=${farmId}`,
+        );
+        if (sensorResponse.ok) {
+          const sensorResult = await sensorResponse.json();
+          const sensor = sensorResult.sensorData;
+          if (sensor) {
+            updateSoilStatsFromSensor(sensor);
           }
         }
       } catch (error) {
@@ -165,17 +175,32 @@ export const Farm: React.FC = () => {
     fetchFarmData();
 
     // CONNECT TO WEBSOCKET
-    IoTService.connect(farmId);
-    unsubscribeIoT = IoTService.onMessage((data) => {
-      console.log("⚡ [Farm] Real-time update:", data);
-      updateSoilStatsFromSensor(data);
-    });
+    if (farmId) {
+      IoTService.connect(farmId);
+      unsubscribeIoT = IoTService.onMessage((data) => {
+        console.log("⚡ [Farm] Real-time update:", data);
+        updateSoilStatsFromSensor(data);
+      });
+    }
 
     return () => {
       if (unsubscribeIoT) unsubscribeIoT();
       IoTService.disconnect();
     };
   }, [user]);
+
+  if (!loading && !activeFarmId) {
+    return (
+      <div className="p-6 lg:p-8 space-y-6 min-h-[calc(100vh-4rem)]">
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-2">No Farm Selected</h2>
+          <p className="text-muted-foreground">
+            Create or select a farm to view live farm and sensor data.
+          </p>
+        </Card>
+      </div>
+    );
+  }
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -217,6 +242,31 @@ export const Farm: React.FC = () => {
 
       if (response.ok) {
         console.log("[Farm] ✅ Farm data saved successfully");
+
+        // Re-fetch persisted farm data from backend to verify save survives refresh.
+        const refreshed = await fetch(`/api/farms/${farmId}`);
+        if (refreshed.ok) {
+          const refreshedResult = await refreshed.json();
+          const farm = refreshedResult.farm;
+          if (farm) {
+            setFarmData({
+              farmName: farm.farm_name || "My Farm",
+              state: farm.state || "Maharashtra",
+              city: farm.city || "Nashik",
+              district: farm.district || "Nashik",
+              village: farm.village || "",
+              latitude: farm.latitude || null,
+              longitude: farm.longitude || null,
+              areaAcres: farm.area_acres || 5,
+              soilType: farm.soil_type || "black",
+              crop: farm.crop_type || "",
+              season: farm.season || "kharif",
+              waterSource: farm.water_source || "well",
+              irrigationType: farm.irrigation_type || "drip",
+            });
+          }
+        }
+
         setIsEditing(false);
       } else {
         console.error("[Farm] ❌ Failed to save farm data");

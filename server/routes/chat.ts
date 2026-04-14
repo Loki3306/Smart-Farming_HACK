@@ -221,8 +221,8 @@ router.post("/messages/send", async (req: Request, res: Response) => {
 
     // Create notification (non-critical)
     query(
-      `INSERT INTO notifications (user_id, actor_id, type, message, read)
-       VALUES ($1, $2, 'message', $3, false)`,
+      `INSERT INTO notifications (user_id, actor_id, message, read)
+       VALUES ($1, $2, $3, false)`,
       [receiver_id, sender_id, `sent you a message: ${content?.substring(0, 50) || "[Image]"}`],
     ).catch((e) => console.warn("Notification insert failed:", e.message));
 
@@ -415,7 +415,7 @@ router.get("/online-farmers", async (req: Request, res: Response) => {
     // Assuming neon is connected, we will join farmers with user_presence
     const result = await query(
       `SELECT f.id, f.name, f.phone, f.email,
-              p.status, p.last_seen
+              p.status, p.updated_at AS last_seen
        FROM farmers f
        LEFT JOIN user_presence p ON p.user_id = f.id
        WHERE f.id != $1

@@ -7,14 +7,14 @@ CREATE INDEX IF NOT EXISTS idx_regimes_farmer_id ON public.regimes(farmer_id) TA
 CREATE INDEX IF NOT EXISTS idx_regimes_farm_id ON public.regimes(farm_id) TABLESPACE pg_default;
 CREATE INDEX IF NOT EXISTS idx_regimes_status ON public.regimes(status) TABLESPACE pg_default;
 CREATE INDEX IF NOT EXISTS idx_regimes_valid_until ON public.regimes(valid_until) TABLESPACE pg_default;
-CREATE INDEX IF NOT EXISTS idx_regimes_farm_status ON public.regimes(farm_id, status) WHERE status = 'active' TABLESPACE pg_default;
+CREATE INDEX IF NOT EXISTS idx_regimes_farm_status ON public.regimes(farm_id, status) TABLESPACE pg_default WHERE status = 'active';
 
 -- Indexes on regime_tasks table
 CREATE INDEX IF NOT EXISTS idx_regime_tasks_regime_id ON public.regime_tasks(regime_id) TABLESPACE pg_default;
 CREATE INDEX IF NOT EXISTS idx_regime_tasks_status ON public.regime_tasks(status) TABLESPACE pg_default;
 CREATE INDEX IF NOT EXISTS idx_regime_tasks_timing_window ON public.regime_tasks(timing_window_start, timing_window_end) TABLESPACE pg_default;
 CREATE INDEX IF NOT EXISTS idx_regime_tasks_parent_recommendation ON public.regime_tasks(parent_recommendation_id) TABLESPACE pg_default;
-CREATE INDEX IF NOT EXISTS idx_regime_tasks_timing_status ON public.regime_tasks(timing_window_start, status) WHERE status = 'pending' TABLESPACE pg_default;
+CREATE INDEX IF NOT EXISTS idx_regime_tasks_timing_status ON public.regime_tasks(timing_window_start, status) TABLESPACE pg_default WHERE status = 'pending';
 CREATE INDEX IF NOT EXISTS idx_regime_tasks_regime_status ON public.regime_tasks(regime_id, status) TABLESPACE pg_default;
 
 -- Indexes on regime_versions table

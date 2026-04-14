@@ -11,8 +11,15 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   requireOnboarding = false,
 }) => {
-  const { isAuthenticated, user, isLoading, isDemoUser } = useAuth();
+  const { isAuthenticated, user, isLoading, isDemoUser, skipLoginAsDemo } =
+    useAuth();
   const location = useLocation();
+
+  React.useEffect(() => {
+    if (!isLoading && (!isAuthenticated || !user?.id)) {
+      skipLoginAsDemo();
+    }
+  }, [isAuthenticated, isLoading, skipLoginAsDemo, user?.id]);
 
   // Debug: Log session status
   React.useEffect(() => {
@@ -44,10 +51,16 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  // Not authenticated - redirect to login
+  // No user yet - hydrate demo session without redirecting
   if (!isAuthenticated || !user?.id) {
-    console.log("[ProtectedRoute] Not authenticated, redirecting to login");
-    return <Navigate to="/login" replace state={{ from: location }} />;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <p className="mt-4 text-muted-foreground">Starting demo session...</p>
+        </div>
+      </div>
+    );
   }
 
   // Check onboarding requirement
