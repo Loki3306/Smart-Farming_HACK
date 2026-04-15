@@ -45,7 +45,7 @@ interface HistoryPoint {
 export const IoTAnalyticsCard: React.FC = () => {
   const { t } = useTranslation("dashboard");
   const { theme } = useTheme();
-  const { sensorData, loading } = useFarmContext();
+  const { sensorData } = useFarmContext();
   const [data, setData] = useState<HistoryPoint[]>([]);
   const [timeRange, setTimeRange] = useState<"24h" | "7d" | "30d">("24h");
   const [activeTab, setActiveTab] = useState<"soil" | "env" | "nutrients">(

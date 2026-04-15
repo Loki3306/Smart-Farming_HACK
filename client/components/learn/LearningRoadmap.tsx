@@ -1016,7 +1016,7 @@ const LessonNode: React.FC<LessonNodeProps> = ({
           <Lock className="w-8 h-8 text-muted-foreground" />
         ) : (
           <div className="text-4xl">{getIconComponent(theme.emoji)}</div>
-        )}}
+        )}
 
         {/* Level number badge */}
         <div
