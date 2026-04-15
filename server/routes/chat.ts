@@ -417,8 +417,8 @@ router.get("/online-farmers", async (req: Request, res: Response) => {
       `SELECT f.id, f.name, f.phone, f.email,
               p.status, p.updated_at AS last_seen
        FROM farmers f
-       LEFT JOIN user_presence p ON p.user_id = f.id
-       WHERE f.id != $1
+       LEFT JOIN user_presence p ON p.user_id::text = f.id::text
+       WHERE f.id::text != $1::text
        ORDER BY f.name ASC`,
       [current_user_id]
     );

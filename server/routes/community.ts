@@ -368,7 +368,19 @@ router.post("/posts/:id/comments", async (req: Request, res: Response) => {
 router.get("/experts", async (req: Request, res: Response) => {
   try {
     const expertsResult = await query(
-      `SELECT e.*, f.name, f.phone
+      `SELECT e.id,
+              e.farmer_id,
+              e.is_verified,
+              COALESCE(e.expertise_areas, ARRAY[]::text[]) AS specializations,
+              e.bio,
+              e.last_active_at,
+              e.created_at,
+              COALESCE(NULLIF(TRIM(f.name), ''), 'Verified Expert') AS name,
+              COALESCE(NULLIF(TRIM(f.location), ''), 'India') AS location,
+              COALESCE(
+                NULLIF(TRIM(SPLIT_PART(COALESCE(e.bio, ''), '.', 1)), ''),
+                '10+ years'
+              ) AS experience
        FROM experts e
        LEFT JOIN farmers f ON f.id = e.farmer_id
        WHERE e.is_verified = true
@@ -516,7 +528,7 @@ router.post("/posts/:id/summarize", async (req: Request, res: Response) => {
       query(`SELECT content, is_expert_reply FROM post_comments WHERE post_id = $1`, [post_id]),
     ]);
 
-    const PYTHON_AI_URL = process.env.PYTHON_AI_URL || "http://localhost:8000";
+    const PYTHON_AI_URL = process.env.PYTHON_AI_URL || "http://127.0.0.1:8000";
 
     try {
       const aiResponse = await fetch(`${PYTHON_AI_URL}/api/summarize`, {
@@ -649,6 +661,113 @@ router.get("/reports", async (req: Request, res: Response) => {
     res.json({ reports: result.rows });
   } catch (error: any) {
     console.error("Error fetching user reports:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /api/community/saved/ids
+ */
+router.get("/saved/ids", async (req: Request, res: Response) => {
+  try {
+    const { user_id } = req.query;
+
+    if (!user_id) {
+      return res.status(400).json({ error: "user_id is required" });
+    }
+
+    const result = await query(
+      `SELECT post_id FROM saved_posts WHERE user_id = $1`,
+      [user_id],
+    );
+
+    res.json({ ids: result.rows.map((row: any) => row.post_id) });
+  } catch (error: any) {
+    console.error("Error fetching saved post ids:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /api/community/saved/:postId
+ * Check if a post is saved by the current user
+ */
+router.get("/saved/:postId", async (req: Request, res: Response) => {
+  try {
+    const { postId } = req.params;
+    const { user_id } = req.query;
+
+    if (!user_id) {
+      return res.status(400).json({ error: "user_id is required" });
+    }
+
+    const result = await query(
+      `SELECT id FROM saved_posts WHERE user_id = $1 AND post_id = $2 LIMIT 1`,
+      [user_id, postId],
+    );
+
+    res.json({ saved: result.rows.length > 0 });
+  } catch (error: any) {
+    console.error("Error checking saved status:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * POST /api/community/saved
+ * Save a post (bookmark)
+ */
+router.post("/saved", async (req: Request, res: Response) => {
+  try {
+    const { user_id, post_id } = req.body;
+
+    if (!user_id || !post_id) {
+      return res.status(400).json({ error: "Missing required fields: user_id, post_id" });
+    }
+
+    // Check if already saved
+    const existing = await query(
+      `SELECT id FROM saved_posts WHERE user_id = $1 AND post_id = $2`,
+      [user_id, post_id],
+    );
+
+    if (existing.rows[0]) {
+      return res.status(409).json({ error: "Post already saved" });
+    }
+
+    const result = await query(
+      `INSERT INTO saved_posts (user_id, post_id) VALUES ($1, $2) RETURNING *`,
+      [user_id, post_id],
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (error: any) {
+    console.error("Error saving post:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * DELETE /api/community/saved/:postId
+ * Unsave a post (remove bookmark)
+ */
+router.delete("/saved/:postId", async (req: Request, res: Response) => {
+  try {
+    const { postId } = req.params;
+    const { user_id } = req.query;
+
+    if (!user_id) {
+      return res.status(400).json({ error: "user_id is required" });
+    }
+
+    await query(
+      `DELETE FROM saved_posts WHERE user_id = $1 AND post_id = $2`,
+      [user_id, postId],
+    );
+
+    res.json({ success: true });
+  } catch (error: any) {
+    console.error("Error unsaving post:", error);
     res.status(500).json({ error: error.message });
   }
 });

@@ -67,7 +67,7 @@ router.post(
       form.append("image", fs.createReadStream(file.path), file.originalname);
 
       // Forward to disease_model API
-      const response = await axios.post("http://localhost:8001/predict", form, {
+      const response = await axios.post("http://127.0.0.1:8001/predict", form, {
         headers: form.getHeaders(),
         maxBodyLength: Infinity,
       });
@@ -94,8 +94,32 @@ router.post(
 const DISEASE_INFO_CACHE: Map<string, { value: any; expiresAt: number }> =
   new Map();
 const CACHE_TTL = 1000 * 60 * 60 * 24; // 24 hours
-const SERVER_BASE_URL =
-  process.env.SERVER_BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
+const PYTHON_AI_URL = process.env.PYTHON_AI_URL || "http://127.0.0.1:8000";
+
+function buildFallbackDiseaseInfo(crop: string, disease: string): DiseaseInfo {
+  return {
+    symptoms: [
+      `Possible ${disease} symptoms observed in ${crop}`,
+      "Leaf discoloration, spots, or wilting",
+      "Reduced plant vigor",
+    ],
+    causes: [
+      "High humidity or poor airflow",
+      "Pathogen spread from infected plant parts",
+      "Stress due to irrigation or nutrient imbalance",
+    ],
+    treatments: [
+      { step: "Remove and isolate visibly affected leaves/plants" },
+      { step: "Apply crop-safe treatment recommended by local agronomist" },
+      { step: "Avoid overwatering and improve field ventilation" },
+    ],
+    precautions: [
+      "Sanitize tools after field work",
+      "Scout fields regularly for early signs",
+      "Use disease-free planting material",
+    ],
+  };
+}
 
 // Helper function to normalize disease names for database lookup
 function normalizeDiseaseKey(disease: string): string {
@@ -155,120 +179,67 @@ router.post("/info", async (req: Request, res: Response) => {
       });
     }
 
-    // Language-specific instructions
-    const languageInstructions = {
-      hi: "Respond in Hindi (हिंदी में जवाब दें). Use Devanagari script.",
-      mr: "Respond in Marathi (मराठीत उत्तर द्या). Use Devanagari script.",
-      en: "Respond in English.",
-    };
-
-    const langInstruction =
-      languageInstructions[language as keyof typeof languageInstructions] ||
-      languageInstructions["en"];
-
-    // Build a focused user message asking for JSON output in the specified language
-    const userMessage = `${langInstruction} Provide a concise JSON object (no additional text) with the following keys: symptoms (array of up to 4 short phrases), causes (array of up to 4 short phrases), treatments (array of up to 4 objects with "step" and optional "details"), precautions (array of short phrases). Use plain language, practical low-cost actions for farmers. Crop: ${crop}. Disease: ${disease}. If uncertain, set a top-level field "uncertain": true. Return only valid JSON.`;
-
-    // Call local chatbot endpoint which will proxy to Groq/Ollama
+    // Call FastAPI disease info endpoint
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
+    const targetUrl = `${PYTHON_AI_URL}/api/disease/info`;
 
-    const response = await fetch(`${SERVER_BASE_URL}/api/chatbot/chat`, {
+    console.log(
+      `[disease/info] Forwarding request to ${targetUrl} (crop=${crop}, disease=${disease})`,
+    );
+
+    const response = await fetch(targetUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       signal: controller.signal,
-      body: JSON.stringify({ message: userMessage, crop }),
+      body: JSON.stringify({ crop, disease, confidence, language }),
     });
 
     clearTimeout(timeout);
 
     if (!response.ok) {
       const text = await response.text();
-      return res
-        .status(response.status)
-        .json({ error: "Chatbot error", details: text });
+      console.error(
+        `[disease/info] FastAPI returned ${response.status}: ${text}`,
+      );
+      return res.json({
+        parsed: true,
+        data: buildFallbackDiseaseInfo(crop, disease),
+        source: "fallback",
+      });
     }
 
-    const chatbotJson = await response.json();
-    let raw = chatbotJson.message || "";
-
-    // Try to parse JSON directly
-    let parsed: any = null;
-    let parsedSuccess = false;
-
-    // Helper function to clean and extract JSON
-    const extractAndParseJSON = (text: string): any | null => {
-      // Try direct parse first
-      try {
-        return JSON.parse(text);
-      } catch (e) {
-        // Try to extract JSON object from text
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          try {
-            // Clean up common issues
-            let jsonStr = jsonMatch[0];
-            // Fix escaped quotes that might be causing issues
-            jsonStr = jsonStr.replace(/\\"/g, '"');
-            // Try to parse
-            return JSON.parse(jsonStr);
-          } catch (e2) {
-            // Last attempt: try to fix common JSON formatting issues
-            try {
-              let jsonStr = jsonMatch[0];
-              // Remove any text before first { and after last }
-              jsonStr = jsonStr.substring(
-                jsonStr.indexOf("{"),
-                jsonStr.lastIndexOf("}") + 1,
-              );
-              // Fix unescaped quotes in values
-              jsonStr = jsonStr.replace(
-                /"([^"]*)":\s*"([^"]*)"/g,
-                (match, key, value) => {
-                  const cleanValue = value.replace(/"/g, '\\"');
-                  return `"${key}":"${cleanValue}"`;
-                },
-              );
-              return JSON.parse(jsonStr);
-            } catch (e3) {
-              return null;
-            }
-          }
-        }
-      }
-      return null;
-    };
-
-    parsed = extractAndParseJSON(raw);
-    parsedSuccess = parsed !== null;
-
-    const result = parsedSuccess
-      ? {
-          parsed: true,
-          data: parsed,
-          source: chatbotJson.model || chatbotJson.sources?.[0] || "chatbot",
-        }
-      : {
-          parsed: false,
-          raw,
-          source: chatbotJson.model || chatbotJson.sources?.[0] || "chatbot",
-        };
+    const fastApiResult = await response.json();
 
     // Cache parsed results only
-    if (parsedSuccess) {
+    if (fastApiResult?.parsed && fastApiResult?.data) {
       DISEASE_INFO_CACHE.set(key, {
-        value: parsed,
+        value: fastApiResult.data,
         expiresAt: Date.now() + CACHE_TTL,
       });
     }
 
-    return res.json(result);
+    return res.json(fastApiResult);
   } catch (error: any) {
     if (error.name === "AbortError") {
-      return res.status(504).json({ error: "Chatbot request timed out" });
+      return res.json({
+        parsed: true,
+        data: buildFallbackDiseaseInfo(
+          String(req.body?.crop || "crop"),
+          String(req.body?.disease || "disease"),
+        ),
+        source: "fallback-timeout",
+      });
     }
     console.error("❌ /api/disease/info error:", error);
-    return res.status(500).json({ error: error.message || "Unknown error" });
+    return res.json({
+      parsed: true,
+      data: buildFallbackDiseaseInfo(
+        String(req.body?.crop || "crop"),
+        String(req.body?.disease || "disease"),
+      ),
+      source: "fallback-error",
+    });
   }
 });
 

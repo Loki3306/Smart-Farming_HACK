@@ -7,6 +7,7 @@ Purpose: Generate, manage, and update farming regimes (30-day plans) from AI rec
 from typing import List, Optional, Dict, Any
 from datetime import datetime, date, timedelta
 from dataclasses import dataclass, asdict
+from decimal import Decimal
 import json
 import logging
 from enum import Enum
@@ -778,6 +779,10 @@ def regime_to_dict(regime: Regime) -> Dict[str, Any]:
 
 def task_to_dict(task: RegimeTask) -> Dict[str, Any]:
     """Convert RegimeTask object to dict for JSON serialization"""
+    confidence_score = task.confidence_score
+    if isinstance(confidence_score, Decimal):
+        confidence_score = float(confidence_score)
+
     return {
         'task_id': task.task_id,
         'task_type': task.task_type,
@@ -790,7 +795,7 @@ def task_to_dict(task: RegimeTask) -> Dict[str, Any]:
         'duration_days': task.duration_days,
         'quantity': task.quantity,
         'priority': task.priority,
-        'confidence_score': task.confidence_score,
+        'confidence_score': confidence_score,
         'status': task.status,
         'dependencies': task.dependencies,
         'farmer_notes': task.farmer_notes,

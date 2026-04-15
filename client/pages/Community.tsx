@@ -305,6 +305,7 @@ export const Community: React.FC = () => {
   const {
     experts: apiExperts,
     loading: expertsLoading,
+    error: expertsError,
     followedExperts,
     toggleFollow,
   } = useCommunityExperts(userId);
@@ -967,6 +968,32 @@ export const Community: React.FC = () => {
                         Loading experts...
                       </p>
                     </div>
+                  )}
+
+                  {/* Error State */}
+                  {!expertsLoading && expertsError && (
+                    <Card className="p-8 text-center">
+                      <AlertTriangle className="w-12 h-12 mx-auto text-red-500 mb-4" />
+                      <h3 className="font-semibold text-lg mb-2">
+                        Unable to load experts
+                      </h3>
+                      <p className="text-muted-foreground">
+                        {expertsError}
+                      </p>
+                    </Card>
+                  )}
+
+                  {/* Empty State */}
+                  {!expertsLoading && !expertsError && experts.length === 0 && (
+                    <Card className="p-8 text-center">
+                      <Users className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                      <h3 className="font-semibold text-lg mb-2">
+                        No experts yet
+                      </h3>
+                      <p className="text-muted-foreground">
+                        Verified experts will appear here once available.
+                      </p>
+                    </Card>
                   )}
 
                   {/* Experts Grid */}

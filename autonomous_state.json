@@ -32,5 +32,8 @@
     "isAutonomous": false,
     "lastIrrigationAt": "2026-01-24T17:09:32.659Z",
     "lastRunAt": "2026-01-24T17:29:32.664Z"
+  },
+  "fa44e12d-c862-4a02-a6b4-7cec99766a2a": {
+    "isAutonomous": false
   }
 }

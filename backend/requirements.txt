@@ -45,7 +45,6 @@ asyncio==3.4.3
 # Deep Learning & NLP
 torch
 torchvision
-transformers
 pillow==11.3.0
 
 # Logging and Monitoring

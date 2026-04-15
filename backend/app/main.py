@@ -117,6 +117,7 @@ app.add_middleware(
 
 # Include the chatbot API router
 app.include_router(chatbot.router, prefix="/api/chatbot")
+app.include_router(chatbot.disease_router, prefix="")
 
 # Include the regime system API router
 app.include_router(regime_routes.router, prefix="")
