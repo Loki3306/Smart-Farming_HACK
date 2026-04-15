@@ -121,23 +121,31 @@ class MQTTIoTClient:
             payload = msg.payload.decode('utf-8')
             logger.debug(f"📨 Received message on {msg.topic}: {payload}")
 
-            # Parse JSON payload
+            # Parse JSON payload (only once)
             data = json.loads(payload)
 
             # ========== TESTING: PRINT RAW MQTT PAYLOAD ==========
             _mqtt_print(f"\n RAW MQTT Message on topic '{msg.topic}':")
-            _mqtt_print(f"   Payload: {msg.payload.decode()}")
+            _mqtt_print(f"   Payload: {payload}")
             # =====================================================
-
-            # Parse JSON payload
-            data = json.loads(payload)
 
             # Check for STATUS packet
             if data.get("type") == "STATUS":
-                # Pass as dictionary
+                # Pass as dictionary — no Pydantic validation needed
                 callback_data = data
             else:
-                # Validate with Pydantic model
+                # ── NPK normalisation ──────────────────────────────────────────
+                # The real simulator sends npk as {"n": x, "p": y, "k": z}.
+                # The legacy ESP32 firmware sends npk as a plain float (ADC read).
+                # Both are handled by the NPK union type in SensorData, but we
+                # log a helpful note so it's easy to track which shape arrived.
+                npk_raw = data.get("npk")
+                if isinstance(npk_raw, dict):
+                    _mqtt_print(f"   NPK shape: dict → N={npk_raw.get('n')}  P={npk_raw.get('p')}  K={npk_raw.get('k')}")
+                elif npk_raw is not None:
+                    _mqtt_print(f"   NPK shape: scalar → {npk_raw}")
+                # ──────────────────────────────────────────────────────────────
+
                 callback_data = SensorData(**data)
 
             # Call registered callbacks

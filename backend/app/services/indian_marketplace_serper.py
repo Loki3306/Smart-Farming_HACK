@@ -93,10 +93,15 @@ class IndianMarketplaceScraper:
                 if key not in unique:
                     unique[key] = p
             
-            products = list(unique.values())[:20]
+            # ✅ Filter out zero-price products — they add no value to the user
+            all_products = list(unique.values())
+            valid_products = [p for p in all_products if p.get('price', 0) > 0]
+            
+            # If we filtered too aggressively, keep at most 20
+            products = valid_products[:20]
             scrape_time = (datetime.now() - start_time).total_seconds()
             
-            logger.info(f"✅ Found {len(products)} total products in {scrape_time:.2f}s")
+            logger.info(f"✅ Found {len(products)} priced products ({len(all_products)} total) in {scrape_time:.2f}s")
             
             return {
                 'products': products,
@@ -184,20 +189,34 @@ class IndianMarketplaceScraper:
                     title = item.get('title', '')
                     snippet = item.get('snippet', '')
                     link = item.get('link', '')
-                    rating = item.get('rating', 4.0)
-                    
-                    # Extract price from snippet
-                    price = self._extract_price_from_snippet(snippet)
+                    rating = item.get('rating', 0.0)
                     
                     # Skip items without valid URL or title
                     if not link or not title:
                         continue
                     
+                    # Extract price — try snippet first, then title as fallback
+                    price = self._extract_price_from_snippet(snippet)
+                    if price == 0.0:
+                        price = self._extract_price_from_snippet(title)
+                    
+                    # Skip items with no price — they clutter results
+                    if price == 0.0:
+                        logger.debug(f"Skipping no-price item: {title[:60]}")
+                        continue
+                    
+                    # Try to get a thumbnail image from Serper's sitelinks or imageUrl
+                    image_url = (
+                        item.get('imageUrl', '') or
+                        item.get('thumbnailUrl', '') or
+                        ''
+                    )
+                    
                     product = {
                         'name': title[:120],
                         'price': price,
-                        'rating': float(rating) if rating else 4.0,
-                        'image': 'https://via.placeholder.com/200',
+                        'rating': float(rating) if rating else 0.0,
+                        'image': image_url,
                         'url': link,
                         'seller': seller.upper(),
                         'currency': 'INR ₹'
@@ -234,13 +253,29 @@ class IndianMarketplaceScraper:
             return 0.0
 
     def _extract_price_from_snippet(self, snippet: str) -> float:
-        """Extract price from search snippet"""
+        """Extract price from search snippet or title"""
         try:
-            # Look for ₹ or Rs patterns
-            match = re.search(r'[₹Rs]+\s*(\d+(?:,\d{3})*(?:\.\d{2})?)', snippet)
+            if not snippet:
+                return 0.0
+            
+            # Pattern 1: ₹1,299 or ₹1299 or Rs 1299
+            match = re.search(r'[₹]\s*(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)', snippet)
             if match:
-                price_str = match.group(1).replace(',', '')
-                return float(price_str)
+                return float(match.group(1).replace(',', ''))
+            
+            # Pattern 2: Rs. 1299 or Rs 1299
+            match = re.search(r'Rs\.?\s*(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)', snippet, re.IGNORECASE)
+            if match:
+                return float(match.group(1).replace(',', ''))
+            
+            # Pattern 3: price keyword followed by number (e.g. "price 399")
+            match = re.search(r'(?:price|cost|mrp|rate)[:\s]+[₹Rs.]*\s*(\d{2,6})', snippet, re.IGNORECASE)
+            if match:
+                val = float(match.group(1))
+                # Sanity check: must be between ₹1 and ₹10,00,000
+                if 1 <= val <= 1000000:
+                    return val
+            
             return 0.0
         except:
             return 0.0

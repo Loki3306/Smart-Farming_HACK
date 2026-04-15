@@ -2,12 +2,17 @@ import React, { useEffect, useState } from 'react';
 import {
   ShoppingCart,
   Search,
-  Loader,
+  Loader2,
   MapPin,
   Star,
   ExternalLink,
   AlertCircle,
-  TrendingUp,
+  Sparkles,
+  Package,
+  RefreshCw,
+  Zap,
+  Radio,
+  Info,
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -41,14 +46,6 @@ interface IndianMarketplaceProps {
   location?: string;
 }
 
-const categoryIcons: Record<string, string> = {
-  fertilizer: 'Beaker',
-  seed: 'Sprout',
-  tool: 'Wrench',
-  pesticide: 'AlertTriangle',
-  irrigation: 'Droplets',
-};
-
 const categoryNames: Record<string, string> = {
   fertilizer: 'Fertilizers',
   seed: 'Seeds',
@@ -57,12 +54,17 @@ const categoryNames: Record<string, string> = {
   irrigation: 'Irrigation Products',
 };
 
-const sellerLogos: Record<string, string> = {
-  'Flipkart': 'ShoppingCart',
-  'Amazon.in': 'Package',
-  'BigHaat': 'Leaf',
-  'AgroStar': 'Star',
+const sellerColors: Record<string, string> = {
+  'Flipkart': 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  'Amazon.in': 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+  'AMAZON': 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+  'FLIPKART': 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  'BigHaat': 'bg-green-500/10 text-green-400 border-green-500/20',
+  'AgroStar': 'bg-purple-500/10 text-purple-400 border-purple-500/20',
 };
+
+const getSellerColor = (seller: string) =>
+  sellerColors[seller] || 'bg-primary/10 text-primary border-primary/20';
 
 export const IndianMarketplace: React.FC<IndianMarketplaceProps> = ({
   recommendation,
@@ -81,10 +83,10 @@ export const IndianMarketplace: React.FC<IndianMarketplaceProps> = ({
   const fetchProductsFromMarketplace = async () => {
     setLoading(true);
     setError('');
+    setProducts([]);
+    setSearchData(null);
 
     try {
-      // 🔑 KEY: We send recommendation TEXT (as displayed from ML)
-      // Marketplace will search for it independently
       const params = new URLSearchParams({
         recommendation: recommendation,
         category: category,
@@ -102,16 +104,18 @@ export const IndianMarketplace: React.FC<IndianMarketplaceProps> = ({
         throw new Error(`Search failed with status ${response.status}`);
       }
 
-      const contentType = response.headers.get("content-type") || "";
-      if (!contentType.includes("application/json")) {
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
         throw new Error(
-          "Backend proxy not active. Please restart the Vite dev server (pnpm dev) and ensure FastAPI is running on port 8000."
+          'Backend proxy not active. Please restart the Vite dev server (pnpm dev) and ensure FastAPI is running on port 8000.'
         );
       }
 
       const data: MarketplaceProduct = await response.json();
       setSearchData(data);
-      setProducts(data.products);
+      // Frontend safety net: never show ₹0 products
+      const validProducts = data.products.filter((p) => p.price > 0);
+      setProducts(validProducts);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Failed to find products'
@@ -123,194 +127,263 @@ export const IndianMarketplace: React.FC<IndianMarketplaceProps> = ({
   };
 
   return (
-    <div className="indian-marketplace w-full">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg shadow-sm p-6 mb-6 border border-green-200">
-        <div className="flex items-center gap-3 mb-4">
-          <ShoppingCart className="text-4xl text-primary" />
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">
-              Indian Market - {categoryNames[category]}
-            </h2>
-            <p className="text-sm text-gray-600">
-              सभी भारतीय कृषि बाज़ारों से सर्वश्रेष्ठ विकल्पों को ढूंढें
-            </p>
-          </div>
+    <div className="indian-marketplace w-full space-y-5">
+      {/* Header Banner */}
+      <div className="rounded-xl border border-border bg-gradient-to-r from-primary/10 via-card to-card p-5 flex items-center gap-4">
+        <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
+          <ShoppingCart className="w-6 h-6 text-primary" />
         </div>
+        <div className="flex-1 min-w-0">
+          <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+            Indian Market — {categoryNames[category] || category}
+            <span className="text-xs font-normal px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+              Live
+            </span>
+          </h2>
+          <p className="text-sm text-muted-foreground truncate">
+            Searching Flipkart · Amazon · BigHaat · AgroStar for{' '}
+            <span className="font-semibold text-foreground">
+              {recommendation}
+            </span>
+          </p>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={fetchProductsFromMarketplace}
+          disabled={loading}
+          className="flex-shrink-0 gap-1.5"
+        >
+          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          Refresh
+        </Button>
+      </div>
 
-        {/* ML Recommendation Display */}
-        <div className="bg-white border-l-4 border-green-600 p-4 rounded">
-          <p className="text-xs text-gray-600 font-semibold">ML ने सुझाया:</p>
-          <p className="text-lg font-bold text-green-700">{recommendation}</p>
-          {location && (
-            <p className="text-xs text-gray-600 mt-2">
-              <MapPin className="inline w-3 h-3 mr-1" />
-              {location}
-            </p>
-          )}
-        </div>
+      {/* ML Suggestion Pill */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card border border-border text-sm text-muted-foreground">
+          <Sparkles className="w-3.5 h-3.5 text-primary" />
+          ML Suggested:
+        </span>
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-sm font-semibold text-primary">
+          {recommendation}
+        </span>
+        {location && (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card border border-border text-sm text-muted-foreground">
+            <MapPin className="w-3 h-3" />
+            {location}
+          </span>
+        )}
       </div>
 
       {/* Loading State */}
       {loading && (
-        <div className="flex flex-col items-center justify-center py-16">
-          <Loader className="w-10 h-10 animate-spin text-green-600 mb-4" />
-          <p className="text-gray-600 font-medium">
-            बाज़ार खोज रहे हैं...
-          </p>
-          <p className="text-xs text-gray-500 mt-2">
-            भारतीय बाजारों से सर्वश्रेष्ठ सौदे खोज रहे हैं
-          </p>
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <div className="relative">
+            <div className="w-16 h-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+            <ShoppingCart className="absolute inset-0 m-auto w-6 h-6 text-primary" />
+          </div>
+          <div className="text-center">
+            <p className="text-foreground font-medium">Searching Indian Markets…</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Finding the best deals across Flipkart, Amazon &amp; more
+            </p>
+          </div>
         </div>
       )}
 
       {/* Error State */}
       {error && !loading && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-red-900">खोज विफल (Search Failed)</h3>
-              <p className="text-sm text-red-700 mt-1">{error}</p>
-            </div>
+        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-5 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+          <div>
+            <h3 className="font-semibold text-foreground">Search Failed</h3>
+            <p className="text-sm text-muted-foreground mt-1">{error}</p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-3"
+              onClick={fetchProductsFromMarketplace}
+            >
+              <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+              Try Again
+            </Button>
           </div>
         </div>
       )}
 
-      {/* Search Results Info */}
+      {/* Results Stats Bar */}
       {searchData && !loading && (
-        <div className="mb-6 flex flex-wrap gap-4 text-sm">
-          <div className="bg-sky-50 text-sky-700 px-4 py-2 rounded-lg border border-sky-200">
-            {searchData.total_found} कुल उत्पाद मिले
-          </div>
-          <div className="bg-purple-50 text-purple-700 px-4 py-2 rounded-lg border border-purple-200">
-            {searchData.source === 'cache' ? 'कैश से' : 'ताज़ी खोज'}
-          </div>
+        <div className="flex flex-wrap gap-2 items-center">
+          <span className="px-3 py-1.5 rounded-full bg-card border border-border text-sm text-foreground font-medium">
+            {searchData.total_found} products found
+          </span>
+          <span className={`px-3 py-1.5 rounded-full text-sm font-medium border ${
+            searchData.source === 'cache'
+              ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+              : 'bg-green-500/10 text-green-400 border-green-500/20'
+          } inline-flex items-center gap-1.5`}>
+            {searchData.source === 'cache' ? (
+              <>
+                <Zap className="w-3.5 h-3.5" />
+                Cached
+              </>
+            ) : (
+              <>
+                <Radio className="w-3.5 h-3.5" />
+                Live Search
+              </>
+            )}
+          </span>
           {searchData.scrape_time && (
-            <div className="bg-gray-50 text-gray-700 px-4 py-2 rounded-lg border border-gray-200">
-              {new Date(searchData.scrape_time).toLocaleTimeString('en-IN')}
-            </div>
+            <span className="px-3 py-1.5 rounded-full bg-card border border-border text-sm text-muted-foreground">
+              Updated {new Date(searchData.scrape_time).toLocaleTimeString('en-IN')}
+            </span>
           )}
         </div>
       )}
 
       {/* Products Grid */}
-      {!loading && products.length > 0 ? (
+      {!loading && products.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <AnimatePresence>
             {products.map((product, idx) => (
               <motion.div
                 key={`${product.seller}-${idx}`}
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
+                transition={{ delay: idx * 0.05, duration: 0.3 }}
               >
                 <IndianProductCard product={product} />
               </motion.div>
             ))}
           </AnimatePresence>
         </div>
-      ) : !loading && error === '' ? (
-        <div className="text-center py-12">
-          <ShoppingCart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-600 font-medium">
-            कोई उत्पाद नहीं मिला
-          </p>
-          <p className="text-xs text-gray-500 mt-2">
-            कृपया अपनी खोज परिधि बढ़ाने का प्रयास करें
-          </p>
-        </div>
-      ) : null}
+      )}
 
-      {/* Footer Info */}
-      {products.length > 0 && !loading && (
-        <div className="mt-8 bg-green-50 rounded-lg p-4 border border-green-200">
-          <p className="text-xs text-gray-600">
-            💡 <strong>सुझाव:</strong> सभी कीमतें भारतीय रुपये (₹) में हैं। 
-            कीमतें और उपलब्धता वास्तविक समय में बदल सकती है।
-          </p>
+      {/* Empty State */}
+      {!loading && !error && products.length === 0 && searchData && (
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
+            <Package className="w-10 h-10 text-muted-foreground" />
+          </div>
+          <div className="text-center">
+            <p className="text-foreground font-semibold text-lg">No products found</p>
+            <p className="text-sm text-muted-foreground mt-1 max-w-xs">
+              Try a different search term or broader category.
+            </p>
+          </div>
+          <Button variant="outline" onClick={fetchProductsFromMarketplace}>
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Search Again
+          </Button>
         </div>
+      )}
+
+      {/* Footer Disclaimer */}
+      {products.length > 0 && !loading && (
+        <p className="text-xs text-muted-foreground text-center pb-2 flex items-center justify-center gap-1.5">
+          <Info className="w-3.5 h-3.5 text-primary" />
+          <span>
+            All prices are in Indian Rupees (₹). Prices and availability may change in real time.
+          </span>
+        </p>
       )}
     </div>
   );
 };
 
+/* ─── Product Card ─────────────────────────────────────────────────── */
+
 const IndianProductCard: React.FC<{ product: Product }> = ({ product }) => {
-  const sellerLogo = sellerLogos[product.seller] || '🏪';
+  const [imgFailed, setImgFailed] = useState(false);
+  const sellerColorClass = getSellerColor(product.seller);
+
+  const displayName =
+    product.seller.charAt(0).toUpperCase() +
+    product.seller.slice(1).toLowerCase();
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-all hover:scale-105 h-full flex flex-col bg-white">
-      {/* Product Image Placeholder */}
-      <div className="bg-gradient-to-br from-green-100 to-emerald-100 h-40 flex items-center justify-center border-b border-green-200">
-        {product.image ? (
+    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 h-full flex flex-col bg-card border-border group">
+      {/* Product Image */}
+      <div className="relative h-44 bg-gradient-to-br from-muted/60 to-muted overflow-hidden flex-shrink-0">
+        {product.image && !imgFailed ? (
           <img
             src={product.image}
             alt={product.name}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src =
-                'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"%3E%3Cpath stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m0 0l8 4m-8-4v10l8 4m0-10l8 4m-8-4v10" /%3E%3C/svg%3E';
-            }}
+            className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
+            onError={() => setImgFailed(true)}
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            crossOrigin="anonymous"
           />
         ) : (
-          <div className="text-5xl">🛒</div>
+          <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+            <ShoppingCart className="w-12 h-12 text-muted-foreground/50" />
+            <span className="text-xs text-muted-foreground">No image</span>
+          </div>
         )}
+
+        {/* Seller badge on image */}
+        <div className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-xs font-bold border ${sellerColorClass} backdrop-blur-sm`}>
+          {product.seller}
+        </div>
       </div>
 
       {/* Product Info */}
-      <div className="p-4 flex-1 flex flex-col">
-        <h3 className="font-semibold text-sm line-clamp-2 text-gray-900 mb-2">
+      <div className="p-4 flex-1 flex flex-col gap-3">
+        <h3 className="font-semibold text-sm line-clamp-2 text-foreground leading-snug">
           {product.name}
         </h3>
 
-        {/* Price Section */}
-        <div className="mb-4">
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-green-600">
-              ₹{product.price.toLocaleString('en-IN')}
-            </span>
-          </div>
+        {/* Price */}
+        <div className="flex items-baseline gap-1">
+          <span className="text-2xl font-bold text-primary">
+            ₹{product.price > 0 ? product.price.toLocaleString('en-IN') : '—'}
+          </span>
+          {product.price === 0 && (
+            <span className="text-xs text-muted-foreground">Price unavailable</span>
+          )}
         </div>
 
         {/* Rating */}
         {product.rating > 0 && (
-          <div className="flex items-center gap-1 mb-4">
+          <div className="flex items-center gap-1.5">
             <div className="flex">
               {[...Array(5)].map((_, i) => (
                 <Star
                   key={i}
-                  className={`w-4 h-4 ${
-                    i < Math.round(product.rating)
+                  className={`w-3.5 h-3.5 ${
+                    i < Math.floor(product.rating)
                       ? 'fill-yellow-400 text-yellow-400'
-                      : 'text-gray-300'
+                      : i < product.rating
+                      ? 'fill-yellow-400/50 text-yellow-400'
+                      : 'text-muted-foreground/30'
                   }`}
                 />
               ))}
             </div>
-            <span className="text-xs text-gray-600 font-medium">
+            <span className="text-xs text-muted-foreground font-medium">
               {product.rating.toFixed(1)}
             </span>
           </div>
         )}
 
-        {/* Seller Badge */}
-        <div className="mb-4 inline-flex items-center gap-2 bg-gray-100 rounded-full px-3 py-1 w-fit">
-          <span className="text-sm">{sellerLogo}</span>
-          <span className="text-xs font-medium text-gray-700">
-            {product.seller}
-          </span>
-        </div>
+        {/* Spacer */}
+        <div className="flex-1" />
 
         {/* Buy Button */}
         <a
           href={product.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-auto w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-2 rounded-lg font-semibold text-center flex items-center justify-center gap-2 transition-all hover:shadow-md"
+          className="w-full"
         >
-          <ShoppingCart className="w-4 h-4" />
-          {product.seller} पर खरीदें
-          <ExternalLink className="w-4 h-4" />
+          <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-sm hover:shadow-md active:scale-95">
+            <ShoppingCart className="w-4 h-4" />
+            Buy on {displayName}
+            <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+          </button>
         </a>
       </div>
     </Card>

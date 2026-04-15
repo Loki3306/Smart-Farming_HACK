@@ -20,6 +20,9 @@ import {
   ExternalLink,
   Check,
   Building2,
+  Wallet,
+  Lightbulb,
+  CheckCircle2,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -601,7 +604,10 @@ export const Marketplace: React.FC = () => {
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <p className="font-medium">💰 Financial Security</p>
+                  <p className="font-medium flex items-center gap-2">
+                    <Wallet className="w-4 h-4 text-secondary" />
+                    Financial Security
+                  </p>
                   <p className="text-muted-foreground">
                     Protect your investment and ensure stable income even in bad
                     seasons.
@@ -708,45 +714,7 @@ export const Marketplace: React.FC = () => {
         </>
       ) : activeTab === "buy" ? (
         <>
-          {/* AI-Powered Live Search Panel */}
-          {(recommendationFilter?.from === "recommendations" || liveSearchTerm) && (
-            <div className="space-y-4" data-tour-id="market-recommendation-results">
-              <Card className="p-4 md:p-6 border-2 border-primary/30 bg-gradient-to-r from-primary/10 to-green-50">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                  <div>
-                    <h2 className="text-lg font-semibold text-foreground">
-                      {recommendationFilter?.from === "recommendations"
-                        ? "Personalized Marketplace Results"
-                        : "Live AI Search Results"}
-                    </h2>
-                    <p className="text-sm text-muted-foreground">
-                      Showing live Flipkart/Amazon/BigHaat/AgroStar offers for{" "}
-                      <span className="font-medium text-foreground">
-                        {recommendationFilter?.product_name || liveSearchTerm}
-                      </span>
-                    </p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      clearRecommendationFilter();
-                      setLiveSearchTerm("");
-                    }}
-                  >
-                    Clear Live Search
-                  </Button>
-                </div>
-              </Card>
-
-              <IndianMarketplace
-                recommendation={recommendationFilter?.product_name || liveSearchTerm}
-                category={liveSearchCategory}
-              />
-            </div>
-          )}
-
-          {/* Search and Filters */}
+          {/* Search and Filters — always at top */}
           <div
             className="flex flex-col md:flex-row gap-4"
             data-tour-id="market-search"
@@ -810,6 +778,44 @@ export const Marketplace: React.FC = () => {
               </Button>
             ))}
           </div>
+
+          {/* AI-Powered Live Search Results — below search bar */}
+          {(recommendationFilter?.from === "recommendations" || liveSearchTerm) && (
+            <div className="space-y-4" data-tour-id="market-recommendation-results">
+              <Card className="p-4 md:p-6 border-2 border-primary/30 bg-gradient-to-r from-primary/10 to-card">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                  <div>
+                    <h2 className="text-lg font-semibold text-foreground">
+                      {recommendationFilter?.from === "recommendations"
+                        ? "Personalized Marketplace Results"
+                        : "Live AI Search Results"}
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                      Showing live Flipkart / Amazon / BigHaat / AgroStar offers for{" "}
+                      <span className="font-medium text-foreground">
+                        {recommendationFilter?.product_name || liveSearchTerm}
+                      </span>
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      clearRecommendationFilter();
+                      setLiveSearchTerm("");
+                    }}
+                  >
+                    Clear Search
+                  </Button>
+                </div>
+              </Card>
+
+              <IndianMarketplace
+                recommendation={recommendationFilter?.product_name || liveSearchTerm}
+                category={liveSearchCategory}
+              />
+            </div>
+          )}
 
           {/* Products Grid */}
           <div
@@ -1036,7 +1042,10 @@ export const Marketplace: React.FC = () => {
 
           {/* Selling Tips */}
           <Card className="p-6 border-l-4 border-l-primary">
-            <h3 className="font-semibold mb-3">💡 Tips for Selling</h3>
+            <h3 className="font-semibold mb-3 flex items-center gap-2">
+              <Lightbulb className="w-4 h-4 text-secondary" />
+              Tips for Selling
+            </h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>• Add clear photos of your produce</li>
               <li>• Set competitive prices based on market rates</li>
@@ -1158,8 +1167,9 @@ export const Marketplace: React.FC = () => {
                       )}
                       {selectedCrop.organic && (
                         <div className="pt-2">
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
-                            ✓ Certified Organic
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
+                            <CheckCircle2 className="w-4 h-4" />
+                            Certified Organic
                           </span>
                         </div>
                       )}
@@ -1222,7 +1232,10 @@ export const Marketplace: React.FC = () => {
 
                 {/* Additional Info */}
                 <Card className="p-4 border-l-4 border-l-primary bg-primary/5">
-                  <h4 className="font-semibold mb-2">💡 Market Insights</h4>
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Lightbulb className="w-4 h-4 text-secondary" />
+                    Market Insights
+                  </h4>
                   <ul className="space-y-1 text-sm text-muted-foreground">
                     <li>• Price data sourced from Government of India API</li>
                     <li>• Prices are updated daily based on market arrivals</li>

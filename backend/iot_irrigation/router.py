@@ -202,7 +202,8 @@ async def handle_sensor_data(sensor_data_or_dict: Union[SensorData, dict]):
         print(f"[DATA] Moisture:       {sensor_data.moisture}%")
         print(f"[DATA] Temperature:    {sensor_data.temp}C")
         print(f"[DATA] Humidity:       {sensor_data.humidity}%")
-        print(f"[DATA] NPK Raw:        {sensor_data.npk}")
+        npk_info = sensor_data.npk_dict
+        print(f"[DATA] NPK:            N={npk_info['n']}  P={npk_info['p']}  K={npk_info['k']}  (composite={sensor_data.npk_composite})")
 
         if sensor_data.ec_salinity:
             print(f"[DATA] Salinity (EC):   {sensor_data.ec_salinity} dS/m")
@@ -288,7 +289,7 @@ async def store_sensor_data_to_db(sensor_data: SensorData):
             "moisture": sensor_data.moisture,
             "temp": sensor_data.temp,
             "humidity": sensor_data.humidity,
-            "npk": sensor_data.npk,
+            "npk": sensor_data.npk_composite,  # Store composite float in DB
             "timestamp": _coerce_timestamp(sensor_data.timestamp)
         }
         
