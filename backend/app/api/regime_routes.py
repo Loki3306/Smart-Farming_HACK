@@ -458,10 +458,38 @@ async def export_regime(
     try:
         logger.info(f"Exporting regime {regime_id} as {format}")
         
-        # TODO: In Step 5, implement PDF/CSV generation
-        raise HTTPException(
-            status_code=501,
-            detail="Export feature not yet implemented (Step 5)"
+        import io
+        import csv
+        from fastapi.responses import StreamingResponse
+        
+        regime = db.get_regime(regime_id, farmer_id)
+        if not regime:
+            raise HTTPException(status_code=404, detail=f"Regime {regime_id} not found")
+        
+        output = io.StringIO()
+        writer = csv.writer(output)
+        # Write CSV Headers
+        writer.writerow(["Task ID", "Task Type", "Task Name", "Description", "Timing", "Duration (Days)", "Priority", "Status", "Dependencies"])
+        
+        # Stream task records
+        for task in regime.tasks:
+            writer.writerow([
+                task.task_id or "", 
+                task.task_type or "", 
+                task.task_name or "", 
+                task.description or "", 
+                task.timing_window_start.isoformat() if task.timing_window_start else "", 
+                task.duration_days or 0, 
+                task.priority or "", 
+                task.status or "", 
+                ",".join(task.dependencies or [])
+            ])
+            
+        output.seek(0)
+        return StreamingResponse(
+            iter([output.getvalue()]), 
+            media_type="text/csv",
+            headers={"Content-Disposition": f"attachment; filename=regime_export_{regime_id}.csv"}
         )
         
     except HTTPException:
@@ -491,8 +519,32 @@ async def create_task(
         if not existing_regime:
             raise HTTPException(status_code=404, detail=f"Regime {regime_id} not found")
         
-        # TODO: Implement task creation in database
-        return {"status": "success", "message": "Task creation endpoint ready"}
+        # Implement task creation in database
+        from datetime import timedelta
+        new_task = RegimeTask(
+            task_type=task_data.get("task_type", "general"),
+            task_name=task_data.get("task_name", "New Task"),
+            description=task_data.get("description", ""),
+            priority=task_data.get("priority", "medium"),
+            duration_days=task_data.get("duration_days", 1),
+            quantity=task_data.get("quantity"),
+            farmer_notes=task_data.get("farmer_notes"),
+            status=TaskStatus.PENDING.value
+        )
+        if "timing_window_start" in task_data and task_data["timing_window_start"]:
+            dt = date.fromisoformat(task_data["timing_window_start"][:10])
+            new_task.timing_window_start = dt
+            new_task.timing_window_end = dt + timedelta(days=max(0, new_task.duration_days - 1))
+            new_task.timing_type = "fixed_date"
+            new_task.timing_value = str(dt)
+            
+        existing_regime.tasks.append(new_task)
+        existing_regime.version += 1
+        existing_regime.metadata["trigger_type"] = "manual_update"
+        existing_regime.metadata["last_updated"] = datetime.now().isoformat()
+        db.update_regime(existing_regime, farmer_id)
+        
+        return {"status": "success", "message": "Task created successfully"}
         
     except HTTPException:
         raise
@@ -523,8 +575,28 @@ async def update_task(
         if not task_found:
             raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
         
-        # TODO: Implement task update in database
-        return {"status": "success", "message": "Task update endpoint ready"}
+        # Implement task update in database
+        from datetime import timedelta
+        task = next((t for t in existing_regime.tasks if t.task_id == task_id), None)
+        
+        if "duration_days" in task_data:
+            task.duration_days = task_data["duration_days"]
+        if "timing_window_start" in task_data and task_data["timing_window_start"]:
+            dt = date.fromisoformat(task_data["timing_window_start"][:10])
+            task.timing_window_start = dt
+            if task.timing_window_start and task.duration_days:
+                task.timing_window_end = dt + timedelta(days=max(0, task.duration_days - 1))
+                
+        for key in ["task_type", "task_name", "description", "priority", "quantity", "farmer_notes"]:
+            if key in task_data:
+                setattr(task, key, task_data[key])
+                
+        existing_regime.version += 1
+        existing_regime.metadata["trigger_type"] = "manual_update"
+        existing_regime.metadata["last_updated"] = datetime.now().isoformat()
+        db.update_regime(existing_regime, farmer_id)
+        
+        return {"status": "success", "message": "Task updated successfully"}
         
     except HTTPException:
         raise
@@ -554,8 +626,14 @@ async def delete_task(
         if not task_found:
             raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
         
-        # TODO: Implement task deletion in database
-        return {"status": "success", "message": "Task deleted"}
+        # Implement task deletion in database
+        existing_regime.tasks = [t for t in existing_regime.tasks if t.task_id != task_id]
+        existing_regime.version += 1
+        existing_regime.metadata["trigger_type"] = "manual_update"
+        existing_regime.metadata["last_updated"] = datetime.now().isoformat()
+        db.update_regime(existing_regime, farmer_id)
+        
+        return {"status": "success", "message": "Task deleted successfully"}
         
     except HTTPException:
         raise
@@ -586,7 +664,21 @@ async def reschedule_task(
         if not task_found:
             raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
         
-        # TODO: Implement task rescheduling in database
+        # Implement task rescheduling in database
+        from datetime import timedelta
+        task = next((t for t in existing_regime.tasks if t.task_id == task_id), None)
+        
+        new_d = date.fromisoformat(new_date[:10])
+        task.timing_window_start = new_d
+        task.timing_window_end = new_d + timedelta(days=max(0, task.duration_days - 1))
+        task.timing_type = "fixed_date"
+        task.timing_value = str(new_d)
+        
+        existing_regime.version += 1
+        existing_regime.metadata["trigger_type"] = "manual_update"
+        existing_regime.metadata["last_updated"] = datetime.now().isoformat()
+        db.update_regime(existing_regime, farmer_id)
+        
         return {"status": "success", "task_id": task_id, "new_date": new_date}
         
     except HTTPException:

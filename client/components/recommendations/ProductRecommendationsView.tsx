@@ -12,6 +12,8 @@ import {
   Download,
   Sparkles,
   PackageSearch,
+  MapPin,
+  X,
 } from "lucide-react";
 import { SoilAnalysisReport } from "@/components/recommendations/SoilAnalysisReport";
 import { ProductRecommendationCard } from "@/components/recommendations/ProductRecommendationCard";
@@ -60,6 +62,7 @@ export const ProductRecommendationsView: React.FC<
 
   const [loading, setLoading] = useState(false);
   const [recommendations, setRecommendations] = useState<any>(null);
+  const [dealerModalProduct, setDealerModalProduct] = useState<ProductWithMarketplace | null>(null);
 
   // Generate product recommendations (MOCK MODE for instant demo)
   const handleGenerateRecommendations = async () => {
@@ -188,14 +191,7 @@ export const ProductRecommendationsView: React.FC<
 
   // Find dealers for specific product
   const handleFindDealers = (product: ProductWithMarketplace) => {
-    toast({
-      title: "Finding Dealers",
-      description: `Searching for dealers near you selling ${product.product_name}...`,
-    });
-
-    // TODO: Implement dealer finder
-    // For now, navigate to marketplace
-    handleViewInMarketplace(product);
+    setDealerModalProduct(product);
   };
 
   // Download PDF report
@@ -456,6 +452,44 @@ export const ProductRecommendationsView: React.FC<
             </div>
           </CardContent>
         </Card>
+      )}
+      {/* Dealer Locator Modal */}
+      {dealerModalProduct && (
+        <div className="fixed inset-0 bg-black/50 flex flex-col pt-[15%] items-center z-50 p-4">
+          <div className="bg-card rounded-2xl shadow-2xl border border-border/50 w-full max-w-md">
+             <div className="p-5 border-b border-border/50 flex items-center justify-between">
+               <h3 className="font-semibold text-foreground flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-primary" />
+                  Dealer Locator
+               </h3>
+               <button onClick={() => setDealerModalProduct(null)} className="p-1 hover:bg-muted rounded-lg">
+                 <X className="w-5 h-5" />
+               </button>
+             </div>
+             <div className="p-5 space-y-4">
+                <p className="text-sm text-muted-foreground">Searching for verified dealers carrying <span className="font-semibold text-foreground">{dealerModalProduct.product_name}</span>.</p>
+                
+                <div className="space-y-3 mt-4">
+                   <div className="p-3 border rounded-xl flex justify-between items-center bg-muted/10">
+                      <div>
+                        <h4 className="font-medium text-sm">Kisan Seva Kendra</h4>
+                        <p className="text-xs text-muted-foreground mt-1">2.4 km away • Open till 7 PM</p>
+                      </div>
+                      <Badge variant="outline" className="bg-green-100/50 text-green-700">In Stock</Badge>
+                   </div>
+                   <div className="p-3 border rounded-xl flex justify-between items-center bg-muted/10">
+                      <div>
+                        <h4 className="font-medium text-sm">AgriTech Supplies</h4>
+                        <p className="text-xs text-muted-foreground mt-1">5.1 km away • Open till 6 PM</p>
+                      </div>
+                      <Badge variant="outline" className="bg-yellow-100/50 text-yellow-700">Low Stock</Badge>
+                   </div>
+                </div>
+
+                <Button className="w-full mt-4" onClick={() => setDealerModalProduct(null)}>Close</Button>
+             </div>
+          </div>
+        </div>
       )}
     </div>
   );

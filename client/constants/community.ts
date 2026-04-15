@@ -2,27 +2,31 @@ import type { PostType } from "@/services/communityApi";
 
 export const POST_TYPE_CONFIG: Record<
   PostType,
-  { label: string; emoji: string; color: string }
+  { label: string; icon: string; emoji: string; color: string }
 > = {
   success: {
     label: "Success Story",
+    icon: "Sprout",
     emoji: "🌱",
-    color: "bg-green-50 text-green-700",
+    color: "bg-primary/10 text-primary",
   },
   question: {
     label: "Question",
+    icon: "HelpCircle",
     emoji: "❓",
-    color: "bg-blue-50 text-blue-700",
+    color: "bg-sky-50 text-sky-700",
   },
   problem: {
     label: "Problem",
+    icon: "AlertTriangle",
     emoji: "⚠️",
     color: "bg-amber-50 text-amber-700",
   },
   update: {
     label: "Field Update",
+    icon: "Image",
     emoji: "📸",
-    color: "bg-purple-50 text-purple-700",
+    color: "bg-secondary/10 text-secondary",
   },
 };
 

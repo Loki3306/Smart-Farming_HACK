@@ -74,20 +74,12 @@ export const SoilMoisture: React.FC = () => {
         const farmId = localStorage.getItem("current_farm_id");
         if (!farmId) return;
 
-        const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/farm_settings?farmer_id=eq.${farmId}&select=crop`,
-          {
-            headers: {
-              apikey: import.meta.env.VITE_SUPABASE_ANON_KEY || "",
-              Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY || ""}`,
-            },
-          },
-        );
+        const response = await fetch(`/api/settings?farmer_id=${farmId}`);
 
         if (response.ok) {
           const data = await response.json();
-          if (data?.[0]?.crop) {
-            const crop = data[0].crop;
+          const crop = data?.settings?.crop || data?.crop;
+          if (crop) {
             setCropName(crop);
             setThresholds(getCropThresholds(crop));
           }
@@ -104,13 +96,13 @@ export const SoilMoisture: React.FC = () => {
   useEffect(() => {
     console.log("[SoilMoisture] Subscribing to live IoT data");
 
-    // CRITICAL FIX: Connect to WebSocket first!
     const DEMO_FARM_ID = "80ac1084-67f8-4d05-ba21-68e3201213a8";
+    const farmId = localStorage.getItem("current_farm_id") || DEMO_FARM_ID;
     console.log(
       "[SoilMoisture] 🔌 Connecting to IoT service for farm:",
-      DEMO_FARM_ID,
+      farmId,
     );
-    IoTService.connect(DEMO_FARM_ID);
+    IoTService.connect(farmId);
 
     const unsubscribe = IoTService.onMessage((data: LiveSensorData) => {
       console.log(

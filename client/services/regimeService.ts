@@ -216,4 +216,7 @@ class RegimeService {
 // Export singleton instance
 export const regimeService = new RegimeService();
 
+// Export types for external use
+export type { CreateRegimeRequest, UpdateRegimeRequest, UpdateTaskStatusRequest };
+
 export default RegimeService;

@@ -274,12 +274,20 @@ export const db = {
   // --------------------------------------------------------------------------
 
   async getFarmSettings(farmerId: string) {
-    const result = await query(
-      `SELECT ${FARM_SETTINGS_COLUMNS} FROM farm_settings WHERE farmer_id = $1 LIMIT 1`,
-      [farmerId],
-    );
-    if (result.rows.length === 0) return null; // matches old PGRST116 behaviour
-    return result.rows[0];
+    try {
+      const result = await query(
+        `SELECT ${FARM_SETTINGS_COLUMNS} FROM farm_settings WHERE farmer_id = $1 LIMIT 1`,
+        [farmerId],
+      );
+      if (result.rows.length === 0) return null; // matches old PGRST116 behaviour
+      return result.rows[0];
+    } catch (error: any) {
+      // Table not migrated yet; return defaults path instead of 500.
+      if (error?.code === "42P01") {
+        return null;
+      }
+      throw error;
+    }
   },
 
   async saveFarmSettings(settings: any) {
@@ -294,13 +302,24 @@ export const db = {
       .map((k, i) => `${k} = EXCLUDED.${k}`)
       .join(", ");
 
-    const result = await query(
-      `INSERT INTO farm_settings (${cols}) VALUES (${placeholders})
-       ON CONFLICT (farmer_id) DO UPDATE SET ${updateClauses}
-       RETURNING *`,
-      values,
-    );
-    return result.rows[0];
+    try {
+      const result = await query(
+        `INSERT INTO farm_settings (${cols}) VALUES (${placeholders})
+         ON CONFLICT (farmer_id) DO UPDATE SET ${updateClauses}
+         RETURNING *`,
+        values,
+      );
+      return result.rows[0];
+    } catch (error: any) {
+      // Table not migrated yet; keep API operational with non-persistent fallback.
+      if (error?.code === "42P01") {
+        return {
+          farmer_id: settings?.farmer_id,
+          crop: settings?.crop ?? "wheat",
+        };
+      }
+      throw error;
+    }
   },
 };
 

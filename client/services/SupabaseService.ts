@@ -113,14 +113,16 @@ export async function saveFarmerOnboarding(data: {
   }
 
   try {
-    // 1. Update farmer record
-    await apiPut(`/api/farms/${farmerId}`, {
+    // 1. Update farmer profile (auth table) with validated ID
+    await apiPut("/api/auth/update", {
+      id: farmerId,
       phone: data.farmer.phone,
-      experience: data.farmer.experience.substring(0, 50) || null,
+      email: data.farmer.email || null,
+      fullName: data.farmer.fullName,
     }).catch((e) => console.warn("[Service] Farmer update:", e.message));
 
     // 2. Create farm
-    await apiPost("/api/farms", {
+    const farmResponse = await apiPost("/api/farms", {
       farmer_id: farmerId,
       farm_name: data.farm.farmName.substring(0, 255),
       state: data.farm.state.substring(0, 100),
@@ -131,20 +133,32 @@ export async function saveFarmerOnboarding(data: {
       longitude: data.farm.longitude,
       area_acres: data.farm.areaAcres,
       soil_type: data.farm.soilType.substring(0, 100),
-    }).catch((e) => console.warn("[Service] Farm insert:", e.message));
+      crop_type: "wheat",
+    });
+    const createdFarmId = farmResponse?.farm?.id;
+    if (typeof createdFarmId === "string" && createdFarmId.trim()) {
+      localStorage.setItem("current_farm_id", createdFarmId);
+    }
+
+    // 2.1 Save farm settings crop used by dashboard cards
+    await apiPost("/api/settings", {
+      farmer_id: farmerId,
+      crop: "wheat",
+    }).catch((e) => console.warn("[Service] Settings save:", e.message));
 
     // 3. Register sensor if connected
-    if (data.sensor.connected) {
+    if (data.sensor.connected && createdFarmId) {
       await apiPost("/api/sensors", {
-        farmer_id: farmerId,
-        sensor_type: "smart-sensor",
-        sensor_id: data.sensor.sensorId,
-        status: "active",
-        mqtt_topic: `farm/${farmerId}/sensors`,
+        farm_id: createdFarmId,
+        soil_moisture: 62,
+        temperature: 24.5,
+        humidity: 68,
+        timestamp: new Date().toISOString(),
       }).catch((e) => console.warn("[Service] Sensor insert:", e.message));
     }
 
     localStorage.setItem("farmerId", farmerId);
+    localStorage.setItem("user_id", farmerId);
     localStorage.setItem("farmerName", data.farmer.fullName);
 
     console.log("[Service] Profile saved successfully:", farmerId);

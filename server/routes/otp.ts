@@ -7,6 +7,8 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 const verifySid = process.env.TWILIO_VERIFY_SERVICE_SID;
 
 let twilioClient: ReturnType<typeof twilio> | null = null;
+const mockOtpNumbers = new Set<string>();
+const FORCE_MOCK_OTP = process.env.FORCE_MOCK_OTP === "true";
 
 // Lazy load Twilio to avoid errors if credentials are missing
 function getTwilioClient() {
@@ -45,13 +47,14 @@ export async function sendOtp(req: Request, res: Response) {
       });
     }
 
-    // Check if Twilio is configured
-    if (!accountSid || !authToken || !verifySid) {
+    // Check if Twilio is configured or explicitly mocked
+    if (FORCE_MOCK_OTP || !accountSid || !authToken || !verifySid) {
       console.log(
         `[OTP] [MOCK MODE] Twilio not configured, sending mock OTP to ${phoneNumber}`,
       );
       await new Promise((resolve) => setTimeout(resolve, 500));
       console.log(`[OTP] [MOCK MODE] OTP is 123456`);
+      mockOtpNumbers.add(phoneNumber);
       return res.status(200).json({
         success: true,
         message: "OTP sent successfully (MOCK: use 123456)",
@@ -79,6 +82,23 @@ export async function sendOtp(req: Request, res: Response) {
     });
   } catch (error: any) {
     console.error("[OTP] Error sending OTP:", error);
+
+    // Twilio trial restriction: fail open to mock in dev so onboarding is not blocked.
+    const trialRestriction =
+      typeof error?.message === "string" &&
+      error.message.includes("Trial accounts cannot send messages to unverified numbers");
+    if (trialRestriction && process.env.NODE_ENV !== "production") {
+      const { phoneNumber } = req.body ?? {};
+      if (phoneNumber) {
+        mockOtpNumbers.add(phoneNumber);
+      }
+      return res.status(200).json({
+        success: true,
+        message:
+          "OTP sent in DEV MOCK mode (Twilio trial restriction). Use code 123456.",
+        verificationSid: "mock_verification_sid",
+      });
+    }
 
     // Handle specific Twilio errors
     if (error.code === 20003) {
@@ -128,8 +148,9 @@ export async function verifyOtp(req: Request, res: Response) {
       });
     }
 
-    // Check if Twilio is configured
-    if (!accountSid || !authToken || !verifySid) {
+    // Check if Twilio is configured or number is mocked
+    const useMock = FORCE_MOCK_OTP || mockOtpNumbers.has(phoneNumber) || !accountSid || !authToken || !verifySid;
+    if (useMock) {
       console.log(
         `[OTP] [MOCK MODE] Twilio not configured, verifying mock OTP for ${phoneNumber}`,
       );
@@ -137,6 +158,7 @@ export async function verifyOtp(req: Request, res: Response) {
 
       if (code === "123456") {
         console.log(`[OTP] [MOCK MODE] OTP verified successfully`);
+        mockOtpNumbers.delete(phoneNumber);
         return res.status(200).json({
           success: true,
           message: "Phone number verified successfully",

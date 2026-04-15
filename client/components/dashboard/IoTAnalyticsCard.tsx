@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { IoTService, LiveSensorData } from "../../services/IoTService";
+import { useFarmContext } from "../../context/FarmContext";
 
 // Types for historical data
 interface HistoryPoint {
@@ -44,6 +45,7 @@ interface HistoryPoint {
 export const IoTAnalyticsCard: React.FC = () => {
   const { t } = useTranslation("dashboard");
   const { theme } = useTheme();
+  const { sensorData, loading } = useFarmContext();
   const [data, setData] = useState<HistoryPoint[]>([]);
   const [timeRange, setTimeRange] = useState<"24h" | "7d" | "30d">("24h");
   const [activeTab, setActiveTab] = useState<"soil" | "env" | "nutrients">(

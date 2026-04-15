@@ -30,14 +30,17 @@ export const SystemStatusChart = ({
 
   const isAutonomous = systemStatus?.isAutonomous ?? false;
 
+  const asNumber = (value: unknown, fallback = 0): number =>
+    typeof value === "number" && Number.isFinite(value) ? value : fallback;
+
   // Calculate what action would trigger
   const getActionStatus = () => {
     if (!sensorData)
       return { message: "Waiting for sensor data...", icon: "⏳" };
 
-    const moisture = sensorData.soilMoisture;
+    const moisture = asNumber(sensorData.soilMoisture);
     const moistureMin = thresholds.moisture[0];
-    const nitrogen = sensorData.npk.nitrogen;
+    const nitrogen = asNumber(sensorData.npk?.nitrogen);
     const nitrogenMin = thresholds.nitrogen[0];
 
     if (!isAutonomous) {

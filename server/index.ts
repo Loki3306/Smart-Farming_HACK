@@ -32,6 +32,7 @@ import chatbotRouter from "./routes/chatbot.js";
 import diseaseRouter from "./routes/disease.js";
 import stressRouter from "./routes/stress.js";
 import settingsRoutes from "./routes/settings.js";
+import authRouter from "./routes/auth.js";
 import { autonomousEngine } from "./autonomous/autonomousEngine.js";
 import * as yieldRoutes from "./routes/yield.js";
 
@@ -90,13 +91,7 @@ export function createServer() {
     return res.json([]);
   });
 
-  app.get("/api/auth/me", (_req, res) => {
-    return res.json({
-      id: "550e8400-e29b-41d4-a716-446655440000",
-      name: "Demo Farmer",
-      hasCompletedOnboarding: true,
-    });
-  });
+  app.use("/api/auth", authRouter);
 
   app.get("/api/demo", handleDemo);
 

@@ -77,10 +77,7 @@ export const getOptimizationTips = async (req: Request, res: Response) => {
     res.json(await response.json());
   } catch (error) {
     console.error("[Yield] Error getting optimization tips:", error);
-    res.status(500).json({
-      error: "Failed to get optimization tips",
-      details: error instanceof Error ? error.message : "Unknown error",
-    });
+    res.json(generateFallbackOptimizationTips(req.params.cropType));
   }
 };
 
@@ -379,6 +376,48 @@ function generateFallbackPrediction(data: any) {
     improvement_tips: [{ factor: "ML Model", current: "Fallback mode", optimal: "Full ML prediction", action: "Start Python backend for accurate predictions", potential_yield_gain: "+15%", priority: "high" }],
     model_version: "fallback_1.0",
     timestamp: new Date().toISOString(), source: "fallback",
+  };
+}
+
+function generateFallbackOptimizationTips(cropType: string) {
+  return {
+    current_predicted_yield: 3400,
+    potential_optimized_yield: 4100,
+    total_potential_gain_percent: 20.6,
+    top_improvements: [
+      {
+        factor: "Soil moisture",
+        current: "Below optimal",
+        optimal: "25-45%",
+        action: "Apply irrigation in short, frequent cycles",
+        potential_yield_gain: "+8%",
+        priority: "high" as const,
+      },
+      {
+        factor: "NPK balance",
+        current: "Imbalanced",
+        optimal: "Crop-specific balanced NPK",
+        action: "Use balanced fertilizer as per crop stage",
+        potential_yield_gain: "+7%",
+        priority: "medium" as const,
+      },
+      {
+        factor: "Soil pH",
+        current: "Slightly off-range",
+        optimal: "6.0-7.5",
+        action: "Apply amendments to keep pH in optimal band",
+        potential_yield_gain: "+5%",
+        priority: "medium" as const,
+      },
+    ],
+    regional_benchmark: {
+      region: "India",
+      crop_type: cropType,
+      avg_yield_kg: 4000,
+      min_yield_kg: 2500,
+      max_yield_kg: 6000,
+    },
+    source: "fallback",
   };
 }
 

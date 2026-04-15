@@ -6,7 +6,7 @@ Handles WebSocket connections and MQTT integration
 import asyncio
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Set, Union
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.responses import JSONResponse
@@ -50,6 +50,21 @@ def reverse_map_farm_id(frontend_id: str) -> str:
         if frontend_id_mapped == frontend_id:
             return mqtt_id
     return frontend_id
+
+
+def _coerce_timestamp(value: Union[str, datetime, None]) -> datetime:
+    """Convert incoming timestamp values to timezone-aware datetime."""
+    if isinstance(value, datetime):
+        return value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+
+    if isinstance(value, str):
+        try:
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+            return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
+        except ValueError:
+            logger.warning(f"[DB] Invalid timestamp format '{value}', using current UTC time")
+
+    return datetime.now(timezone.utc)
 
 # WebSocket connection manager
 class ConnectionManager:
@@ -157,12 +172,12 @@ async def handle_sensor_data(sensor_data_or_dict: Union[SensorData, dict]):
         # For hackathon, we broadcast to the demo farmer
         frontend_farm_id = DEMO_FARMER_ID
         
-        await manager.broadcast({
+        await manager.broadcast(frontend_farm_id, {
             "type": "STATUS",
             "device": device,
             "state": state,
             "timestamp": datetime.utcnow().isoformat()
-        }, frontend_farm_id)
+        })
         return
 
     # Handle Standard Sensor Data
@@ -254,28 +269,63 @@ async def handle_sensor_data(sensor_data_or_dict: Union[SensorData, dict]):
 
 async def store_sensor_data_to_db(sensor_data: SensorData):
     """
-    Store sensor data to Supabase (or time-series DB)
+    Store sensor data to PostgreSQL with retry logic and comprehensive error handling
     This is throttled to prevent rate-limiting
     """
     try:
-        # TODO: Implement Supabase storage
-        # For now, just log
-        logger.info(f"[DB Write] Farm: {sensor_data.farm_id}, Moisture: {sensor_data.moisture}%, Temp: {sensor_data.temp}°C")
+        from app.db.base import database
         
-        # Example Supabase integration:
-        # from supabase import create_client
-        # supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
-        # supabase.table("sensor_logs").insert({
-        #     "farm_id": sensor_data.farm_id,
-        #     "moisture": sensor_data.moisture,
-        #     "temp": sensor_data.temp,
-        #     "humidity": sensor_data.humidity,
-        #     "npk": sensor_data.npk,
-        #     "timestamp": sensor_data.timestamp or datetime.utcnow().isoformat()
-        # }).execute()
-
+        if not database.is_connected:
+            logger.warning("[DB] Database not connected, skipping write")
+            return False
+        
+        query = """
+            INSERT INTO sensor_logs (farm_id, moisture, temp, humidity, npk, timestamp)
+            VALUES (:farm_id, :moisture, :temp, :humidity, :npk, :timestamp)
+        """
+        values = {
+            "farm_id": sensor_data.farm_id,
+            "moisture": sensor_data.moisture,
+            "temp": sensor_data.temp,
+            "humidity": sensor_data.humidity,
+            "npk": sensor_data.npk,
+            "timestamp": _coerce_timestamp(sensor_data.timestamp)
+        }
+        
+        # Retry logic for transient errors
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                await database.execute(query=query, values=values)
+                if attempt > 0:
+                    logger.info(f"[DB] Sensor data insert succeeded on retry {attempt}")
+                return True
+            except Exception as dbe:
+                error_str = str(dbe).lower()
+                
+                # Check for schema errors (fatal - table doesn't exist)
+                if "relation" in error_str and "does not exist" in error_str:
+                    logger.error(
+                        f"[DB FATAL] sensor_logs table does not exist. "
+                        f"Run DB_Scripts/001_create_sensor_logs_table.sql in Neon console"
+                    )
+                    return False
+                
+                # Transient errors - retry
+                if attempt < max_retries - 1:
+                    wait_time = 0.1 * (2 ** attempt)
+                    logger.warning(
+                        f"[DB] Sensor insert failed (attempt {attempt + 1}/{max_retries}): {dbe}. "
+                        f"Retrying in {wait_time}s..."
+                    )
+                    await asyncio.sleep(wait_time)
+                else:
+                    logger.error(f"[DB] Failed to insert sensor data after {max_retries} attempts: {dbe}")
+                    return False
+    
     except Exception as e:
-        logger.error(f"[ERROR] Failed to store sensor data to DB: {e}")
+        logger.error(f"[DB] Unexpected error in store_sensor_data_to_db: {e}")
+        return False
 
 
 async def evaluate_irrigation_logic(sensor_data: SensorData):
@@ -560,21 +610,29 @@ async def control_actuation(command: ActuationCommand):
     # Supabase Audit Logging
     # ============================================================================
     try:
-        from app.database import supabase
+        from app.db.base import database
         
-        if supabase:
+        # Run natively in Postgres Database asynchronously
+        if database.is_connected:
             audit_entry = {
                 "farm_id": mqtt_farm_id,
                 "action": command.action,
                 "value": command.value,
                 "mode": command.mode,
                 "reason": command.reason or "Manual trigger",
-                "timestamp": command.timestamp or datetime.utcnow().isoformat() + "Z",
-                "created_at": datetime.utcnow().isoformat()
+                "timestamp": _coerce_timestamp(command.timestamp),
+                "created_at": datetime.now(timezone.utc)
             }
             
-            result = supabase.table("commands_history").insert(audit_entry).execute()
-            logger.info(f"[SUCCESS] Command logged to Supabase: {command.action}")
+            try:
+                query = """
+                    INSERT INTO commands_history (farm_id, action, value, mode, reason, timestamp, created_at)
+                    VALUES (:farm_id, :action, :value, :mode, :reason, :timestamp, :created_at)
+                """
+                await database.execute(query=query, values=audit_entry)
+                logger.info(f"[SUCCESS] Command logged to database database: {command.action}")
+            except Exception as dba:
+                logger.warning(f"DB Error logging manual trigger command info: {dba}")
     except Exception as e:
         logger.warning(f"[WARNING] Failed to log command to Supabase: {e}")
         # Don't fail the request if logging fails
@@ -612,17 +670,73 @@ async def control_actuation(command: ActuationCommand):
 
 @router.get("/status")
 async def get_iot_status():
-    """Get IoT system status"""
-    mqtt_status = mqtt_client.get_status() if mqtt_client else {"connected": False}
-    
-    return {
-        "mqtt": mqtt_status,
-        "websocket_connections": {
+    """
+    Comprehensive IoT system health check endpoint
+    Returns status of MQTT, Database, WebSocket, and detected data flow
+    """
+    try:
+        from app.db.base import database
+        
+        # Check MQTT status
+        mqtt_status = mqtt_client.get_status() if mqtt_client else {"connected": False}
+        
+        # Check Database connectivity
+        db_connected = database.is_connected if database else False
+        
+        # Check if database tables exist
+        sensor_logs_table_exists = False
+        commands_history_table_exists = False
+        
+        if db_connected:
+            try:
+                # Check sensor_logs table
+                query = """SELECT EXISTS (
+                    SELECT 1 FROM information_schema.tables 
+                    WHERE table_schema = 'public' AND table_name = 'sensor_logs'
+                )"""
+                result = await database.fetch_one(query)
+                sensor_logs_table_exists = result[0] if result else False
+                
+                # Check commands_history table
+                query = """SELECT EXISTS (
+                    SELECT 1 FROM information_schema.tables 
+                    WHERE table_schema = 'public' AND table_name = 'commands_history'
+                )"""
+                result = await database.fetch_one(query)
+                commands_history_table_exists = result[0] if result else False
+            except Exception as e:
+                logger.debug(f"[STATUS] Error checking table existence: {e}")
+        
+        # Get connection count per farm
+        websocket_connections = {
             farm_id: manager.get_connection_count(farm_id)
             for farm_id in manager.active_connections.keys()
-        },
-        "latest_data_farms": list(latest_sensor_data.keys())
-    }
+        }
+        
+        return {
+            "status": "healthy" if mqtt_status.get("connected") and db_connected else "degraded",
+            "mqtt": {
+                "connected": mqtt_status.get("connected", False),
+                "broker": mqtt_status.get("broker", "unknown"),
+                "subscribed_topics": mqtt_status.get("subscribed_topics", [])
+            },
+            "database": {
+                "connected": db_connected,
+                "sensor_logs_table": sensor_logs_table_exists,
+                "commands_history_table": commands_history_table_exists
+            },
+            "websocket_connections": websocket_connections,
+            "latest_data_farms": list(latest_sensor_data.keys()),
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    
+    except Exception as e:
+        logger.error(f"[STATUS] Error generating status: {e}")
+        return {
+            "status": "error",
+            "error": str(e),
+            "timestamp": datetime.utcnow().isoformat()
+        }
 
 
 @router.get("/latest/{farm_id}")
@@ -787,6 +901,56 @@ async def initialize_mqtt():
     else:
         logger.warning(f"[WARNING] .env not found at {env_path}")
 
+    # ============================================================================
+    # Validate Database Schema
+    # ============================================================================
+    try:
+        from app.db.base import database
+        
+        if database.is_connected:
+            # Check if sensor_logs table exists
+            query = """SELECT EXISTS (
+                SELECT 1 FROM information_schema.tables 
+                WHERE table_schema = 'public' AND table_name = 'sensor_logs'
+            )"""
+            try:
+                result = await database.fetch_one(query)
+                if not (result and result[0]):
+                    logger.error(
+                        "[DB] CRITICAL: sensor_logs table does not exist!\n"
+                        "Run: DB_Scripts/001_create_sensor_logs_table.sql in Neon console"
+                    )
+                else:
+                    logger.info("[DB] sensor_logs table verified")
+            except Exception as e:
+                logger.warning(f"[DB] Could not verify sensor_logs table: {e}")
+            
+            # Check if commands_history table exists
+            query = """SELECT EXISTS (
+                SELECT 1 FROM information_schema.tables 
+                WHERE table_schema = 'public' AND table_name = 'commands_history'
+            )"""
+            try:
+                result = await database.fetch_one(query)
+                if not (result and result[0]):
+                    logger.error(
+                        "[DB] CRITICAL: commands_history table does not exist!\n"
+                        "Run: DB_Scripts/002_create_commands_history_table.sql in Neon console"
+                    )
+                else:
+                    logger.info("[DB] commands_history table verified")
+            except Exception as e:
+                logger.warning(f"[DB] Could not verify commands_history table: {e}")
+        else:
+            logger.warning("[DB] Database not connected. Check DATABASE_URL in .env")
+    
+    except Exception as e:
+        logger.warning(f"[DB] Database validation skipped: {e}")
+
+    # ============================================================================
+    # Initialize MQTT
+    # ============================================================================
+    
     # Get MQTT configuration from environment (with HiveMQ fallback)
     broker_host = os.getenv("MQTT_BROKER_HOST", "e17116d0063a4e08bab15c1ff2a00fcc.s1.eu.hivemq.cloud")
     broker_port = int(os.getenv("MQTT_BROKER_PORT", "8883"))

@@ -91,6 +91,7 @@ export interface YieldOptimization {
   total_potential_gain_percent: number;
   top_improvements: YieldImprovementTip[];
   regional_benchmark: YieldBenchmark;
+  source?: string;
 }
 
 // Yield Service

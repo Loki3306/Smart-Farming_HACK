@@ -665,45 +665,67 @@ router.get("/reports", async (req: Request, res: Response) => {
   }
 });
 
+// ============================================================================
+// SAVED POSTS (BOOKMARKS) ENDPOINTS
+// ============================================================================
+
+/**
+ * GET /api/community/saved
+ */
+router.get("/saved", async (req: Request, res: Response) => {
+  try {
+    const { user_id } = req.query;
+    if (!user_id) return res.status(400).json({ error: "user_id is required" });
+
+    const result = await query(
+      `SELECT cp.*, json_build_object('id', f.id, 'name', f.name) as author
+       FROM saved_posts sp
+       JOIN community_posts cp ON cp.id = sp.post_id
+       LEFT JOIN farmers f ON f.id = cp.author_id
+       WHERE sp.user_id = $1
+       ORDER BY sp.created_at DESC`,
+      [user_id]
+    );
+
+    res.json({ posts: result.rows });
+  } catch (error: any) {
+    console.error("Error fetching saved posts:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 /**
  * GET /api/community/saved/ids
  */
 router.get("/saved/ids", async (req: Request, res: Response) => {
   try {
     const { user_id } = req.query;
-
-    if (!user_id) {
-      return res.status(400).json({ error: "user_id is required" });
-    }
+    if (!user_id) return res.status(400).json({ error: "user_id is required" });
 
     const result = await query(
       `SELECT post_id FROM saved_posts WHERE user_id = $1`,
-      [user_id],
+      [user_id]
     );
 
-    res.json({ ids: result.rows.map((row: any) => row.post_id) });
+    res.json({ ids: result.rows.map((r: any) => r.post_id) });
   } catch (error: any) {
-    console.error("Error fetching saved post ids:", error);
+    console.error("Error fetching saved post IDs:", error);
     res.status(500).json({ error: error.message });
   }
 });
 
 /**
- * GET /api/community/saved/:postId
- * Check if a post is saved by the current user
+ * GET /api/community/saved/:post_id
  */
-router.get("/saved/:postId", async (req: Request, res: Response) => {
+router.get("/saved/:post_id", async (req: Request, res: Response) => {
   try {
-    const { postId } = req.params;
+    const { post_id } = req.params;
     const { user_id } = req.query;
-
-    if (!user_id) {
-      return res.status(400).json({ error: "user_id is required" });
-    }
+    if (!user_id) return res.status(400).json({ error: "user_id is required" });
 
     const result = await query(
-      `SELECT id FROM saved_posts WHERE user_id = $1 AND post_id = $2 LIMIT 1`,
-      [user_id, postId],
+      `SELECT id FROM saved_posts WHERE post_id = $1 AND user_id = $2`,
+      [post_id, user_id]
     );
 
     res.json({ saved: result.rows.length > 0 });
@@ -715,32 +737,18 @@ router.get("/saved/:postId", async (req: Request, res: Response) => {
 
 /**
  * POST /api/community/saved
- * Save a post (bookmark)
  */
 router.post("/saved", async (req: Request, res: Response) => {
   try {
-    const { user_id, post_id } = req.body;
+    const { post_id, user_id } = req.body;
+    if (!post_id || !user_id) return res.status(400).json({ error: "Missing required fields" });
 
-    if (!user_id || !post_id) {
-      return res.status(400).json({ error: "Missing required fields: user_id, post_id" });
-    }
-
-    // Check if already saved
-    const existing = await query(
-      `SELECT id FROM saved_posts WHERE user_id = $1 AND post_id = $2`,
-      [user_id, post_id],
+    await query(
+      `INSERT INTO saved_posts (post_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+      [post_id, user_id]
     );
 
-    if (existing.rows[0]) {
-      return res.status(409).json({ error: "Post already saved" });
-    }
-
-    const result = await query(
-      `INSERT INTO saved_posts (user_id, post_id) VALUES ($1, $2) RETURNING *`,
-      [user_id, post_id],
-    );
-
-    res.status(201).json(result.rows[0]);
+    res.status(201).json({ success: true });
   } catch (error: any) {
     console.error("Error saving post:", error);
     res.status(500).json({ error: error.message });
@@ -748,21 +756,17 @@ router.post("/saved", async (req: Request, res: Response) => {
 });
 
 /**
- * DELETE /api/community/saved/:postId
- * Unsave a post (remove bookmark)
+ * DELETE /api/community/saved/:post_id
  */
-router.delete("/saved/:postId", async (req: Request, res: Response) => {
+router.delete("/saved/:post_id", async (req: Request, res: Response) => {
   try {
-    const { postId } = req.params;
+    const { post_id } = req.params;
     const { user_id } = req.query;
-
-    if (!user_id) {
-      return res.status(400).json({ error: "user_id is required" });
-    }
+    if (!user_id) return res.status(400).json({ error: "user_id is required" });
 
     await query(
-      `DELETE FROM saved_posts WHERE user_id = $1 AND post_id = $2`,
-      [user_id, postId],
+      `DELETE FROM saved_posts WHERE post_id = $1 AND user_id = $2`,
+      [post_id, user_id]
     );
 
     res.json({ success: true });
@@ -772,5 +776,71 @@ router.delete("/saved/:postId", async (req: Request, res: Response) => {
   }
 });
 
-export default router;
+// ============================================================================
+// POST SHARES ENDPOINTS
+// ============================================================================
 
+/**
+ * POST /api/community/shares
+ */
+router.post("/shares", async (req: Request, res: Response) => {
+  try {
+    const { post_id, user_id, share_method } = req.body;
+    if (!post_id || !user_id || !share_method) return res.status(400).json({ error: "Missing required fields" });
+
+    await query(
+      `INSERT INTO post_shares (post_id, user_id, share_method) VALUES ($1, $2, $3)`,
+      [post_id, user_id, share_method]
+    );
+
+    res.status(201).json({ success: true });
+  } catch (error: any) {
+    console.error("Error tracking share:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /api/community/shares/:post_id/count
+ */
+router.get("/shares/:post_id/count", async (req: Request, res: Response) => {
+  try {
+    const { post_id } = req.params;
+
+    const result = await query(
+      `SELECT COUNT(*) FROM post_shares WHERE post_id = $1`,
+      [post_id]
+    );
+
+    res.json({ count: parseInt(result.rows[0].count || "0", 10) });
+  } catch (error: any) {
+    console.error("Error getting share count:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /api/community/shares/:post_id
+ */
+router.get("/shares/:post_id", async (req: Request, res: Response) => {
+  try {
+    const { post_id } = req.params;
+
+    const result = await query(
+      `SELECT share_method, COUNT(*) FROM post_shares WHERE post_id = $1 GROUP BY share_method`,
+      [post_id]
+    );
+
+    const stats: Record<string, number> = { whatsapp: 0, copy_link: 0, native_share: 0, download: 0 };
+    result.rows.forEach((r: any) => {
+      stats[r.share_method] = parseInt(r.count, 10);
+    });
+
+    res.json({ stats });
+  } catch (error: any) {
+    console.error("Error getting share stats:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+export default router;

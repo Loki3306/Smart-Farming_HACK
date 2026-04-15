@@ -111,17 +111,21 @@ export function useSensorAlerts() {
     [toast],
   );
 
+  const toFiniteNumber = (value: unknown): number | null => {
+    return typeof value === "number" && Number.isFinite(value) ? value : null;
+  };
+
   useEffect(() => {
     if (!sensorData) return;
 
-    const moisture = sensorData.soilMoisture;
-    const nitrogen = sensorData.npk.nitrogen;
-    const phosphorus = sensorData.npk.phosphorus;
-    const potassium = sensorData.npk.potassium;
-    const ph = sensorData.pH;
+    const moisture = toFiniteNumber(sensorData.soilMoisture);
+    const nitrogen = toFiniteNumber(sensorData.npk?.nitrogen);
+    const phosphorus = toFiniteNumber(sensorData.npk?.phosphorus);
+    const potassium = toFiniteNumber(sensorData.npk?.potassium);
+    const ph = toFiniteNumber(sensorData.pH);
 
     // Check moisture levels
-    if (moisture <= THRESHOLDS.moisture.criticalLow) {
+    if (moisture !== null && moisture <= THRESHOLDS.moisture.criticalLow) {
       if (canSendAlert("moisture_critical_low")) {
         addAlert({
           type: "irrigation",
@@ -130,7 +134,7 @@ export function useSensorAlerts() {
           priority: "high",
         });
       }
-    } else if (moisture <= THRESHOLDS.moisture.low) {
+    } else if (moisture !== null && moisture <= THRESHOLDS.moisture.low) {
       if (canSendAlert("moisture_low")) {
         addAlert({
           type: "irrigation",
@@ -139,7 +143,7 @@ export function useSensorAlerts() {
           priority: "medium",
         });
       }
-    } else if (moisture >= THRESHOLDS.moisture.criticalHigh) {
+    } else if (moisture !== null && moisture >= THRESHOLDS.moisture.criticalHigh) {
       if (canSendAlert("moisture_critical_high")) {
         addAlert({
           type: "alert",
@@ -148,7 +152,7 @@ export function useSensorAlerts() {
           priority: "high",
         });
       }
-    } else if (moisture >= THRESHOLDS.moisture.high) {
+    } else if (moisture !== null && moisture >= THRESHOLDS.moisture.high) {
       if (canSendAlert("moisture_high")) {
         addAlert({
           type: "alert",
@@ -160,7 +164,7 @@ export function useSensorAlerts() {
     }
 
     // Check nitrogen
-    if (nitrogen <= THRESHOLDS.npk.nitrogen.criticalLow) {
+    if (nitrogen !== null && nitrogen <= THRESHOLDS.npk.nitrogen.criticalLow) {
       if (canSendAlert("nitrogen_critical")) {
         addAlert({
           type: "crop",
@@ -169,7 +173,7 @@ export function useSensorAlerts() {
           priority: "high",
         });
       }
-    } else if (nitrogen <= THRESHOLDS.npk.nitrogen.low) {
+    } else if (nitrogen !== null && nitrogen <= THRESHOLDS.npk.nitrogen.low) {
       if (canSendAlert("nitrogen_low")) {
         addAlert({
           type: "crop",
@@ -181,7 +185,10 @@ export function useSensorAlerts() {
     }
 
     // Check phosphorus
-    if (phosphorus <= THRESHOLDS.npk.phosphorus.criticalLow) {
+    if (
+      phosphorus !== null &&
+      phosphorus <= THRESHOLDS.npk.phosphorus.criticalLow
+    ) {
       if (canSendAlert("phosphorus_critical")) {
         addAlert({
           type: "crop",
@@ -190,7 +197,10 @@ export function useSensorAlerts() {
           priority: "high",
         });
       }
-    } else if (phosphorus <= THRESHOLDS.npk.phosphorus.low) {
+    } else if (
+      phosphorus !== null &&
+      phosphorus <= THRESHOLDS.npk.phosphorus.low
+    ) {
       if (canSendAlert("phosphorus_low")) {
         addAlert({
           type: "crop",
@@ -202,7 +212,7 @@ export function useSensorAlerts() {
     }
 
     // Check potassium
-    if (potassium <= THRESHOLDS.npk.potassium.criticalLow) {
+    if (potassium !== null && potassium <= THRESHOLDS.npk.potassium.criticalLow) {
       if (canSendAlert("potassium_critical")) {
         addAlert({
           type: "crop",
@@ -211,7 +221,7 @@ export function useSensorAlerts() {
           priority: "high",
         });
       }
-    } else if (potassium <= THRESHOLDS.npk.potassium.low) {
+    } else if (potassium !== null && potassium <= THRESHOLDS.npk.potassium.low) {
       if (canSendAlert("potassium_low")) {
         addAlert({
           type: "crop",
@@ -223,7 +233,7 @@ export function useSensorAlerts() {
     }
 
     // Check pH
-    if (ph <= THRESHOLDS.ph.low) {
+    if (ph !== null && ph <= THRESHOLDS.ph.low) {
       if (canSendAlert("ph_low")) {
         addAlert({
           type: "alert",
@@ -232,7 +242,7 @@ export function useSensorAlerts() {
           priority: "medium",
         });
       }
-    } else if (ph >= THRESHOLDS.ph.high) {
+    } else if (ph !== null && ph >= THRESHOLDS.ph.high) {
       if (canSendAlert("ph_high")) {
         addAlert({
           type: "alert",

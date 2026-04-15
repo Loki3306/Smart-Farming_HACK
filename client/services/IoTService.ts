@@ -60,8 +60,8 @@ class IoTServiceClass {
 
     // Get WebSocket URL - must connect directly to FastAPI backend on port 8000
     const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const host = window.location.hostname || "localhost";
 
-    // In development, always use localhost:8000 for WebSocket (FastAPI backend)
     // In production, use VITE_API_URL if available
     const apiBase = import.meta.env.VITE_API_URL;
 
@@ -70,8 +70,8 @@ class IoTServiceClass {
       // Production: use configured API URL
       wsUrl = `${apiBase.replace(/^http/, "ws")}/iot/ws/telemetry/${farmId}`;
     } else {
-      // Development: connect directly to FastAPI backend on port 8000
-      wsUrl = `ws://localhost:8000/iot/ws/telemetry/${farmId}`;
+      // Development: connect to FastAPI backend on port 8000 using current host
+      wsUrl = `${wsProtocol}//${host}:8000/iot/ws/telemetry/${farmId}`;
     }
 
     console.log(`[IoTService] 🔌 Connecting to WebSocket: ${wsUrl}`);

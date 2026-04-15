@@ -41,9 +41,6 @@ interface ReportData {
 
 /**
  * Generate and download PDF shopping list
- *
- * Note: This is a simplified version. For production, use jsPDF library:
- * npm install jspdf
  */
 export async function generateShoppingListPDF(
   report: ReportData,
@@ -185,7 +182,7 @@ Visit our marketplace for online purchase options
 /*
 import { jsPDF } from 'jspdf';
 
-export async function generateShoppingListPDFAdvanced(report: ReportData): Promise<void> {
+export async function generateShoppingListPDF(report: ReportData): Promise<void> {
   const pdf = new jsPDF();
   
   // Header
@@ -194,17 +191,17 @@ export async function generateShoppingListPDFAdvanced(report: ReportData): Promi
   
   // Farm Details
   pdf.setFontSize(12);
-  pdf.text(`Crop: ${report.cropType}`, 20, 35);
-  pdf.text(`Farm Size: ${report.farmSize} hectares`, 20, 42);
-  pdf.text(`Date: ${report.generatedAt.toLocaleDateString()}`, 20, 49);
+  pdf.text(\`Crop: \${report.cropType}\`, 20, 35);
+  pdf.text(\`Farm Size: \${report.farmSize} hectares\`, 20, 42);
+  pdf.text(\`Date: \${report.generatedAt.toLocaleDateString()}\`, 20, 49);
   
   // Soil Status
   pdf.setFontSize(14);
   pdf.text('Current Soil Status', 20, 65);
   pdf.setFontSize(11);
-  pdf.text(`Nitrogen: ${report.soilData.N} kg/ha`, 30, 75);
-  pdf.text(`Phosphorus: ${report.soilData.P} kg/ha`, 30, 82);
-  pdf.text(`Potassium: ${report.soilData.K} kg/ha`, 30, 89);
+  pdf.text(\`Nitrogen: \${report.soilData.N} kg/ha\`, 30, 75);
+  pdf.text(\`Phosphorus: \${report.soilData.P} kg/ha\`, 30, 82);
+  pdf.text(\`Potassium: \${report.soilData.K} kg/ha\`, 30, 89);
   
   // Shopping List
   pdf.setFontSize(14);
@@ -213,17 +210,21 @@ export async function generateShoppingListPDFAdvanced(report: ReportData): Promi
   let yPos = 120;
   report.products.forEach((product, i) => {
     pdf.setFontSize(11);
-    pdf.text(`${i + 1}. ${product.product_name}`, 30, yPos);
-    pdf.text(`   ${product.quantity_text} @ ₹${product.price_per_unit}`, 35, yPos + 7);
-    pdf.text(`   Total: ₹${product.total_cost}`, 35, yPos + 14);
+    pdf.text(\`\${i + 1}. \${product.product_name}\`, 30, yPos);
+    pdf.text(\`   \${product.quantity_text} @ ₹\${product.price_per_unit}\`, 35, yPos + 7);
+    pdf.text(\`   Total: ₹\${product.total_cost}\`, 35, yPos + 14);
     yPos += 25;
   });
   
   // Total
   pdf.setFontSize(14);
-  pdf.text(`TOTAL COST: ₹${report.totalCost.toFixed(2)}`, 20, yPos + 10);
+  pdf.text(\`TOTAL COST: ₹\${report.totalCost.toFixed(2)}\`, 20, yPos + 10);
+  
+  // Expected Yield
+  pdf.setFontSize(12);
+  pdf.text(\`Expected Yield Improvement: +\${report.yieldImprovement}%\`, 20, yPos + 25);
   
   // Save
-  pdf.save(`soil-report-${Date.now()}.pdf`);
+  pdf.save(\`soil-report-\${Date.now()}.pdf\`);
 }
 */

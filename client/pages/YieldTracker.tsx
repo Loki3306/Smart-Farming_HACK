@@ -43,6 +43,7 @@ export const YieldTracker: React.FC = () => {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showLogModal, setShowLogModal] = useState(false);
+  const [showAddCropModal, setShowAddCropModal] = useState(false);
   const [selectedYield, setSelectedYield] = useState<YieldRecord | null>(null);
 
   // Fetch data
@@ -130,9 +131,7 @@ export const YieldTracker: React.FC = () => {
           </div>
 
           <button
-            onClick={() => {
-              /* TODO: Add new crop modal */
-            }}
+            onClick={() => setShowAddCropModal(true)}
             className="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl font-medium hover:opacity-90 transition-opacity"
           >
             <Plus className="w-4 h-4" />
@@ -185,7 +184,7 @@ export const YieldTracker: React.FC = () => {
                     <p className="text-muted-foreground mb-4">
                       Start tracking your crops to get yield predictions
                     </p>
-                    <button className="px-4 py-2 bg-primary text-primary-foreground rounded-xl font-medium">
+                    <button onClick={() => setShowAddCropModal(true)} className="px-4 py-2 bg-primary text-primary-foreground rounded-xl font-medium">
                       <Plus className="w-4 h-4 inline mr-2" />
                       Add Your First Crop
                     </button>
