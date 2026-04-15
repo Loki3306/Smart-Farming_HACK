@@ -549,15 +549,15 @@ export const KisaanMitra: React.FC<KisaanMitraProps> = ({
                     );
                   }, 100);
                 }}
-                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-blue-50 rounded-lg text-left text-sm border-b border-border mb-1"
+                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-sky-50 rounded-lg text-left text-sm border-b border-border mb-1"
               >
-                <Globe className="w-4 h-4 text-blue-600" />
+                <Globe className="w-4 h-4 text-sky-600" />
                 <span className="flex-1">
                   {currentLanguage === "hindi"
                     ? "Switch to English"
                     : "हिंदी में बदलें"}
                 </span>
-                <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">
+                <span className="text-xs px-2 py-0.5 bg-sky-100 text-sky-700 rounded-full">
                   {currentLanguage === "hindi" ? "हिं" : "EN"}
                 </span>
               </button>
@@ -592,7 +592,7 @@ export const KisaanMitra: React.FC<KisaanMitraProps> = ({
                 }}
                 className="w-full flex items-center gap-2 px-3 py-2 hover:bg-green-50 rounded-lg text-left text-sm"
               >
-                <HelpCircle className="w-4 h-4 text-blue-500" />
+                <HelpCircle className="w-4 h-4 text-sky-500" />
                 <span>
                   {currentLanguage === "hindi"
                     ? "मुझे क्या करना चाहिए?"

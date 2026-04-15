@@ -25,12 +25,12 @@ export const FarmAnalysisLoader: React.FC<FarmAnalysisLoaderProps> = ({
   const { t } = useTranslation("recommendations");
 
   const FARMING_STAGES = [
-    { text: t("loader.stage1"), emoji: "🌾" },
-    { text: t("loader.stage2"), emoji: "🌱" },
-    { text: t("loader.stage3"), emoji: "🌦️" },
-    { text: t("loader.stage4"), emoji: "📊" },
-    { text: t("loader.stage5"), emoji: "🤝" },
-    { text: t("loader.stage6"), emoji: "✅" },
+    { text: t("loader.stage1"), emoji: "Wheat" },
+    { text: t("loader.stage2"), emoji: "Sprout" },
+    { text: t("loader.stage3"), emoji: "Cloud" },
+    { text: t("loader.stage4"), emoji: "BarChart3" },
+    { text: t("loader.stage5"), emoji: "Users" },
+    { text: t("loader.stage6"), emoji: "CheckCircle" },
   ];
 
   const [currentStageIndex, setCurrentStageIndex] = useState(0);

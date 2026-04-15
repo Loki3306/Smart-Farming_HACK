@@ -172,6 +172,20 @@ except Exception as e:
     import traceback
     traceback.print_exc()
 
+# Include the Indian marketplace router (Independent from ML)
+print("[INFO] Loading Indian Marketplace module...")
+try:
+    from app.routes.marketplace import router as marketplace_router
+    app.include_router(marketplace_router, tags=["Indian Marketplace"])
+    print("[SUCCESS] Indian Marketplace module loaded successfully")
+    print("   [OK] Marketplace is INDEPENDENT from ML system")
+except ImportError as e:
+    print(f"[ERROR] Marketplace import error: {e}")
+except Exception as e:
+    print(f" Marketplace error: {type(e).__name__}: {e}")
+    import traceback
+    traceback.print_exc()
+
 # ============================================================================
 # Application Lifecycle Events
 # ============================================================================

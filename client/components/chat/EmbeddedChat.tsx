@@ -127,7 +127,7 @@ export const EmbeddedChat: React.FC<EmbeddedChatProps> = ({ className }) => {
 
       {/* Error Message */}
       {error && (
-        <div className="mx-4 mb-2 bg-red-50/90 border border-red-200/50 rounded-lg p-2 text-xs text-red-700 backdrop-blur-sm">
+        <div className="mx-4 mb-2 bg-destructive/10 border border-destructive/30 rounded-lg p-2 text-xs text-destructive backdrop-blur-sm">
           <p className="font-semibold">
             {t("chatbot.error")}: {error}
           </p>

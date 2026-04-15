@@ -39,7 +39,7 @@ export const AgronomyPlanner = () => {
     setLoading(true);
     try {
       // Use the backend API URL directly
-      const url = "http://localhost:8000/iot/planner/generate";
+      const url = "/python-api/iot/planner/generate";
 
       console.log("[AgronomyPlanner] Generating plan with data:", formData);
       console.log("[AgronomyPlanner] API URL:", url);
@@ -211,12 +211,12 @@ export const AgronomyPlanner = () => {
                 <TabsContent value="timeline" className="space-y-6">
                   {/* Summary Cards */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <Card className="bg-blue-50/50 dark:bg-blue-900/10 border-none shadow-sm">
+                    <Card className="bg-sky-50/50 dark:bg-sky-900/10 border-none shadow-sm">
                       <CardContent className="p-4 flex flex-col items-center text-center">
                         <div className="text-sm text-muted-foreground mb-1">
                           Season Duration
                         </div>
-                        <div className="text-2xl font-bold text-blue-700 dark:text-blue-400">
+                        <div className="text-2xl font-bold text-sky-700 dark:text-sky-400">
                           {plan.total_days} Days
                         </div>
                       </CardContent>
@@ -316,7 +316,7 @@ export const AgronomyPlanner = () => {
                               <span className="font-semibold text-primary">
                                 {week.phase}
                               </span>
-                              <div className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded">
+                              <div className="flex items-center gap-2 text-sm text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-900/20 px-2 py-1 rounded">
                                 <Droplets className="w-3 h-3" />
                                 {week.water_mm}mm
                               </div>

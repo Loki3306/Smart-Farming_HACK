@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronLeft, Copy, Check } from "lucide-react";
+import { ChevronLeft, Copy, Check, Droplets, Sprout, BarChart3, Cpu, Settings } from "lucide-react";
 import { useFarmContext } from "../context/FarmContext";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ export const AuditTrail: React.FC = () => {
   const getActionTypeColor = (actionType: string) => {
     switch (actionType) {
       case "irrigation":
-        return "bg-blue-100 text-blue-700";
+        return "bg-sky-100 text-sky-700";
       case "fertilization":
         return "bg-emerald-100 text-emerald-700";
       case "sensor_reading":
@@ -30,20 +30,20 @@ export const AuditTrail: React.FC = () => {
     }
   };
 
-  const getActionTypeIcon = (actionType: string): string => {
+  const getActionTypeIcon = (actionType: string) => {
     switch (actionType) {
       case "irrigation":
-        return "💧";
+        return Droplets;
       case "fertilization":
-        return "🌱";
+        return Sprout;
       case "sensor_reading":
-        return "📊";
+        return BarChart3;
       case "autonomous_action":
-        return "🤖";
+        return Cpu;
       case "system_status":
-        return "⚙️";
+        return Settings;
       default:
-        return "📝";
+        return Settings;
     }
   };
 
@@ -155,9 +155,9 @@ export const AuditTrail: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-sm">
                         <div className="flex items-center gap-2">
-                          <span className="text-lg">
-                            {getActionTypeIcon(record.actionType)}
-                          </span>
+                          {React.createElement(getActionTypeIcon(record.actionType), {
+                            className: "w-5 h-5",
+                          })}
                           <span
                             className={`px-2.5 py-1 rounded-full text-xs font-semibold ${getActionTypeColor(
                               record.actionType,
@@ -216,7 +216,7 @@ export const AuditTrail: React.FC = () => {
                           </div>
                         ) : (
                           <div className="inline-flex items-center gap-2 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">
-                            ⏳ Pending
+                            ... Pending
                           </div>
                         )}
                       </td>
@@ -229,14 +229,14 @@ export const AuditTrail: React.FC = () => {
         </Card>
 
         {/* Info Box */}
-        <Card className="p-6 bg-blue-50 border border-blue-200">
+        <Card className="p-6 bg-sky-50 border border-sky-200">
           <div className="flex gap-4">
             <div className="text-3xl">🔐</div>
             <div>
-              <h3 className="font-semibold text-blue-900 mb-2">
+              <h3 className="font-semibold text-sky-900 mb-2">
                 Blockchain Verification
               </h3>
-              <p className="text-blue-800 text-sm">
+              <p className="text-sky-800 text-sm">
                 All records are cryptographically verified and stored on an
                 immutable ledger. Each action is timestamped and linked to the
                 previous record, creating an unbreakable chain of custody for

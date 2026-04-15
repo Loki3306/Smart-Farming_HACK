@@ -114,21 +114,21 @@ export const ControlCenter: React.FC = () => {
           className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 ${
             systemStatus?.isAutonomous || pumpLoading
               ? "bg-amber-100/30 dark:bg-amber-800/20 border-amber-200/30 dark:border-amber-700/30 cursor-not-allowed opacity-60"
-              : "bg-gradient-to-r from-blue-100/60 to-cyan-100/60 dark:from-blue-800/30 dark:to-cyan-800/30 border-blue-200/50 dark:border-blue-700/40 hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
+              : "bg-gradient-to-r from-sky-100/60 to-cyan-100/60 dark:from-sky-800/30 dark:to-cyan-800/30 border-sky-200/50 dark:border-sky-700/40 hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
           }`}
         >
           <div
             className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
               systemStatus?.isAutonomous || pumpLoading
                 ? "bg-amber-200/30 dark:bg-amber-700/30"
-                : "bg-blue-500/20 dark:bg-blue-500/30"
+                : "bg-sky-500/20 dark:bg-sky-500/30"
             }`}
           >
             <Droplet
               className={`w-6 h-6 ${
                 systemStatus?.isAutonomous || pumpLoading
                   ? "text-muted-foreground"
-                  : "text-blue-600 dark:text-blue-400"
+                  : "text-sky-600 dark:text-sky-400"
               }`}
             />
           </div>

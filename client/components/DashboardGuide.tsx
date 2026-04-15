@@ -123,7 +123,7 @@ export const DashboardGuide = () => {
     GuideMessage
   > = {
     welcome: {
-      greeting: "Namaste! Welcome to your Smart Farm Dashboard! 🌾",
+      greeting: "Namaste! Welcome to your Smart Farm Dashboard!",
       mainMessage:
         "I'm Ravi, your farming companion! I can give you a guided tour of all the features, answer your questions, and help you navigate. What would you like to do?",
       tips: [
@@ -134,7 +134,7 @@ export const DashboardGuide = () => {
       ],
     },
     languageSelect: {
-      greeting: "Choose your language 🌍",
+      greeting: "Choose your language",
       mainMessage:
         "Would you like the tour in English or Hindi? Don't worry, you can change this anytime!",
     },
@@ -144,12 +144,12 @@ export const DashboardGuide = () => {
         "I'm here to assist! Choose what you need help with, and I'll guide you through it.",
     },
     tourStarting: {
-      greeting: "Let's begin the tour! 🚀",
+      greeting: "Let's begin the tour!",
       mainMessage:
         "Great choice! I'll walk you through each section of this page. Feel free to skip or pause anytime. Ready? Let's go!",
     },
     chat: {
-      greeting: "Chat with Ravi 🤖",
+      greeting: "Chat with Ravi",
       mainMessage: "Ask me anything about your farm, crops, or this app!",
     },
   };
@@ -159,7 +159,7 @@ export const DashboardGuide = () => {
     GuideMessage
   > = {
     welcome: {
-      greeting: "नमस्ते! स्मार्ट फार्म डैशबोर्ड में आपका स्वागत है! 🌾",
+      greeting: "नमस्ते! स्मार्ट फार्म डैशबोर्ड में आपका स्वागत है!",
       mainMessage:
         "मैं रवि हूं, आपका खेती साथी! मैं आपको सभी सुविधाओं का टूर दे सकता हूं, आपके सवालों का जवाब दे सकता हूं। क्या करना चाहेंगे?",
       tips: [
@@ -170,7 +170,7 @@ export const DashboardGuide = () => {
       ],
     },
     languageSelect: {
-      greeting: "अपनी भाषा चुनें 🌍",
+      greeting: "अपनी भाषा चुनें",
       mainMessage:
         "टूर English में चाहिए या हिंदी में? चिंता न करें, आप इसे कभी भी बदल सकते हैं!",
     },
@@ -179,12 +179,12 @@ export const DashboardGuide = () => {
       mainMessage: "मैं यहां आपकी सहायता के लिए हूं! जो मदद चाहिए वो चुनें।",
     },
     tourStarting: {
-      greeting: "चलिए टूर शुरू करते हैं! 🚀",
+      greeting: "चलिए टूर शुरू करते हैं!",
       mainMessage:
         "बढ़िया! मैं आपको इस पेज के हर हिस्से के बारे में बताऊंगा। जब चाहें रुक सकते हैं। तैयार? चलिए!",
     },
     chat: {
-      greeting: "रवि से बात करें 🤖",
+      greeting: "रवि से बात करें",
       mainMessage: "अपने खेत, फसल या इस ऐप के बारे में कुछ भी पूछें!",
     },
   };

@@ -171,9 +171,9 @@ export const OtpInput: React.FC<OtpInputProps> = ({
             className={`w-12 h-14 text-center text-2xl font-bold rounded-lg border-2 transition-all
               ${
                 success
-                  ? "border-green-500 bg-green-50 text-green-700"
+                  ? "border-primary bg-primary/5 text-primary"
                   : error
-                    ? "border-red-500 bg-red-50 text-red-700"
+                    ? "border-destructive bg-destructive/5 text-destructive"
                     : digit
                       ? "border-primary bg-primary/5"
                       : "border-border bg-card"
@@ -201,7 +201,7 @@ export const OtpInput: React.FC<OtpInputProps> = ({
       )}
 
       {error && (
-        <div className="flex items-center justify-center gap-2 text-sm text-red-600">
+        <div className="flex items-center justify-center gap-2 text-sm text-destructive">
           <AlertCircle className="w-4 h-4" />
           <span>{error}</span>
         </div>

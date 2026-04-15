@@ -43,7 +43,7 @@ export function WhatsAppDialog({
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            className="bg-green-500 hover:bg-green-600"
+            className="bg-primary hover:bg-primary/90"
           >
             Open WhatsApp
           </AlertDialogAction>

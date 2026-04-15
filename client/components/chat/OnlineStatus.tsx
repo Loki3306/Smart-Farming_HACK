@@ -26,11 +26,11 @@ export function OnlineStatus({
   const statusConfig = {
     online: {
       color: "text-green-500",
-      bg: "bg-green-500",
+      bg: "bg-primary",
       label: "Online",
     },
     away: {
-      color: "text-yellow-500",
+      color: "text-secondary",
       bg: "bg-yellow-500",
       label: "Away",
     },

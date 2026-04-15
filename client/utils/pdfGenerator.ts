@@ -94,14 +94,14 @@ function generatePDFContent(report: ReportData): string {
   };
 
   const getNutrientStatus = (gap: number) => {
-    if (gap === 0) return "✅ OPTIMAL";
-    if (gap < 20) return "⚠️  LOW";
-    return "❌ VERY LOW";
+    if (gap === 0) return "[OPTIMAL]";
+    if (gap < 20) return "[LOW]";
+    return "[VERY LOW]";
   };
 
   return `
 ═══════════════════════════════════════════════════════════════
-                  🌾 SMART FARMING SOIL REPORT
+                  SMART FARMING SOIL REPORT
 ═══════════════════════════════════════════════════════════════
 
 ${farmerName ? `Farmer: ${farmerName}` : "Farm Report"}
@@ -116,7 +116,7 @@ CURRENT SOIL STATUS (Sensor Data)
 • Nitrogen (N):     ${soilData.N} kg/ha  ${getNutrientStatus(nutrientGaps.N)}
 • Phosphorus (P):   ${soilData.P} kg/ha  ${getNutrientStatus(nutrientGaps.P)}
 • Potassium (K):    ${soilData.K} kg/ha  ${getNutrientStatus(nutrientGaps.K)}
-${soilData.pH ? `• pH Level:         ${soilData.pH.toFixed(1)}       ${soilData.pH >= 6.0 && soilData.pH <= 7.5 ? "✅ OPTIMAL" : "⚠️  NEEDS ADJUSTMENT"}` : ""}
+${soilData.pH ? `• pH Level:         ${soilData.pH.toFixed(1)}       ${soilData.pH >= 6.0 && soilData.pH <= 7.5 ? "[OPTIMAL]" : "[NEEDS ADJUSTMENT]"}` : ""}
 
 ───────────────────────────────────────────────────────────────
 RECOMMENDED ACTIONS
@@ -153,7 +153,7 @@ Estimated ROI: ₹${(totalCost * (yieldImprovement / 10)).toFixed(2)} - ₹${(to
 WHERE TO BUY
 ───────────────────────────────────────────────────────────────
 
-📍 Nearest Dealers:
+Nearest Dealers:
    • Check our marketplace for verified dealers
    • Use "Find Dealers" button in the app
    • Contact local Kisan Seva Kendra
@@ -187,7 +187,7 @@ export async function generateShoppingListPDF(report: ReportData): Promise<void>
   
   // Header
   pdf.setFontSize(18);
-  pdf.text('🌾 Smart Farming Soil Report', 20, 20);
+  pdf.text('Smart Farming Soil Report', 20, 20);
   
   // Farm Details
   pdf.setFontSize(12);

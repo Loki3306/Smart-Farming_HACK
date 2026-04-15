@@ -83,7 +83,7 @@ export const SpacingCalculator: FC<SpacingCalculatorProps> = ({
     setLoading(true);
     try {
       const response = await fetch(
-        "http://localhost:8000/api/spacing/optimize",
+        "/python-api/api/spacing/optimize",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -116,7 +116,7 @@ export const SpacingCalculator: FC<SpacingCalculatorProps> = ({
   const fetchComparison = async () => {
     try {
       const response = await fetch(
-        "http://localhost:8000/api/spacing/compare",
+        "/python-api/api/spacing/compare",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -142,7 +142,7 @@ export const SpacingCalculator: FC<SpacingCalculatorProps> = ({
 
     try {
       const response = await fetch(
-        "http://localhost:8000/api/spacing/planting-guide",
+        "/python-api/api/spacing/planting-guide",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -255,10 +255,10 @@ export const SpacingCalculator: FC<SpacingCalculatorProps> = ({
         </Card>
 
         {/* Optimal Spacing Card - Top Right */}
-        <Card className="md:col-span-2 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-2 border-blue-200">
+        <Card className="md:col-span-2 bg-gradient-to-br from-sky-50 to-cyan-50 dark:from-sky-900/20 dark:to-cyan-900/20 border-2 border-sky-200">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-blue-600" />
+              <Sparkles className="w-5 h-5 text-sky-600" />
               Optimal for {cropType}
             </CardTitle>
           </CardHeader>
@@ -266,20 +266,20 @@ export const SpacingCalculator: FC<SpacingCalculatorProps> = ({
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 bg-white/60 dark:bg-black/20 rounded-lg text-center">
                 <p className="text-xs text-muted-foreground">Row</p>
-                <p className="text-2xl font-bold text-blue-600">
+                <p className="text-2xl font-bold text-sky-600">
                   {optimalData.optimal_row_spacing_cm}
                 </p>
                 <p className="text-xs">cm</p>
               </div>
               <div className="p-3 bg-white/60 dark:bg-black/20 rounded-lg text-center">
                 <p className="text-xs text-muted-foreground">Plant</p>
-                <p className="text-2xl font-bold text-blue-600">
+                <p className="text-2xl font-bold text-sky-600">
                   {optimalData.optimal_plant_spacing_cm}
                 </p>
                 <p className="text-xs">cm</p>
               </div>
             </div>
-            <div className="text-xs text-muted-foreground italic border-l-2 border-blue-400 pl-3">
+            <div className="text-xs text-muted-foreground italic border-l-2 border-sky-400 pl-3">
               📚 {optimalData.source}
             </div>
           </CardContent>
@@ -359,7 +359,7 @@ export const SpacingCalculator: FC<SpacingCalculatorProps> = ({
 
               {/* Financial Impact */}
               {comparison.financial_impact && (
-                <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200">
+                <div className="mt-4 p-4 bg-sky-50 dark:bg-sky-900/20 rounded-xl border border-sky-200">
                   <p className="text-sm font-medium mb-3 flex items-center gap-2">
                     <span>💰</span> Financial Impact
                   </p>
@@ -368,7 +368,7 @@ export const SpacingCalculator: FC<SpacingCalculatorProps> = ({
                       <p className="text-xs text-muted-foreground">
                         Per Hectare
                       </p>
-                      <p className="text-xl font-bold text-blue-600">
+                      <p className="text-xl font-bold text-sky-600">
                         +₹
                         {comparison.financial_impact.income_increase_per_hectare.toLocaleString()}
                       </p>
@@ -377,7 +377,7 @@ export const SpacingCalculator: FC<SpacingCalculatorProps> = ({
                       <p className="text-xs text-muted-foreground">
                         Total ({farmSize} ha)
                       </p>
-                      <p className="text-xl font-bold text-blue-600">
+                      <p className="text-xl font-bold text-sky-600">
                         +₹
                         {comparison.financial_impact.total_income_increase.toLocaleString()}
                       </p>

@@ -44,7 +44,7 @@ export const Gauge: React.FC<GaugeProps> = ({
 
   const colorStyles = {
     emerald: "from-emerald-600 to-emerald-400",
-    blue: "from-blue-600 to-blue-400",
+    blue: "from-sky-600 to-cyan-400",
     amber: "from-amber-600 to-amber-400",
     red: "from-red-600 to-red-400",
   };

@@ -156,10 +156,10 @@ export const RichArticleViewer: React.FC<RichArticleViewerProps> = ({
 
                           {/* Tips */}
                           {section.tips && section.tips.length > 0 && (
-                            <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                            <div className="bg-sky-50 rounded-lg p-4 border border-sky-100">
                               <div className="flex items-center gap-2 mb-3">
-                                <Lightbulb className="w-5 h-5 text-blue-600" />
-                                <span className="font-semibold text-blue-900">
+                                <Lightbulb className="w-5 h-5 text-sky-600" />
+                                <span className="font-semibold text-sky-900">
                                   Pro Tips
                                 </span>
                               </div>
@@ -167,9 +167,9 @@ export const RichArticleViewer: React.FC<RichArticleViewerProps> = ({
                                 {section.tips.map((tip, tipIndex) => (
                                   <li
                                     key={tipIndex}
-                                    className="flex items-start gap-2 text-blue-800"
+                                    className="flex items-start gap-2 text-sky-800"
                                   >
-                                    <span className="text-blue-500 mt-1">
+                                    <span className="text-sky-500 mt-1">
                                       💡
                                     </span>
                                     <span>{tip}</span>
@@ -314,14 +314,14 @@ export const RichArticleViewer: React.FC<RichArticleViewerProps> = ({
           className="text-center py-4"
         >
           <p className="text-green-600 font-medium mb-3">
-            🎉 You've read all sections! Ready to mark this lesson complete?
+            You've read all sections! Ready to mark this lesson complete?
           </p>
           <Button
             onClick={onComplete}
             size="lg"
             className="bg-green-500 hover:bg-green-600"
           >
-            ✅ Mark as Complete
+            Mark as Complete
           </Button>
         </motion.div>
       )}

@@ -556,7 +556,7 @@ export const AuthGuide = ({
                         }}
                         className="inline-block mr-2 align-middle"
                       >
-                        <Sparkles className="w-5 h-5 text-yellow-300 fill-yellow-300" />
+                        <Sparkles className="w-5 h-5 text-secondary fill-secondary" />
                       </motion.div>
                       <span className="text-sm font-medium">
                         {reactionText}

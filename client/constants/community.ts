@@ -31,12 +31,12 @@ export const POST_TYPE_CONFIG: Record<
 };
 
 export const REACTION_CONFIG = {
-  helpful: { emoji: "👍", label: "Helpful", countText: "found this helpful" },
-  tried: { emoji: "🌱", label: "Tried", countText: "tried this" },
+  helpful: { icon: "ThumbsUp", label: "Helpful", countText: "found this helpful" },
+  tried: { icon: "Sprout", label: "Tried", countText: "tried this" },
   didnt_work: {
-    emoji: "⚠️",
+    icon: "AlertTriangle",
     label: "Didn't work",
     countText: "said didn't work",
   },
-  new_idea: { emoji: "💡", label: "New idea", countText: "got new ideas" },
+  new_idea: { icon: "Lightbulb", label: "New idea", countText: "got new ideas" },
 };

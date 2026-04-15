@@ -132,7 +132,7 @@ const RealisticFarmView: React.FC<RealisticFarmViewProps> = ({
 
           {/* Moisture Gradient overlay */}
           <div
-            className={`absolute bottom-0 left-0 right-0 h-full bg-gradient-to-t from-blue-900/40 to-transparent transition-opacity duration-1000 ${isWet ? "opacity-100" : "opacity-0"}`}
+            className={`absolute bottom-0 left-0 right-0 h-full bg-gradient-to-t from-sky-900/40 to-transparent transition-opacity duration-1000 ${isWet ? "opacity-100" : "opacity-0"}`}
           />
 
           {/* Dry Crack Pattern Overlay */}
@@ -156,11 +156,11 @@ const RealisticFarmView: React.FC<RealisticFarmViewProps> = ({
           {isWet && (
             <div className="absolute inset-0 pointer-events-none">
               <div
-                className="particle w-1 h-1 bg-blue-400 rounded-full absolute top-0 left-1/4 animate-rain-drop"
+                className="particle w-1 h-1 bg-sky-400 rounded-full absolute top-0 left-1/4 animate-rain-drop"
                 style={{ animationDelay: "0s" }}
               ></div>
               <div
-                className="particle w-1 h-1 bg-blue-400 rounded-full absolute top-2 right-1/4 animate-rain-drop"
+                className="particle w-1 h-1 bg-sky-400 rounded-full absolute top-2 right-1/4 animate-rain-drop"
                 style={{ animationDelay: "0.5s" }}
               ></div>
             </div>
@@ -179,11 +179,11 @@ const RealisticFarmView: React.FC<RealisticFarmViewProps> = ({
       <div className="flex items-center justify-between mb-4 px-2">
         <div>
           <h2 className="text-lg font-bold bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
-            🌾 {cropName} Field
+            {cropName} Field
           </h2>
           <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
             <span
-              className={`w-2 h-2 rounded-full ${healthStatus === "healthy" ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" : healthStatus === "saturated" ? "bg-blue-500 animate-pulse" : "bg-red-500 animate-pulse"}`}
+              className={`w-2 h-2 rounded-full ${healthStatus === "healthy" ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" : healthStatus === "saturated" ? "bg-sky-500 animate-pulse" : "bg-red-500 animate-pulse"}`}
             ></span>
             Live Digital Twin
           </div>
@@ -214,7 +214,7 @@ const RealisticFarmView: React.FC<RealisticFarmViewProps> = ({
           <div className="flex gap-2">
             <div className="backdrop-blur-md bg-white/30 dark:bg-black/30 border border-white/20 p-2 rounded-xl flex flex-col items-center min-w-[60px] shadow-lg transform hover:scale-105 transition-transform cursor-default">
               <Droplets
-                className={`w-4 h-4 mb-1 ${isWet ? "text-blue-500" : isDry ? "text-amber-500" : "text-slate-500"}`}
+                className={`w-4 h-4 mb-1 ${isWet ? "text-sky-500" : isDry ? "text-amber-500" : "text-slate-500"}`}
               />
               <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
                 {Math.round(moisture)}%
@@ -239,7 +239,7 @@ const RealisticFarmView: React.FC<RealisticFarmViewProps> = ({
               healthStatus === "healthy"
                 ? "bg-emerald-500/20 border-emerald-500/30"
                 : healthStatus === "saturated"
-                  ? "bg-blue-500/20 border-blue-500/30"
+                  ? "bg-sky-500/20 border-sky-500/30"
                   : "bg-amber-500/20 border-amber-500/30"
             }`}
           >
@@ -248,7 +248,7 @@ const RealisticFarmView: React.FC<RealisticFarmViewProps> = ({
                 healthStatus === "healthy"
                   ? "text-emerald-600 dark:text-emerald-400"
                   : healthStatus === "saturated"
-                    ? "text-blue-600 dark:text-blue-400"
+                    ? "text-sky-600 dark:text-sky-400"
                     : "text-amber-600 dark:text-amber-400"
               }`}
             />
@@ -257,7 +257,7 @@ const RealisticFarmView: React.FC<RealisticFarmViewProps> = ({
                 healthStatus === "healthy"
                   ? "text-emerald-800 dark:text-emerald-200"
                   : healthStatus === "saturated"
-                    ? "text-blue-800 dark:text-blue-200"
+                    ? "text-sky-800 dark:text-sky-200"
                     : "text-amber-800 dark:text-amber-200"
               }`}
             >
@@ -269,7 +269,7 @@ const RealisticFarmView: React.FC<RealisticFarmViewProps> = ({
         {/* 3. The Isometric Farm Grid */}
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[95%] grid grid-cols-3 gap-2 p-4 pb-6">
           {/* Irrigation Pipes Background */}
-          <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-blue-500/50 via-blue-400/30 to-transparent -z-10 blur-[1px]"></div>
+          <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-sky-500/50 via-sky-400/30 to-transparent -z-10 blur-[1px]"></div>
 
           {[0, 1, 2, 3, 4, 5].map((i) => (
             <SoilBlock key={i} id={i} delay={i * 100} />
@@ -288,7 +288,7 @@ const RealisticFarmView: React.FC<RealisticFarmViewProps> = ({
         </span>
         <div className="flex gap-3 items-center">
           {isWet && (
-            <span className="flex items-center gap-1 text-xs text-blue-500">
+            <span className="flex items-center gap-1 text-xs text-sky-500">
               <CloudRain size={12} /> Irrigating
             </span>
           )}

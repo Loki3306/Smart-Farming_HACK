@@ -9,7 +9,7 @@ import { TourStep } from "../context/TourContext";
 export const tourContent = {
   en: {
     welcome: {
-      title: "Welcome to SmartFarm! 🌾",
+      title: "Welcome to SmartFarm",
       content:
         "I'm your farming assistant, and I'll guide you through the key features of your smart agriculture dashboard.",
     },
@@ -44,13 +44,13 @@ export const tourContent = {
         "Use this sidebar to explore different sections: your farm details, weather, AI recommendations, marketplace, and more!",
     },
     complete: {
-      title: "You're All Set! 🎉",
+      title: "You're All Set!",
       content:
         "You've completed the tour! Feel free to explore and start optimizing your farm. I'm always here if you need help.",
     },
     // Farm Tour Content
     farmWelcome: {
-      title: "Welcome to My Farm! 🚜",
+      title: "Welcome to My Farm",
       content:
         "This is your farm management hub. Here you can view and edit all your farm details, track soil health, and manage your agricultural data.",
     },
@@ -85,13 +85,13 @@ export const tourContent = {
         "Your overall soil health indicator. This score is calculated from all your sensor readings and helps you understand your soil's condition at a glance.",
     },
     farmComplete: {
-      title: "Farm Tour Complete! 🌱",
+      title: "Farm Tour Complete",
       content:
         "You now know how to manage your farm details. Keep your information updated for the best AI-powered recommendations!",
     },
     // Weather Tour Content
     weatherWelcome: {
-      title: "Weather Forecast ☀️",
+      title: "Weather Forecast",
       content:
         "Stay ahead of the weather! This page shows real-time weather data specifically for your farm location to help you plan your farming activities.",
     },
@@ -111,18 +111,18 @@ export const tourContent = {
         "Plan your week with confidence! See upcoming temperature highs and lows, conditions, and rain probability for the next 7 days.",
     },
     weatherInsights: {
-      title: "Farming Insights 🌾",
+      title: "Farming Insights",
       content:
         "AI-powered recommendations based on weather patterns. Get actionable advice on irrigation, fertilizer application, and crop protection.",
     },
     weatherComplete: {
-      title: "Weather Tour Complete! 🌤️",
+      title: "Weather Tour Complete",
       content:
         "You're now ready to use weather data to optimize your farming decisions. Check back daily for updated forecasts!",
     },
     // Recommendations Tour Content
     recoWelcome: {
-      title: "AI Recommendations 🤖",
+      title: "AI Recommendations",
       content:
         "Your personal AI farming assistant! Get smart, data-driven recommendations to optimize irrigation, fertilization, and pest control.",
     },
@@ -147,7 +147,7 @@ export const tourContent = {
         "Your actionable insights! Each card shows the recommendation type, priority, suggested action, and AI confidence score. Mark them as applied when done.",
     },
     recoComplete: {
-      title: "Recommendations Tour Complete! 🎯",
+      title: "Recommendations Tour Complete",
       content:
         "You're ready to leverage AI for smarter farming decisions. Run regular analyses and apply recommendations for optimal results!",
     },
@@ -183,7 +183,7 @@ export const tourContent = {
         "Manage your sell listings here. Add new products, edit prices, and track your active listings all in one place.",
     },
     marketComplete: {
-      title: "Marketplace Tour Complete! 🎉",
+      title: "Marketplace Tour Complete!",
       content:
         "You're ready to trade! Buy quality supplies at competitive prices and sell your produce to a wider market.",
     },
@@ -266,7 +266,7 @@ export const tourContent = {
     },
     // Notifications Tour Content
     notifWelcome: {
-      title: "Notifications Center 🔔",
+      title: "Notifications Center",
       content:
         "Stay on top of everything! Get real-time alerts about weather changes, soil conditions, pest risks, and system updates.",
     },
@@ -291,14 +291,14 @@ export const tourContent = {
         "Customize which alerts you receive. Configure notifications for weather, irrigation, pests, and more.",
     },
     notifComplete: {
-      title: "Notifications Tour Complete! ✅",
+      title: "Notifications Tour Complete",
       content:
         "You'll never miss an important alert! Check here regularly for updates about your farm.",
     },
   },
   hi: {
     welcome: {
-      title: "स्मार्टफार्म में आपका स्वागत है! 🌾",
+      title: "स्मार्टफार्म में आपका स्वागत है",
       content:
         "नमस्ते! मैं आपका खेती सहायक हूं। आइए मैं आपको इस डैशबोर्ड की सभी सुविधाओं के बारे में बताता हूं।",
     },
@@ -333,13 +333,13 @@ export const tourContent = {
         "इस मेन्यू से आप अलग-अलग पेज पर जा सकते हैं - खेत, मौसम, सुझाव, बाज़ार, और बहुत कुछ!",
     },
     complete: {
-      title: "बधाई हो! 🎉",
+      title: "बधाई हो!",
       content:
         "आपने टूर पूरा कर लिया! अब आप आराम से अपना खेत मैनेज कर सकते हैं। मदद चाहिए तो मैं हमेशा यहां हूं।",
     },
     // Farm Tour
     farmWelcome: {
-      title: "मेरा खेत 🚜",
+      title: "मेरा खेत",
       content:
         "यहां आपके खेत की पूरी जानकारी है। खेत का नाम, साइज़, मिट्टी का प्रकार - सब कुछ!",
     },
@@ -374,13 +374,13 @@ export const tourContent = {
         "आपकी मिट्टी कितनी स्वस्थ है, एक नंबर में। ये स्कोर सभी सेंसर रीडिंग से बनता है।",
     },
     farmComplete: {
-      title: "खेत का टूर पूरा! 🌱",
+      title: "खेत का टूर पूरा",
       content:
         "अब आप जानते हैं कि अपने खेत की जानकारी कैसे देखें और अपडेट करें!",
     },
     // Weather Tour
     weatherWelcome: {
-      title: "मौसम ☀️",
+      title: "मौसम",
       content:
         "यहां आपके खेत के लिए मौसम की पूरी जानकारी मिलती है। खेती का काम प्लान करने में बहुत काम आएगी!",
     },
@@ -400,18 +400,18 @@ export const tourContent = {
         "आने वाले हफ्ते का मौसम। बारिश कब होगी, गर्मी कितनी होगी - सब पता चलेगा।",
     },
     weatherInsights: {
-      title: "खेती के सुझाव 🌾",
+      title: "खेती के सुझाव",
       content:
         "मौसम के हिसाब से AI आपको बताएगा - कब पानी दें, कब खाद डालें, कब स्प्रे करें।",
     },
     weatherComplete: {
-      title: "मौसम टूर पूरा! 🌤️",
+      title: "मौसम टूर पूरा",
       content:
         "अब आप मौसम की जानकारी का सही इस्तेमाल कर सकते हैं। रोज़ चेक करें!",
     },
     // Recommendations Tour
     recoWelcome: {
-      title: "AI सुझाव 🤖",
+      title: "AI सुझाव",
       content:
         "आपका निजी AI सहायक! मिट्टी और मौसम के डेटा से स्मार्ट सलाह मिलेगी।",
     },
@@ -434,7 +434,7 @@ export const tourContent = {
         "हर सुझाव में लिखा है क्या करना है और AI को कितना भरोसा है। काम हो जाए तो 'Applied' लगाएं।",
     },
     recoComplete: {
-      title: "सुझाव टूर पूरा! 🎯",
+      title: "सुझाव टूर पूरा",
       content:
         "अब AI की मदद से स्मार्ट फैसले लें। हफ्ते में 2-3 बार ज़रूर चेक करें!",
     },
@@ -469,7 +469,7 @@ export const tourContent = {
         "जो आप बेच रहे हैं वो यहां दिखेगा। नया प्रोडक्ट जोड़ें या पुराने में बदलाव करें।",
     },
     marketComplete: {
-      title: "बाज़ार टूर पूरा! 🎉",
+      title: "बाज़ार टूर पूरा!",
       content:
         "अब आप सीधे खरीद-बिक्री कर सकते हैं। अच्छा सामान सही दाम पर मिलेगा!",
     },
@@ -544,13 +544,13 @@ export const tourContent = {
       content: "89% सवालों का जवाब मिलता है! बातचीत में शामिल हों।",
     },
     communityComplete: {
-      title: "समुदाय टूर पूरा! 🤝",
+      title: "समुदाय टूर पूरा",
       content:
         "अब आप हमारे किसान परिवार का हिस्सा हैं! पहला पोस्ट या सवाल डालकर शुरुआत करें।",
     },
     // Notifications Tour
     notifWelcome: {
-      title: "सूचनाएं 🔔",
+      title: "सूचनाएं",
       content:
         "सभी अलर्ट यहां मिलेंगे! मौसम में बदलाव, मिट्टी की स्थिति, कीट का खतरा - सब कुछ।",
     },
@@ -573,7 +573,7 @@ export const tourContent = {
       content: "कौन सी सूचनाएं चाहिए, कौन सी नहीं - यहां से सेट करें।",
     },
     notifComplete: {
-      title: "सूचनाएं टूर पूरा! ✅",
+      title: "सूचनाएं टूर पूरा",
       content: "अब कोई ज़रूरी अलर्ट नहीं छूटेगा! रोज़ ज़रूर चेक करें।",
     },
   },
@@ -792,7 +792,7 @@ export const recommendationsTourSteps: TourStep[] = [
     target: '[data-tour-id="reco-analyze-btn"]',
     title: getContent("recoComplete").title,
     content:
-      "Click this button to get AI-powered recommendations based on your sensor data. You're all set to start optimizing your farm! 🚀",
+      "Click this button to get AI-powered recommendations based on your sensor data. You're all set to start optimizing your farm!",
     placement: "top",
     disableBeacon: true,
   },
@@ -1275,8 +1275,8 @@ export const getTourConfig = (tourId: string): TourConfig | undefined => {
       title: getContent("recoComplete").title,
       content:
         getCurrentLanguage() === "hi"
-          ? "इस बटन पर क्लिक करके AI से सुझाव पाएं। अब आप अपने खेत को और बेहतर बना सकते हैं! 🚀"
-          : "Click this button to get AI-powered recommendations based on your sensor data. You're all set to start optimizing your farm! 🚀",
+          ? "इस बटन पर क्लिक करके AI से सुझाव पाएं। अब आप अपने खेत को और बेहतर बना सकते हैं!"
+          : "Click this button to get AI-powered recommendations based on your sensor data. You're all set to start optimizing your farm!",
       placement: "top",
       disableBeacon: true,
     },

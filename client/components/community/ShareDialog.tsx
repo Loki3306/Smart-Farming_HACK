@@ -67,7 +67,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
       await onShare("whatsapp");
 
       toast({
-        title: "📱 Opening WhatsApp",
+        title: "Opening WhatsApp",
         description: "Share this post with your contacts",
         duration: 2000,
       });
@@ -133,7 +133,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
         await onShare("download");
 
         toast({
-          title: "✅ Downloaded!",
+          title: "Downloaded!",
           description: "Post saved as image to your device",
           duration: 2000,
         });
@@ -146,7 +146,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
         await onShare("download");
 
         toast({
-          title: "✅ Downloaded!",
+          title: "Downloaded!",
           description: "Post saved as image to your device",
           duration: 2000,
         });
@@ -229,9 +229,9 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
               whileTap={{ scale: 0.98 }}
               onClick={handleNativeShare}
               disabled={sharing}
-              className="w-full flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg border-2 hover:border-blue-500 hover:bg-blue-50 transition-all"
+              className="w-full flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg border-2 hover:border-sky-500 hover:bg-sky-50 transition-all"
             >
-              <div className="w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 rounded-full bg-blue-500 flex items-center justify-center text-white">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 rounded-full bg-sky-500 flex items-center justify-center text-white">
                 <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div className="flex-1 text-left min-w-0">

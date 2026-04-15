@@ -228,7 +228,7 @@ export const Weather: React.FC = () => {
         transition={{ duration: 0.3 }}
       >
         <Card
-          className="p-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white"
+          className="p-6 bg-gradient-to-br from-sky-500 to-sky-600 text-white"
           data-tour-id="weather-current"
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -333,7 +333,7 @@ export const Weather: React.FC = () => {
                     </span>
                   </div>
                   <div className="flex items-center gap-1 sm:gap-2">
-                    <Droplets className="w-4 h-4 text-blue-500 shrink-0" />
+                    <Droplets className="w-4 h-4 text-sky-500 shrink-0" />
                     <span className="text-sm w-8 sm:w-12 text-right">
                       {day.precipitation}%
                     </span>

@@ -379,7 +379,7 @@ export const Learn: React.FC = () => {
         </Card>
         <Card className="p-4 text-center">
           <div className="flex items-center justify-center mb-2">
-            <Clock className="w-5 h-5 text-blue-500" />
+            <Clock className="w-5 h-5 text-sky-500" />
           </div>
           {statsLoading ? (
             <Loader2 className="w-5 h-5 animate-spin mx-auto" />

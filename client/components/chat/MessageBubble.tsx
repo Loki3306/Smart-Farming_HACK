@@ -141,7 +141,7 @@ export function MessageBubble({
           {isOwn && (
             <span className="text-xs">
               {message.read ? (
-                <CheckCheck className="h-3 w-3 text-blue-500" />
+                <CheckCheck className="h-3 w-3 text-primary" />
               ) : (
                 <Check className="h-3 w-3 text-muted-foreground" />
               )}

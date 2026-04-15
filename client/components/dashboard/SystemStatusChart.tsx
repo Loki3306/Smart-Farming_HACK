@@ -8,6 +8,10 @@ import {
   FlaskConical,
   Beaker,
   Activity,
+  Clock,
+  Lock,
+  AlertTriangle,
+  CheckCircle,
 } from "lucide-react";
 import { useFarmContext } from "../../context/FarmContext";
 import {
@@ -36,7 +40,7 @@ export const SystemStatusChart = ({
   // Calculate what action would trigger
   const getActionStatus = () => {
     if (!sensorData)
-      return { message: "Waiting for sensor data...", icon: "⏳" };
+      return { message: "Waiting for sensor data...", icon: Clock };
 
     const moisture = asNumber(sensorData.soilMoisture);
     const moistureMin = thresholds.moisture[0];
@@ -46,7 +50,7 @@ export const SystemStatusChart = ({
     if (!isAutonomous) {
       return {
         message: "Manual mode - Autonomous actions disabled",
-        icon: "🔒",
+        icon: Lock,
         subtext:
           "Switch to Autonomous in Control Center to enable AI decisions",
       };
@@ -55,7 +59,7 @@ export const SystemStatusChart = ({
     if (moisture < moistureMin) {
       return {
         message: `Irrigation triggered! Moisture ${moisture.toFixed(1)}% < ${moistureMin}%`,
-        icon: "💧",
+        icon: Droplets,
         subtext: "Water pump will activate automatically",
       };
     }
@@ -63,7 +67,7 @@ export const SystemStatusChart = ({
     if (nitrogen < nitrogenMin) {
       return {
         message: `Fertilization triggered! Nitrogen ${nitrogen.toFixed(0)} < ${nitrogenMin}`,
-        icon: "🌿",
+        icon: Leaf,
         subtext: "Fertilizer will be applied automatically",
       };
     }
@@ -73,14 +77,14 @@ export const SystemStatusChart = ({
     if (moistureBuffer < 10) {
       return {
         message: `Irrigation may trigger soon (moisture at ${moisture.toFixed(1)}%)`,
-        icon: "⚠️",
+        icon: AlertTriangle,
         subtext: `Will trigger when moisture drops below ${moistureMin}%`,
       };
     }
 
     return {
       message: "All values optimal - No action needed",
-      icon: "✅",
+      icon: CheckCircle,
       subtext: "System is monitoring and will act when needed",
     };
   };
@@ -121,8 +125,7 @@ export const SystemStatusChart = ({
                         AI System Status
                       </h3>
                       <p className="text-xs text-muted-foreground">
-                        Crop: {cropName} •{" "}
-                        {isAutonomous ? "🤖 Autonomous" : "🔒 Manual"}
+                        Crop: {cropName} • {isAutonomous ? "Autonomous" : "Manual"}
                       </p>
                     </div>
                   </div>
@@ -148,7 +151,7 @@ export const SystemStatusChart = ({
                     <div className="space-y-6">
                       <EnhancedThresholdBar
                         label="Soil Moisture"
-                        icon={<Droplets className="w-4 h-4 text-blue-500" />}
+                        icon={<Droplets className="w-4 h-4 text-sky-500" />}
                         value={sensorData?.soilMoisture ?? 0}
                         range={thresholds.moisture}
                         unit="%"
@@ -197,7 +200,9 @@ export const SystemStatusChart = ({
                     {/* Action Status */}
                     <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-muted/50 to-muted/30 border border-border/30">
                       <div className="flex items-start gap-3">
-                        <span className="text-2xl">{actionStatus.icon}</span>
+                        {React.createElement(actionStatus.icon, {
+                          className: "w-6 h-6",
+                        })}
                         <div>
                           <p className="font-semibold text-foreground">
                             {actionStatus.message}

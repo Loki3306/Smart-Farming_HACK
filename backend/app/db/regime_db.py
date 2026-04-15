@@ -10,6 +10,7 @@ import logging
 import re
 from contextlib import contextmanager
 from datetime import datetime, date
+from decimal import Decimal
 from typing import Optional, List, Dict, Any
 
 from app.services.regime_service import (
@@ -29,6 +30,18 @@ VALID_TRIGGER_TYPES = {
     "auto_refresh", "manual_update", "disease_detected",
     "weather_change", "farmer_request",
 }
+
+
+def _json_default(value: Any):
+    if isinstance(value, Decimal):
+        return float(value)
+    if isinstance(value, (datetime, date)):
+        return value.isoformat()
+    raise TypeError(f"Object of type {type(value).__name__} is not JSON serializable")
+
+
+def _to_json(value: Any) -> str:
+    return json.dumps(value, default=_json_default)
 
 
 # ---------------------------------------------------------------------------
@@ -200,7 +213,7 @@ class RegimeDatabase:
                             regime.valid_from.isoformat() if regime.valid_from else None,
                             regime.valid_until.isoformat() if regime.valid_until else None,
                             regime.auto_refresh_enabled,
-                            json.dumps(regime.metadata),
+                            _to_json(regime.metadata),
                             regime.created_at.isoformat() if regime.created_at else None,
                             regime.updated_at.isoformat() if regime.updated_at else None,
                         ),
@@ -313,7 +326,7 @@ class RegimeDatabase:
                         (
                             regime.version, regime.status,
                             regime.valid_until.isoformat() if regime.valid_until else None,
-                            json.dumps(regime.metadata),
+                            _to_json(regime.metadata),
                             regime.updated_at.isoformat() if regime.updated_at else datetime.now().isoformat(),
                             regime.regime_id, farmer_id,
                         ),
@@ -562,7 +575,7 @@ class RegimeDatabase:
             """,
             (
                 regime_id, version_number, changes_summary, trigger_type,
-                json.dumps(tasks_snapshot), created_by, datetime.now().isoformat(),
+                _to_json(tasks_snapshot), created_by, datetime.now().isoformat(),
             ),
         )
         logger.info(f"✓ Version {version_number} entry created")
@@ -575,7 +588,7 @@ class RegimeDatabase:
             INSERT INTO regime_audit_log (regime_id, action_type, actor, details, timestamp)
             VALUES (%s,%s,%s,%s,%s)
             """,
-            (regime_id, action_type, actor, json.dumps(details), datetime.now().isoformat()),
+            (regime_id, action_type, actor, _to_json(details), datetime.now().isoformat()),
         )
         logger.info(f"✓ Audit entry: {action_type}")
 

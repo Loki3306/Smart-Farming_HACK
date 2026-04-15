@@ -18,6 +18,15 @@ import {
   ChevronRight,
   Globe,
   BookOpen,
+  Sprout,
+  Droplets,
+  Cloud,
+  Wheat,
+  Beaker,
+  Cpu,
+  Footprints,
+  Earth,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -36,6 +45,22 @@ interface Lesson {
   content_url?: string;
   is_preview: boolean;
 }
+
+
+const getIconComponent = (iconName: string) => {
+  const iconMap: Record<string, React.ReactNode> = {
+    Sprout: <Sprout className="w-6 h-6" />,
+    Droplets: <Droplets className="w-6 h-6" />,
+    Cloud: <Cloud className="w-6 h-6" />,
+    Wheat: <Wheat className="w-6 h-6" />,
+    Beaker: <Beaker className="w-6 h-6" />,
+    Cpu: <Cpu className="w-6 h-6" />,
+    Trophy: <Trophy className="w-6 h-6" />,
+    Footprints: <Footprints className="w-6 h-6" />,
+    Globe: <Earth className="w-6 h-6" />,
+  };
+  return iconMap[iconName] ? iconMap[iconName] : <Globe className="w-6 h-6" />;
+};
 
 interface LearningRoadmapProps {
   courseId: string;
@@ -56,43 +81,43 @@ interface LearningRoadmapProps {
 // Level themes mapping - using translation keys
 const getLevelThemes = (t: any) => [
   {
-    emoji: "🌱",
+    emoji: "Sprout",
     key: "seedSowing",
     color: "from-green-400 to-green-600",
     bgColor: "bg-green-50",
   },
   {
-    emoji: "💧",
+    emoji: "Droplets",
     key: "irrigation",
-    color: "from-blue-400 to-blue-600",
-    bgColor: "bg-blue-50",
+    color: "from-sky-400 to-sky-600",
+    bgColor: "bg-sky-50",
   },
   {
-    emoji: "🌦️",
+    emoji: "Cloud",
     key: "weather",
     color: "from-sky-400 to-indigo-500",
     bgColor: "bg-sky-50",
   },
   {
-    emoji: "🌾",
+    emoji: "Wheat",
     key: "cropGrowth",
     color: "from-yellow-400 to-amber-500",
     bgColor: "bg-amber-50",
   },
   {
-    emoji: "🧪",
+    emoji: "Beaker",
     key: "fertilization",
     color: "from-purple-400 to-purple-600",
     bgColor: "bg-purple-50",
   },
   {
-    emoji: "🤖",
+    emoji: "Cpu",
     key: "smartFarming",
     color: "from-emerald-400 to-teal-600",
     bgColor: "bg-teal-50",
   },
   {
-    emoji: "🏆",
+    emoji: "Trophy",
     key: "master",
     color: "from-orange-400 to-red-500",
     bgColor: "bg-orange-50",
@@ -101,12 +126,12 @@ const getLevelThemes = (t: any) => [
 
 // Badges that can be earned - using translation keys
 const getBadges = (t: any) => [
-  { id: "first_step", key: "firstStep", emoji: "👣", requirement: 1 },
-  { id: "water_wise", key: "waterWise", emoji: "💧", requirement: 2 },
-  { id: "soil_expert", key: "soilExpert", emoji: "🌍", requirement: 3 },
-  { id: "weather_watcher", key: "weatherWatcher", emoji: "🌦️", requirement: 4 },
-  { id: "smart_farmer", key: "smartFarmer", emoji: "🌟", requirement: 5 },
-  { id: "master_farmer", key: "masterFarmer", emoji: "🏆", requirement: "all" },
+  { id: "first_step", key: "firstStep", emoji: "Footprints", requirement: 1 },
+  { id: "water_wise", key: "waterWise", emoji: "Droplets", requirement: 2 },
+  { id: "soil_expert", key: "soilExpert", emoji: "Globe", requirement: 3 },
+  { id: "weather_watcher", key: "weatherWatcher", emoji: "Cloud", requirement: 4 },
+  { id: "smart_farmer", key: "smartFarmer", emoji: "Sparkles", requirement: 5 },
+  { id: "master_farmer", key: "masterFarmer", emoji: "Trophy", requirement: "all" },
 ];
 
 export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
@@ -298,9 +323,8 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                 }}
               >
                 {
-                  ["🌾", "🌻", "⭐", "🎉", "✨", "🌱", "💚"][
-                    Math.floor(Math.random() * 7)
-                  ]
+                  ["Wheat", "Flower2", "Star", "Gift", "Sparkles", "Sprout", "Heart"]
+                    .filter(Boolean)[Math.floor(Math.random() * 6)]
                 }
               </motion.div>
             ))}
@@ -322,14 +346,14 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
           className="absolute top-20 left-20 text-6xl opacity-30"
         >
-          ☁️
+          ◇
         </motion.div>
         <motion.div
           animate={{ x: [0, -30, 0] }}
           transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
           className="absolute top-32 right-40 text-4xl opacity-20"
         >
-          ☁️
+          ◇
         </motion.div>
         {/* Ground/Field pattern */}
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-green-200/50 to-transparent dark:from-green-900/30 dark:to-transparent" />
@@ -355,7 +379,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                 <button
                   type="button"
                   onClick={handleLanguageToggle}
-                  className="flex items-center justify-center w-8 h-8 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full transition-colors border border-blue-200 dark:border-blue-700"
+                  className="flex items-center justify-center w-8 h-8 bg-sky-50 dark:bg-sky-900/30 hover:bg-sky-100 dark:hover:bg-sky-900/50 text-sky-700 dark:text-sky-300 rounded-full transition-colors border border-sky-200 dark:border-sky-700"
                   title={isHindi ? "Switch to English" : "हिंदी में बदलें"}
                   aria-label={isHindi ? "Switch to English" : "Switch to Hindi"}
                 >
@@ -414,7 +438,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
               {/* Language Toggle Button */}
               <button
                 onClick={handleLanguageToggle}
-                className="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full px-3 py-2 transition-colors border border-blue-200 dark:border-blue-700"
+                className="flex items-center gap-1.5 bg-sky-50 dark:bg-sky-900/30 hover:bg-sky-100 dark:hover:bg-sky-900/50 text-sky-700 dark:text-sky-300 rounded-full px-3 py-2 transition-colors border border-sky-200 dark:border-sky-700"
                 title={
                   isHindi
                     ? t("roadmap.switchToEnglish")
@@ -449,7 +473,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
               animate={{ scale: [1, 1.2, 1] }}
               transition={{ duration: 1, repeat: Infinity }}
             >
-              🚜
+              ▼
             </motion.div>
           </div>
 
@@ -466,7 +490,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                   animate={{ scale: 1 }}
                   className="flex items-center gap-1 bg-card rounded-full px-2 py-1 shadow-sm border border-amber-200 dark:border-amber-700"
                 >
-                  <span className="text-lg">{badge.emoji}</span>
+                  <div className="text-lg">{getIconComponent(badge.emoji)}</div>
                   <span className="text-xs font-medium text-amber-700 dark:text-amber-300 whitespace-nowrap">
                     {t(`roadmap.badgeNames.${badge.key}`)}
                   </span>
@@ -555,9 +579,9 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.1 }}
-                className="bg-card/80 backdrop-blur-sm rounded-xl p-4 shadow-md border border-blue-100 dark:border-blue-800"
+                className="bg-card/80 backdrop-blur-sm rounded-xl p-4 shadow-md border border-sky-100 dark:border-sky-800"
               >
-                <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
+                <h3 className="font-bold text-sky-900 dark:text-sky-100 mb-3 flex items-center gap-2">
                   <Star className="w-4 h-4" />
                   {t("roadmap.whatYouLearn")}
                 </h3>
@@ -746,7 +770,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                     <Trophy className="w-8 h-8" />
                     <div>
                       <p className="font-bold text-lg">
-                        {t("roadmap.congratulations")} 🎉
+                        {t("roadmap.congratulations")} !
                       </p>
                       <p className="text-sm opacity-90">
                         {t("roadmap.courseComplete")}
@@ -830,14 +854,14 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                   </div>
 
                   {/* Current Level */}
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-3">
+                  <div className="bg-gradient-to-r from-sky-50 to-cyan-50 dark:from-sky-900/20 dark:to-cyan-900/20 rounded-lg p-3">
                     <div className="flex items-center gap-2 mb-1">
-                      <Award className="w-4 h-4 text-blue-600" />
+                      <Award className="w-4 h-4 text-sky-600" />
                       <span className="text-xs text-muted-foreground">
                         {t("roadmap.currentLevel")}
                       </span>
                     </div>
-                    <p className="text-sm font-bold text-blue-700 dark:text-blue-400">
+                    <p className="text-sm font-bold text-sky-700 dark:text-sky-400">
                       {
                         LEVEL_THEMES[
                           Math.min(currentLevelIndex, LEVEL_THEMES.length - 1)
@@ -872,7 +896,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
                         animate={{ scale: 1 }}
                         className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg p-2"
                       >
-                        <span className="text-2xl">{badge.emoji}</span>
+                        <div className="text-2xl">{getIconComponent(badge.emoji)}</div>
                         <div className="flex-1">
                           <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
                             {t(`roadmap.badgeNames.${badge.key}`)}
@@ -991,8 +1015,8 @@ const LessonNode: React.FC<LessonNodeProps> = ({
         ) : isLocked ? (
           <Lock className="w-8 h-8 text-muted-foreground" />
         ) : (
-          <span className="text-4xl">{theme.emoji}</span>
-        )}
+          <div className="text-4xl">{getIconComponent(theme.emoji)}</div>
+        )}}
 
         {/* Level number badge */}
         <div
@@ -1031,7 +1055,7 @@ const LessonNode: React.FC<LessonNodeProps> = ({
         </p>
         {lesson.duration && (
           <p className="text-xs text-muted-foreground mt-1">
-            ⏱️ {lesson.duration}
+            {lesson.duration}
           </p>
         )}
       </div>

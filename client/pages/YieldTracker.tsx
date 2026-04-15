@@ -442,7 +442,7 @@ export const YieldTracker: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-foreground text-lg">
-                    🚀 Boost Your Yield!
+                    Boost Your Yield!
                   </h3>
                   <p className="text-sm text-muted-foreground mt-1">
                     Optimize row spacing for 20-40% higher yield

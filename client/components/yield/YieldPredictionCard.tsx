@@ -174,9 +174,9 @@ export const YieldPredictionCard: React.FC<YieldPredictionCardProps> = ({
 
   // Get yield potential color
   const getPotentialColor = (potential: number) => {
-    if (potential >= 70) return "text-green-500";
-    if (potential >= 40) return "text-yellow-500";
-    return "text-red-500";
+    if (potential >= 80) return "text-primary";
+    if (potential >= 40) return "text-secondary";
+    return "text-destructive";
   };
 
   // Get confidence badge color
@@ -207,7 +207,7 @@ export const YieldPredictionCard: React.FC<YieldPredictionCardProps> = ({
       >
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-green-500/20 rounded-lg">
+            <div className="p-1.5 bg-primary/20 rounded-lg">
               <Wheat className="w-4 h-4 text-green-600 dark:text-green-400" />
             </div>
             <span className="font-medium text-foreground text-sm">
@@ -323,7 +323,7 @@ export const YieldPredictionCard: React.FC<YieldPredictionCardProps> = ({
             <div className="grid grid-cols-3 gap-3 text-center">
               <div>
                 <p className="text-xs text-muted-foreground">Min</p>
-                <p className="font-semibold text-red-500">
+                <p className="font-semibold text-destructive">
                   {formatYield(
                     optimization.regional_benchmark.min_yield_kg ||
                       optimization.regional_benchmark.min_yield,
@@ -332,7 +332,7 @@ export const YieldPredictionCard: React.FC<YieldPredictionCardProps> = ({
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Average</p>
-                <p className="font-semibold text-yellow-500">
+                <p className="font-semibold text-secondary">
                   {formatYield(
                     optimization.regional_benchmark.avg_yield_kg ||
                       optimization.regional_benchmark.avg_yield,

@@ -164,8 +164,8 @@ export const Login: React.FC = () => {
             </div>
 
             {/* Test Credentials Info */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-xs text-blue-900">
+            <div className="bg-sky-50 border border-sky-200 rounded-lg p-3">
+              <p className="text-xs text-sky-900">
                 <strong>Test Account:</strong>
                 <br />
                 Email: test@example.com

@@ -319,8 +319,8 @@ export const IoTAnalyticsCard: React.FC = () => {
                     x2="0"
                     y2="1"
                   >
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#5ba3d0" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#5ba3d0" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid
@@ -372,7 +372,7 @@ export const IoTAnalyticsCard: React.FC = () => {
                   type="monotone"
                   dataKey="soilMoisture"
                   name="Moisture"
-                  stroke="#3b82f6"
+                  stroke="#5ba3d0"
                   strokeWidth={3}
                   fillOpacity={1}
                   fill="url(#colorMoisture)"

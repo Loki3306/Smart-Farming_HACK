@@ -64,7 +64,7 @@ export const StressDetection: React.FC = () => {
       setStatus("result");
 
       toast({
-        title: "✨ Analysis Complete",
+        title: "Analysis Complete",
         description: `Detected ${res.stressTypes.length} stress indicators`,
       });
     } catch (err: any) {
@@ -143,7 +143,7 @@ export const StressDetection: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-blue-50 pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-sky-50 pb-20">
       {/* Hero Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -442,7 +442,7 @@ export const StressDetection: React.FC = () => {
                           >
                             {result.analysis.image.isHealthy
                               ? "✓ Healthy"
-                              : "⚠ Attention Needed"}
+                              : "Attention Needed"}
                           </div>
                         </div>
                       </div>
@@ -497,7 +497,7 @@ export const StressDetection: React.FC = () => {
                 >
                   <Card className="p-4 sm:p-6 border-0 shadow-xl">
                     <h3 className="text-base sm:text-xl font-bold mb-4 sm:mb-6 flex items-center gap-2">
-                      <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
+                      <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-sky-600" />
                       Detailed AI Analysis
                     </h3>
                     <div className="space-y-3 sm:space-y-4">
@@ -507,7 +507,7 @@ export const StressDetection: React.FC = () => {
                           initial={{ x: -20, opacity: 0 }}
                           animate={{ x: 0, opacity: 1 }}
                           transition={{ delay: index * 0.1 }}
-                          className="p-3 sm:p-6 rounded-lg sm:rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 hover:shadow-lg transition-all"
+                          className="p-3 sm:p-6 rounded-lg sm:rounded-xl bg-gradient-to-r from-sky-50 to-cyan-50 border-2 border-sky-200 hover:shadow-lg transition-all"
                         >
                           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 sm:gap-4 mb-3 sm:mb-4">
                             <div className="min-w-0">
@@ -518,8 +518,8 @@ export const StressDetection: React.FC = () => {
                                 Type: {disease.type.replace(/_/g, " ")}
                               </p>
                             </div>
-                            <div className="px-3 py-1 sm:px-4 sm:py-2 rounded-full bg-blue-100 border-2 border-blue-300 self-start flex-shrink-0">
-                              <span className="text-xs sm:text-sm font-bold text-blue-700">
+                            <div className="px-3 py-1 sm:px-4 sm:py-2 rounded-full bg-sky-100 border-2 border-sky-300 self-start flex-shrink-0">
+                              <span className="text-xs sm:text-sm font-bold text-sky-700">
                                 {disease.probability}%
                               </span>
                             </div>
@@ -669,7 +669,7 @@ export const StressDetection: React.FC = () => {
                 whileTap={{ scale: 0.98 }}
                 className="w-full py-3 sm:py-4 text-center rounded-lg sm:rounded-xl border-2 border-dashed border-gray-300 hover:border-emerald-500 hover:bg-emerald-50 text-gray-600 hover:text-emerald-700 font-medium transition-all text-sm sm:text-base"
               >
-                🔄 Analyze Another Image
+                Analyze Another Image
               </motion.button>
             </motion.div>
           )}

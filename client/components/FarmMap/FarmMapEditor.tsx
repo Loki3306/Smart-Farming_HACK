@@ -136,7 +136,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
           feet: false,
           nautic: false,
           shapeOptions: {
-            color: "#3B82F6",
+            color: "#5ba3d0",
             weight: 3,
             fillOpacity: 0.2,
           },
@@ -236,7 +236,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
       ) {
         const polygon = L.geoJSON(geometry.boundary_geojson, {
           style: {
-            color: "#3B82F6",
+            color: "#5ba3d0",
             weight: 3,
             fillOpacity: 0.1,
           },
@@ -277,7 +277,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
           if (section.section_geojson) {
             const polygon = L.geoJSON(section.section_geojson, {
               style: {
-                color: section.display_color || "#3B82F6",
+                color: section.display_color || "#5ba3d0",
                 weight: 2,
                 fillOpacity: 0.3,
               },
@@ -372,7 +372,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
 
       (layer as any).options.sectionId = newSection.section_id;
       layer.setStyle({
-        color: newSection.display_color || "#3B82F6",
+        color: newSection.display_color || "#5ba3d0",
         weight: 2,
         fillOpacity: 0.3,
       });
@@ -461,7 +461,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
   // Utility: Generate random color
   const getRandomColor = (): string => {
     const colors = [
-      "#3B82F6",
+      "#5ba3d0",
       "#10B981",
       "#F59E0B",
       "#EF4444",
@@ -507,7 +507,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
               <div style="
                 width: 20px;
                 height: 20px;
-                background: #3B82F6;
+                background: #5ba3d0;
                 border: 3px solid white;
                 border-radius: 50%;
                 box-shadow: 0 2px 8px rgba(0,0,0,0.3);
@@ -533,7 +533,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
             mapInstanceRef.current,
           );
           marker.bindPopup(
-            "<strong>Your Location</strong><br/>📍 Current Position",
+            "<strong>Your Location</strong><br/>Current Position",
           );
           userMarkerRef.current = marker;
 
@@ -575,7 +575,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
 
         {/* Farm Info */}
         {farmGeometry?.has_geometry && (
-          <div className="mb-4 p-3 bg-blue-50 rounded">
+          <div className="mb-4 p-3 bg-sky-50 rounded">
             <p className="text-sm font-medium">Farm Boundary</p>
             <p className="text-xs text-gray-600">
               Area: {farmGeometry.area_acres?.toFixed(2)} acres (
@@ -602,10 +602,10 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
               isDrawingBoundaryRef.current = true;
               isDrawingSectionRef.current = false;
               toast("Click on the map to start drawing farm boundary", {
-                icon: "ℹ️",
+                icon: "info",
               });
             }}
-            className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+            className="w-full px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition"
           >
             {farmGeometry?.has_geometry ? "Redraw" : "Draw"} Farm Boundary
           </button>
@@ -621,7 +621,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
               isDrawingSectionRef.current = true;
               isDrawingBoundaryRef.current = false;
               toast("Click on the map to start drawing a section", {
-                icon: "ℹ️",
+                icon: "info",
               });
             }}
             disabled={!farmGeometry?.has_geometry}
@@ -644,7 +644,7 @@ export const FarmMapEditor: React.FC<FarmMapEditorProps> = ({
                   onClick={() => handleSectionSelect(section.section_id)}
                   className={`p-2 rounded cursor-pointer transition ${
                     selectedSection === section.section_id
-                      ? "bg-blue-100"
+                      ? "bg-sky-100"
                       : "bg-gray-50 hover:bg-gray-100"
                   }`}
                 >

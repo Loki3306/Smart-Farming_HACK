@@ -4,7 +4,7 @@ Endpoints for searching agricultural products from Indian marketplaces
 Completely independent from ML recommendation system
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict
 from datetime import datetime
@@ -12,6 +12,7 @@ import logging
 
 # Real Serper API integration - 2500 free calls/month
 from app.services.indian_marketplace_serper import IndianMarketplaceScraper
+from app.db.base import get_db_connection
 
 logger = logging.getLogger(__name__)
 

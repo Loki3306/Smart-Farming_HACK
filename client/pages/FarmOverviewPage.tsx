@@ -287,9 +287,9 @@ const FarmOverviewPage: React.FC = () => {
 
           <button
             onClick={handleEditClick}
-            className="quick-action opacity-0 inline-flex items-center gap-2 px-5 py-3 bg-white dark:bg-gray-800 rounded-full shadow-sm border-2 border-transparent hover:border-blue-400 hover:shadow-lg transition-all duration-300"
+            className="quick-action opacity-0 inline-flex items-center gap-2 px-5 py-3 bg-white dark:bg-gray-800 rounded-full shadow-sm border-2 border-transparent hover:border-sky-400 hover:shadow-lg transition-all duration-300"
           >
-            <Pencil className="w-5 h-5 text-blue-600" />
+            <Pencil className="w-5 h-5 text-sky-600" />
             <span className="font-medium text-gray-700 dark:text-gray-200">
               Edit Farm
             </span>
@@ -393,14 +393,14 @@ const FarmOverviewPage: React.FC = () => {
         {farmData.waterSources && farmData.waterSources.length > 0 && (
           <div className="mt-8">
             <h2 className="text-xl font-semibold text-gray-800 dark:text-white flex items-center gap-2 mb-4">
-              <Waves className="w-5 h-5 text-blue-500" />
+              <Waves className="w-5 h-5 text-sky-500" />
               Water Sources
             </h2>
             <div className="flex flex-wrap gap-3">
               {farmData.waterSources.map((source, i) => (
                 <div
                   key={source.id}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 rounded-full"
                   style={{ animationDelay: `${i * 100}ms` }}
                 >
                   <Droplets className="w-4 h-4" />
@@ -438,7 +438,7 @@ const StatCard: React.FC<StatCardProps> = ({
 
   const colors = {
     emerald: "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600",
-    blue: "bg-blue-50 dark:bg-blue-900/20 text-blue-600",
+    blue: "bg-sky-50 dark:bg-sky-900/20 text-sky-600",
     cyan: "bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600",
     amber: "bg-amber-50 dark:bg-amber-900/20 text-amber-600",
   };
@@ -573,7 +573,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
         )}
 
         {section.irrigationType && (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-medium rounded-full">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400 text-xs font-medium rounded-full">
             <Droplet className="w-3.5 h-3.5" />
             {section.irrigationType}
           </span>
@@ -582,12 +582,12 @@ const SectionCard: React.FC<SectionCardProps> = ({
 
       {/* Water source info */}
       {waterSource && (
-        <div className="mt-4 flex items-center gap-2 px-3 py-2 bg-blue-50/50 dark:bg-blue-900/20 rounded-xl">
-          <Waves className="w-4 h-4 text-blue-500" />
-          <span className="text-sm font-medium text-blue-700 dark:text-blue-400">
+        <div className="mt-4 flex items-center gap-2 px-3 py-2 bg-sky-50/50 dark:bg-sky-900/20 rounded-xl">
+          <Waves className="w-4 h-4 text-sky-500" />
+          <span className="text-sm font-medium text-sky-700 dark:text-sky-400">
             {waterSource.name}
           </span>
-          <span className="text-xs text-blue-500 ml-auto">
+          <span className="text-xs text-sky-500 ml-auto">
             {section.nearestWaterSource?.distance.toFixed(0)}m
           </span>
         </div>
@@ -610,7 +610,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
             onClick={(e) => {
               e.stopPropagation();
             }}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-medium text-sm rounded-xl transition-colors"
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-sky-500 hover:bg-sky-600 text-white font-medium text-sm rounded-xl transition-colors"
           >
             <Droplets className="w-4 h-4" />
             Irrigate

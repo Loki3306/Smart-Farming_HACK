@@ -734,7 +734,7 @@ export const FarmOnboarding: React.FC = () => {
                   </div>
 
                   {/* GPS Location Button */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+                  <div className="bg-sky-50 border border-sky-200 rounded-lg p-4 space-y-3">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-medium flex items-center gap-2">
@@ -926,7 +926,7 @@ export const FarmOnboarding: React.FC = () => {
                     data.
                   </p>
 
-                  <div className="bg-gradient-to-br from-emerald-50 to-blue-50 border border-emerald-200 rounded-xl p-6 text-center space-y-4">
+                  <div className="bg-gradient-to-br from-emerald-50 to-sky-50 border border-emerald-200 rounded-xl p-6 text-center space-y-4">
                     {!farmData.sensorConnected ? (
                       <>
                         <div className="w-20 h-20 mx-auto bg-card rounded-full flex items-center justify-center shadow-md">

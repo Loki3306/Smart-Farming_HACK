@@ -127,7 +127,7 @@ export function ChatWindow({ conversation, onBack, onClose }: ChatWindowProps) {
                   conversation_id: conversation.id,
                   sender_id: user.id,
                   receiver_id: conversation.other_user.id,
-                  content: "📱 Conversation shifted to WhatsApp",
+                  content: "Conversation shifted to WhatsApp",
                   message_type: "system"
               })
           });

@@ -208,15 +208,15 @@ export const SoilAnalysisReport: React.FC<SoilAnalysisReportProps> = ({
           {(soilData.pH || soilData.moisture) && (
             <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t">
               {soilData.pH && (
-                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div className="p-3 bg-sky-50 dark:bg-sky-900/20 rounded-lg border border-sky-200 dark:border-sky-800">
                   <p className="text-sm text-muted-foreground">Soil pH</p>
-                  <p className="text-xl font-bold text-blue-600">
+                  <p className="text-xl font-bold text-sky-600">
                     {soilData.pH.toFixed(1)}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {soilData.pH >= 6.0 && soilData.pH <= 7.5
-                      ? "✅ Optimal"
-                      : "⚠️ Needs adjustment"}
+                      ? "Optimal"
+                      : "Needs adjustment"}
                   </p>
                 </div>
               )}
@@ -228,8 +228,8 @@ export const SoilAnalysisReport: React.FC<SoilAnalysisReportProps> = ({
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {soilData.moisture >= 40 && soilData.moisture <= 80
-                      ? "✅ Good"
-                      : "⚠️ Check irrigation"}
+                      ? "Good"
+                      : "Check irrigation"}
                   </p>
                 </div>
               )}

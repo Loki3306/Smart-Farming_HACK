@@ -60,7 +60,7 @@ export const FarmMappingPage: React.FC = () => {
       <div className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Map className="w-8 h-8 text-blue-600" />
+            <Map className="w-8 h-8 text-sky-600" />
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
                 Farm Mapping System
@@ -132,14 +132,14 @@ export const FarmMappingPage: React.FC = () => {
       </div>
 
       {/* Instructions Banner */}
-      <div className="bg-blue-50 border-t border-blue-100 px-6 py-3">
+      <div className="bg-sky-50 border-t border-sky-100 px-6 py-3">
         <div className="flex items-start gap-3">
-          <Info className="w-5 h-5 text-blue-600 mt-0.5" />
+          <Info className="w-5 h-5 text-sky-600 mt-0.5" />
           <div className="flex-1">
-            <h3 className="text-sm font-semibold text-blue-900 mb-1">
+            <h3 className="text-sm font-semibold text-sky-900 mb-1">
               Getting Started
             </h3>
-            <ul className="text-xs text-blue-800 space-y-1">
+            <ul className="text-xs text-sky-800 space-y-1">
               <li>
                 • <strong>Tip:</strong> Click "My Location" button to center the
                 map on your current GPS position

@@ -23,6 +23,7 @@ import { motion } from "framer-motion";
 import { CropSelector } from "@/components/ui/CropSelector";
 import { CropAdvisor } from "@/components/dashboard/CropAdvisor";
 import { PrecisionAgriculture } from "@/components/dashboard/PrecisionAgriculture";
+import { SoilAnalyticsCard } from "@/components/dashboard/SoilAnalyticsCard";
 import { IoTService } from "@/services/IoTService";
 
 interface FarmData {
@@ -240,7 +241,7 @@ export const Farm: React.FC = () => {
       });
 
       if (response.ok) {
-        console.log("[Farm] ✅ Farm data saved successfully");
+        console.log("[Farm] Farm data saved successfully");
 
         // Re-fetch persisted farm data from backend to verify save survives refresh.
         const refreshed = await fetch(`/api/farms/${farmId}`);
@@ -268,7 +269,7 @@ export const Farm: React.FC = () => {
 
         setIsEditing(false);
       } else {
-        console.error("[Farm] ❌ Failed to save farm data");
+        console.error("[Farm] Failed to save farm data");
       }
     } catch (error) {
       console.error("[Farm] Error saving farm data:", error);
@@ -628,84 +629,16 @@ export const Farm: React.FC = () => {
 
       {/* Soil Stats Section */}
       <div data-tour-id="farm-soil-analytics">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-foreground">
-            {t("sections.analytics.title")}
-          </h2>
-          {usesDemoSensorData && (
-            <Badge variant="secondary" className="text-xs">
-              <Info className="w-3 h-3 mr-1" />
-              {t("sections.analytics.demo")}
-            </Badge>
-          )}
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <Card className="p-4 text-center">
-            <Droplets className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-foreground">
-              {soilStats.moisture}%
-            </p>
-            <p className="text-sm text-muted-foreground">
-              {t("sections.analytics.moisture")}
-            </p>
-          </Card>
-
-          <Card className="p-4 text-center">
-            <Thermometer className="w-8 h-8 text-orange-500 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-foreground">
-              {soilStats.temperature}°C
-            </p>
-            <p className="text-sm text-muted-foreground">
-              {t("sections.analytics.temperature")}
-            </p>
-          </Card>
-
-          <Card className="p-4 text-center">
-            <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-2">
-              <span className="text-purple-600 font-bold text-sm">pH</span>
-            </div>
-            <p className="text-2xl font-bold text-foreground">{soilStats.ph}</p>
-            <p className="text-sm text-muted-foreground">
-              {t("sections.analytics.ph")}
-            </p>
-          </Card>
-
-          <Card className="p-4 text-center">
-            <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-2">
-              <span className="text-green-600 font-bold text-sm">N</span>
-            </div>
-            <p className="text-2xl font-bold text-foreground">
-              {soilStats.nitrogen}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              {t("sections.analytics.nitrogen")}
-            </p>
-          </Card>
-
-          <Card className="p-4 text-center">
-            <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-2">
-              <span className="text-yellow-600 font-bold text-sm">P</span>
-            </div>
-            <p className="text-2xl font-bold text-foreground">
-              {soilStats.phosphorus}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              {t("sections.analytics.phosphorus")}
-            </p>
-          </Card>
-
-          <Card className="p-4 text-center">
-            <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-2">
-              <span className="text-red-600 font-bold text-sm">K</span>
-            </div>
-            <p className="text-2xl font-bold text-foreground">
-              {soilStats.potassium}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              {t("sections.analytics.potassium")}
-            </p>
-          </Card>
-        </div>
+        <SoilAnalyticsCard
+          moisture={soilStats.moisture}
+          temperature={soilStats.temperature}
+          ph={soilStats.ph}
+          nitrogen={soilStats.nitrogen}
+          phosphorus={soilStats.phosphorus}
+          potassium={soilStats.potassium}
+          ec={soilStats.ec}
+          humidity={soilStats.humidity}
+        />
       </div>
 
       {/* Strategic Crop Advisor */}
@@ -735,14 +668,14 @@ export const Farm: React.FC = () => {
           <div className="flex-1">
             <div className="h-4 bg-muted rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full transition-all duration-500"
-                style={{ width: "78%" }}
+                className="h-full bg-gradient-to-r from-primary to-primary/70 rounded-full transition-all duration-500"
+                style={{ width: "78%" } as React.CSSProperties}
               />
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Leaf className="w-5 h-5 text-green-500" />
-            <span className="text-xl font-bold text-green-600">78%</span>
+            <Leaf className="w-5 h-5 text-primary" />
+            <span className="text-xl font-bold text-primary">78%</span>
             <span className="text-muted-foreground">
               {t("sections.health.status")}
             </span>

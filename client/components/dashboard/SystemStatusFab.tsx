@@ -51,7 +51,7 @@ export const SystemStatusFab: React.FC = () => {
         animate={{ opacity: isOpen ? 0 : 1, y: isOpen ? 10 : 0 }}
         transition={{ delay: 1 }}
       >
-        {isAutonomous ? "🤖 AI Status" : "🔒 Manual Mode"}
+        {isAutonomous ? "AI Status" : "Manual Mode"}
       </motion.div>
 
       {/* Chart Modal */}

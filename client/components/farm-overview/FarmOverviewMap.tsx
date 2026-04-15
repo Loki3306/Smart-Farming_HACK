@@ -76,8 +76,8 @@ const FarmOverviewMap: React.FC<FarmOverviewMapProps> = ({
       );
 
       const boundaryLayer = L.polygon(coordinates, {
-        color: "#3b82f6",
-        fillColor: "#3b82f6",
+        color: "#5ba3d0",
+        fillColor: "#5ba3d0",
         fillOpacity: 0.1,
         weight: 3,
         dashArray: "10, 5",
@@ -202,7 +202,7 @@ const FarmOverviewMap: React.FC<FarmOverviewMapProps> = ({
         <h4 className="font-semibold text-sm mb-2">Map Legend</h4>
         <div className="space-y-2 text-xs">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 border-2 border-blue-500 bg-blue-500 bg-opacity-10"></div>
+            <div className="w-4 h-4 border-2 border-sky-500 bg-sky-500 bg-opacity-10"></div>
             <span>Farm Boundary</span>
           </div>
           <div className="flex items-center gap-2">

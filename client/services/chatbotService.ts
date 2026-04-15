@@ -148,7 +148,7 @@ class ChatbotService {
               }
               if (data.model) {
                 winningModel = data.model;
-                console.log(`🏆 Winning model: ${winningModel}`);
+                console.log(`Winning model: ${winningModel}`);
               }
             } catch (e) {
               // Skip invalid JSON
